@@ -46,7 +46,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
 	g->left = 0;
 	g->right = 100000000;
-	g->axis_width = 65;
+	g->axis_width = 70;
 	g->tick_width = 10;
 	g->minor_tick_width = 5;
 	g->scroll_amount = 0.1;
@@ -441,7 +441,7 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 		cairo_save(cr);
 		cairo_translate(cr, 0, 0);
 		cairo_rotate(cr, 3*M_PI/2);
-		snprintf(buf, 20, "%.1Le", x);
+		snprintf(buf, 20, "%.3Le", x);
 		cairo_move_to(cr, -g->widget.allocation.height+5, screen_x);
 		cairo_show_text(cr, buf);
 		cairo_restore(cr);
