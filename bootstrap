@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "x$1" = "x--clean" ]
+then
+	if [ -f Makefile ]
+	then
+		make distclean
+	fi
+	rm -rf aclocal.m4 Makefile.in depcomp Makefile.in autom4te.cache compile configure install-sh missing
+else
+	touch config.h.in
+	aclocal && \
+	autoconf && \
+	automake --gnu --add-missing --copy
+fi
