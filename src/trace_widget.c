@@ -524,37 +524,39 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
 		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
 
-		for(; comm_event < g->event_sets->sets[cpu].num_comm_events; comm_event++) {
-			uint64_t time = g->event_sets->sets[cpu].comm_events[comm_event].time;
+		if(comm_event != -1) {
+			for(; comm_event < g->event_sets->sets[cpu].num_comm_events; comm_event++) {
+				uint64_t time = g->event_sets->sets[cpu].comm_events[comm_event].time;
 
-			if(g->event_sets->sets[cpu].comm_events[comm_event].time > g->right)
-				break;
+				if(g->event_sets->sets[cpu].comm_events[comm_event].time > g->right)
+					break;
 
-			if((long double)time >= g->left && (long double)time <= g->right)
-			{
-				int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
+				if((long double)time >= g->left && (long double)time <= g->right)
+				{
+					int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
 
-				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
-				int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
+					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
+					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
 
-				int y1 = (cpu < dst_cpu) ? cpu : dst_cpu;
-				int y2 = (cpu < dst_cpu) ? dst_cpu : cpu;
+					int y1 = (cpu < dst_cpu) ? cpu : dst_cpu;
+					int y2 = (cpu < dst_cpu) ? dst_cpu : cpu;
 
-				if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
-					cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
-					cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
-					cairo_stroke(cr);
-					num_events_drawn++;
+					if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
+						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
+						cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
+						cairo_stroke(cr);
+						num_events_drawn++;
 
-					if(lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 >= y2) {
-						lines_painted[(int)screen_x].y1 = y1;
-					} else if(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 < y2) {
-						lines_painted[(int)screen_x].y2 = y2;
-					} else if((lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 < y2) ||
-						(y2 - y1 > lines_painted[(int)screen_x].y2 - lines_painted[(int)screen_x].y1))
-					{
-						lines_painted[(int)screen_x].y1 = y1;
-						lines_painted[(int)screen_x].y2 = y2;
+						if(lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 >= y2) {
+							lines_painted[(int)screen_x].y1 = y1;
+						} else if(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 < y2) {
+							lines_painted[(int)screen_x].y2 = y2;
+						} else if((lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 < y2) ||
+							  (y2 - y1 > lines_painted[(int)screen_x].y2 - lines_painted[(int)screen_x].y1))
+						{
+							lines_painted[(int)screen_x].y1 = y1;
+							lines_painted[(int)screen_x].y2 = y2;
+						}
 					}
 				}
 			}
@@ -578,26 +580,28 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 		int last_ev_px = -1;
 		int single_event = event_set_get_first_single_event_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
 
-		for(; single_event < g->event_sets->sets[cpu].num_single_events; single_event++) {
-			uint64_t time = g->event_sets->sets[cpu].single_events[single_event].time;
-			int type = g->event_sets->sets[cpu].single_events[single_event].type;
+		if(single_event != -1) {
+			for(; single_event < g->event_sets->sets[cpu].num_single_events; single_event++) {
+				uint64_t time = g->event_sets->sets[cpu].single_events[single_event].time;
+				int type = g->event_sets->sets[cpu].single_events[single_event].type;
 
-			if(g->event_sets->sets[cpu].single_events[single_event].time > g->right)
-				break;
+				if(g->event_sets->sets[cpu].single_events[single_event].time > g->right)
+					break;
 
-			long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
-			if(last_ev_px < (int)(screen_x)) {
-				last_ev_px = (int)(screen_x);
+				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
+				if(last_ev_px < (int)(screen_x)) {
+					last_ev_px = (int)(screen_x);
 
-				cairo_move_to(cr, screen_x,  cpu*cpu_height + 3);
-				cairo_line_to(cr, screen_x,  (cpu+1)*cpu_height - 3);
-				cairo_stroke(cr);
+					cairo_move_to(cr, screen_x,  cpu*cpu_height + 3);
+					cairo_line_to(cr, screen_x,  (cpu+1)*cpu_height - 3);
+					cairo_stroke(cr);
 
-				cairo_rectangle(cr, screen_x, cpu*cpu_height + 3, 4, 4);
-				cairo_fill(cr);
+					cairo_rectangle(cr, screen_x, cpu*cpu_height + 3, 4, 4);
+					cairo_fill(cr);
 
-				cairo_move_to(cr, screen_x+5,  (cpu+1)*cpu_height - 3);
-				cairo_show_text(cr, event_chars[type]);
+					cairo_move_to(cr, screen_x+5,  (cpu+1)*cpu_height - 3);
+					cairo_show_text(cr, event_chars[type]);
+				}
 			}
 		}
 	}
