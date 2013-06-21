@@ -85,6 +85,7 @@ void gtk_trace_get_bounds(GtkWidget *widget, long double* left, long double* rig
 void gtk_trace_set_draw_states(GtkWidget *widget, int val);
 void gtk_trace_set_draw_comm(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
+void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

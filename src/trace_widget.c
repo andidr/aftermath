@@ -96,9 +96,6 @@ void gtk_trace_destroy(GtkObject *object)
 
 	class = gtk_type_class(gtk_widget_get_type());
 
-	if(trace->back_buffer)
-		cairo_surface_destroy(trace->back_buffer);
-
 	if (GTK_OBJECT_CLASS(class)->destroy) {
 		(* GTK_OBJECT_CLASS(class)->destroy)(object);
 	}
@@ -662,6 +659,28 @@ void gtk_trace_set_draw_single_events(GtkWidget *widget, int val)
 	g->draw_single_events = val;
 
 	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
+void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int value_changed = (val != g->double_buffering);
+
+	g->double_buffering = val;
+
+	if(g->back_buffer) {
+		cairo_surface_destroy(g->back_buffer);
+		g->back_buffer = NULL;
+	}
+
+	if(g->double_buffering && value_changed) {
+		g->back_buffer = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+							    widget->allocation.width,
+							    widget->allocation.height);
+	}
+
+	if(value_changed)
 		gtk_trace_paint(widget);
 }
 
