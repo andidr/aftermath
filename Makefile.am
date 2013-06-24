@@ -20,12 +20,15 @@ ostv_SOURCES = src/ostv.c \
 		src/globals.c \
 		src/marshal.h \
 		src/marshal.c \
+		src/dialogs.h \
+		src/dialogs.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
 ostv_LDFLAGS = -export-dynamic
 ostvdir=${datarootdir}/ostv
-dist_ostv_DATA = share/ui/ostv.glade
+dist_ostv_DATA = share/ui/ostv.glade \
+		share/ui/goto_dialog.glade
 
 clean-local:
 	-find . -iname "*~" | xargs rm

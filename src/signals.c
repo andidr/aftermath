@@ -19,6 +19,7 @@
 #include "globals.h"
 #include "trace_widget.h"
 #include <inttypes.h>
+#include "dialogs.h"
 
 G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 {
@@ -61,6 +62,39 @@ G_MODULE_EXPORT void toolbar_draw_single_events_toggled(GtkToggleToolButton *but
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)
 {
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));
+}
+
+G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
+{
+	double start = multi_event_set_first_event_start(&g_mes);
+	double end = multi_event_set_last_event_end(&g_mes);
+	long double left, right, new_left, new_right, range;
+	double time;
+
+	gtk_trace_get_bounds(g_trace_widget, &left, &right);
+	range = right - left;
+
+	if(show_goto_dialog(start, end, (double)((left+right)/2.0), &time)) {
+		new_left = time - (range / 2);
+		new_right = new_left + range;
+
+		if(new_left < 0) {
+			new_right -= new_left;
+			new_left = 0;
+
+			if(new_right > end)
+				new_right = end;
+		} else if(new_right > end) {
+			new_left -= new_right - end;
+			new_right = end;
+
+			if(new_left < 0)
+				new_left = 0;
+		}
+
+		gtk_trace_set_bounds(g_trace_widget, new_left, new_right);
+		trace_bounds_changed(GTK_TRACE(g_trace_widget), new_left, new_right, NULL);
+	}
 }
 
 static int react_to_scrollbar_change = 1;

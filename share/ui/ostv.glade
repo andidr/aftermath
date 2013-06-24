@@ -51,6 +51,15 @@
                         <signal name="toggled" handler="menubar_double_buffering_toggled"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="gototime">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Go to time</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_goto_time"/>
+                        <accelerator key="g" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
