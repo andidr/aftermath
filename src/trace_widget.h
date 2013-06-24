@@ -31,7 +31,8 @@ typedef struct _GtkTrace GtkTrace;
 typedef struct _GtkTraceClass GtkTraceClass;
 
 enum gtk_trace_signals {
-	GTK_TRACE_MAX_SIGNALS = 0
+	GTK_TRACE_BOUNDS_CHANGED = 0,
+	GTK_TRACE_MAX_SIGNALS
 };
 
 enum gtk_trace_modes {
@@ -66,6 +67,8 @@ struct _GtkTrace {
 
 struct _GtkTraceClass {
 	GtkWidgetClass parent_class;
+
+	void (* bounds_changed) (GtkTrace *t);
 };
 
 void gtk_trace_destroy(GtkObject *object);

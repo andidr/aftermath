@@ -16,6 +16,7 @@
  */
 
 #include "trace_widget.h"
+#include "marshal.h"
 #include <math.h>
 #include <inttypes.h>
 
@@ -23,7 +24,7 @@
 #define M_PI 3.141592654
 #endif
 
-gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS] = { };
+gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS] = { 0 };
 
 gint gtk_trace_scroll_event(GtkWidget* widget, GdkEventScroll* event);
 gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton* event);
@@ -121,6 +122,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
 	widget_class->button_release_event = gtk_trace_button_release_event;
 
 	object_class->destroy = gtk_trace_destroy;
+
+	gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED] =
+                g_signal_new("bounds-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
+                             G_TYPE_NONE, 2,
+                             G_TYPE_DOUBLE, G_TYPE_DOUBLE);
 }
 
 void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
@@ -268,7 +278,6 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	long double incr;
-	int zoom_x;
 	float zoom_factor;
 
 	if(event->state & GDK_SHIFT_MASK) {
@@ -279,10 +288,11 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 
 		g->left += incr;
 		g->right += incr;
+
+		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
 	}
 
 	if(!(event->state & GDK_CONTROL_MASK) && !(event->state & GDK_SHIFT_MASK)) {
-		zoom_x = (event->x > g->axis_width);
 		long double curr_x = gtk_trace_screen_x_to_trace(g, event->x);
 		long double width = g->right - g->left;
 
@@ -292,14 +302,14 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		else
 			zoom_factor = 1.0 / g->zoom_factor;
 
-		if(zoom_x) {
-			g->left -= (width / 2) * zoom_factor - width / 2;
-			g->right += (width / 2) * zoom_factor - width / 2;
+		g->left -= (width / 2) * zoom_factor - width / 2;
+		g->right += (width / 2) * zoom_factor - width / 2;
 
-			long double gxstar = gtk_trace_screen_x_to_trace(g, event->x);
-			g->left -= gxstar - curr_x;
-			g->right -= gxstar - curr_x;
-		}
+		long double gxstar = gtk_trace_screen_x_to_trace(g, event->x);
+		g->left -= gxstar - curr_x;
+		g->right -= gxstar - curr_x;
+
+		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
 	}
 
 	gtk_trace_paint(widget);
@@ -347,6 +357,8 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 		case GTK_TRACE_MODE_NAVIGATE:
 			g->left -= gtk_trace_screen_width_to_trace(g, diff_x);
 			g->right -= gtk_trace_screen_width_to_trace(g, diff_x);
+
+			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
 
 			g->last_mouse_x = event->x;
 			g->last_mouse_y = event->y;
