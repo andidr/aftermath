@@ -14,6 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+#include "signals.h"
 #include <gtk/gtk.h>
 #include "globals.h"
 #include "trace_widget.h"
@@ -27,6 +28,7 @@ G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 	printf("ZOOM TO %"PRIu64" %"PRIu64"\n", start, end);
 
 	gtk_trace_set_bounds(g_trace_widget, start, end);
+	trace_bounds_changed(GTK_TRACE(g_trace_widget), (double)start, (double)end, NULL);
 }
 
 G_MODULE_EXPORT void toolbar_rewind_clicked(GtkButton *button, gpointer data)
@@ -59,4 +61,34 @@ G_MODULE_EXPORT void toolbar_draw_single_events_toggled(GtkToggleToolButton *but
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)
 {
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));
+}
+
+static int react_to_scrollbar_change = 1;
+
+G_MODULE_EXPORT void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
+{
+	react_to_scrollbar_change = 0;
+	double start = multi_event_set_first_event_start(&g_mes);
+	double end = multi_event_set_last_event_end(&g_mes);
+	double page_size = right-left;
+
+	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(g_scroll_bar));
+
+	gtk_adjustment_set_lower(adj, start + page_size / 2.0);
+	gtk_adjustment_set_upper(adj, end + page_size / 2.0);
+	gtk_adjustment_set_page_size(adj, page_size);
+	gtk_adjustment_set_page_increment(adj, page_size);
+	gtk_adjustment_set_step_increment(adj, page_size / 10.0);
+	gtk_adjustment_set_value(adj, (left+right)/2.0);
+
+	react_to_scrollbar_change = 1;
+}
+
+G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
+{
+	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
+	double page_size = gtk_adjustment_get_page_size(adj);
+
+	if(react_to_scrollbar_change)
+		gtk_trace_set_bounds(g_trace_widget, value - page_size / 2.0, value + page_size / 2.0);
 }

@@ -18,4 +18,6 @@
 #include "globals.h"
 
 GtkWidget* g_trace_widget;
+GtkWidget* g_scroll_bar;
+
 struct multi_event_set g_mes = { .sets = NULL, .num_sets = 0, .num_sets_free = 0 };

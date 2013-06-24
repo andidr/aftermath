@@ -23,6 +23,7 @@
 #include "trace_widget.h"
 #include "paraver.h"
 #include "globals.h"
+#include "signals.h"
 
 int main(int argc, char** argv)
 {
@@ -44,11 +45,15 @@ int main(int argc, char** argv)
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
+	IMPORT_GLADE_WIDGET(xml, scroll_bar);
 
 	read_paraver_samples(&g_mes, tracefile);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
+
+	g_scroll_bar = scroll_bar;
 
 	gtk_widget_show_all(toplevel_window);
 

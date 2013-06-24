@@ -18,4 +18,8 @@
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
+#include "trace_widget.h"
+
+void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
+
 #endif

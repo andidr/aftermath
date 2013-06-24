@@ -22,6 +22,7 @@
 #include "events.h"
 
 extern GtkWidget* g_trace_widget;
+extern GtkWidget* g_scroll_bar;
 extern struct multi_event_set g_mes;
 
 #endif
