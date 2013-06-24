@@ -71,3 +71,6 @@ src/marshal.h: src/marshal.in
 
 src/marshal.c: src/marshal.in
 	glib-genmarshal --body $< > $@
+
+src/trace_widget.c: src/marshal.h
+src/trace_widget.h: src/marshal.h
