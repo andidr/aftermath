@@ -28,7 +28,8 @@ ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
 ostv_LDFLAGS = -export-dynamic
 ostvdir=${datarootdir}/ostv
 dist_ostv_DATA = share/ui/ostv.glade \
-		share/ui/goto_dialog.glade
+		share/ui/goto_dialog.glade \
+		share/ui/about_dialog.glade
 
 clean-local:
 	-find . -iname "*~" | xargs rm

@@ -19,5 +19,6 @@
 #define DIALOGS_H
 
 int show_goto_dialog(double start, double end, double curr_value, double* time);
+void show_about_dialog(void);
 
 #endif

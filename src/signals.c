@@ -64,6 +64,11 @@ G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gp
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));
 }
 
+G_MODULE_EXPORT void menubar_about(GtkMenuItem *item, gpointer data)
+{
+	show_about_dialog();
+}
+
 G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
 {
 	double start = multi_event_set_first_event_start(&g_mes);

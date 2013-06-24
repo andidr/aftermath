@@ -45,6 +45,18 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	return ret;
 }
 
+void show_about_dialog(void)
+{
+	GladeXML* xml = glade_xml_new(DATA_PATH "/about_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+}
+
 G_MODULE_EXPORT gint accept_dialog(GtkWidget *widget, gpointer data)
 {
         gtk_dialog_response(GTK_DIALOG(widget), GTK_RESPONSE_ACCEPT);
