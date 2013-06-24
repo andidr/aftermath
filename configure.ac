@@ -14,6 +14,7 @@ AC_C_PROTOTYPES
 AC_PROG_GREP
 AC_PROG_SED
 CHECK_CUSTOM_PROG(mkdir)
+CHECK_CUSTOM_PROG(glib-genmarshal)
 
 # Checks for libraries.
 

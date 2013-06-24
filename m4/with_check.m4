@@ -1,10 +1,10 @@
 AC_DEFUN([CHECK_CUSTOM_PROG],
 	[
 		PROG=$1
-		PROG_UPPER=translit([[$1]], [a-z], [A-Z])
+		PROG_UPPER=translit([[$1]], [a-z--], [A-Z_])
 
-		AC_PATH_PROG(translit([[$1]], [a-z], [A-Z]), $1)
-		if test "x$[]translit([[$1]], [a-z], [A-Z])" = x
+		AC_PATH_PROG(translit([[$1]], [a-z--], [A-Z_]), $1)
+		if test "x$[]translit([[$1]], [a-z--], [A-Z_])" = x
 		then
 			AC_ERROR([Could not find program $PROG.])
 		fi

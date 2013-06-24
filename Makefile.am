@@ -18,6 +18,8 @@ ostv_SOURCES = src/ostv.c \
 		src/signals.c \
 		src/globals.h \
 		src/globals.c \
+		src/marshal.h \
+		src/marshal.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -60,3 +62,9 @@ valgrind-check-%: % check-%
 
 whitespace-cleanup:
 	@./scripts/whitespace_cleanup.sh
+
+src/marshal.h: src/marshal.in
+	glib-genmarshal --header $< > $@
+
+src/marshal.c: src/marshal.in
+	glib-genmarshal --body $< > $@

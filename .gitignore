@@ -16,3 +16,5 @@ ostv
 stamp-h1
 TAGS
 test-driver
+src/marshal.h
+src/marshal.c
