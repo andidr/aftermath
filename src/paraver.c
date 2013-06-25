@@ -35,6 +35,7 @@ int read_paraver_samples(struct multi_event_set* mes, const char* file)
 	int worker;
 	uint64_t start;
 	int nsamples = 0;
+	int trash;
 	struct event_set* es;
 	struct state_event se;
 	struct comm_event ce;
@@ -60,8 +61,9 @@ int read_paraver_samples(struct multi_event_set* mes, const char* file)
 				break;
 
 			case 2:
-				fscanf(fp, "%d:1:1:%d:%"PRIu64":%d:1\n", &cpu, &worker, &sge.time, &sge.type);
+				fscanf(fp, "%d:1:1:%d:%"PRIu64":%d:1\n", &cpu, &worker, &sge.time, &trash);
 				cpu--;
+				sge.type = SINGLE_TYPE_TCREATE;
 				es = multi_event_set_find_alloc_cpu(mes, cpu);
 				event_set_add_single_event(es, &sge);
 				break;
@@ -79,6 +81,7 @@ int read_paraver_samples(struct multi_event_set* mes, const char* file)
 				cpu--;
 				ce.dst_cpu--;
 				ce.dst_worker--;
+				ce.type = COMM_TYPE_UNKNOWN;
 				es = multi_event_set_find_alloc_cpu(mes, cpu);
 				event_set_add_comm_event(es, &ce);
 				break;

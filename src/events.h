@@ -21,6 +21,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdint.h>
+#include "trace_file.h"
 
 #define SET_PREALLOC 5
 #define EVENT_PREALLOC (5*1024)
@@ -28,6 +29,7 @@
 struct state_event {
 	uint64_t start;
 	uint64_t end;
+	uint64_t active_task;
 	int state;
 };
 
@@ -36,11 +38,15 @@ struct comm_event {
 	int dst_cpu;
 	int dst_worker;
 	int size;
+	enum comm_event_type type;
+	uint64_t active_task;
+	uint64_t what;
 };
 
 struct single_event {
 	uint64_t time;
-	int type;
+	enum single_event_type type;
+	uint64_t active_task;
 };
 
 struct event_set {
@@ -252,5 +258,8 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 
 	free(mes->sets);
 }
+
+/* Read all trace samples from a file and store the result in mes */
+int read_trace_sample_file(struct multi_event_set* mes, const char* file);
 
 #endif

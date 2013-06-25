@@ -3,7 +3,7 @@ VALGRIND=valgrind
 bin_PROGRAMS = ostv
 TESTS =
 noinst_PROGRAMS = $(TESTS)
-LIB_CFLAGS = -D_POSIX_C_SOURCE=200112 -I$(srcdir)/src
+LIB_CFLAGS = -D_POSIX_C_SOURCE=200112 -I$(srcdir)/src -Wall
 TESTS_LDADD = -L. -lm
 TESTS_CFLAGS =  $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
@@ -22,6 +22,10 @@ ostv_SOURCES = src/ostv.c \
 		src/marshal.c \
 		src/dialogs.h \
 		src/dialogs.c \
+		src/trace_file.h \
+		src/trace_file.c \
+		src/detect.h \
+		src/detect.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@

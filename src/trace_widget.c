@@ -42,6 +42,10 @@ static double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(2
 				   {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
 				   {COL_NORM(235.0), COL_NORM(  0.0), COL_NORM(  0.0)}};
 
+static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
+				  {COL_NORM(225.0), COL_NORM(137.0), COL_NORM(  0.0)},
+				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)}};
+
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
@@ -531,7 +535,6 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	cairo_clip(cr);
 
 	cairo_set_line_width (cr, 1);
-	cairo_set_source_rgb(cr, 1.0, 1.0, 0);
 	int num_events_drawn = 0;
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
 		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
@@ -546,6 +549,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 				if((long double)time >= g->left && (long double)time <= g->right)
 				{
 					int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
+					int comm_type = g->event_sets->sets[cpu].comm_events[comm_event].type;
 
 					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
 					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
@@ -554,6 +558,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					int y2 = (cpu < dst_cpu) ? dst_cpu : cpu;
 
 					if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
+						cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
 						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
 						cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
 						cairo_stroke(cr);
@@ -582,7 +587,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
-	const char* event_chars[] = { "?", "?", "?", "C" };
+	const char* event_chars[] = { "C" };
 
 	cairo_set_source_rgb(cr, 0, 1.0, 0);
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);

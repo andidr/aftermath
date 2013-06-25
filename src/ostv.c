@@ -24,6 +24,8 @@
 #include "paraver.h"
 #include "globals.h"
 #include "signals.h"
+#include "detect.h"
+#include "dialogs.h"
 
 int main(int argc, char** argv)
 {
@@ -35,19 +37,35 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	gtk_init(&argc, &argv);
 	tracefile = argv[1];
 
-	printf("tf = %s, tf = %s\n", argv[1], tracefile);
+	enum trace_format format;
+	if(detect_trace_format(tracefile, &format)) {
+		show_error_message("Could not open file %s", tracefile);
+		return 1;
+	}
 
-	gtk_init(&argc, &argv);
+	if(format == TRACE_FORMAT_UNKNOWN) {
+		show_error_message("Cannot detect trace format of file %s", tracefile);
+		return 1;
+	} else if(format == TRACE_FORMAT_OSTV) {
+		if(read_trace_sample_file(&g_mes, tracefile) != 0) {
+			show_error_message("Cannot read samples from %s", tracefile);
+			return 1;
+		}
+	} else if(format == TRACE_FORMAT_PARAVER) {
+		if(read_paraver_samples(&g_mes, tracefile) != 0) {
+			show_error_message("Cannot read samples from %s", tracefile);
+			return 1;
+		}
+	}
 
 	xml = glade_xml_new(DATA_PATH "/ostv.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, scroll_bar);
-
-	read_paraver_samples(&g_mes, tracefile);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
