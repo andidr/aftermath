@@ -79,21 +79,41 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, u
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 void event_set_sort_comm(struct event_set* es);
 
-static inline int event_set_add_state_event(struct event_set* es, struct state_event* se)
+static inline int check_buffer_grow(void** buffer, int elem_size, int used, int* free, int prealloc_elems)
 {
 	void* ptr;
 
-	if(es->num_state_events_free == 0) {
-		if(!(ptr = realloc(es->state_events, (es->num_state_events+EVENT_PREALLOC)*sizeof(struct state_event)))) {
+	if(*free == 0) {
+		if(!(ptr = realloc(*buffer, (used+prealloc_elems)*elem_size))) {
 			return 1;
 		} else {
-			es->num_state_events_free = SET_PREALLOC;
-			es->state_events = ptr;
+			*free = prealloc_elems;
+			*buffer = ptr;
 		}
 	}
 
-	memcpy(&es->state_events[es->num_state_events++], se, sizeof(*se));
-	es->num_state_events_free--;
+	return 0;
+}
+
+static inline int add_buffer_grow(void** buffer, void* elem, int elem_size, int* used, int* free, int prealloc_elems)
+{
+	if(check_buffer_grow(buffer, elem_size, *used, free, prealloc_elems))
+		return 1;
+
+	void* addr = ((char*)(*buffer))+(elem_size*(*used));
+
+	memcpy(addr, elem, elem_size);
+	(*free)--;
+	(*used)++;
+
+	return 0;
+}
+
+static inline int event_set_add_state_event(struct event_set* es, struct state_event* se)
+{
+	add_buffer_grow((void**)&es->state_events, se, sizeof(*se),
+			&es->num_state_events, &es->num_state_events_free,
+			EVENT_PREALLOC);
 
 	if(se->start < es->first_start)
 		es->first_start = se->start;
@@ -106,19 +126,9 @@ static inline int event_set_add_state_event(struct event_set* es, struct state_e
 
 static inline int event_set_add_comm_event(struct event_set* es, struct comm_event* ce)
 {
-	void* ptr;
-
-	if(es->num_comm_events_free == 0) {
-		if(!(ptr = realloc(es->comm_events, (es->num_comm_events+EVENT_PREALLOC)*sizeof(struct comm_event)))) {
-			return 1;
-		} else {
-			es->num_comm_events_free = SET_PREALLOC;
-			es->comm_events = ptr;
-		}
-	}
-
-	memcpy(&es->comm_events[es->num_comm_events++], ce, sizeof(*ce));
-	es->num_comm_events_free--;
+	add_buffer_grow((void**)&es->comm_events, ce, sizeof(*ce),
+			&es->num_comm_events, &es->num_comm_events_free,
+			EVENT_PREALLOC);
 
 	if(ce->time < es->first_start)
 		es->first_start = ce->time;
@@ -131,19 +141,9 @@ static inline int event_set_add_comm_event(struct event_set* es, struct comm_eve
 
 static inline int event_set_add_single_event(struct event_set* es, struct single_event* se)
 {
-	void* ptr;
-
-	if(es->num_single_events_free == 0) {
-		if(!(ptr = realloc(es->single_events, (es->num_single_events+EVENT_PREALLOC)*sizeof(struct single_event)))) {
-			return 1;
-		} else {
-			es->num_single_events_free = SET_PREALLOC;
-			es->single_events = ptr;
-		}
-	}
-
-	memcpy(&es->single_events[es->num_single_events++], se, sizeof(*se));
-	es->num_single_events_free--;
+	add_buffer_grow((void**)&es->single_events, se, sizeof(*se),
+			&es->num_single_events, &es->num_single_events_free,
+			EVENT_PREALLOC);
 
 	if(se->time < es->first_start)
 		es->first_start = se->time;
@@ -202,16 +202,9 @@ static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int 
 
 static inline int multi_event_set_alloc(struct multi_event_set* mes, int cpu)
 {
-	void* ptr;
-
-	if(mes->num_sets_free == 0) {
-		if(!(ptr = realloc(mes->sets, (mes->num_sets+SET_PREALLOC)*sizeof(struct event_set)))) {
-			return 1;
-		} else {
-			mes->num_sets_free = SET_PREALLOC;
-			mes->sets = ptr;
-		}
-	}
+	check_buffer_grow((void**)&mes->sets, sizeof(struct event_set),
+			  mes->num_sets, &mes->num_sets_free,
+			  SET_PREALLOC);
 
 	mes->num_sets_free--;
 	event_set_init(&mes->sets[mes->num_sets++], cpu);
