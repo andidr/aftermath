@@ -21,7 +21,11 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "trace_file.h"
+#define _GNU_SOURCE
+#define __USE_GNU 1
+#include <search.h>
 
 #define SET_PREALLOC 5
 #define EVENT_PREALLOC (5*1024)
@@ -67,12 +71,24 @@ struct event_set {
 	uint64_t last_end;
 };
 
+struct task {
+	uint64_t work_fn;
+};
+
 struct multi_event_set {
 	struct event_set* sets;
 	int num_sets;
 	int num_sets_free;
+
+	struct task* tasks;
+	int num_tasks;
+	int num_tasks_free;
 };
 
+struct task_tree {
+	void* root;
+	int num_tasks;
+};
 
 int event_set_get_first_state_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
@@ -244,12 +260,59 @@ static inline uint64_t multi_event_set_last_event_end(struct multi_event_set* me
 	return end;
 }
 
+int compare_tasks(const void *pt1, const void *pt2);
+
+static inline struct task* multi_event_set_find_task(struct multi_event_set* mes, struct task* t)
+{
+	return bsearch(t, mes->tasks, mes->num_tasks, sizeof(struct task), compare_tasks);
+}
+
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
 	for(int set = 0; set < mes->num_sets; set++)
 		event_set_destroy(&mes->sets[set]);
 
 	free(mes->sets);
+	free(mes->tasks);
+}
+
+static inline void task_tree_init(struct task_tree* tt)
+{
+	tt->root = NULL;
+	tt->num_tasks = 0;
+}
+
+static inline struct task* task_tree_find(struct task_tree* tt, uint64_t work_fn)
+{
+	struct task key = { .work_fn = work_fn };
+	return tfind(&key, &tt->root, compare_tasks);
+}
+
+static inline struct task* task_tree_add(struct task_tree* tt, uint64_t work_fn)
+{
+	struct task* key = malloc(sizeof(struct task));
+
+	if(!key)
+		return NULL;
+
+	key->work_fn = work_fn;
+
+	if(tsearch(key, &tt->root, compare_tasks) == NULL) {
+		free(key);
+		return NULL;
+	}
+
+	tt->num_tasks++;
+
+	return key;
+}
+
+void task_tree_walk(const void* p, const VISIT which, const int depth);
+int task_tree_to_array(struct task_tree* tt, struct task** arr);
+
+static inline void task_tree_destroy(struct task_tree* tt)
+{
+	tdestroy(tt->root, free);
 }
 
 /* Read all trace samples from a file and store the result in mes */

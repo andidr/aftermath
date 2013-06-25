@@ -132,7 +132,7 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 	return center_idx;
 }
 
-int read_trace_samples(struct multi_event_set* mes, FILE* fp)
+int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* fp)
 {
 	struct trace_event_header dsk_eh;
 	struct trace_state_event dsk_se;
@@ -144,6 +144,8 @@ int read_trace_samples(struct multi_event_set* mes, FILE* fp)
 	struct comm_event ce;
 	struct single_event sge;
 
+	struct task* last_task = NULL;
+
 	while(!feof(fp)) {
 		if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, 0) != 0) {
 			if(feof(fp))
@@ -151,6 +153,9 @@ int read_trace_samples(struct multi_event_set* mes, FILE* fp)
 			else
 				return 1;
 		}
+
+		if(!last_task || (last_task->work_fn != dsk_eh.active_task && !task_tree_find(tt, dsk_eh.active_task)))
+			last_task = task_tree_add(tt, dsk_eh.active_task);
 
 		if(dsk_eh.type == EVENT_TYPE_STATE) {
 			memcpy(&dsk_se, &dsk_eh, sizeof(dsk_eh));
@@ -193,9 +198,48 @@ int read_trace_samples(struct multi_event_set* mes, FILE* fp)
 	return 0;
 }
 
+int compare_tasks(const void *pt1, const void *pt2)
+{
+	const struct task* t1 = pt1;
+	const struct task* t2 = pt2;
+
+	if(t1->work_fn < t2->work_fn)
+		return -1;
+	else if(t1->work_fn > t2->work_fn)
+		return 1;
+
+	return 0;
+}
+
+/* Ugly thread local variables needed for reentrance of twalk */
+__thread struct task* curr_tt_array;
+__thread int curr_tt_array_index;
+
+void task_tree_walk(const void* p, const VISIT which, const int depth)
+{
+	if(which == leaf) {
+		struct task* t = *((struct task**)p);
+		memcpy(&curr_tt_array[curr_tt_array_index++], t, sizeof(struct task));
+	}
+}
+
+int task_tree_to_array(struct task_tree* tt, struct task** arr)
+{
+	if(!(*arr = malloc(tt->num_tasks*sizeof(struct task))))
+		return 1;
+
+	curr_tt_array = *arr;
+	curr_tt_array_index = 0;
+
+	twalk(tt->root, task_tree_walk);
+	return 0;
+}
+
 int read_trace_sample_file(struct multi_event_set* mes, const char* file)
 {
 	struct trace_header header;
+	struct task_tree tt;
+
 	int res = 1;
 	FILE* fp;
 
@@ -208,16 +252,25 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file)
 	if(!trace_verify_header(&header))
 		goto out_fp;
 
-	if(read_trace_samples(mes, fp) != 0)
+	task_tree_init(&tt);
+
+	if(read_trace_samples(mes, &tt, fp) != 0)
 		goto out_fp;
 
 	multi_event_set_sort_by_cpu(mes);
+
+	if(task_tree_to_array(&tt, &mes->tasks) != 0)
+		goto out_tt;
+
+	mes->num_tasks = tt.num_tasks;
 
 	for(int i = 0; i < mes->num_sets; i++)
 		event_set_sort_comm(&mes->sets[i]);
 
 	res = 0;
 
+out_tt:
+	task_tree_destroy(&tt);
 out_fp:
 	fclose(fp);
 out:
