@@ -21,7 +21,7 @@
 #include <inttypes.h>
 #include "dialogs.h"
 
-G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
+void reset_zoom(void)
 {
 	uint64_t start = multi_event_set_first_event_start(&g_mes);
 	uint64_t end = multi_event_set_last_event_end(&g_mes);
@@ -30,6 +30,11 @@ G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 
 	gtk_trace_set_bounds(g_trace_widget, start, end);
 	trace_bounds_changed(GTK_TRACE(g_trace_widget), (double)start, (double)end, NULL);
+}
+
+G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
+{
+	reset_zoom();
 }
 
 G_MODULE_EXPORT void toolbar_rewind_clicked(GtkButton *button, gpointer data)

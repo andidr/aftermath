@@ -57,6 +57,8 @@ int main(int argc, char** argv)
 
 	gtk_widget_show_all(toplevel_window);
 
+	reset_zoom();
+
 	gtk_main();
 
 	multi_event_set_destroy(&g_mes);

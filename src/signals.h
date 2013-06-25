@@ -20,6 +20,7 @@
 
 #include "trace_widget.h"
 
+void reset_zoom(void);
 void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
 
 #endif
