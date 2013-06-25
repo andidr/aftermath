@@ -132,7 +132,8 @@ G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value,
 {
 	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
 	double page_size = gtk_adjustment_get_page_size(adj);
+	double curr_value = gtk_adjustment_get_value(adj);
 
 	if(react_to_scrollbar_change)
-		gtk_trace_set_bounds(g_trace_widget, value - page_size / 2.0, value + page_size / 2.0);
+		gtk_trace_set_bounds(g_trace_widget, curr_value - page_size / 2.0, curr_value + page_size / 2.0);
 }
