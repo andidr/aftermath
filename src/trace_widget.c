@@ -589,6 +589,9 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	double cpu_height = gtk_trace_cpu_height(g);
 	const char* event_chars[] = { "C" };
 
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
+	cairo_clip(cr);
+
 	cairo_set_source_rgb(cr, 0, 1.0, 0);
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size(cr, 8);
@@ -622,6 +625,8 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 			}
 		}
 	}
+
+	cairo_reset_clip(cr);
 }
 
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right)
