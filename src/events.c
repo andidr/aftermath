@@ -58,7 +58,7 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 {
 	int start_idx = 0;
 	int end_idx = es->num_state_events;
-	int center_idx;
+	int center_idx = 0;
 
 	if(es->num_state_events == 0)
 		return -1;
@@ -84,7 +84,7 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval
 {
 	int start_idx = 0;
 	int end_idx = es->num_comm_events;
-	int center_idx;
+	int center_idx = 0;
 
 	if(es->num_comm_events == 0)
 		return -1;
@@ -110,7 +110,7 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 {
 	int start_idx = 0;
 	int end_idx = es->num_single_events;
-	int center_idx;
+	int center_idx = 0;
 
 	if(es->num_single_events == 0)
 		return -1;
