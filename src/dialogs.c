@@ -21,6 +21,27 @@
 #include <glade/glade.h>
 #include <math.h>
 
+/**
+ * A simple message dialog. Format is a printf-style format string.
+ */
+void show_error_message(char* format, ...)
+{
+	char buff[1024];
+	va_list ap;
+
+	va_start(ap, format);
+	vsnprintf(buff, sizeof(buff), format, ap);
+	va_end(ap);
+
+	GtkWidget* dialog = gtk_message_dialog_new (NULL,
+				GTK_DIALOG_DESTROY_WITH_PARENT,
+				GTK_MESSAGE_ERROR,
+				GTK_BUTTONS_CLOSE,
+				buff);
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_destroy (dialog);
+}
+
 int show_goto_dialog(double start, double end, double curr_value, double* time)
 {
 	int ret = 0;
