@@ -14,6 +14,8 @@ ostv_SOURCES = src/ostv.c \
 		src/buffer.c \
 		src/events.h \
 		src/events.c \
+		src/filter.h \
+		src/filter.c \
 		src/paraver.h \
 		src/paraver.c \
 		src/signals.h \
