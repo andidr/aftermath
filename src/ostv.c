@@ -26,6 +26,7 @@
 #include "signals.h"
 #include "detect.h"
 #include "dialogs.h"
+#include "task_list.h"
 
 int main(int argc, char** argv)
 {
@@ -66,12 +67,19 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, scroll_bar);
+	IMPORT_GLADE_WIDGET(xml, task_treeview);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 
 	g_scroll_bar = scroll_bar;
+	g_task_treeview = task_treeview;
+
+	task_list_init(GTK_TREE_VIEW(g_task_treeview));
+	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
+
+	filter_init(&g_filter);
 
 	gtk_widget_show_all(toplevel_window);
 
@@ -80,6 +88,7 @@ int main(int argc, char** argv)
 	gtk_main();
 
 	multi_event_set_destroy(&g_mes);
+	filter_destroy(&g_filter);
 
 	return 0;
 }

@@ -20,6 +20,7 @@
 #include "trace_widget.h"
 #include <inttypes.h>
 #include "dialogs.h"
+#include "task_list.h"
 
 void reset_zoom(void)
 {
@@ -136,4 +137,23 @@ G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value,
 
 	if(react_to_scrollbar_change)
 		gtk_trace_set_bounds(g_trace_widget, curr_value - page_size / 2.0, curr_value + page_size / 2.0);
+}
+
+G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	filter_clear_tasks(&g_filter);
+	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
+
+	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	gtk_trace_paint(g_trace_widget);
+}
+
+G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	task_list_check_all(GTK_TREE_VIEW(g_task_treeview));
+}
+
+G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }

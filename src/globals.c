@@ -19,6 +19,7 @@
 
 GtkWidget* g_trace_widget;
 GtkWidget* g_scroll_bar;
+GtkWidget* g_task_treeview;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
@@ -26,3 +27,5 @@ struct multi_event_set g_mes = { .sets = NULL,
 				 .num_tasks = 0,
 				 .num_tasks_free = 0,
 				 .tasks = NULL};
+
+struct filter g_filter;
