@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS=-I m4
 VALGRIND=valgrind
 bin_PROGRAMS = ostv
+bin_SCRIPTS = ostv-debug-syms
 TESTS =
 noinst_PROGRAMS = $(TESTS)
 LIB_CFLAGS = -D_POSIX_C_SOURCE=200112 -I$(srcdir)/src -Wall
@@ -30,6 +31,8 @@ ostv_SOURCES = src/ostv.c \
 		src/trace_file.c \
 		src/detect.h \
 		src/detect.c \
+		src/debug.h \
+		src/debug.c \
 		src/task_list.h \
 		src/task_list.c \
 		$(UNIT_TEST_SOURCES)
@@ -85,3 +88,7 @@ src/marshal.c: src/marshal.in
 
 src/trace_widget.c: src/marshal.h
 src/trace_widget.h: src/marshal.h
+
+ostv-debug-syms: src/ostv-debug-syms.sh
+	cp $< $@
+	chmod +x $@

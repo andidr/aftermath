@@ -12,6 +12,7 @@ depcomp
 install-sh
 missing
 ostv
+ostv-debug-syms
 *.o
 stamp-h1
 TAGS

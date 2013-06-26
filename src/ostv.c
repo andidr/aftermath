@@ -27,19 +27,24 @@
 #include "detect.h"
 #include "dialogs.h"
 #include "task_list.h"
+#include "debug.h"
 
 int main(int argc, char** argv)
 {
 	GladeXML *xml;
 	char* tracefile = NULL;
+	char* executable = NULL;
 
 	if(argc < 2 || argc > 3) {
-		fprintf(stderr, "Usage: %s trace_file\n", argv[0]);
+		fprintf(stderr, "Usage: %s trace_file [executable]\n", argv[0]);
 		return 1;
 	}
 
 	gtk_init(&argc, &argv);
 	tracefile = argv[1];
+
+	if(argc > 2)
+		executable = argv[2];
 
 	enum trace_format format;
 	if(detect_trace_format(tracefile, &format)) {
@@ -61,6 +66,9 @@ int main(int argc, char** argv)
 			return 1;
 		}
 	}
+
+	if(executable && debug_read_task_symbols(executable, &g_mes) != 0)
+		show_error_message("Could not read debug symbols from %s", executable);
 
 	xml = glade_xml_new(DATA_PATH "/ostv.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);

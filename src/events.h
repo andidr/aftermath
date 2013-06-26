@@ -74,6 +74,9 @@ struct event_set {
 
 struct task {
 	uint64_t work_fn;
+	char* source_filename;
+	char* symbol_name;
+	int source_line;
 };
 
 struct multi_event_set {
@@ -238,10 +241,19 @@ static inline struct task* multi_event_set_find_task(struct multi_event_set* mes
 	return bsearch(t, mes->tasks, mes->num_tasks, sizeof(struct task), compare_tasks);
 }
 
+static inline void task_destroy(struct task* t)
+{
+	free(t->source_filename);
+	free(t->symbol_name);
+}
+
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
 	for(int set = 0; set < mes->num_sets; set++)
 		event_set_destroy(&mes->sets[set]);
+
+	for(int task = 0; task < mes->num_tasks; task++)
+		task_destroy(&mes->tasks[task]);
 
 	free(mes->sets);
 	free(mes->tasks);
@@ -262,16 +274,21 @@ static inline struct task* task_tree_find(struct task_tree* tt, uint64_t work_fn
 static inline struct task* task_tree_add(struct task_tree* tt, uint64_t work_fn)
 {
 	struct task* key = malloc(sizeof(struct task));
+	struct task** t;
 
 	if(!key)
 		return NULL;
 
 	key->work_fn = work_fn;
 
-	if(tsearch(key, &tt->root, compare_tasks) == NULL) {
+	if((t = tsearch(key, &tt->root, compare_tasks)) == NULL) {
 		free(key);
 		return NULL;
 	}
+
+	(*t)->source_filename = NULL;
+	(*t)->symbol_name = NULL;
+	(*t)->source_line = -1;
 
 	tt->num_tasks++;
 

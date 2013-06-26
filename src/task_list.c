@@ -21,6 +21,9 @@
 enum task_list_columns {
 	TASK_LIST_COL_FILTER = 0,
 	TASK_LIST_COL_ADDR,
+	TASK_LIST_COL_SYMBOL,
+	TASK_LIST_COL_SOURCE_FILE,
+	TASK_LIST_COL_SOURCE_LINE,
 	TASK_LIST_COL_TASK_POINTER,
 	TASK_LIST_COL_NUM
 };
@@ -51,10 +54,19 @@ void task_list_init(GtkTreeView* task_treeview)
 	g_signal_connect(G_OBJECT(renderer), "toggled", G_CALLBACK(task_list_toggle), task_treeview);
 
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("", renderer, "text", TASK_LIST_COL_ADDR, NULL);
+	column = gtk_tree_view_column_new_with_attributes("Address", renderer, "text", TASK_LIST_COL_ADDR, NULL);
 	gtk_tree_view_append_column(task_treeview, column);
 
-	store = gtk_list_store_new(TASK_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_POINTER);
+	column = gtk_tree_view_column_new_with_attributes("Symbol", renderer, "text", TASK_LIST_COL_SYMBOL, NULL);
+	gtk_tree_view_append_column(task_treeview, column);
+
+	column = gtk_tree_view_column_new_with_attributes("Source file", renderer, "text", TASK_LIST_COL_SOURCE_FILE, NULL);
+	gtk_tree_view_append_column(task_treeview, column);
+
+	column = gtk_tree_view_column_new_with_attributes("Line", renderer, "text", TASK_LIST_COL_SOURCE_LINE, NULL);
+	gtk_tree_view_append_column(task_treeview, column);
+
+	store = gtk_list_store_new(TASK_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 
 	gtk_tree_view_set_model(task_treeview, GTK_TREE_MODEL(store));
 
@@ -66,14 +78,30 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
 	GtkListStore* store = GTK_LIST_STORE(model);
 	GtkTreeIter iter;
-	char buff[19];
+	char buff_addr[19];
+	char buff_line[10];
+	char* source_file;
+	char* symbol;
 
 	for(int i = 0; i < num_tasks; i++) {
-		snprintf(buff, sizeof(buff), "0x%"PRIx64, tasks[i].work_fn);
+		snprintf(buff_addr, sizeof(buff_addr), "0x%"PRIx64, tasks[i].work_fn);
+		symbol = (tasks[i].symbol_name) ? tasks[i].symbol_name : "(no symbol found)";
+
+		if(tasks[i].source_filename) {
+			snprintf(buff_line, sizeof(buff_line), "%d", tasks[i].source_line);
+			source_file = tasks[i].source_filename;
+		} else {
+			buff_line[0] = '\0';
+			source_file = "";
+		}
+
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
 				   TASK_LIST_COL_FILTER, TRUE,
-				   TASK_LIST_COL_ADDR, buff,
+				   TASK_LIST_COL_ADDR, buff_addr,
+				   TASK_LIST_COL_SYMBOL, symbol,
+				   TASK_LIST_COL_SOURCE_FILE, source_file,
+				   TASK_LIST_COL_SOURCE_LINE, buff_line,
 				   TASK_LIST_COL_TASK_POINTER, &tasks[i],
 				   -1);
 	}
