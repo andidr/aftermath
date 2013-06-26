@@ -30,6 +30,8 @@ ostv_SOURCES = src/ostv.c \
 		src/trace_file.c \
 		src/detect.h \
 		src/detect.c \
+		src/task_list.h \
+		src/task_list.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
