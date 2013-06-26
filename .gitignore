@@ -18,3 +18,4 @@ TAGS
 test-driver
 src/marshal.h
 src/marshal.c
+.kdbgrc.*
