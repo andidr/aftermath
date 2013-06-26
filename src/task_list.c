@@ -66,8 +66,7 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
 	GtkListStore* store = GTK_LIST_STORE(model);
 	GtkTreeIter iter;
-	char buff[19];void task_list_check_all(GtkTreeView* task_treeview);
-void task_list_uncheck_all(GtkTreeView* task_treeview);
+	char buff[19];
 
 	for(int i = 0; i < num_tasks; i++) {
 		snprintf(buff, sizeof(buff), "0x%"PRIx64, tasks[i].work_fn);
