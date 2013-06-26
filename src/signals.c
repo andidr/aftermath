@@ -157,3 +157,59 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 {
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
+
+G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+{
+	GtkTreeView* task_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkTreeIter tree_iter;
+	GtkTextIter text_iter_start;
+	GtkTextIter text_iter_end;
+	GtkTextMark* mark;
+	struct task* t;
+	FILE* fp;
+	int file_size;
+	char* buffer;
+	GtkTextBuffer* text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_code_view));
+
+	gtk_tree_model_get_iter(model, &tree_iter, path);
+	gtk_tree_model_get(model, &tree_iter, TASK_LIST_COL_TASK_POINTER, &t, -1);
+
+	if(!t->source_filename)
+		return;
+
+	if(!(fp = fopen(t->source_filename, "r"))) {
+		show_error_message("Could not open file %s\n", t->source_filename);
+		goto out;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	file_size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	if(!(buffer = malloc(file_size+1))) {
+		show_error_message("Could not allocate buffer for file %s\n", t->source_filename);
+		goto out;
+	}
+
+	if(fread(buffer, file_size, 1, fp) != 1) {
+		show_error_message("Could read file %s\n", t->source_filename);
+		goto out;
+	}
+
+	gtk_text_buffer_set_text(text_buffer, buffer, file_size);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(g_main_notebook), 1);
+
+	gtk_text_buffer_get_iter_at_line_offset(text_buffer, &text_iter_start, t->source_line, 0);
+	gtk_text_buffer_get_iter_at_line_offset(text_buffer, &text_iter_end, t->source_line+1, 0);
+	gtk_text_buffer_select_range(text_buffer, &text_iter_start, &text_iter_end);
+
+	mark = gtk_text_buffer_create_mark(text_buffer, "foo", &text_iter_start, TRUE);
+	gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(g_code_view), mark, 0.0, TRUE, 0.2, 0.2);
+	gtk_text_buffer_delete_mark(text_buffer, mark);
+
+	free(buffer);
+
+out:
+	fclose(fp);
+}

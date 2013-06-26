@@ -18,9 +18,11 @@
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
+#include <gtk/gtk.h>
 #include "trace_widget.h"
 
 void reset_zoom(void);
 void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
+void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
 #endif

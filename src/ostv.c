@@ -76,6 +76,8 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, scroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
+	IMPORT_GLADE_WIDGET(xml, code_view);
+	IMPORT_GLADE_WIDGET(xml, main_notebook);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -83,6 +85,10 @@ int main(int argc, char** argv)
 
 	g_scroll_bar = scroll_bar;
 	g_task_treeview = task_treeview;
+	g_code_view = code_view;
+	g_main_notebook = main_notebook;
+
+	g_signal_connect(G_OBJECT(g_task_treeview), "row-activated", G_CALLBACK(task_treeview_row_activated), g_task_treeview);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);

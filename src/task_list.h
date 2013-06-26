@@ -22,6 +22,16 @@
 #include "events.h"
 #include "filter.h"
 
+enum task_list_columns {
+	TASK_LIST_COL_FILTER = 0,
+	TASK_LIST_COL_ADDR,
+	TASK_LIST_COL_SYMBOL,
+	TASK_LIST_COL_SOURCE_FILE,
+	TASK_LIST_COL_SOURCE_LINE,
+	TASK_LIST_COL_TASK_POINTER,
+	TASK_LIST_COL_NUM
+};
+
 void task_list_init(GtkTreeView* task_treeview);
 void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_tasks);
 void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter);

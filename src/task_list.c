@@ -18,16 +18,6 @@
 #include "task_list.h"
 #include <inttypes.h>
 
-enum task_list_columns {
-	TASK_LIST_COL_FILTER = 0,
-	TASK_LIST_COL_ADDR,
-	TASK_LIST_COL_SYMBOL,
-	TASK_LIST_COL_SOURCE_FILE,
-	TASK_LIST_COL_SOURCE_LINE,
-	TASK_LIST_COL_TASK_POINTER,
-	TASK_LIST_COL_NUM
-};
-
 void task_list_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer user_data)
 {
 	GtkTreeView* task_treeview = user_data;

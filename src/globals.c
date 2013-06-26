@@ -20,6 +20,8 @@
 GtkWidget* g_trace_widget;
 GtkWidget* g_scroll_bar;
 GtkWidget* g_task_treeview;
+GtkWidget* g_code_view;
+GtkWidget* g_main_notebook;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,

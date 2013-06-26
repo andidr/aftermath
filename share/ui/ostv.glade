@@ -373,30 +373,84 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox3">
+              <widget class="GtkNotebook" id="main_notebook">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
+                <property name="can_focus">True</property>
                 <child>
-                  <widget class="GtkVBox" id="graph_box">
+                  <widget class="GtkVBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <placeholder/>
+                      <widget class="GtkVBox" id="graph_box">
+                        <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkHScrollbar" id="scroll_bar">
+                        <property name="visible">True</property>
+                        <property name="update_policy">delayed</property>
+                        <signal name="value_changed" handler="scrollbar_value_changed"/>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </widget>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label5">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Graph</property>
+                  </widget>
                   <packing>
-                    <property name="position">0</property>
+                    <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkHScrollbar" id="scroll_bar">
+                  <widget class="GtkScrolledWindow" id="scrolledwindow2">
                     <property name="visible">True</property>
-                    <property name="update_policy">delayed</property>
-                    <signal name="value_changed" handler="scrollbar_value_changed"/>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <widget class="GtkTextView" id="code_view">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="editable">False</property>
+                      </widget>
+                    </child>
                   </widget>
                   <packing>
-                    <property name="expand">False</property>
                     <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label6">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Code</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                    <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                  <packing>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
               </widget>
