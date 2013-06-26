@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include "events.h"
+#include "filter.h"
 
 G_BEGIN_DECLS
 
@@ -63,6 +64,8 @@ struct _GtkTrace {
 
 	double last_mouse_x;
 	double last_mouse_y;
+
+	struct filter* filter;
 };
 
 struct _GtkTraceClass {
@@ -89,6 +92,8 @@ void gtk_trace_set_draw_states(GtkWidget *widget, int val);
 void gtk_trace_set_draw_comm(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
+void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
+struct filter* gtk_trace_get_filter(GtkWidget *widget);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

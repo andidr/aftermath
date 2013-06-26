@@ -64,6 +64,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_single_events = 1;
 	g->back_buffer = NULL;
 	g->double_buffering = 0;
+	g->filter = NULL;
 
 	return GTK_WIDGET(g);
 }
@@ -483,6 +484,9 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 				if(g->event_sets->sets[cpu].state_events[state_event].start > g->right)
 					break;
 
+				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu].state_events[state_event].active_task))
+					continue;
+
 				if(g->event_sets->sets[cpu].state_events[state_event].start < g->right &&
 				   g->event_sets->sets[cpu].state_events[state_event].end > g->left)
 				{
@@ -608,6 +612,9 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 				if(g->event_sets->sets[cpu].single_events[single_event].time > g->right)
 					break;
 
+				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu].single_events[single_event].active_task))
+					continue;
+
 				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
 				if(last_ev_px < (int)(screen_x)) {
 					last_ev_px = (int)(screen_x);
@@ -627,6 +634,18 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	}
 
 	cairo_reset_clip(cr);
+}
+
+void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->filter = f;
+}
+
+struct filter* gtk_trace_get_filter(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	return g->filter;
 }
 
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right)
