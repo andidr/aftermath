@@ -18,6 +18,7 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+#include "buffer.h"
 #include <malloc.h>
 #include <string.h>
 #include <stdint.h>
@@ -94,36 +95,6 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t start, 
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 void event_set_sort_comm(struct event_set* es);
-
-static inline int check_buffer_grow(void** buffer, int elem_size, int used, int* free, int prealloc_elems)
-{
-	void* ptr;
-
-	if(*free == 0) {
-		if(!(ptr = realloc(*buffer, (used+prealloc_elems)*elem_size))) {
-			return 1;
-		} else {
-			*free = prealloc_elems;
-			*buffer = ptr;
-		}
-	}
-
-	return 0;
-}
-
-static inline int add_buffer_grow(void** buffer, void* elem, int elem_size, int* used, int* free, int prealloc_elems)
-{
-	if(check_buffer_grow(buffer, elem_size, *used, free, prealloc_elems))
-		return 1;
-
-	void* addr = ((char*)(*buffer))+(elem_size*(*used));
-
-	memcpy(addr, elem, elem_size);
-	(*free)--;
-	(*used)++;
-
-	return 0;
-}
 
 static inline int event_set_add_state_event(struct event_set* es, struct state_event* se)
 {
