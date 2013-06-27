@@ -80,6 +80,19 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	return center_idx;
 }
 
+int event_set_get_enclosing_state(struct event_set* es, uint64_t time)
+{
+	int idx = event_set_get_first_state_in_interval(es, time, time);
+
+	if(idx == -1)
+		return -1;
+
+	if(es->state_events[idx].start > time || es->state_events[idx].end < time)
+		return -1;
+
+	return idx;
+}
+
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;

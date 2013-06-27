@@ -94,6 +94,7 @@ struct task_tree {
 	int num_tasks;
 };
 
+int event_set_get_enclosing_state(struct event_set* es, uint64_t time);
 int event_set_get_first_state_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
