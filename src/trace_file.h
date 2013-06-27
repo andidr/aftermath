@@ -62,6 +62,8 @@ enum worker_state {
 	WORKER_STATE_MAX = 9
 };
 
+extern const char* worker_state_names[];
+
 enum comm_event_type {
 	COMM_TYPE_UNKNOWN = 0,
 	COMM_TYPE_STEAL = 1,

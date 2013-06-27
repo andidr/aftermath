@@ -22,6 +22,18 @@
 #define CONVERSION_TABLE_END -1
 #define FIELD_SIZE(st, fld) sizeof(((st*)0)->fld)
 
+const char* worker_state_names[] = {
+	"seeking",
+	"taskexec",
+	"tcreate",
+	"resdep",
+	"tdec",
+	"bcast",
+	"init",
+	"estimate_costs",
+	"reorder"
+};
+
 int trace_header_conversion_table[] = {
 	FIELD_SIZE(struct trace_header, magic),
 	FIELD_SIZE(struct trace_header, version),
