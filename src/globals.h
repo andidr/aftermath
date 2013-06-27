@@ -27,6 +27,7 @@ extern GtkWidget* g_scroll_bar;
 extern GtkWidget* g_task_treeview;
 extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;
+extern GtkWidget* g_statusbar;
 
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
