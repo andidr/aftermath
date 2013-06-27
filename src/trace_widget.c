@@ -764,6 +764,9 @@ void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 
 void gtk_trace_paint(GtkWidget *widget)
 {
+	if(!gtk_widget_is_drawable(widget))
+		return;
+
 	cairo_t* cr;
 
 	GtkTrace* g = GTK_TRACE(widget);
