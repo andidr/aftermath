@@ -137,6 +137,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
                              g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
                              G_TYPE_NONE, 2,
                              G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+
+	gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED] =
+                g_signal_new("state-event-under-pointer-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER_INT_INT,
+                             G_TYPE_NONE, 3,
+                             G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
 }
 
 void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
@@ -195,7 +204,8 @@ void gtk_trace_realize(GtkWidget *widget)
 
 	attributes.wclass = GDK_INPUT_OUTPUT;
 	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK |
-				GDK_BUTTON_RELEASE_MASK | GDK_SCROLL_MASK |  GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON1_MOTION_MASK;
+				GDK_BUTTON_RELEASE_MASK | GDK_SCROLL_MASK |  GDK_POINTER_MOTION_HINT_MASK |
+				GDK_BUTTON1_MOTION_MASK | GDK_POINTER_MOTION_MASK;
 
 	attributes_mask = GDK_WA_X | GDK_WA_Y;
 
@@ -358,6 +368,8 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	double diff_x = event->x - g->last_mouse_x;
+	struct state_event* se;
+	int worker, cpu;
 
 	switch(g->mode) {
 		case GTK_TRACE_MODE_NAVIGATE:
@@ -371,6 +383,8 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 			gtk_trace_paint(widget);
 			break;
 		default:
+			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
+			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
 			break;
 	}
 
@@ -780,4 +794,41 @@ void gtk_trace_paint(GtkWidget *widget)
 	}
 
 	cairo_destroy(cr);
+}
+
+double gtk_trace_get_time_at(GtkWidget *widget, int x)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	double pxwidth = widget->allocation.width - g->axis_width;
+	double width = g->right - g->left;
+	double xrel = x - g->axis_width;
+
+	return g->left + (xrel / pxwidth) * width;
+}
+
+struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int worker_pointer;
+	int idx;
+	double cpu_height = gtk_trace_cpu_height(g);
+	double time;
+
+	if(x < g->axis_width || y > widget->allocation.height - g->axis_width)
+		return NULL;
+
+	worker_pointer = y / cpu_height;
+	time = gtk_trace_get_time_at(widget, x);
+	idx = event_set_get_enclosing_state(&g->event_sets->sets[worker_pointer], time);
+
+	if(idx != -1) {
+		if(worker)
+			*worker = worker_pointer;
+		if(cpu)
+			*cpu = g->event_sets->sets[worker_pointer].cpu;
+
+		return &g->event_sets->sets[worker_pointer].state_events[idx];
+	}
+
+	return NULL;
 }

@@ -33,6 +33,7 @@ typedef struct _GtkTraceClass GtkTraceClass;
 
 enum gtk_trace_signals {
 	GTK_TRACE_BOUNDS_CHANGED = 0,
+	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
 	GTK_TRACE_MAX_SIGNALS
 };
 
@@ -97,6 +98,8 @@ void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
 void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se);
 struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget);
+double gtk_trace_get_time_at(GtkWidget *widget, int x);
+struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 
