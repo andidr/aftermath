@@ -97,6 +97,7 @@
             <child>
               <widget class="GtkToolButton" id="rewind">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Go to first event</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-media-previous</property>
                 <signal name="clicked" handler="toolbar_rewind_clicked"/>
@@ -109,6 +110,7 @@
             <child>
               <widget class="GtkToolButton" id="zoom100">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Reset zoom</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-zoom-100</property>
                 <signal name="clicked" handler="toolbar_zoom100_clicked"/>
@@ -121,6 +123,7 @@
             <child>
               <widget class="GtkToolButton" id="ffwd">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Go to last event</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-media-next</property>
                 <signal name="clicked" handler="toolbar_ffwd_clicked"/>
@@ -142,6 +145,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggletoolbutton1">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw worker states</property>
                 <property name="label" translatable="yes">S</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
@@ -155,6 +159,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggletoolbutton2">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw communication lines</property>
                 <property name="label" translatable="yes">C</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
@@ -168,6 +173,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_steals">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw lines for steals</property>
                 <property name="label" translatable="yes">St</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
@@ -181,6 +187,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_pushes">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw lines for pushes</property>
                 <property name="label" translatable="yes">Pu</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
@@ -194,6 +201,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_data_reads">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw lines for data reads</property>
                 <property name="label" translatable="yes">DR</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
@@ -207,6 +215,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggletoolbutton3">
                 <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw events</property>
                 <property name="label" translatable="yes">E</property>
                 <property name="use_underline">True</property>
                 <property name="active">True</property>
