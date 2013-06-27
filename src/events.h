@@ -242,6 +242,12 @@ static inline struct task* multi_event_set_find_task(struct multi_event_set* mes
 	return bsearch(t, mes->tasks, mes->num_tasks, sizeof(struct task), compare_tasks);
 }
 
+static inline struct task* multi_event_set_find_task_by_work_fn(struct multi_event_set* mes, uint64_t work_fn)
+{
+	struct task t = { .work_fn = work_fn };
+	return multi_event_set_find_task(mes, &t);
+}
+
 static inline void task_destroy(struct task* t)
 {
 	free(t->source_filename);
