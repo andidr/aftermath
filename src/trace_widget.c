@@ -44,7 +44,8 @@ static double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(2
 
 static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
 				  {COL_NORM(225.0), COL_NORM(137.0), COL_NORM(  0.0)},
-				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)}};
+				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)},
+				  {COL_NORM( 34.0), COL_NORM( 93.0), COL_NORM(252.0)}};
 
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {

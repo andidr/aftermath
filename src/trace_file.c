@@ -140,7 +140,7 @@ int write_struct_convert(FILE* fp, void* in, int size, int* conversion_table, in
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
-		header->version == TRACE_VERSION &&
+		header->version <= TRACE_VERSION &&
 		header->day > 0 && header->day <= 31 &&
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);
