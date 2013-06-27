@@ -66,6 +66,7 @@ struct _GtkTrace {
 	double last_mouse_y;
 
 	struct filter* filter;
+	struct state_event* highlight_state_event;
 };
 
 struct _GtkTraceClass {
@@ -94,6 +95,8 @@ void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
+void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se);
+struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

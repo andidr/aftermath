@@ -65,6 +65,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->back_buffer = NULL;
 	g->double_buffering = 0;
 	g->filter = NULL;
+	g->highlight_state_event = NULL;
 
 	return GTK_WIDGET(g);
 }
@@ -507,7 +508,11 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 					if(width < 0.1)
 						continue;
 
-					cairo_set_source_rgb(cr, state_colors[state][0], state_colors[state][1], state_colors[state][2]);
+					if(&g->event_sets->sets[cpu].state_events[state_event] == g->highlight_state_event)
+						cairo_set_source_rgb(cr, 1.0, 1.0, 0);
+					else
+						cairo_set_source_rgb(cr, state_colors[state][0], state_colors[state][1], state_colors[state][2]);
+
 					cairo_rectangle(cr, (double)start_x+0.5, cpu*cpu_height, width, cpu_height);
 					cairo_fill(cr);
 					num_events_drawn++;
@@ -646,6 +651,18 @@ struct filter* gtk_trace_get_filter(GtkWidget *widget)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	return g->filter;
+}
+
+void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->highlight_state_event = se;
+}
+
+struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	return g->highlight_state_event;
 }
 
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right)
