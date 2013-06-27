@@ -213,6 +213,19 @@
               </packing>
             </child>
             <child>
+              <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_size">
+                <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw size of communication events</property>
+                <property name="label" translatable="yes">Sz</property>
+                <property name="use_underline">True</property>
+                <signal name="toggled" handler="toolbar_draw_comm_size_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkToggleToolButton" id="toggletoolbutton3">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Draw events</property>

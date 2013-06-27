@@ -83,6 +83,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
+	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_size);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -96,6 +97,7 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
+	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);

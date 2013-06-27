@@ -32,7 +32,7 @@ extern GtkWidget* g_selected_event_label;
 extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;
-
+extern GtkWidget* g_toggle_tool_button_draw_size;
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 

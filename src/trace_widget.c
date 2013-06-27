@@ -62,6 +62,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->mode = GTK_TRACE_MODE_NORMAL;
 	g->draw_states = 1;
 	g->draw_comm = 1;
+	g->draw_comm_size = 0;
 	g->draw_steals = 1;
 	g->draw_pushes = 1;
 	g->draw_data_reads = 1;
@@ -582,13 +583,18 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 {
+	char buffer[20];
 	double cpu_height = gtk_trace_cpu_height(g);
 	struct coord { int y1; int y2; } lines_painted[g->widget.allocation.width];
+	cairo_text_extents_t extents;
 
 	memset(lines_painted, 0, sizeof(lines_painted[0])*g->widget.allocation.width);
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
+
+	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size(cr, 8);
 
 	cairo_set_line_width (cr, 1);
 	int num_events_drawn = 0;
@@ -606,6 +612,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 				{
 					int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
 					int comm_type = g->event_sets->sets[cpu].comm_events[comm_event].type;
+					uint64_t comm_size = g->event_sets->sets[cpu].comm_events[comm_event].size;
 
 					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
 						continue;
@@ -635,6 +642,18 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
 					if(cpu != dst_cpu_idx) {
 						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
+							if(g->draw_comm_size) {
+								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+								cairo_text_extents(cr, buffer, &extents);
+
+								cairo_save(cr);
+								cairo_translate(cr, 0, 0);
+								cairo_rotate(cr, 3*M_PI/2);
+								cairo_move_to(cr, -((((double)y1+(double)y2) / 2.0)*cpu_height + extents.width/2.0), screen_x-3);
+								cairo_show_text(cr, buffer);
+								cairo_restore(cr);
+							}
+
 							cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
 							cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
 							cairo_stroke(cr);
@@ -660,6 +679,14 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu*cpu_height + cpu_height/2);
 						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 - triangle_height/2.0);
 						cairo_fill(cr);
+
+						if(g->draw_comm_size) {
+							snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+							cairo_text_extents(cr, buffer, &extents);
+							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu*cpu_height + cpu_height/2 + extents.height / 2.0);
+							cairo_show_text(cr, buffer);
+						}
+
 						num_events_drawn++;
 					}
 				}
@@ -787,6 +814,16 @@ void gtk_trace_set_draw_comm(GtkWidget *widget, int val)
 	GtkTrace* g = GTK_TRACE(widget);
 	int needs_redraw = (val != g->draw_comm);
 	g->draw_comm = val;
+
+	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
+void gtk_trace_set_draw_comm_size(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_comm_size);
+	g->draw_comm_size = val;
 
 	if(needs_redraw)
 		gtk_trace_paint(widget);
