@@ -57,6 +57,9 @@ struct _GtkTrace {
 	enum gtk_trace_modes mode;
 	int draw_states;
 	int draw_comm;
+	int draw_steals;
+	int draw_pushes;
+	int draw_data_reads;
 	int draw_single_events;
 	int moved_during_navigation;
 
@@ -94,6 +97,9 @@ void gtk_trace_set_right(GtkWidget *widget, long double right);
 void gtk_trace_get_bounds(GtkWidget *widget, long double* left, long double* right);
 void gtk_trace_set_draw_states(GtkWidget *widget, int val);
 void gtk_trace_set_draw_comm(GtkWidget *widget, int val);
+void gtk_trace_set_draw_steals(GtkWidget *widget, int val);
+void gtk_trace_set_draw_pushes(GtkWidget *widget, int val);
+void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);

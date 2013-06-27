@@ -24,6 +24,9 @@ GtkWidget* g_code_view;
 GtkWidget* g_main_notebook;
 GtkWidget* g_statusbar;
 GtkWidget* g_selected_event_label;
+GtkWidget* g_toggle_tool_button_draw_steals;
+GtkWidget* g_toggle_tool_button_draw_pushes;
+GtkWidget* g_toggle_tool_button_draw_data_reads;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,

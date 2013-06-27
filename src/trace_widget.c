@@ -62,6 +62,10 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->mode = GTK_TRACE_MODE_NORMAL;
 	g->draw_states = 1;
 	g->draw_comm = 1;
+	g->draw_steals = 1;
+	g->draw_pushes = 1;
+	g->draw_data_reads = 1;
+
 	g->draw_single_events = 1;
 	g->back_buffer = NULL;
 	g->double_buffering = 0;
@@ -603,6 +607,13 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
 					int comm_type = g->event_sets->sets[cpu].comm_events[comm_event].type;
 
+					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
+						continue;
+					else if(comm_type == COMM_TYPE_PUSH && !g->draw_pushes)
+						continue;
+					else if(comm_type == COMM_TYPE_DATA_READ && !g->draw_data_reads)
+						continue;
+
 					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
 					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
 
@@ -756,6 +767,37 @@ void gtk_trace_set_draw_comm(GtkWidget *widget, int val)
 	if(needs_redraw)
 		gtk_trace_paint(widget);
 }
+
+void gtk_trace_set_draw_steals(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_steals);
+	g->draw_steals = val;
+
+	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
+void gtk_trace_set_draw_pushes(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_pushes);
+	g->draw_pushes = val;
+
+	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
+void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_data_reads);
+	g->draw_data_reads = val;
+
+	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
 
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val)
 {
