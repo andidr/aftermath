@@ -149,6 +149,50 @@ G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpo
 	}
 }
 
+G_MODULE_EXPORT gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data)
+{
+	uint64_t work_fn;
+	struct task* t;
+
+	sscanf(uri, "task://0x%"PRIx64"", &work_fn);
+	t = multi_event_set_find_task_by_work_fn(&g_mes, work_fn);
+
+	if(t && t->source_filename)
+		show_task_code(t);
+
+	return 1;
+}
+
+G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
+{
+	struct state_event* se = pstate_event;
+	char buffer[256];
+	struct task* task;
+
+	if(se) {
+		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
+		snprintf(buffer, sizeof(buffer),
+			 "CPU:\t\t%d\n"
+			 "State\t\t%d (%s)\n"
+			 "From\t\t%"PRIu64" to %"PRIu64"\n"
+			 "Duration:\t%"PRIu64" cycles\n"
+			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>",
+			 cpu,
+			 se->state,
+			 worker_state_names[se->state],
+			 se->start,
+			 se->end,
+			 se->end - se->start,
+			 se->active_task,
+			 se->active_task,
+			 task->symbol_name);
+
+		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), buffer);
+	} else {
+		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), "");
+	}
+}
+
 G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
 {
 	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
@@ -178,25 +222,15 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
 
-G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+void show_task_code(struct task* t)
 {
-	GtkTreeView* task_treeview = user_data;
-	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
-	GtkTreeIter tree_iter;
-	GtkTextIter text_iter_start;
-	GtkTextIter text_iter_end;
-	GtkTextMark* mark;
-	struct task* t;
 	FILE* fp;
 	int file_size;
 	char* buffer;
+	GtkTextIter text_iter_start;
+	GtkTextIter text_iter_end;
+	GtkTextMark* mark;
 	GtkTextBuffer* text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_code_view));
-
-	gtk_tree_model_get_iter(model, &tree_iter, path);
-	gtk_tree_model_get(model, &tree_iter, TASK_LIST_COL_TASK_POINTER, &t, -1);
-
-	if(!t->source_filename)
-		return;
 
 	if(!(fp = fopen(t->source_filename, "r"))) {
 		show_error_message("Could not open file %s\n", t->source_filename);
@@ -232,4 +266,20 @@ G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTree
 
 out:
 	fclose(fp);
+}
+
+G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+{
+	GtkTreeView* task_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkTreeIter tree_iter;
+	struct task* t;
+
+	gtk_tree_model_get_iter(model, &tree_iter, path);
+	gtk_tree_model_get(model, &tree_iter, TASK_LIST_COL_TASK_POINTER, &t, -1);
+
+	if(!t->source_filename)
+		return;
+
+	show_task_code(t);
 }

@@ -34,6 +34,7 @@ typedef struct _GtkTraceClass GtkTraceClass;
 enum gtk_trace_signals {
 	GTK_TRACE_BOUNDS_CHANGED = 0,
 	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
+	GTK_TRACE_STATE_EVENT_SELECTION_CHANGED,
 	GTK_TRACE_MAX_SIGNALS
 };
 
@@ -57,6 +58,7 @@ struct _GtkTrace {
 	int draw_states;
 	int draw_comm;
 	int draw_single_events;
+	int moved_during_navigation;
 
 	int double_buffering;
 	cairo_surface_t* back_buffer;

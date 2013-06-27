@@ -146,6 +146,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
                              g_cclosure_user_marshal_VOID__POINTER_INT_INT,
                              G_TYPE_NONE, 3,
                              G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
+
+	gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED] =
+                g_signal_new("state-event-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER_INT_INT,
+                             G_TYPE_NONE, 3,
+                             G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
 }
 
 void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
@@ -154,8 +163,8 @@ void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
 	g_return_if_fail(GTK_IS_TRACE(widget));
 	g_return_if_fail(requisition != NULL);
 
-	requisition->height = 200;
-	requisition->height = 200;
+	requisition->height = 50;
+	requisition->height = 50;
 }
 
 void gtk_trace_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
@@ -345,6 +354,7 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton *event)
 			g->mode = GTK_TRACE_MODE_NAVIGATE;
 			g->last_mouse_x = event->x;
 			g->last_mouse_y = event->y;
+			g->moved_during_navigation = 0;
 			break;
 		default:
 			break;
@@ -355,12 +365,26 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton *event)
 
 gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 {
+	struct state_event* se;
+	int worker, cpu;
 	GtkTrace* g = GTK_TRACE(widget);
 
 	if(event->button != 1)
 		return TRUE;
 
 	g->mode = GTK_TRACE_MODE_NORMAL;
+
+	/* Normal click? */
+	if(!g->moved_during_navigation) {
+		se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
+
+		if(se && (!g->filter || filter_has_task(g->filter, se->active_task))) {
+			g->highlight_state_event = se;
+			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
+			gtk_trace_paint(widget);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -380,6 +404,8 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 
 			g->last_mouse_x = event->x;
 			g->last_mouse_y = event->y;
+
+			g->moved_during_navigation = 1;
 			gtk_trace_paint(widget);
 			break;
 		default:
