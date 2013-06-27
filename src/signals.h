@@ -20,9 +20,11 @@
 
 #include <gtk/gtk.h>
 #include "trace_widget.h"
+#include "events.h"
 
 void reset_zoom(void);
 void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
+void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
 #endif

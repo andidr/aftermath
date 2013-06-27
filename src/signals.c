@@ -129,6 +129,26 @@ G_MODULE_EXPORT void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble 
 	react_to_scrollbar_change = 1;
 }
 
+G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
+{
+	static int message_id = -1;
+	guint context_id = 0;
+	char buffer[256];
+	struct task* task;
+	struct state_event* se = pstate_event;
+
+	if(message_id != -1)
+		gtk_statusbar_remove(GTK_STATUSBAR(g_statusbar), context_id, message_id);
+
+	if(se) {
+		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
+		snprintf(buffer, sizeof(buffer), "CPU %d: state %d (%s) from %"PRIu64" to %"PRIu64", duration: %"PRIu64" cycles, active task: 0x%"PRIx64" %s",
+			 cpu, se->state, worker_state_names[se->state], se->start, se->end, se->end - se->start, se->active_task, task->symbol_name);
+
+		message_id = gtk_statusbar_push(GTK_STATUSBAR(g_statusbar), context_id, buffer);
+	}
+}
+
 G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
 {
 	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
