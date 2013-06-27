@@ -632,23 +632,35 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					int y1 = (cpu < dst_cpu) ? cpu : dst_cpu;
 					int y2 = (cpu < dst_cpu) ? dst_cpu : cpu;
 
-					if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
-						cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
-						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
-						cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
-						cairo_stroke(cr);
-						num_events_drawn++;
+					cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
+					if(cpu != dst_cpu_idx) {
+						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
+							cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
+							cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
+							cairo_stroke(cr);
+							num_events_drawn++;
 
-						if(lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 >= y2) {
-							lines_painted[(int)screen_x].y1 = y1;
-						} else if(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 < y2) {
-							lines_painted[(int)screen_x].y2 = y2;
-						} else if((lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 < y2) ||
-							  (y2 - y1 > lines_painted[(int)screen_x].y2 - lines_painted[(int)screen_x].y1))
-						{
-							lines_painted[(int)screen_x].y1 = y1;
-							lines_painted[(int)screen_x].y2 = y2;
+							if(lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 >= y2) {
+								lines_painted[(int)screen_x].y1 = y1;
+							} else if(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 < y2) {
+								lines_painted[(int)screen_x].y2 = y2;
+							} else if((lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 < y2) ||
+								  (y2 - y1 > lines_painted[(int)screen_x].y2 - lines_painted[(int)screen_x].y1))
+							{
+								lines_painted[(int)screen_x].y1 = y1;
+								lines_painted[(int)screen_x].y2 = y2;
+							}
 						}
+					} else {
+						double triangle_height = cpu_height - 2;
+						double triangle_width = 8;
+
+						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 - triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 + triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu*cpu_height + cpu_height/2);
+						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 - triangle_height/2.0);
+						cairo_fill(cr);
+						num_events_drawn++;
 					}
 				}
 			}
