@@ -626,22 +626,24 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	cairo_set_font_size(cr, 8);
 
 	cairo_set_line_width (cr, 1);
+
 	int num_events_drawn = 0;
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
-		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu_idx], (g->left > 0) ? g->left : 0, g->right);
 
 		if(comm_event != -1) {
-			for(; comm_event < g->event_sets->sets[cpu].num_comm_events; comm_event++) {
-				uint64_t time = g->event_sets->sets[cpu].comm_events[comm_event].time;
+			for(; comm_event < g->event_sets->sets[cpu_idx].num_comm_events; comm_event++) {
+				uint64_t time = g->event_sets->sets[cpu_idx].comm_events[comm_event].time;
 
-				if(g->event_sets->sets[cpu].comm_events[comm_event].time > g->right)
+				if(g->event_sets->sets[cpu_idx].comm_events[comm_event].time > g->right)
 					break;
 
 				if((long double)time >= g->left && (long double)time <= g->right)
 				{
-					int dst_cpu = g->event_sets->sets[cpu].comm_events[comm_event].dst_cpu;
-					int comm_type = g->event_sets->sets[cpu].comm_events[comm_event].type;
-					uint64_t comm_size = g->event_sets->sets[cpu].comm_events[comm_event].size;
+					int dst_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].dst_cpu;
+					int comm_type = g->event_sets->sets[cpu_idx].comm_events[comm_event].type;
+					uint64_t comm_size = g->event_sets->sets[cpu_idx].comm_events[comm_event].size;
 
 					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
 						continue;
@@ -652,7 +654,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 					if(g->filter) {
 						if(comm_type == COMM_TYPE_DATA_READ &&
-						   !filter_has_task(g->filter, g->event_sets->sets[cpu].comm_events[comm_event].active_task))
+						   !filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task))
 						{
 							struct event_set* dst_es = multi_event_set_find_cpu(g->event_sets, dst_cpu);
 							int idx = event_set_get_enclosing_state(dst_es, time);
@@ -665,11 +667,11 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
 					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
 
-					int y1 = (cpu < dst_cpu) ? cpu : dst_cpu;
-					int y2 = (cpu < dst_cpu) ? dst_cpu : cpu;
+					int y1 = (cpu_idx < dst_cpu_idx) ? cpu_idx : dst_cpu_idx;
+					int y2 = (cpu_idx < dst_cpu_idx) ? dst_cpu_idx : cpu_idx;
 
 					cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
-					if(cpu != dst_cpu_idx) {
+					if(cpu_idx != dst_cpu_idx) {
 						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
 							if(g->draw_comm_size) {
 								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
@@ -683,36 +685,31 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 								cairo_restore(cr);
 							}
 
-							cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2);
+							cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2);
 							cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
 							cairo_stroke(cr);
 							num_events_drawn++;
 
-							if(lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 >= y2) {
+							if(lines_painted[(int)screen_x].y1 > y1)
 								lines_painted[(int)screen_x].y1 = y1;
-							} else if(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 < y2) {
+
+							if(lines_painted[(int)screen_x].y2 < y2)
 								lines_painted[(int)screen_x].y2 = y2;
-							} else if((lines_painted[(int)screen_x].y1 > y1 && lines_painted[(int)screen_x].y2 < y2) ||
-								  (y2 - y1 > lines_painted[(int)screen_x].y2 - lines_painted[(int)screen_x].y1))
-							{
-								lines_painted[(int)screen_x].y1 = y1;
-								lines_painted[(int)screen_x].y2 = y2;
-							}
 						}
 					} else {
 						double triangle_height = cpu_height - 2;
 						double triangle_width = 8;
 
-						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 - triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 + triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu*cpu_height + cpu_height/2);
-						cairo_move_to(cr, screen_x+0.5, cpu*cpu_height + cpu_height/2 - triangle_height/2.0);
+						cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 - triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 + triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu_idx*cpu_height + cpu_height/2);
+						cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 - triangle_height/2.0);
 						cairo_fill(cr);
 
 						if(g->draw_comm_size) {
 							snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
 							cairo_text_extents(cr, buffer, &extents);
-							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu*cpu_height + cpu_height/2 + extents.height / 2.0);
+							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu_idx*cpu_height + cpu_height/2 + extents.height / 2.0);
 							cairo_show_text(cr, buffer);
 						}
 
