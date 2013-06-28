@@ -15,12 +15,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #include "signals.h"
-#include <gtk/gtk.h>
 #include "globals.h"
 #include "trace_widget.h"
-#include <inttypes.h>
 #include "dialogs.h"
 #include "task_list.h"
+#include "ansi_extras.h"
+#include <gtk/gtk.h>
+#include <inttypes.h>
+#include <stdio.h>
 
 void reset_zoom(void)
 {
@@ -31,6 +33,22 @@ void reset_zoom(void)
 
 	gtk_trace_set_bounds(g_trace_widget, start, end);
 	trace_bounds_changed(GTK_TRACE(g_trace_widget), (double)start, (double)end, NULL);
+}
+
+/**
+ * Connected to the "toggled" signal of a checkbutton, widget_toggle()
+ * enables / disables another widget specified as the data parameter.
+ */
+G_MODULE_EXPORT gint widget_toggle(gpointer data, GtkWidget* check)
+{
+	GtkWidget* dependent = data;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check)))
+		gtk_widget_set_sensitive(dependent, 1);
+	else
+		gtk_widget_set_sensitive(dependent, 0);
+
+	return 0;
 }
 
 G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
@@ -100,6 +118,14 @@ G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gp
 G_MODULE_EXPORT void menubar_about(GtkMenuItem *item, gpointer data)
 {
 	show_about_dialog();
+}
+
+G_MODULE_EXPORT void menubar_settings(GtkCheckMenuItem *item, gpointer data)
+{
+	if(show_settings_dialog(&g_settings)) {
+		if(write_user_settings(&g_settings) != 0)
+			show_error_message("Could not write settings");
+	}
 }
 
 G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
@@ -249,7 +275,21 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
 
-void show_task_code(struct task* t)
+void show_task_code_in_external_editor(struct task* t)
+{
+	char editor_cmd[FILENAME_MAX];
+	char source_line_str[10];
+
+	snprintf(editor_cmd, sizeof(editor_cmd), "%s", g_settings.external_editor_command);
+	snprintf(source_line_str, sizeof(source_line_str), "%d", t->source_line);
+
+	strreplace(editor_cmd, "%f", t->source_filename);
+	strreplace(editor_cmd, "%l", source_line_str);
+
+	system(editor_cmd);
+}
+
+void show_task_code_in_internal_editor(struct task* t)
 {
 	FILE* fp;
 	int file_size;
@@ -293,6 +333,14 @@ void show_task_code(struct task* t)
 
 out:
 	fclose(fp);
+}
+
+void show_task_code(struct task* t)
+{
+	if(!g_settings.use_external_editor)
+		show_task_code_in_internal_editor(t);
+	else
+		show_task_code_in_external_editor(t);
 }
 
 G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)

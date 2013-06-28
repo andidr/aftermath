@@ -37,3 +37,4 @@ struct multi_event_set g_mes = { .sets = NULL,
 				 .tasks = NULL};
 
 struct filter g_filter;
+struct settings g_settings;

@@ -46,6 +46,13 @@ int main(int argc, char** argv)
 	if(argc > 2)
 		executable = argv[2];
 
+	settings_init(&g_settings);
+
+	if(read_user_settings(&g_settings) != 0) {
+		show_error_message("Could not read settings");
+		return 1;
+	}
+
 	enum trace_format format;
 	if(detect_trace_format(tracefile, &format)) {
 		show_error_message("Could not open file %s", tracefile);
@@ -117,6 +124,7 @@ int main(int argc, char** argv)
 
 	multi_event_set_destroy(&g_mes);
 	filter_destroy(&g_filter);
+	settings_destroy(&g_settings);
 
 	return 0;
 }

@@ -18,8 +18,11 @@
 #ifndef DIALOGS_H
 #define DIALOGS_H
 
+#include <settings.h>
+
 void show_error_message(char* format, ...);
 int show_goto_dialog(double start, double end, double curr_value, double* time);
 void show_about_dialog(void);
+int show_settings_dialog(struct settings* s);
 
 #endif

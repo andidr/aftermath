@@ -84,3 +84,33 @@ G_MODULE_EXPORT gint accept_dialog(GtkWidget *widget, gpointer data)
 
         return 0;
 }
+
+int show_settings_dialog(struct settings* s)
+{
+	int ret = 0;
+	GladeXML* xml = glade_xml_new(DATA_PATH "/settings.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, external_editor_check);
+	IMPORT_GLADE_WIDGET(xml, external_editor_entry);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(external_editor_check), s->use_external_editor);
+	gtk_widget_set_sensitive(external_editor_entry, s->use_external_editor);
+
+	if(s->external_editor_command != NULL)
+		gtk_entry_set_text(GTK_ENTRY(external_editor_entry), s->external_editor_command);
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		s->use_external_editor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(external_editor_check));
+
+		if(s->use_external_editor)
+			settings_set_string(&s->external_editor_command,
+					    gtk_entry_get_text(GTK_ENTRY(external_editor_entry)));
+		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}

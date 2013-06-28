@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 #include "events.h"
 #include "filter.h"
+#include "settings.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_scroll_bar;
@@ -35,5 +36,6 @@ extern GtkWidget* g_toggle_tool_button_draw_data_reads;
 extern GtkWidget* g_toggle_tool_button_draw_size;
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
+extern struct settings g_settings;
 
 #endif
