@@ -33,6 +33,8 @@ ostv_SOURCES = src/ostv.c \
 		src/detect.c \
 		src/debug.h \
 		src/debug.c \
+		src/settings.h \
+		src/settings.c \
 		src/task_list.h \
 		src/task_list.c \
 		$(UNIT_TEST_SOURCES)
