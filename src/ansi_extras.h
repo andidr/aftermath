@@ -20,6 +20,7 @@
 
 #include <endian.h>
 #include <stdint.h>
+#include <string.h>
 
 #define SWAP_BITS(val, ret, bits) \
 	do { \
@@ -69,5 +70,20 @@ inline int16_t int16_swap(int16_t val)
 #else
 	#error "Could not determine your system's endianness"
 #endif
+
+/* Very simple string replacement function.
+ * haystack must contain enough space for all
+ * replacements*/
+static inline void strreplace(char* haystack, const char* needle, const char* replacement)
+{
+	char* pos;
+	int needle_len = strlen(needle);
+	int replacement_len = strlen(replacement);
+
+	while((pos = strstr(haystack, needle))) {
+		memmove(pos+(replacement_len-needle_len), pos, strlen(pos)+1);
+		memcpy(pos, replacement, replacement_len);
+	}
+}
 
 #endif
