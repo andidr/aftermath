@@ -24,6 +24,11 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="tooltip" translatable="yes">Use an external editor
+to display source code,
+e.g. when double-clicking
+on a task of the current
+filter</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="widget_toggle" object="external_editor_entry"/>
               </widget>
@@ -37,6 +42,16 @@
                 <property name="width_request">400</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip" translatable="yes">Arbitrary command line to
+be interpreted by the shell.
+Any occurence of %f will be
+replaced with the full path of
+the file to be displayed
+and %l will be replaced with
+the line number.
+
+Example:
+emacsclient --no-wait +%l "%f"</property>
                 <property name="invisible_char">&#x25CF;</property>
               </widget>
               <packing>
