@@ -254,7 +254,6 @@
                 <property name="tooltip" translatable="yes">Draw events</property>
                 <property name="label" translatable="yes">E</property>
                 <property name="use_underline">True</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_single_events_toggled"/>
               </widget>
               <packing>
