@@ -584,8 +584,13 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 				if(x_end > g->widget.allocation.width)
 					x_end = g->widget.allocation.width;
 
+				double width = x_end - x_start;
+
+				if(width < 1)
+					width = 1;
+
 				cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
-				cairo_rectangle(cr, x_start, cpu_idx*cpu_height, x_end - x_start, cpu_height);
+				cairo_rectangle(cr, x_start, cpu_idx*cpu_height, width, cpu_height);
 				cairo_fill(cr);
 			}
 		}
