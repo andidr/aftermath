@@ -572,7 +572,8 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 		if(g->highlight_state_event &&
 		   g->highlight_state_event >= g->event_sets->sets[cpu_idx].state_events &&
-		   g->highlight_state_event <= &g->event_sets->sets[cpu_idx].state_events[g->event_sets->sets[cpu_idx].num_state_events-1])
+		   g->highlight_state_event <= &g->event_sets->sets[cpu_idx].state_events[g->event_sets->sets[cpu_idx].num_state_events-1] &&
+		   (!g->filter || filter_has_task(g->filter, g->highlight_state_event->active_task)))
 		{
 			if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
 				double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
