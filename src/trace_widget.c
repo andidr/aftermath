@@ -63,13 +63,13 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->max_cpu_height = 50;
 	g->mode = GTK_TRACE_MODE_NORMAL;
 	g->draw_states = 1;
-	g->draw_comm = 1;
+	g->draw_comm = 0;
 	g->draw_comm_size = 0;
 	g->draw_steals = 1;
 	g->draw_pushes = 1;
 	g->draw_data_reads = 1;
 
-	g->draw_single_events = 1;
+	g->draw_single_events = 0;
 	g->back_buffer = NULL;
 	g->double_buffering = 0;
 	g->filter = NULL;

@@ -182,7 +182,6 @@
                 <property name="tooltip" translatable="yes">Draw communication lines</property>
                 <property name="label" translatable="yes">C</property>
                 <property name="use_underline">True</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_comm_toggled"/>
               </widget>
               <packing>
@@ -193,6 +192,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_steals">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for steals</property>
                 <property name="label" translatable="yes">St</property>
                 <property name="use_underline">True</property>
@@ -207,6 +207,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_pushes">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for pushes</property>
                 <property name="label" translatable="yes">Pu</property>
                 <property name="use_underline">True</property>
@@ -221,6 +222,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_data_reads">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for data reads</property>
                 <property name="label" translatable="yes">DR</property>
                 <property name="use_underline">True</property>
@@ -235,6 +237,7 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_size">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw size of communication events</property>
                 <property name="label" translatable="yes">Sz</property>
                 <property name="use_underline">True</property>
