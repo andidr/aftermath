@@ -17,7 +17,6 @@
 
 #include "dialogs.h"
 #include "glade_extras.h"
-#include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <math.h>
 
@@ -64,6 +63,28 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	g_object_unref(G_OBJECT(xml));
 
 	return ret;
+}
+
+void show_progress_window_persistent(struct progress_window_widgets* widgets)
+{
+	GladeXML* xml = glade_xml_new(DATA_PATH "/progress_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, window);
+	IMPORT_GLADE_WIDGET(xml, progressbar);
+	IMPORT_GLADE_WIDGET(xml, label_trace_bytes);
+	IMPORT_GLADE_WIDGET(xml, label_bytes_loaded);
+	IMPORT_GLADE_WIDGET(xml, label_seconds_remaining);
+	IMPORT_GLADE_WIDGET(xml, label_throughput);
+
+	widgets->window = GTK_WINDOW(window);
+	widgets->progressbar = GTK_PROGRESS_BAR(progressbar);
+	widgets->label_trace_bytes = GTK_LABEL(label_trace_bytes);
+	widgets->label_bytes_loaded = GTK_LABEL(label_bytes_loaded);
+	widgets->label_seconds_remaining = GTK_LABEL(label_seconds_remaining);
+	widgets->label_throughput = GTK_LABEL(label_throughput);
+
+	gtk_widget_show_all(window);
+	g_object_unref(G_OBJECT(xml));
 }
 
 void show_about_dialog(void)

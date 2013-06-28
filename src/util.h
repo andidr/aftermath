@@ -15,12 +15,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef PARAVER_H
-#define PARAVER_H
+#ifndef UTIL_H
+#define UTIL_H
 
-#include "events.h"
-#include <sys/types.h>
-
-int read_paraver_samples(struct multi_event_set* mes, const char* file, off_t* bytes_read);
+void pretty_print_bytes(char* buffer, int buffer_size, double bytes, const char* add);
 
 #endif

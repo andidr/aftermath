@@ -18,6 +18,7 @@
 #include "events.h"
 #include "filter.h"
 #include <stdlib.h>
+#include <unistd.h>
 
 static int comm_event_compare_time(const void* p1, const void* p2)
 {
@@ -177,7 +178,7 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 	return center_idx;
 }
 
-int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* fp)
+int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* fp, off_t* bytes_read)
 {
 	struct trace_event_header dsk_eh;
 	struct trace_state_event dsk_se;
@@ -192,6 +193,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 	struct task* last_task = NULL;
 
 	while(!feof(fp)) {
+		if(bytes_read)
+			*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+
 		if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, 0) != 0) {
 			if(feof(fp))
 				return 0;
@@ -240,6 +244,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 		}
 	}
 
+	if(bytes_read)
+		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+
 	return 0;
 }
 
@@ -280,7 +287,7 @@ int task_tree_to_array(struct task_tree* tt, struct task** arr)
 	return 0;
 }
 
-int read_trace_sample_file(struct multi_event_set* mes, const char* file)
+int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t* bytes_read)
 {
 	struct trace_header header;
 	struct task_tree tt;
@@ -299,7 +306,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file)
 
 	task_tree_init(&tt);
 
-	if(read_trace_samples(mes, &tt, fp) != 0)
+	if(read_trace_samples(mes, &tt, fp, bytes_read) != 0)
 		goto out_fp;
 
 	multi_event_set_sort_by_cpu(mes);
@@ -317,8 +324,12 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file)
 out_tt:
 	task_tree_destroy(&tt);
 out_fp:
+	if(bytes_read)
+		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+
 	fclose(fp);
 out:
 	printf("OUT with code = %d\n", res);
+
 	return res;
 }

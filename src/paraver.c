@@ -19,8 +19,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <unistd.h>
 
-int read_paraver_samples(struct multi_event_set* mes, const char* file)
+int read_paraver_samples(struct multi_event_set* mes, const char* file, off_t* bytes_read)
 {
 	FILE* fp;
 	int res = 1;
@@ -51,6 +52,9 @@ int read_paraver_samples(struct multi_event_set* mes, const char* file)
 	while(!feof(fp)) {
 		int sample_type;
 		fscanf(fp, "%d:", &sample_type);
+
+		if(bytes_read)
+			*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
 
 		switch(sample_type) {
 			case 1:
@@ -91,6 +95,10 @@ int read_paraver_samples(struct multi_event_set* mes, const char* file)
 	}
 
 	res = 0;
+
+	if(bytes_read)
+		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+
 	fclose(fp);
 out:
 	printf("OUT with code %d, file = %s, nsamples = %d\n", res, file, nsamples);

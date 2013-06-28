@@ -18,11 +18,22 @@
 #ifndef DIALOGS_H
 #define DIALOGS_H
 
-#include <settings.h>
+#include <gtk/gtk.h>
+#include "settings.h"
+
+struct progress_window_widgets {
+	GtkWindow* window;
+	GtkProgressBar* progressbar;
+	GtkLabel* label_trace_bytes;
+	GtkLabel* label_bytes_loaded;
+	GtkLabel* label_seconds_remaining;
+	GtkLabel* label_throughput;
+};
 
 void show_error_message(char* format, ...);
 int show_goto_dialog(double start, double end, double curr_value, double* time);
 void show_about_dialog(void);
 int show_settings_dialog(struct settings* s);
+void show_progress_window_persistent(struct progress_window_widgets* widgets);
 
 #endif

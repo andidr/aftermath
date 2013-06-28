@@ -15,12 +15,24 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef PARAVER_H
-#define PARAVER_H
+#include "util.h"
+#include <math.h>
+#include <stdio.h>
 
-#include "events.h"
-#include <sys/types.h>
+void pretty_print_bytes(char* buffer, int buffer_size, double bytes, const char* add)
+{
+	const char* units[] = { "B", "KB", "MB", "GB", "TB", "PB" };
+	const char* unit = units[0];
+	double multiplier = 1;
 
-int read_paraver_samples(struct multi_event_set* mes, const char* file, off_t* bytes_read);
+	for(int i = (sizeof(units) / sizeof(char*))-1; i > 0 ; i--) {
+		multiplier = pow(10.0, 3*i);
 
-#endif
+		if(bytes > multiplier) {
+			unit = units[i];
+			break;
+		}
+	}
+
+	snprintf(buffer, buffer_size, "%.2f %s%s", (double)bytes / multiplier, unit, add);
+}

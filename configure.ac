@@ -17,6 +17,7 @@ CHECK_CUSTOM_PROG(mkdir)
 CHECK_CUSTOM_PROG(glib-genmarshal)
 
 # Checks for libraries.
+CHECK_LIB_WITH(pthread, pthread, pthread_create)
 
 # Checks for header files.
 AC_HEADER_STDC

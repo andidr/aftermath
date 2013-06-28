@@ -27,6 +27,7 @@
 #define _GNU_SOURCE
 #define __USE_GNU 1
 #include <search.h>
+#include <sys/types.h>
 
 #define SET_PREALLOC 5
 #define EVENT_PREALLOC (5*1024)
@@ -313,6 +314,6 @@ static inline void task_tree_destroy(struct task_tree* tt)
 }
 
 /* Read all trace samples from a file and store the result in mes */
-int read_trace_sample_file(struct multi_event_set* mes, const char* file);
+int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t* bytes_read);
 
 #endif

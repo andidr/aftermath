@@ -21,6 +21,9 @@
 #include <endian.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define SWAP_BITS(val, ret, bits) \
 	do { \
@@ -84,6 +87,16 @@ static inline void strreplace(char* haystack, const char* needle, const char* re
 		memmove(pos+(replacement_len-needle_len), pos, strlen(pos)+1);
 		memcpy(pos, replacement, replacement_len);
 	}
+}
+
+static inline off_t file_size(const char* filename)
+{
+	struct stat stat_buf;
+
+	if(stat(filename, &stat_buf) == -1)
+		return -1;
+
+	return stat_buf.st_size;
 }
 
 #endif

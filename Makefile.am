@@ -5,7 +5,7 @@ bin_SCRIPTS = ostv-debug-syms
 TESTS =
 noinst_PROGRAMS = $(TESTS)
 LIB_CFLAGS = -D_POSIX_C_SOURCE=200112 -I$(srcdir)/src -Wall
-TESTS_LDADD = -L. -lm
+TESTS_LDADD = -L. -lm -lpthread
 TESTS_CFLAGS =  $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 
@@ -37,6 +37,8 @@ ostv_SOURCES = src/ostv.c \
 		src/settings.c \
 		src/task_list.h \
 		src/task_list.c \
+		src/util.h \
+		src/util.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -45,7 +47,8 @@ ostvdir=${datarootdir}/ostv
 dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/goto_dialog.glade \
 		share/ui/about_dialog.glade \
-		share/ui/settings.glade
+		share/ui/settings.glade \
+		share/ui/progress_dialog.glade
 
 clean-local:
 	-find . -iname "*~" | xargs rm
