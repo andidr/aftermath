@@ -16,6 +16,7 @@
  */
 
 #include "events.h"
+#include "filter.h"
 #include <stdlib.h>
 
 static int comm_event_compare_time(const void* p1, const void* p2)
@@ -77,7 +78,38 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	while(center_idx > 0 && es->state_events[center_idx-1].start < interval_end && es->state_events[center_idx-1].end > interval_start)
 		center_idx--;
 
+	if(es->state_events[center_idx].start > interval_end || es->state_events[center_idx].end < interval_start)
+		return -1;
+
 	return center_idx;
+}
+
+int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
+{
+	int idx_start = event_set_get_first_state_in_interval(es, start, end);
+	uint64_t state_durations[WORKER_STATE_MAX];
+	uint64_t max = 0;
+
+	if(idx_start == -1)
+		return 0;
+
+	memset(state_durations, 0, sizeof(state_durations));
+
+	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
+		if(!f || filter_has_task(f, es->state_events[i].active_task)) {
+			state_durations[es->state_events[i].state] +=
+				(es->state_events[i].end - es->state_events[i].start);
+		}
+	}
+
+	for(int state = 0; state < WORKER_STATE_MAX; state++) {
+		if(state_durations[state] > max) {
+			max = state_durations[state];
+			*major_state = state;
+		}
+	}
+
+	return max > 0;
 }
 
 int event_set_get_enclosing_state(struct event_set* es, uint64_t time)

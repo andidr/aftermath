@@ -47,6 +47,8 @@ static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  
 				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)},
 				  {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)}};
 
+static double highlight_color[3] = {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)};
+
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
@@ -525,55 +527,77 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 	cairo_set_source_rgb(cr, 1.0, 0, 0);
 	int num_events_drawn = 0;
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
-		int state_event = event_set_get_first_state_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
 
-		if(state_event != -1) {
-			for(; state_event < g->event_sets->sets[cpu].num_state_events; state_event++) {
-				if(g->event_sets->sets[cpu].state_events[state_event].start > g->right)
-					break;
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		long double last_start = 0;
+		long double last_end;
+		int last_major_state = -1;
 
-				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu].state_events[state_event].active_task))
-					continue;
+		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
+			int major_state;
+			long double start = gtk_trace_screen_x_to_trace(g, px);
+			long double end = gtk_trace_screen_x_to_trace(g, px+1);
 
-				if(g->event_sets->sets[cpu].state_events[state_event].start < g->right &&
-				   g->event_sets->sets[cpu].state_events[state_event].end > g->left)
-				{
-					int state = g->event_sets->sets[cpu].state_events[state_event].state;
-					uint64_t start = g->event_sets->sets[cpu].state_events[state_event].start;
-					uint64_t end = g->event_sets->sets[cpu].state_events[state_event].end;
-					long double start_x = gtk_trace_x_to_screen(g, start);
+			if(start < 0)
+				continue;
 
-					if(start_x < 0)
-						start_x = 0;
+			int has_major = event_set_get_major_state(&g->event_sets->sets[cpu_idx], g->filter, start, end, &major_state);
 
-					long double end_x   = gtk_trace_x_to_screen(g, end);
-					long double width = end_x - start_x;
-
-					if(end_x > g->widget.allocation.width)
-						width = g->widget.allocation.width - start_x;
-
-					if(width < 0.1)
-						continue;
-
-					if(&g->event_sets->sets[cpu].state_events[state_event] == g->highlight_state_event)
-						cairo_set_source_rgb(cr, 1.0, 1.0, 0);
-					else
-						cairo_set_source_rgb(cr, state_colors[state][0], state_colors[state][1], state_colors[state][2]);
-
-					cairo_rectangle(cr, (double)start_x+0.5, cpu*cpu_height, width, cpu_height);
+			if(last_major_state != -1) {
+				if((has_major && last_major_state != major_state) || !has_major) {
+					cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
+					cairo_rectangle(cr, last_start, cpu_idx*cpu_height, px-last_start, cpu_height);
 					cairo_fill(cr);
 					num_events_drawn++;
 				}
 			}
+
+			if(has_major && last_major_state != major_state) {
+				last_major_state = major_state;
+				last_start = px;
+			}
+
+			if(!has_major)
+				last_major_state = -1;
+			else
+				last_end = px;
+		}
+
+		if(last_major_state != -1) {
+			cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
+			cairo_rectangle(cr, last_start, cpu_idx*cpu_height, last_end - last_start, cpu_height);
+			cairo_fill(cr);
+			num_events_drawn++;
+		}
+
+		if(g->highlight_state_event &&
+		   g->highlight_state_event >= g->event_sets->sets[cpu_idx].state_events &&
+		   g->highlight_state_event <= &g->event_sets->sets[cpu_idx].state_events[g->event_sets->sets[cpu_idx].num_state_events-1])
+		{
+			if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
+				double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
+				double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
+
+				if(x_start < g->axis_width)
+					x_start = 0;
+
+				if(x_end > g->widget.allocation.width)
+					x_end = g->widget.allocation.width;
+
+				cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
+				cairo_rectangle(cr, x_start, cpu_idx*cpu_height, x_end - x_start, cpu_height);
+				cairo_fill(cr);
+			}
 		}
 	}
 
-	cairo_set_source_rgb(cr, 0, 0, 0);
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
-		cairo_move_to(cr, g->axis_width, cpu*cpu_height+0.5);
-		cairo_line_to(cr, g->widget.allocation.width, cpu*cpu_height+0.5);
-		cairo_stroke(cr);
+	if(cpu_height > 3) {
+		cairo_set_source_rgb(cr, 0, 0, 0);
+		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+			cairo_move_to(cr, g->axis_width, cpu_idx*cpu_height+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, cpu_idx*cpu_height+0.5);
+			cairo_stroke(cr);
+		}
 	}
 
 	printf("State events drawn: %d\n", num_events_drawn);
