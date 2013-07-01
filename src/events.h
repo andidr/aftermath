@@ -196,9 +196,12 @@ static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int 
 
 static inline int multi_event_set_alloc(struct multi_event_set* mes, int cpu)
 {
-	check_buffer_grow((void**)&mes->sets, sizeof(struct event_set),
+	if(check_buffer_grow((void**)&mes->sets, sizeof(struct event_set),
 			  mes->num_sets, &mes->num_sets_free,
-			  SET_PREALLOC);
+			     SET_PREALLOC))
+	{
+		return 1;
+	}
 
 	mes->num_sets_free--;
 	event_set_init(&mes->sets[mes->num_sets++], cpu);
