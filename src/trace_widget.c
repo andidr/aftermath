@@ -980,6 +980,10 @@ struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y
 		return NULL;
 
 	worker_pointer = y / cpu_height;
+
+	if(worker_pointer >= g->event_sets->num_sets)
+		return NULL;
+
 	time = gtk_trace_get_time_at(widget, x);
 	idx = event_set_get_enclosing_state(&g->event_sets->sets[worker_pointer], time);
 
