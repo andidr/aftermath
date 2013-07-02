@@ -15,26 +15,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef DIALOGS_H
-#define DIALOGS_H
+#ifndef COLOR_H
+#define COLOR_H
 
-#include <gtk/gtk.h>
-#include "settings.h"
-
-struct progress_window_widgets {
-	GtkWindow* window;
-	GtkProgressBar* progressbar;
-	GtkLabel* label_trace_bytes;
-	GtkLabel* label_bytes_loaded;
-	GtkLabel* label_seconds_remaining;
-	GtkLabel* label_throughput;
-};
-
-void show_error_message(char* format, ...);
-int show_goto_dialog(double start, double end, double curr_value, double* time);
-void show_about_dialog(void);
-int show_settings_dialog(struct settings* s);
-void show_progress_window_persistent(struct progress_window_widgets* widgets);
-int show_color_dialog(GdkColor* color);
+#define COL_NORM(x) ((x) / 255.0)
 
 #endif

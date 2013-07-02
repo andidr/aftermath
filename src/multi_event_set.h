@@ -21,6 +21,7 @@
 #include "counter_description.h"
 #include "event_set.h"
 #include "task.h"
+#include "color.h"
 #include <stdlib.h>
 
 #define SET_PREALLOC 5
@@ -170,8 +171,20 @@ static inline int multi_event_set_counter_description_alloc(struct multi_event_s
 
 static inline struct counter_description* multi_event_set_counter_description_alloc_ptr(struct multi_event_set* mes, uint64_t counter_id, int name_len)
 {
+	static double counter_colors[][3] = {
+		{ COL_NORM(255), COL_NORM(  0), COL_NORM(  0) },
+		{ COL_NORM(  0), COL_NORM(255), COL_NORM(  0) },
+		{ COL_NORM(255), COL_NORM(255), COL_NORM(  0) },
+		{ COL_NORM(255), COL_NORM(  0), COL_NORM(255) }
+	};
+
 	if(multi_event_set_counter_description_alloc(mes, counter_id, name_len) != 0)
 		return NULL;
+
+	int col_idx = (mes->num_counters-1) % (sizeof(counter_colors) / sizeof(counter_colors[0]));
+	mes->counters[mes->num_counters-1].color_r = counter_colors[col_idx][0];
+	mes->counters[mes->num_counters-1].color_g = counter_colors[col_idx][1];
+	mes->counters[mes->num_counters-1].color_b = counter_colors[col_idx][2];
 
 	return &mes->counters[mes->num_counters-1];
 }

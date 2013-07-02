@@ -52,6 +52,9 @@ ostv_SOURCES = src/ostv.c \
 		src/task.c \
 		src/util.h \
 		src/util.c \
+		src/color.h \
+		src/cell_renderer_color_button.h \
+		src/cell_renderer_color_button.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -61,7 +64,8 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/goto_dialog.glade \
 		share/ui/about_dialog.glade \
 		share/ui/settings.glade \
-		share/ui/progress_dialog.glade
+		share/ui/progress_dialog.glade \
+		share/ui/color_dialog.glade
 
 clean-local:
 	-find . -iname "*~" | xargs rm

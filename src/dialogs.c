@@ -135,3 +135,25 @@ int show_settings_dialog(struct settings* s)
 
 	return ret;
 }
+
+int show_color_dialog(GdkColor* color)
+{
+	int ret = 0;
+	int foo;
+	GladeXML* xml = glade_xml_new(DATA_PATH "/color_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, color_selection);
+
+	gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(color_selection), color);
+
+	if((foo = gtk_dialog_run(GTK_DIALOG(dialog))) == GTK_RESPONSE_OK) {
+		gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(color_selection), color);
+		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}

@@ -419,7 +419,7 @@
                             <child>
                               <widget class="GtkLabel" id="label2">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Apply filter</property>
+                                <property name="label" translatable="yes">Apply</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -575,7 +575,7 @@
                             <child>
                               <widget class="GtkLabel" id="label11">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Apply filter</property>
+                                <property name="label" translatable="yes">Apply</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>

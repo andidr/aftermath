@@ -33,6 +33,10 @@ struct counter_description {
 	int slope_mode;
 	int index;
 	char* name;
+
+	double color_r;
+	double color_g;
+	double color_b;
 };
 
 static inline int counter_description_init(struct counter_description* cd, int index, uint64_t counter_id, int name_len)
@@ -45,6 +49,9 @@ static inline int counter_description_init(struct counter_description* cd, int i
 	cd->min_slope = DBL_MAX;
 	cd->max_slope = DBL_MIN;
 	cd->slope_mode = 0;
+	cd->color_r = 1.0;
+	cd->color_g = 0.0;
+	cd->color_b = 0.0;
 
 	if(cd->name == NULL)
 		return 1;

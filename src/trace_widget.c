@@ -17,6 +17,7 @@
 
 #include "trace_widget.h"
 #include "marshal.h"
+#include "color.h"
 #include <math.h>
 #include <inttypes.h>
 
@@ -31,7 +32,6 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton* event);
 gint gtk_trace_button_release_event(GtkWidget* widget, GdkEventButton* event);
 gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event);
 
-#define COL_NORM(x) ((x) / 255.0)
 static double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(255.0)},
 				   {COL_NORM(  0.0), COL_NORM(  0.0), COL_NORM(255.0)},
 				   {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(255.0)},
@@ -740,7 +740,6 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
 	cairo_clip(cr);
 
-	cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
 	cairo_set_line_width(cr, 1.0);
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
@@ -750,6 +749,8 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 
 			if(g->filter && !filter_has_counter(g->filter, cd))
 				continue;
+
+			cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
 
 			event_idx = counter_event_set_get_event_outside_interval(ces, (g->left > 0) ? g->left : 0, g->right);
 

@@ -16,6 +16,7 @@
  */
 
 #include "counter_list.h"
+#include "cell_renderer_color_button.h"
 #include <inttypes.h>
 
 void counter_list_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer user_data)
@@ -44,6 +45,17 @@ void counter_list_toggle_slope(GtkCellRendererToggle* cell_renderer, gchar* path
 	gtk_list_store_set(store, &iter, COUNTER_LIST_COL_MODE, !current_state, -1);
 }
 
+void counter_list_color_changed(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer color, gpointer user_data)
+{
+	GtkTreeView* counter_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
+	GtkTreeIter iter;
+	GtkListStore* store = GTK_LIST_STORE(model);
+
+	gtk_tree_model_get_iter_from_string(model, &iter, path);
+	gtk_list_store_set(store, &iter, COUNTER_LIST_COL_COLOR, color, -1);
+}
+
 void counter_list_init(GtkTreeView* counter_treeview)
 {
 	GtkCellRenderer* renderer;
@@ -55,6 +67,12 @@ void counter_list_init(GtkTreeView* counter_treeview)
 	gtk_cell_renderer_toggle_set_activatable(GTK_CELL_RENDERER_TOGGLE(renderer), TRUE);
 	gtk_tree_view_append_column(counter_treeview, column);
 	g_signal_connect(G_OBJECT(renderer), "toggled", G_CALLBACK(counter_list_toggle), counter_treeview);
+
+	renderer = custom_cell_renderer_color_button_new();
+	column = gtk_tree_view_column_new_with_attributes("Name", renderer, "color", COUNTER_LIST_COL_COLOR, NULL);
+	gtk_tree_view_append_column(counter_treeview, column);
+	g_signal_connect(G_OBJECT(renderer), "color-changed", G_CALLBACK(counter_list_color_changed), counter_treeview);
+
 
 	renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", COUNTER_LIST_COL_NAME, NULL);
@@ -82,7 +100,7 @@ void counter_list_init(GtkTreeView* counter_treeview)
 	column = gtk_tree_view_column_new_with_attributes("Max slope", renderer, "text", COUNTER_LIST_COL_MAX_SLOPE, NULL);
 	gtk_tree_view_append_column(counter_treeview, column);
 
-	store = gtk_list_store_new(COUNTER_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_BOOLEAN,
+	store = gtk_list_store_new(COUNTER_LIST_COL_NUM, G_TYPE_BOOLEAN, GDK_TYPE_COLOR, G_TYPE_STRING, G_TYPE_BOOLEAN,
 				   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 
 	gtk_tree_view_set_model(counter_treeview, GTK_TREE_MODEL(store));
@@ -108,8 +126,13 @@ void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description
 		snprintf(buff_min_slope, sizeof(buff_min_slope), "%Lf", counters[i].min_slope);
 		snprintf(buff_max_slope, sizeof(buff_max_slope), "%Lf", counters[i].max_slope);
 
+		GdkColor color = { .red = counters[i].color_r*65535,
+				   .green = counters[i].color_g*65535,
+				   .blue = counters[i].color_b*65535 };
+
 		gtk_list_store_set(store, &iter,
 				   COUNTER_LIST_COL_FILTER, TRUE,
+				   COUNTER_LIST_COL_COLOR, &color,
 				   COUNTER_LIST_COL_NAME, counters[i].name,
 				   COUNTER_LIST_COL_MODE, FALSE,
 				   COUNTER_LIST_COL_MIN, buff_min,
@@ -128,6 +151,7 @@ void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* fil
 	gboolean current_state;
 	gboolean slope_mode;
 	struct counter_description* cd;
+	GdkColor* color;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
 		return;
@@ -136,10 +160,14 @@ void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* fil
 		gtk_tree_model_get(model, &iter,
 				   COUNTER_LIST_COL_FILTER, &current_state,
 				   COUNTER_LIST_COL_MODE, &slope_mode,
+				   COUNTER_LIST_COL_COLOR, &color,
 				   COUNTER_LIST_COL_COUNTER_POINTER, &cd, -1);
 
 		if(current_state) {
 			cd->slope_mode = slope_mode;
+			cd->color_r = color->red / 65535.0;
+			cd->color_g = color->green / 65535.0;
+			cd->color_b = color->blue / 65535.0;
 			filter_add_counter(filter, cd);
 		}
 
