@@ -68,6 +68,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_steals = 1;
 	g->draw_pushes = 1;
 	g->draw_data_reads = 1;
+	g->draw_counters = 0;
 
 	g->draw_single_events = 0;
 	g->back_buffer = NULL;
@@ -725,6 +726,74 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
+{
+	struct counter_event_set* ces;
+	struct counter_description* cd;
+	int event_idx;
+
+	double cpu_height = gtk_trace_cpu_height(g);
+	long double screen_x;
+	long double rel_val;
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
+	cairo_clip(cr);
+
+	cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+	cairo_set_line_width(cr, 1.0);
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		for(int ctr = 0; ctr < g->event_sets->sets[cpu_idx].num_counter_event_sets; ctr++) {
+			ces = &g->event_sets->sets[cpu_idx].counter_event_sets[ctr];
+			cd = multi_event_set_find_counter_description_by_index(g->event_sets, ces->counter_index);
+
+			event_idx = counter_event_set_get_event_outside_interval(ces, cd->counter_id, (g->left > 0) ? g->left : 0, g->right);
+
+			if(event_idx != -1 && event_idx < ces->num_events-1) {
+				if(ces->events[event_idx].time >= g->left) {
+					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
+					rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+				} else {
+					long double xdiff = (long double)(ces->events[event_idx+1].time - ces->events[event_idx].time);
+					long double ydiff = (long double)(ces->events[event_idx+1].value - ces->events[event_idx].value);
+					long double xdiff_invisible = (long double)(g->left - ces->events[event_idx+1].time);
+					long double slope = ydiff / xdiff;
+
+					screen_x = gtk_trace_x_to_screen(g, g->left);
+					rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(cd->max - cd->min);
+				}
+
+				cairo_move_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
+				event_idx++;
+
+				for(; event_idx < ces->num_events; event_idx++) {
+					if(ces->events[event_idx].time <= g->right) {
+						screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
+						rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+					} else {
+						long double xdiff = (long double)(ces->events[event_idx].time - ces->events[event_idx-1].time);
+						long double ydiff = (long double)(ces->events[event_idx].value - ces->events[event_idx-1].value);
+						long double xdiff_visible = (long double)(ces->events[event_idx].time - g->right);
+						long double slope = ydiff / xdiff;
+
+						screen_x = gtk_trace_x_to_screen(g, g->right);
+						rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(cd->max - cd->min);
+					}
+
+					cairo_line_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
+
+					if(ces->events[event_idx].time > g->right)
+						break;
+				}
+
+				cairo_stroke(cr);
+			}
+		}
+	}
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
@@ -897,6 +966,16 @@ void gtk_trace_set_draw_single_events(GtkWidget *widget, int val)
 		gtk_trace_paint(widget);
 }
 
+void gtk_trace_set_draw_counters(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_counters);
+	g->draw_counters = val;
+
+	if(needs_redraw)
+		gtk_trace_paint(widget);
+}
+
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -938,6 +1017,9 @@ void gtk_trace_paint(GtkWidget *widget)
 	/* Draw events */
 	if(g->draw_states)
 		gtk_trace_paint_states(g, cr);
+
+	if(g->draw_counters)
+		gtk_trace_paint_counters(g, cr);
 
 	if(g->draw_single_events)
 		gtk_trace_paint_single_events(g, cr);

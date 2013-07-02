@@ -31,6 +31,7 @@
 
 #define SET_PREALLOC 5
 #define EVENT_PREALLOC (5*1024)
+#define COUNTER_PREALLOC 16
 
 struct state_event {
 	uint64_t start;
@@ -47,6 +48,30 @@ struct comm_event {
 	enum comm_event_type type;
 	uint64_t active_task;
 	uint64_t what;
+};
+
+struct counter_event {
+	uint64_t time;
+	uint64_t active_task;
+	uint64_t counter_id;
+	int64_t value;
+	int counter_index;
+};
+
+struct counter_event_set {
+	struct counter_event* events;
+	int num_events;
+	int num_events_free;
+	uint64_t counter_id;
+	int counter_index;
+};
+
+struct counter_description {
+	uint64_t counter_id;
+	int64_t min;
+	int64_t max;
+	int index;
+	char* name;
 };
 
 struct single_event {
@@ -68,6 +93,10 @@ struct event_set {
 	int num_single_events;
 	int num_single_events_free;
 
+	struct counter_event_set* counter_event_sets;
+	int num_counter_event_sets;
+	int num_counter_event_sets_free;
+
 	int cpu;
 	uint64_t first_start;
 	uint64_t last_end;
@@ -88,6 +117,10 @@ struct multi_event_set {
 	struct task* tasks;
 	int num_tasks;
 	int num_tasks_free;
+
+	struct counter_description* counters;
+	int num_counters;
+	int num_counters_free;
 };
 
 struct task_tree {
@@ -158,6 +191,106 @@ static inline int event_set_add_single_event(struct event_set* es, struct single
 	return 0;
 }
 
+static inline struct counter_description* multi_event_set_find_counter_description(struct multi_event_set* mes, uint64_t counter_id)
+{
+	for(int i = 0; i < mes->num_counters; i++)
+		if(mes->counters[i].counter_id == counter_id)
+			return &mes->counters[i];
+
+	return NULL;
+}
+
+static inline struct counter_description* multi_event_set_find_counter_description_by_index(struct multi_event_set* mes, int counter_index)
+{
+	if(counter_index >= 0 && counter_index < mes->num_counters)
+		return &mes->counters[counter_index];
+
+	return NULL;
+}
+
+int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end);
+
+static inline void counter_event_set_destroy(struct counter_event_set* ces)
+{
+	free(ces->events);
+}
+
+static inline void counter_event_set_init(struct counter_event_set* ces, uint64_t counter_id, int counter_index)
+{
+	ces->events = NULL;
+	ces->num_events = 0;
+	ces->num_events_free = 0;
+	ces->counter_id = counter_id;
+	ces->counter_index = counter_index;
+}
+
+static inline int event_set_alloc_counter_event_set(struct event_set* es, uint64_t counter_id, int counter_index)
+{
+	if(check_buffer_grow((void**)&es->counter_event_sets, sizeof(struct counter_event_set),
+			  es->num_counter_event_sets, &es->num_counter_event_sets_free,
+			     SET_PREALLOC))
+	{
+		return 1;
+	}
+
+	es->num_counter_event_sets_free--;
+	counter_event_set_init(&es->counter_event_sets[es->num_counter_event_sets++], counter_id, counter_index);
+	return 0;
+}
+
+static inline struct counter_event_set* event_set_find_counter_event_set(struct event_set* es, uint64_t counter_id)
+{
+	for(int i = 0; i < es->num_counter_event_sets; i++)
+		if(es->counter_event_sets[i].counter_id == counter_id)
+			return &es->counter_event_sets[i];
+
+	return NULL;
+}
+
+static inline struct counter_event_set* event_set_find_alloc_counter_event_set(struct event_set* es, uint64_t counter_id, int counter_index)
+{
+	struct counter_event_set* res;
+
+	if(!(res = event_set_find_counter_event_set(es, counter_id)))
+		if(event_set_alloc_counter_event_set(es, counter_id, counter_index) != 0)
+			return NULL;
+
+	res = event_set_find_counter_event_set(es, counter_id);
+
+	return res;
+}
+
+static inline int event_set_add_counter_event(struct multi_event_set* mes, struct event_set* es, struct counter_event* ce)
+{
+	struct counter_event_set* ces;
+
+	if(!(ces = event_set_find_alloc_counter_event_set(es, ce->counter_id, ce->counter_index)))
+		return 1;
+
+	if(add_buffer_grow((void**)&ces->events, ce, sizeof(*ce),
+			&ces->num_events, &ces->num_events_free,
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
+
+	if(ce->time < es->first_start)
+		es->first_start = ce->time;
+
+	if(ce->time > es->last_end)
+		es->last_end = ce->time;
+
+	struct counter_description* cd = multi_event_set_find_counter_description(mes, ce->counter_id);
+
+	if(ce->value < cd->min)
+		cd->min = ce->value;
+
+	if(ce->value > cd->max)
+		cd->max = ce->value;
+
+	return 0;
+}
+
 static inline void event_set_init(struct event_set* es, int cpu)
 {
 	es->num_state_events = 0;
@@ -172,6 +305,10 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_single_events_free = 0;
 	es->single_events = NULL;
 
+	es->num_counter_event_sets = 0;
+	es->num_counter_event_sets_free = 0;
+	es->counter_event_sets = NULL;
+
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;
 	es->last_end = 0;
@@ -182,6 +319,11 @@ static inline void event_set_destroy(struct event_set* es)
 	free(es->state_events);
 	free(es->comm_events);
 	free(es->single_events);
+
+	for(int i = 0; i < es->num_counter_event_sets; i++)
+		counter_event_set_destroy(&es->counter_event_sets[i]);
+
+	free(es->counter_event_sets);
 }
 
 void multi_event_set_sort_by_cpu(struct multi_event_set* mes);
@@ -270,18 +412,6 @@ static inline void task_destroy(struct task* t)
 	free(t->symbol_name);
 }
 
-static inline void multi_event_set_destroy(struct multi_event_set* mes)
-{
-	for(int set = 0; set < mes->num_sets; set++)
-		event_set_destroy(&mes->sets[set]);
-
-	for(int task = 0; task < mes->num_tasks; task++)
-		task_destroy(&mes->tasks[task]);
-
-	free(mes->sets);
-	free(mes->tasks);
-}
-
 static inline void task_tree_init(struct task_tree* tt)
 {
 	tt->root = NULL;
@@ -324,6 +454,67 @@ int task_tree_to_array(struct task_tree* tt, struct task** arr);
 static inline void task_tree_destroy(struct task_tree* tt)
 {
 	tdestroy(tt->root, free);
+}
+
+static inline int counter_description_init(struct counter_description* cd, int index, uint64_t counter_id, int name_len)
+{
+	cd->counter_id = counter_id;
+	cd->index = index;
+	cd->name = malloc(name_len+1);
+	cd->min = INT64_MAX;
+	cd->max = INT64_MIN;
+
+	if(cd->name == NULL)
+		return 1;
+
+	return 0;
+}
+
+static inline void counter_description_destroy(struct counter_description* cd)
+{
+	free(cd->name);
+}
+
+static inline int counter_description_alloc(struct multi_event_set* mes, uint64_t counter_id, int name_len)
+{
+	if(check_buffer_grow((void**)&mes->counters, sizeof(struct counter_description),
+			  mes->num_counters, &mes->num_counters_free,
+			     COUNTER_PREALLOC))
+	{
+		return 1;
+	}
+
+	if(counter_description_init(&mes->counters[mes->num_counters], mes->num_counters, counter_id, name_len) == 0) {
+		mes->num_counters_free--;
+		mes->num_counters++;
+
+		return 0;
+	}
+
+	return 1;
+}
+
+static inline struct counter_description* counter_description_alloc_ptr(struct multi_event_set* mes, uint64_t counter_id, int name_len)
+{
+	if(counter_description_alloc(mes, counter_id, name_len) != 0)
+		return NULL;
+
+	return &mes->counters[mes->num_counters-1];
+}
+
+static inline void multi_event_set_destroy(struct multi_event_set* mes)
+{
+	for(int set = 0; set < mes->num_sets; set++)
+		event_set_destroy(&mes->sets[set]);
+
+	for(int task = 0; task < mes->num_tasks; task++)
+		task_destroy(&mes->tasks[task]);
+
+	for(int counter = 0; counter < mes->num_counters; counter++)
+		counter_description_destroy(&mes->counters[counter]);
+
+	free(mes->sets);
+	free(mes->tasks);
 }
 
 /* Read all trace samples from a file and store the result in mes */

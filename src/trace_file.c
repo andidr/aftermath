@@ -80,6 +80,20 @@ int trace_single_event_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_counter_description_conversion_table[] = {
+	FIELD_SIZE(struct trace_counter_description, type),
+	FIELD_SIZE(struct trace_counter_description, counter_id),
+	FIELD_SIZE(struct trace_counter_description, name_len),
+	CONVERSION_TABLE_END
+};
+
+int trace_counter_event_conversion_table[] = {
+	EVENT_HEADER_CONVERSION_FIELDS,
+	FIELD_SIZE(struct trace_counter_event, counter_id),
+	FIELD_SIZE(struct trace_counter_event, value),
+	CONVERSION_TABLE_END
+};
+
 /* Convert struct from disk format to host format */
 void convert_struct(void* ptr, int* conversion_table, int offset, enum conversion_direction dir)
 {
@@ -117,6 +131,16 @@ void convert_struct(void* ptr, int* conversion_table, int offset, enum conversio
 }
 
 #define READ_STRUCT(fp, st) fread(st, sizeof(*(st)), 1, fp)
+
+int read_uint32_convert(FILE* fp, uint32_t* out)
+{
+	if(fread(out, sizeof(*out), 1, fp) != 1)
+		return 1;
+
+	*out = int32_letoh(*out);
+
+	return 0;
+}
 
 int read_struct_convert(FILE* fp, void* out, int size, int* conversion_table, int offset)
 {

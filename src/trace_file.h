@@ -31,22 +31,28 @@
  * | - trace_state_events       |
  * | - trace_comm_events        |
  * | - trace_single_events      |
+ * | - trace_counter_description|
+ * | - trace_counter_event      |
  * +----------------------------+
  *
  * Each of these structs contains a header that specifies its type and
- * that contains common fields used in every trace sample.
+ * that contains common fields used in every trace sample. An exception to this
+ * ruel are counter descriptions, which only contain a field for the type in the
+ * header.
  *
  * The on-disk byte order for every integer fiels is little endian
  */
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 2
+#define TRACE_VERSION 3
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
 	EVENT_TYPE_COMM = 1,
-	EVENT_TYPE_SINGLE = 2
+	EVENT_TYPE_SINGLE = 2,
+	EVENT_TYPE_COUNTER = 3,
+	EVENT_TYPE_COUNTER_DESCRIPTION = 4
 };
 
 enum worker_state {
@@ -168,6 +174,41 @@ struct trace_comm_event {
 
 extern int trace_comm_event_conversion_table[];
 
+/* Describes a counter, e.g. a hardware performance counter */
+struct trace_counter_description {
+	/* Short header field */
+	uint32_t type;
+
+	/* Id used in trace_counter_events */
+	uint64_t counter_id;
+
+	/* Length of the counter name not including the terminating zero byte */
+	uint32_t name_len;
+
+	/* The last field is followed by the name as a
+	 * zero-terminated ASCII string
+	 */
+} __attribute__((packed));
+
+extern int trace_counter_description_conversion_table[];
+
+/* Counter events are events are dumps of performance
+ * counters, e.g. nulber of cache misses over time
+ */
+struct trace_counter_event {
+	struct trace_event_header header;
+
+	/* The unique identifier of the counter whose
+	 * value is dumped */
+	uint64_t counter_id;
+
+	/* The counter value */
+	int64_t value;
+} __attribute__((packed));
+
+
+extern int trace_counter_event_conversion_table[];
+
 /* Single events are events that only involve one worker
  * and whose duration is not important, e.g. task creation.
  */
@@ -193,6 +234,9 @@ int read_struct_convert(FILE* fp, void* out, int size, int* conversion_table, in
 
 /* Write a data structure to disk and convert it to on-disk format */
 int write_struct_convert(FILE* fp, void* out, int size, int* conversion_table, int offset);
+
+/* Read a unsigned 32-bit integer from disk and convert it to host format */
+int read_uint32_convert(FILE* fp, uint32_t* out);
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);

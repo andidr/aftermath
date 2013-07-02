@@ -262,6 +262,19 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkToggleToolButton" id="toolbutton2">
+                <property name="visible">True</property>
+                <property name="tooltip" translatable="yes">Draw counter graphs</property>
+                <property name="label" translatable="yes">Ctr</property>
+                <property name="use_underline">True</property>
+                <signal name="toggled" handler="toolbar_draw_counters_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
