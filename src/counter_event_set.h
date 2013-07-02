@@ -30,7 +30,7 @@ struct counter_event_set {
 	int counter_index;
 };
 
-int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end);
+int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end);
 
 static inline void counter_event_set_destroy(struct counter_event_set* ces)
 {

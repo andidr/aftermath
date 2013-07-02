@@ -17,7 +17,7 @@
 
 #include "counter_event_set.h"
 
-int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end)
+int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
 	int end_idx = es->num_events-1;
