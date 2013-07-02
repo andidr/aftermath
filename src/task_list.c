@@ -114,7 +114,6 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 
 		if(current_state)
 			filter_add_task(filter, t);
-
 	} while(gtk_tree_model_iter_next(model, &iter));
 
 	filter_sort_tasks(filter);

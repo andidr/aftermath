@@ -21,6 +21,7 @@
 GtkWidget* g_trace_widget;
 GtkWidget* g_scroll_bar;
 GtkWidget* g_task_treeview;
+GtkWidget* g_counter_treeview;
 GtkWidget* g_code_view;
 GtkWidget* g_main_notebook;
 GtkWidget* g_statusbar;

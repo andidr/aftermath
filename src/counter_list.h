@@ -15,26 +15,26 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef COUNTER_LIST_H
+#define COUNTER_LIST_H
+
+#include <gtk/gtk.h>
+#include "events.h"
 #include "filter.h"
-#include "task.h"
-#include <stdlib.h>
+#include "counter_description.h"
 
-void filter_sort_tasks(struct filter* f)
-{
-	qsort(f->tasks, f->num_tasks,
-	      sizeof(struct task*), compare_tasksp);
-}
+enum counter_list_columns {
+	COUNTER_LIST_COL_FILTER = 0,
+	COUNTER_LIST_COL_NAME,
+	COUNTER_LIST_COL_COUNTER_POINTER,
+	COUNTER_LIST_COL_NUM
+};
 
-int filter_has_task(struct filter* f, uint64_t work_fn)
-{
-	struct task key = { .work_fn = work_fn };
-	struct task* pkey = &key;
+void counter_list_init(GtkTreeView* counter_treeview);
+void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description* counters, int num_counters);
+void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* filter);
 
-	if(!f->filter_tasks)
-		return 1;
+void counter_list_check_all(GtkTreeView* counter_treeview);
+void counter_list_uncheck_all(GtkTreeView* counter_treeview);
 
-	return (bsearch(&pkey, f->tasks,
-			f->num_tasks, sizeof(struct task*),
-			compare_tasksp)
-		!= NULL);
-}
+#endif

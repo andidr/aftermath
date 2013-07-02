@@ -37,6 +37,10 @@ ostv_SOURCES = src/ostv.c \
 		src/settings.c \
 		src/task_list.h \
 		src/task_list.c \
+		src/counter_list.h \
+		src/counter_list.c \
+		src/bitvector.h \
+		src/bitvector.c \
 		src/counter_description.h \
 		src/counter_event_set.h \
 		src/counter_event_set.c \
