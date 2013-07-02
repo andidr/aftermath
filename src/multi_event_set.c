@@ -15,23 +15,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "filter.h"
-#include "task.h"
-#include <stdlib.h>
+#include "multi_event_set.h"
 
-void filter_sort_tasks(struct filter* f)
+void multi_event_set_sort_by_cpu(struct multi_event_set* mes)
 {
-	qsort(f->tasks, f->num_tasks,
-	      sizeof(struct task*), compare_tasksp);
+	qsort(mes->sets, mes->num_sets, sizeof(struct event_set), event_set_compare_cpus);
 }
 
-int filter_has_task(struct filter* f, uint64_t work_fn)
-{
-	struct task key = { .work_fn = work_fn };
-	struct task* pkey = &key;
-
-	return (bsearch(&pkey, f->tasks,
-			f->num_tasks, sizeof(struct task*),
-			compare_tasksp)
-		!= NULL);
-}

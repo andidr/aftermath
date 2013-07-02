@@ -34,6 +34,7 @@
 #include "debug.h"
 #include "ansi_extras.h"
 #include "util.h"
+#include "multi_event_set.h"
 
 struct load_thread_data {
 	char* tracefile;

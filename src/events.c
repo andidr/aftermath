@@ -17,192 +17,10 @@
 
 #include "events.h"
 #include "filter.h"
+#include "task.h"
+#include "multi_event_set.h"
 #include <stdlib.h>
 #include <unistd.h>
-
-static int comm_event_compare_time(const void* p1, const void* p2)
-{
-	const struct comm_event* s1 = p1;
-	const struct comm_event* s2 = p2;
-
-	if(s1->time > s2->time)
-		return 1;
-	else if(s1->time < s2->time)
-		return -1;
-
-	return 0;
-}
-
-void event_set_sort_comm(struct event_set* es)
-{
-	qsort(es->comm_events, es->num_comm_events, sizeof(struct comm_event), comm_event_compare_time);
-}
-
-static int event_set_compare_cpus(const void* p1, const void* p2)
-{
-	const struct event_set* s1 = p1;
-	const struct event_set* s2 = p2;
-
-	if(s1->cpu > s2->cpu)
-		return 1;
-	else if(s1->cpu < s2->cpu)
-		return -1;
-
-	return 0;
-}
-
-void multi_event_set_sort_by_cpu(struct multi_event_set* mes)
-{
-	qsort(mes->sets, mes->num_sets, sizeof(struct event_set), event_set_compare_cpus);
-}
-
-int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
-{
-	int start_idx = 0;
-	int end_idx = es->num_state_events-1;
-	int center_idx = 0;
-
-	if(es->num_state_events == 0)
-		return -1;
-
-	while(end_idx - start_idx > 1) {
-		center_idx = (start_idx + end_idx) / 2;
-
-		if(es->state_events[center_idx].start > interval_end)
-			end_idx = center_idx;
-		else if(es->state_events[center_idx].end < interval_start)
-			start_idx = center_idx;
-		else
-			break;
-	}
-
-	while(center_idx > 0 && es->state_events[center_idx-1].start < interval_end && es->state_events[center_idx-1].end > interval_start)
-		center_idx--;
-
-	if(es->state_events[center_idx].start > interval_end || es->state_events[center_idx].end < interval_start)
-		return -1;
-
-	return center_idx;
-}
-
-int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
-{
-	int idx_start = event_set_get_first_state_in_interval(es, start, end);
-	uint64_t state_durations[WORKER_STATE_MAX];
-	uint64_t max = 0;
-
-	if(idx_start == -1)
-		return 0;
-
-	memset(state_durations, 0, sizeof(state_durations));
-
-	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
-		if(!f || filter_has_task(f, es->state_events[i].active_task)) {
-			state_durations[es->state_events[i].state] +=
-				(es->state_events[i].end - es->state_events[i].start);
-		}
-	}
-
-	for(int state = 0; state < WORKER_STATE_MAX; state++) {
-		if(state_durations[state] > max) {
-			max = state_durations[state];
-			*major_state = state;
-		}
-	}
-
-	return max > 0;
-}
-
-int event_set_get_enclosing_state(struct event_set* es, uint64_t time)
-{
-	int idx = event_set_get_first_state_in_interval(es, time, time);
-
-	if(idx == -1)
-		return -1;
-
-	if(es->state_events[idx].start > time || es->state_events[idx].end < time)
-		return -1;
-
-	return idx;
-}
-
-int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
-{
-	int start_idx = 0;
-	int end_idx = es->num_comm_events-1;
-	int center_idx = 0;
-
-	if(es->num_comm_events == 0)
-		return -1;
-
-	while(end_idx - start_idx > 1) {
-		center_idx = (start_idx + end_idx) / 2;
-
-		if(es->comm_events[center_idx].time > interval_end)
-			end_idx = center_idx;
-		else if(es->comm_events[center_idx].time < interval_start)
-			start_idx = center_idx;
-		else
-			break;
-	}
-
-	while(center_idx > 0 && es->comm_events[center_idx-1].time < interval_end && es->comm_events[center_idx-1].time > interval_start)
-		center_idx--;
-
-	return center_idx;
-}
-
-int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
-{
-	int start_idx = 0;
-	int end_idx = es->num_single_events-1;
-	int center_idx = 0;
-
-	if(es->num_single_events == 0)
-		return -1;
-
-	while(end_idx - start_idx > 1) {
-		center_idx = (start_idx + end_idx) / 2;
-
-		if(es->single_events[center_idx].time > interval_end)
-			end_idx = center_idx;
-		else if(es->single_events[center_idx].time < interval_start)
-			start_idx = center_idx;
-		else
-			break;
-	}
-
-	while(center_idx > 0 && es->single_events[center_idx-1].time < interval_end && es->single_events[center_idx-1].time > interval_start)
-		center_idx--;
-
-	return center_idx;
-}
-
-int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end)
-{
-	int start_idx = 0;
-	int end_idx = es->num_events-1;
-	int center_idx = 0;
-
-	if(es->num_events == 0)
-		return -1;
-
-	while(end_idx - start_idx > 1) {
-		center_idx = (start_idx + end_idx) / 2;
-
-		if(es->events[center_idx].time > interval_end)
-			end_idx = center_idx;
-		else if(es->events[center_idx].time < interval_start)
-			start_idx = center_idx;
-		else
-			break;
-	}
-
-	while(center_idx > 0 && es->events[center_idx].time >= interval_start)
-		center_idx--;
-
-	return center_idx;
-}
 
 int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* fp, off_t* bytes_read)
 {
@@ -243,7 +61,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 			if(multi_event_set_find_counter_description(mes, dsk_cd.counter_id) != NULL)
 				return 1;
 
-			if((cd = counter_description_alloc_ptr(mes, dsk_cd.counter_id, dsk_cd.name_len)) == NULL)
+			if((cd = multi_event_set_counter_description_alloc_ptr(mes, dsk_cd.counter_id, dsk_cd.name_len)) == NULL)
 				return 1;
 
 			if(fread(cd->name, dsk_cd.name_len, 1, fp) != 1)
@@ -307,8 +125,10 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 				cre.counter_index = cd->index;
 				cre.value = dsk_cre.value;
 
-				if(event_set_add_counter_event(mes, es, &cre) != 0)
+				if(event_set_add_counter_event(es, &cre) != 0)
 					return 1;
+
+				multi_event_set_check_update_counter_bounds(mes, &cre);
 			}
 		}
 	}
@@ -316,43 +136,6 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 	if(bytes_read)
 		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
 
-	return 0;
-}
-
-int compare_tasks(const void *pt1, const void *pt2)
-{
-	const struct task* t1 = pt1;
-	const struct task* t2 = pt2;
-
-	if(t1->work_fn < t2->work_fn)
-		return -1;
-	else if(t1->work_fn > t2->work_fn)
-		return 1;
-
-	return 0;
-}
-
-/* Ugly thread local variables needed for reentrance of twalk */
-__thread struct task* curr_tt_array;
-__thread int curr_tt_array_index;
-
-void task_tree_walk(const void* p, const VISIT which, const int depth)
-{
-	if(which == leaf || which == postorder) {
-		struct task* t = *((struct task**)p);
-		memcpy(&curr_tt_array[curr_tt_array_index++], t, sizeof(struct task));
-	}
-}
-
-int task_tree_to_array(struct task_tree* tt, struct task** arr)
-{
-	if(!(*arr = malloc(tt->num_tasks*sizeof(struct task))))
-		return 1;
-
-	curr_tt_array = *arr;
-	curr_tt_array_index = 0;
-
-	twalk(tt->root, task_tree_walk);
 	return 0;
 }
 
@@ -398,7 +181,5 @@ out_fp:
 
 	fclose(fp);
 out:
-	printf("OUT with code = %d\n", res);
-
 	return res;
 }

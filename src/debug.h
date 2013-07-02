@@ -18,7 +18,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "events.h"
+#include "multi_event_set.h"
 
 int debug_read_task_symbols(const char* filename, struct multi_event_set* mes);
 

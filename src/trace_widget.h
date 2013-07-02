@@ -19,7 +19,7 @@
 #define TRACE_WIDGET_H
 
 #include <gtk/gtk.h>
-#include "events.h"
+#include "multi_event_set.h"
 #include "filter.h"
 
 G_BEGIN_DECLS

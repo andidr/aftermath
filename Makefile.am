@@ -37,6 +37,15 @@ ostv_SOURCES = src/ostv.c \
 		src/settings.c \
 		src/task_list.h \
 		src/task_list.c \
+		src/counter_description.h \
+		src/counter_event_set.h \
+		src/counter_event_set.c \
+		src/event_set.h \
+		src/event_set.c \
+		src/multi_event_set.h \
+		src/multi_event_set.c \
+		src/task.h \
+		src/task.c \
 		src/util.h \
 		src/util.c \
 		$(UNIT_TEST_SOURCES)

@@ -15,13 +15,34 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef PARAVER_H
-#define PARAVER_H
+#ifndef COUNTER_EVENT_SET
+#define COUNTER_EVENT_SET
 
 #include "events.h"
-#include <sys/types.h>
-#include "multi_event_set.h"
+#include <stdint.h>
 
-int read_paraver_samples(struct multi_event_set* mes, const char* file, off_t* bytes_read);
+struct counter_event_set {
+	struct counter_event* events;
+	int num_events;
+	int num_events_free;
+	uint64_t counter_id;
+	int counter_index;
+};
+
+int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end);
+
+static inline void counter_event_set_destroy(struct counter_event_set* ces)
+{
+	free(ces->events);
+}
+
+static inline void counter_event_set_init(struct counter_event_set* ces, uint64_t counter_id, int counter_index)
+{
+	ces->events = NULL;
+	ces->num_events = 0;
+	ces->num_events_free = 0;
+	ces->counter_id = counter_id;
+	ces->counter_index = counter_index;
+}
 
 #endif

@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 #include "events.h"
 #include "filter.h"
+#include "task.h"
 
 enum task_list_columns {
 	TASK_LIST_COL_FILTER = 0,
@@ -38,4 +39,5 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter);
 
 void task_list_check_all(GtkTreeView* task_treeview);
 void task_list_uncheck_all(GtkTreeView* task_treeview);
+
 #endif

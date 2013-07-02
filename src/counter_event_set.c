@@ -15,23 +15,30 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "filter.h"
-#include "task.h"
-#include <stdlib.h>
+#include "counter_event_set.h"
 
-void filter_sort_tasks(struct filter* f)
+int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t counter_id, uint64_t interval_start, uint64_t interval_end)
 {
-	qsort(f->tasks, f->num_tasks,
-	      sizeof(struct task*), compare_tasksp);
-}
+	int start_idx = 0;
+	int end_idx = es->num_events-1;
+	int center_idx = 0;
 
-int filter_has_task(struct filter* f, uint64_t work_fn)
-{
-	struct task key = { .work_fn = work_fn };
-	struct task* pkey = &key;
+	if(es->num_events == 0)
+		return -1;
 
-	return (bsearch(&pkey, f->tasks,
-			f->num_tasks, sizeof(struct task*),
-			compare_tasksp)
-		!= NULL);
+	while(end_idx - start_idx > 1) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(es->events[center_idx].time > interval_end)
+			end_idx = center_idx;
+		else if(es->events[center_idx].time < interval_start)
+			start_idx = center_idx;
+		else
+			break;
+	}
+
+	while(center_idx > 0 && es->events[center_idx].time >= interval_start)
+		center_idx--;
+
+	return center_idx;
 }

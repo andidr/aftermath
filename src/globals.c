@@ -16,6 +16,7 @@
  */
 
 #include "globals.h"
+#include "multi_event_set.h"
 
 GtkWidget* g_trace_widget;
 GtkWidget* g_scroll_bar;

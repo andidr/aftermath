@@ -15,23 +15,39 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "filter.h"
-#include "task.h"
-#include <stdlib.h>
+#ifndef COUNTER_DESCRIPTION_H
+#define COUNTER_DESCRIPTION_H
 
-void filter_sort_tasks(struct filter* f)
+#include <stdint.h>
+#include <malloc.h>
+
+#define COUNTER_PREALLOC 16
+
+struct counter_description {
+	uint64_t counter_id;
+	int64_t min;
+	int64_t max;
+	int index;
+	char* name;
+};
+
+static inline int counter_description_init(struct counter_description* cd, int index, uint64_t counter_id, int name_len)
 {
-	qsort(f->tasks, f->num_tasks,
-	      sizeof(struct task*), compare_tasksp);
+	cd->counter_id = counter_id;
+	cd->index = index;
+	cd->name = malloc(name_len+1);
+	cd->min = INT64_MAX;
+	cd->max = INT64_MIN;
+
+	if(cd->name == NULL)
+		return 1;
+
+	return 0;
 }
 
-int filter_has_task(struct filter* f, uint64_t work_fn)
+static inline void counter_description_destroy(struct counter_description* cd)
 {
-	struct task key = { .work_fn = work_fn };
-	struct task* pkey = &key;
-
-	return (bsearch(&pkey, f->tasks,
-			f->num_tasks, sizeof(struct task*),
-			compare_tasksp)
-		!= NULL);
+	free(cd->name);
 }
+
+#endif
