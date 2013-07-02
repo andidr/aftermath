@@ -102,12 +102,16 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, u
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state);
 void event_set_sort_comm(struct event_set* es);
+int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t counter_id, uint64_t start, uint64_t end);
 
 static inline int event_set_add_state_event(struct event_set* es, struct state_event* se)
 {
-	add_buffer_grow((void**)&es->state_events, se, sizeof(*se),
+	if(add_buffer_grow((void**)&es->state_events, se, sizeof(*se),
 			&es->num_state_events, &es->num_state_events_free,
-			EVENT_PREALLOC);
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
 
 	if(se->start < es->first_start)
 		es->first_start = se->start;
@@ -120,9 +124,12 @@ static inline int event_set_add_state_event(struct event_set* es, struct state_e
 
 static inline int event_set_add_comm_event(struct event_set* es, struct comm_event* ce)
 {
-	add_buffer_grow((void**)&es->comm_events, ce, sizeof(*ce),
+	if(add_buffer_grow((void**)&es->comm_events, ce, sizeof(*ce),
 			&es->num_comm_events, &es->num_comm_events_free,
-			EVENT_PREALLOC);
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
 
 	if(ce->time < es->first_start)
 		es->first_start = ce->time;
@@ -135,9 +142,12 @@ static inline int event_set_add_comm_event(struct event_set* es, struct comm_eve
 
 static inline int event_set_add_single_event(struct event_set* es, struct single_event* se)
 {
-	add_buffer_grow((void**)&es->single_events, se, sizeof(*se),
+	if(add_buffer_grow((void**)&es->single_events, se, sizeof(*se),
 			&es->num_single_events, &es->num_single_events_free,
-			EVENT_PREALLOC);
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
 
 	if(se->time < es->first_start)
 		es->first_start = se->time;
