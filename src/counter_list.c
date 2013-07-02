@@ -66,7 +66,24 @@ void counter_list_init(GtkTreeView* counter_treeview)
 	gtk_tree_view_append_column(counter_treeview, column);
 	g_signal_connect(G_OBJECT(renderer), "toggled", G_CALLBACK(counter_list_toggle_slope), counter_treeview);
 
-	store = gtk_list_store_new(COUNTER_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Min", renderer, "text", COUNTER_LIST_COL_MIN, NULL);
+	gtk_tree_view_append_column(counter_treeview, column);
+
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Max", renderer, "text", COUNTER_LIST_COL_MAX, NULL);
+	gtk_tree_view_append_column(counter_treeview, column);
+
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Min slope", renderer, "text", COUNTER_LIST_COL_MIN_SLOPE, NULL);
+	gtk_tree_view_append_column(counter_treeview, column);
+
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Max slope", renderer, "text", COUNTER_LIST_COL_MAX_SLOPE, NULL);
+	gtk_tree_view_append_column(counter_treeview, column);
+
+	store = gtk_list_store_new(COUNTER_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_BOOLEAN,
+				   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 
 	gtk_tree_view_set_model(counter_treeview, GTK_TREE_MODEL(store));
 
@@ -78,12 +95,27 @@ void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description
 	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
 	GtkListStore* store = GTK_LIST_STORE(model);
 	GtkTreeIter iter;
+	char buff_min[32];
+	char buff_max[32];
+	char buff_min_slope[32];
+	char buff_max_slope[32];
 
 	for(int i = 0; i < num_counters; i++) {
 		gtk_list_store_append(store, &iter);
+
+		snprintf(buff_min, sizeof(buff_min), "%"PRId64, counters[i].min);
+		snprintf(buff_max, sizeof(buff_max), "%"PRId64, counters[i].max);
+		snprintf(buff_min_slope, sizeof(buff_min_slope), "%Lf", counters[i].min_slope);
+		snprintf(buff_max_slope, sizeof(buff_max_slope), "%Lf", counters[i].max_slope);
+
 		gtk_list_store_set(store, &iter,
 				   COUNTER_LIST_COL_FILTER, TRUE,
 				   COUNTER_LIST_COL_NAME, counters[i].name,
+				   COUNTER_LIST_COL_MODE, FALSE,
+				   COUNTER_LIST_COL_MIN, buff_min,
+				   COUNTER_LIST_COL_MAX, buff_max,
+				   COUNTER_LIST_COL_MIN_SLOPE, buff_min_slope,
+				   COUNTER_LIST_COL_MAX_SLOPE, buff_max_slope,
 				   COUNTER_LIST_COL_COUNTER_POINTER, &counters[i],
 				   -1);
 	}
