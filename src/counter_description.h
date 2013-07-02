@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include <malloc.h>
+#include <float.h>
 
 #define COUNTER_PREALLOC 16
 
@@ -27,6 +28,9 @@ struct counter_description {
 	uint64_t counter_id;
 	int64_t min;
 	int64_t max;
+	long double min_slope;
+	long double max_slope;
+	int slope_mode;
 	int index;
 	char* name;
 };
@@ -38,6 +42,9 @@ static inline int counter_description_init(struct counter_description* cd, int i
 	cd->name = malloc(name_len+1);
 	cd->min = INT64_MAX;
 	cd->max = INT64_MIN;
+	cd->min_slope = DBL_MAX;
+	cd->max_slope = DBL_MIN;
+	cd->slope_mode = 0;
 
 	if(cd->name == NULL)
 		return 1;

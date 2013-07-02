@@ -185,6 +185,12 @@ static inline void multi_event_set_check_update_counter_bounds(struct multi_even
 
 	if(ce->value > cd->max)
 		cd->max = ce->value;
+
+	if(ce->slope < cd->min_slope)
+		cd->min_slope = ce->slope;
+
+	if(ce->slope > cd->max_slope)
+		cd->max_slope = ce->slope;
 }
 
 /* Read all trace samples from a file and store the result in mes */

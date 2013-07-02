@@ -45,6 +45,7 @@ struct counter_event {
 	uint64_t active_task;
 	uint64_t counter_id;
 	int64_t value;
+	long double slope;
 	int counter_index;
 };
 

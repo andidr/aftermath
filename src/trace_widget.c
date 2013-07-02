@@ -734,6 +734,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 
 	double cpu_height = gtk_trace_cpu_height(g);
 	long double screen_x;
+	long double last_screen_x;
 	long double rel_val;
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
@@ -755,32 +756,53 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 			if(event_idx != -1 && event_idx < ces->num_events-1) {
 				if(ces->events[event_idx].time >= g->left) {
 					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
-					rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+
+					if(!cd->slope_mode)
+						rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+					else
+						rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
 				} else {
-					long double xdiff = (long double)(ces->events[event_idx+1].time - ces->events[event_idx].time);
-					long double ydiff = (long double)(ces->events[event_idx+1].value - ces->events[event_idx].value);
-					long double xdiff_invisible = (long double)(g->left - ces->events[event_idx+1].time);
-					long double slope = ydiff / xdiff;
+					if(!cd->slope_mode) {
+						long double xdiff = (long double)(ces->events[event_idx+1].time - ces->events[event_idx].time);
+						long double ydiff = (long double)(ces->events[event_idx+1].value - ces->events[event_idx].value);
+						long double xdiff_invisible = (long double)(g->left - ces->events[event_idx+1].time);
+						long double slope = ydiff / xdiff;
+						rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(cd->max - cd->min);
+					} else {
+						rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+					}
 
 					screen_x = gtk_trace_x_to_screen(g, g->left);
-					rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(cd->max - cd->min);
 				}
 
+				last_screen_x = screen_x;
 				cairo_move_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
 				event_idx++;
 
 				for(; event_idx < ces->num_events; event_idx++) {
 					if(ces->events[event_idx].time <= g->right) {
 						screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
-						rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+						if(!cd->slope_mode)
+							rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+						else
+							rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
 					} else {
-						long double xdiff = (long double)(ces->events[event_idx].time - ces->events[event_idx-1].time);
-						long double ydiff = (long double)(ces->events[event_idx].value - ces->events[event_idx-1].value);
-						long double xdiff_visible = (long double)(ces->events[event_idx].time - g->right);
-						long double slope = ydiff / xdiff;
+						if(!cd->slope_mode) {
+							long double xdiff = (long double)(ces->events[event_idx].time - ces->events[event_idx-1].time);
+							long double ydiff = (long double)(ces->events[event_idx].value - ces->events[event_idx-1].value);
+							long double xdiff_visible = (long double)(ces->events[event_idx].time - g->right);
+							long double slope = ydiff / xdiff;
+							rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(cd->max - cd->min);
+						} else {
+							rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+						}
 
 						screen_x = gtk_trace_x_to_screen(g, g->right);
-						rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(cd->max - cd->min);
+					}
+
+					if(cd->slope_mode) {
+						cairo_line_to(cr, last_screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
+						last_screen_x = screen_x;
 					}
 
 					cairo_line_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
