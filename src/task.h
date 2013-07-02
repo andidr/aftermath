@@ -18,10 +18,10 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <stdint.h>
-#include <malloc.h>
 #define _GNU_SOURCE
 #define __USE_GNU 1
+#include <stdint.h>
+#include <malloc.h>
 #include <search.h>
 #include <sys/types.h>
 

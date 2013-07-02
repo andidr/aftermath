@@ -16,6 +16,7 @@
  */
 
 #include "task.h"
+#include <string.h>
 
 int compare_tasksp(const void *pt1, const void *pt2)
 {

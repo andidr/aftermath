@@ -20,6 +20,7 @@
 
 #include "events.h"
 #include <stdint.h>
+#include <malloc.h>
 
 struct counter_event_set {
 	struct counter_event* events;

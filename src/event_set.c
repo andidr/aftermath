@@ -17,6 +17,7 @@
 
 #include "event_set.h"
 #include "filter.h"
+#include <stdlib.h>
 
 static int comm_event_compare_time(const void* p1, const void* p2)
 {
