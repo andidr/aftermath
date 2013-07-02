@@ -350,7 +350,7 @@ void show_task_code(struct task* t)
 
 G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
 {
-	GtkTreeView* task_treeview = user_data;
+	GtkTreeView* task_treeview = tree_view;
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
 	GtkTreeIter tree_iter;
 	struct task* t;

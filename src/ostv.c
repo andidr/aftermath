@@ -218,7 +218,6 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
-	g_signal_connect(G_OBJECT(g_task_treeview), "row-activated", G_CALLBACK(task_treeview_row_activated), g_task_treeview);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);

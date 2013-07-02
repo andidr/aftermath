@@ -305,6 +305,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="enable_grid_lines">vertical</property>
+                            <signal name="row_activated" handler="task_treeview_row_activated"/>
                           </widget>
                         </child>
                       </widget>
