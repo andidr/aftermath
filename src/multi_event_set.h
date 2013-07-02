@@ -178,7 +178,7 @@ static inline struct counter_description* multi_event_set_counter_description_al
 
 static inline void multi_event_set_check_update_counter_bounds(struct multi_event_set* mes, struct counter_event* ce)
 {
-	struct counter_description* cd = multi_event_set_find_counter_description(mes, ce->counter_id);
+	struct counter_description* cd = multi_event_set_find_counter_description_by_index(mes, ce->counter_index);
 
 	if(ce->value < cd->min)
 		cd->min = ce->value;
