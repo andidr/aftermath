@@ -60,7 +60,8 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->scroll_amount = 0.1;
 	g->zoom_factor = 1.1;
 	g->event_sets = mes;
-	g->max_cpu_height = 50;
+	g->cpu_height = 20;
+	g->cpu_offset = 0;
 	g->mode = GTK_TRACE_MODE_NORMAL;
 	g->draw_states = 1;
 	g->draw_comm = 0;
@@ -164,6 +165,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
                              g_cclosure_user_marshal_VOID__POINTER_INT_INT,
                              G_TYPE_NONE, 3,
                              G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
+
+	gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED] =
+                g_signal_new("ybounds-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
+                             G_TYPE_NONE, 2,
+                             G_TYPE_DOUBLE, G_TYPE_DOUBLE);
 }
 
 void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
@@ -241,6 +251,11 @@ void gtk_trace_realize(GtkWidget *widget)
 	gtk_style_set_background(widget->style, widget->window, GTK_STATE_NORMAL);
 }
 
+static inline double gtk_trace_cpu_height(GtkTrace* g)
+{
+	return g->cpu_height;
+}
+
 gboolean gtk_trace_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	g_return_val_if_fail(widget != NULL, FALSE);
@@ -249,17 +264,20 @@ gboolean gtk_trace_expose(GtkWidget *widget, GdkEventExpose *event)
 
 	gtk_trace_paint(widget);
 
+	GtkTrace* g = GTK_TRACE(widget);
+	double cpu_height = gtk_trace_cpu_height(g);
+	double start_cpu = g->cpu_offset;
+	double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
+
+	g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED], 0, start_cpu, end_cpu);
+
 	return FALSE;
 }
 
-static inline double gtk_trace_cpu_height(GtkTrace* g)
+static inline double gtk_trace_cpu_start(GtkTrace* g, int cpu)
 {
-	double height = ((double)g->widget.allocation.height - g->axis_width) / (double)g->event_sets->num_sets;
-
-	if(height > g->max_cpu_height)
-		height = g->max_cpu_height;
-
-	return height;
+	double height = gtk_trace_cpu_height(g);
+	return cpu*height - height*g->cpu_offset;
 }
 
 static inline long double optimal_step_size(long double lower, long double upper, long double* start_with)
@@ -314,7 +332,8 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	long double incr;
 	float zoom_factor;
 
-	if(event->state & GDK_SHIFT_MASK) {
+	/* Horizontal shift */
+	if((event->state & GDK_SHIFT_MASK) && !(event->state & GDK_CONTROL_MASK)) {
 		incr = (g->right - g->left) * g->scroll_amount;
 
 		if(event->direction == GDK_SCROLL_UP)
@@ -324,29 +343,71 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		g->right += incr;
 
 		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
+		gtk_trace_paint(widget);
 	}
 
-	if(!(event->state & GDK_CONTROL_MASK) && !(event->state & GDK_SHIFT_MASK)) {
-		long double curr_x = gtk_trace_screen_x_to_trace(g, event->x);
-		long double width = g->right - g->left;
-
-
+	/* Zoom for cpu_height */
+	if(!(event->state & GDK_SHIFT_MASK) && (event->state & GDK_CONTROL_MASK)) {
 		if(event->direction == GDK_SCROLL_DOWN)
 			zoom_factor = g->zoom_factor;
 		else
 			zoom_factor = 1.0 / g->zoom_factor;
 
-		g->left -= (width / 2) * zoom_factor - width / 2;
-		g->right += (width / 2) * zoom_factor - width / 2;
+		g->cpu_height /= zoom_factor;
 
-		long double gxstar = gtk_trace_screen_x_to_trace(g, event->x);
-		g->left -= gxstar - curr_x;
-		g->right -= gxstar - curr_x;
+		double cpu_height = gtk_trace_cpu_height(g);
+		double start_cpu = g->cpu_offset;
+		double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
+		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED], 0, start_cpu, end_cpu);
 
-		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
+		gtk_trace_paint(widget);
 	}
 
-	gtk_trace_paint(widget);
+	/* Vertical shift */
+	if((!(event->state & GDK_CONTROL_MASK) && event->x < g->axis_width) ||
+	   ((event->state & GDK_SHIFT_MASK) && (event->state & GDK_CONTROL_MASK)))
+	{
+		if(event->direction == GDK_SCROLL_DOWN)
+			g->cpu_offset += .5;
+		else
+			g->cpu_offset -= .5;
+
+		if(g->cpu_offset < 0)
+			g->cpu_offset = 0;
+
+		if(g->cpu_offset > g->event_sets->num_sets-1)
+			g->cpu_offset = g->event_sets->num_sets-1;
+
+		double cpu_height = gtk_trace_cpu_height(g);
+		double start_cpu = g->cpu_offset;
+		double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
+
+		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED], 0, start_cpu, end_cpu);
+		gtk_trace_paint(widget);
+	}
+
+	/* Normal zoom */
+	if(event->x > g->axis_width && event->y < g->widget.allocation.height - g->axis_width) {
+		if(!(event->state & GDK_CONTROL_MASK) && !(event->state & GDK_SHIFT_MASK)) {
+			long double curr_x = gtk_trace_screen_x_to_trace(g, event->x);
+			long double width = g->right - g->left;
+
+			if(event->direction == GDK_SCROLL_DOWN)
+				zoom_factor = g->zoom_factor;
+			else
+				zoom_factor = 1.0 / g->zoom_factor;
+
+			g->left -= (width / 2) * zoom_factor - width / 2;
+			g->right += (width / 2) * zoom_factor - width / 2;
+
+			long double gxstar = gtk_trace_screen_x_to_trace(g, event->x);
+			g->left -= gxstar - curr_x;
+			g->right -= gxstar - curr_x;
+
+			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
+			gtk_trace_paint(widget);
+		}
+	}
 
 	return 1;
 }
@@ -431,6 +492,7 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
+	double cpu_start;
 
 	cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
 	cairo_rectangle(cr, 0, 0, g->widget.allocation.width, g->widget.allocation.height);
@@ -440,8 +502,9 @@ void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
 	cairo_clip(cr);
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
 		if(cpu % 2 == 0) {
+			cpu_start = gtk_trace_cpu_start(g, cpu);
 			cairo_set_source_rgba(cr, .5, .5, .5, .5);
-			cairo_rectangle(cr, 0, cpu*cpu_height, g->widget.allocation.width, cpu_height);
+			cairo_rectangle(cr, 0, cpu_start, g->widget.allocation.width, cpu_height);
 			cairo_fill(cr);
 		}
 	}
@@ -453,6 +516,8 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 {
 	char buf[20];
 	cairo_text_extents_t extents;
+	double cpu_start;
+
 	cairo_set_source_rgb(cr, .5, .5, 0.0);
 	cairo_set_line_width(cr, 1.0);
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -465,10 +530,12 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 	double cpu_height = gtk_trace_cpu_height(g);
 
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
+		cpu_start = gtk_trace_cpu_start(g, cpu);
+
 		snprintf(buf, sizeof(buf), "CPU %d", g->event_sets->sets[cpu].cpu);
 		cairo_text_extents(cr, buf, &extents);
 		cairo_set_source_rgb(cr, .5, .5, 0.0);
-		cairo_move_to(cr, 5, cpu*cpu_height + (cpu_height + extents.height) / 2);
+		cairo_move_to(cr, 5, cpu_start + (cpu_height + extents.height) / 2);
 		cairo_show_text(cr, buf);
 	}
 
@@ -542,6 +609,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 		long double last_start = 0;
 		long double last_end;
 		int last_major_state = -1;
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
 		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
 			int major_state;
@@ -556,7 +624,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 			if(last_major_state != -1) {
 				if((has_major && last_major_state != major_state) || !has_major) {
 					cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
-					cairo_rectangle(cr, last_start, cpu_idx*cpu_height, px-last_start, cpu_height);
+					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
 					cairo_fill(cr);
 					num_events_drawn++;
 				}
@@ -575,7 +643,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 		if(last_major_state != -1) {
 			cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
-			cairo_rectangle(cr, last_start, cpu_idx*cpu_height, last_end - last_start, cpu_height);
+			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
 			cairo_fill(cr);
 			num_events_drawn++;
 		}
@@ -601,7 +669,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 					width = 1;
 
 				cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
-				cairo_rectangle(cr, x_start, cpu_idx*cpu_height, width, cpu_height);
+				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
 				cairo_fill(cr);
 			}
 		}
@@ -610,8 +678,10 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 	if(cpu_height > 3) {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-			cairo_move_to(cr, g->axis_width, cpu_idx*cpu_height+0.5);
-			cairo_line_to(cr, g->widget.allocation.width, cpu_idx*cpu_height+0.5);
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			cairo_move_to(cr, g->axis_width, cpu_start+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, cpu_start+0.5);
 			cairo_stroke(cr);
 		}
 	}
@@ -642,6 +712,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu_idx], (g->left > 0) ? g->left : 0, g->right);
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
 		if(comm_event != -1) {
 			for(; comm_event < g->event_sets->sets[cpu_idx].num_comm_events; comm_event++) {
@@ -677,6 +748,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
 					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
+					double dst_cpu_start = gtk_trace_cpu_start(g, dst_cpu_idx);
 
 					int y1 = (cpu_idx < dst_cpu_idx) ? cpu_idx : dst_cpu_idx;
 					int y2 = (cpu_idx < dst_cpu_idx) ? dst_cpu_idx : cpu_idx;
@@ -691,13 +763,13 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 								cairo_save(cr);
 								cairo_translate(cr, 0, 0);
 								cairo_rotate(cr, 3*M_PI/2);
-								cairo_move_to(cr, -((((double)y1+(double)y2) / 2.0)*cpu_height + extents.width/2.0), screen_x-3);
+								cairo_move_to(cr, -((cpu_start+dst_cpu_start)/2.0 + extents.width/2.0), screen_x-3);
 								cairo_show_text(cr, buffer);
 								cairo_restore(cr);
 							}
 
-							cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2);
-							cairo_line_to(cr, screen_x+0.5, dst_cpu_idx*cpu_height + cpu_height/2);
+							cairo_move_to(cr, screen_x+0.5, cpu_start + cpu_height/2);
+							cairo_line_to(cr, screen_x+0.5, dst_cpu_start + cpu_height/2);
 							cairo_stroke(cr);
 							num_events_drawn++;
 
@@ -711,16 +783,16 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						double triangle_height = cpu_height - 2;
 						double triangle_width = 8;
 
-						cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 - triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 + triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu_idx*cpu_height + cpu_height/2);
-						cairo_move_to(cr, screen_x+0.5, cpu_idx*cpu_height + cpu_height/2 - triangle_height/2.0);
+						cairo_move_to(cr, screen_x+0.5, cpu_start + cpu_height/2 - triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5, cpu_start + cpu_height/2 + triangle_height/2.0);
+						cairo_line_to(cr, screen_x+0.5+triangle_width, cpu_start + cpu_height/2);
+						cairo_move_to(cr, screen_x+0.5, cpu_start + cpu_height/2 - triangle_height/2.0);
 						cairo_fill(cr);
 
 						if(g->draw_comm_size) {
 							snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
 							cairo_text_extents(cr, buffer, &extents);
-							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu_idx*cpu_height + cpu_height/2 + extents.height / 2.0);
+							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu_start + cpu_height/2 + extents.height / 2.0);
 							cairo_show_text(cr, buffer);
 						}
 
@@ -755,6 +827,8 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 	cairo_set_line_width(cr, 1.0);
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
 		for(int ctr = 0; ctr < g->event_sets->sets[cpu_idx].num_counter_event_sets; ctr++) {
 			ces = &g->event_sets->sets[cpu_idx].counter_event_sets[ctr];
 			cd = multi_event_set_find_counter_description_by_index(g->event_sets, ces->counter_index);
@@ -788,7 +862,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					screen_x = gtk_trace_x_to_screen(g, g->left);
 				}
 
-				screen_y = cpu_height*(cpu_idx+1) - (rel_val*cpu_height);
+				screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
 				last_screen_x = screen_x;
 				last_screen_y = screen_y;
 
@@ -816,7 +890,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 						screen_x = gtk_trace_x_to_screen(g, g->right);
 					}
 
-					screen_y = cpu_height*(cpu_idx+1) - (rel_val*cpu_height);
+					screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
 
 					if(cd->slope_mode)
 						cairo_line_to(cr, last_screen_x, screen_y);
@@ -857,6 +931,7 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
 		int last_ev_px = -1;
 		int single_event = event_set_get_first_single_event_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
+		double cpu_start = gtk_trace_cpu_start(g, cpu);
 
 		if(single_event != -1) {
 			for(; single_event < g->event_sets->sets[cpu].num_single_events; single_event++) {
@@ -873,14 +948,14 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 				if(last_ev_px < (int)(screen_x)) {
 					last_ev_px = (int)(screen_x);
 
-					cairo_move_to(cr, screen_x,  cpu*cpu_height + 3);
-					cairo_line_to(cr, screen_x,  (cpu+1)*cpu_height - 3);
+					cairo_move_to(cr, screen_x,  cpu_start + 3);
+					cairo_line_to(cr, screen_x,  cpu_start+cpu_height - 3);
 					cairo_stroke(cr);
 
-					cairo_rectangle(cr, screen_x, cpu*cpu_height + 3, 4, 4);
+					cairo_rectangle(cr, screen_x, cpu_start + 3, 4, 4);
 					cairo_fill(cr);
 
-					cairo_move_to(cr, screen_x+5,  (cpu+1)*cpu_height - 3);
+					cairo_move_to(cr, screen_x+5,  cpu_start + cpu_height - 3);
 					cairo_show_text(cr, event_chars[type]);
 				}
 			}
@@ -919,6 +994,13 @@ void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right
 	GtkTrace* g = GTK_TRACE(widget);
 	g->left = left;
 	g->right = right;
+	gtk_trace_paint(widget);
+}
+
+void gtk_trace_set_cpu_offset(GtkWidget *widget, long double cpu_offset)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->cpu_offset = cpu_offset;
 	gtk_trace_paint(widget);
 }
 

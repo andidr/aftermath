@@ -24,6 +24,7 @@
 
 void reset_zoom(void);
 void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
+void trace_ybounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
 void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data);

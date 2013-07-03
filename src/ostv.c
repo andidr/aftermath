@@ -191,7 +191,8 @@ int main(int argc, char** argv)
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
-	IMPORT_GLADE_WIDGET(xml, scroll_bar);
+	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
+	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
 	IMPORT_GLADE_WIDGET(xml, counter_treeview);
 	IMPORT_GLADE_WIDGET(xml, code_view);
@@ -206,7 +207,8 @@ int main(int argc, char** argv)
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
-	g_scroll_bar = scroll_bar;
+	g_hscroll_bar = hscroll_bar;
+	g_vscroll_bar = vscroll_bar;
 	g_task_treeview = task_treeview;
 	g_counter_treeview = counter_treeview;
 	g_code_view = code_view;
@@ -219,6 +221,7 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "ybounds-changed", G_CALLBACK(trace_ybounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
 

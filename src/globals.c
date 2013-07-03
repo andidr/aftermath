@@ -19,7 +19,8 @@
 #include "multi_event_set.h"
 
 GtkWidget* g_trace_widget;
-GtkWidget* g_scroll_bar;
+GtkWidget* g_hscroll_bar;
+GtkWidget* g_vscroll_bar;
 GtkWidget* g_task_treeview;
 GtkWidget* g_counter_treeview;
 GtkWidget* g_code_view;

@@ -35,6 +35,7 @@ enum gtk_trace_signals {
 	GTK_TRACE_BOUNDS_CHANGED = 0,
 	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
 	GTK_TRACE_STATE_EVENT_SELECTION_CHANGED,
+	GTK_TRACE_YBOUNDS_CHANGED,
 	GTK_TRACE_MAX_SIGNALS
 };
 
@@ -48,7 +49,8 @@ struct _GtkTrace {
 	GtkWidget widget;
 	long double left;
 	long double right;
-	float max_cpu_height;
+	float cpu_height;
+	float cpu_offset;
 	int axis_width;
 	int tick_width;
 	int minor_tick_width;
@@ -94,6 +96,7 @@ gboolean gtk_trace_expose(GtkWidget *widget, GdkEventExpose *event);
 void gtk_trace_init(GtkTrace *trace);
 void gtk_trace_paint(GtkWidget *widget);
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right);
+void gtk_trace_set_cpu_offset(GtkWidget *widget, long double cpu_offset);
 void gtk_trace_set_left(GtkWidget *widget, long double left);
 void gtk_trace_set_right(GtkWidget *widget, long double right);
 void gtk_trace_get_bounds(GtkWidget *widget, long double* left, long double* right);

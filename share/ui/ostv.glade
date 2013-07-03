@@ -635,11 +635,31 @@
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <widget class="GtkVBox" id="graph_box">
+                          <widget class="GtkHBox" id="hbox7">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
-                              <placeholder/>
+                              <widget class="GtkVBox" id="graph_box">
+                                <property name="visible">True</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkVScrollbar" id="vscroll_bar">
+                                <property name="visible">True</property>
+                                <property name="orientation">vertical</property>
+                                <property name="update_policy">delayed</property>
+                                <signal name="value_changed" handler="vscrollbar_value_changed"/>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </widget>
                           <packing>
@@ -647,10 +667,10 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkHScrollbar" id="scroll_bar">
+                          <widget class="GtkHScrollbar" id="hscroll_bar">
                             <property name="visible">True</property>
                             <property name="update_policy">delayed</property>
-                            <signal name="value_changed" handler="scrollbar_value_changed"/>
+                            <signal name="value_changed" handler="hscrollbar_value_changed"/>
                           </widget>
                           <packing>
                             <property name="expand">False</property>

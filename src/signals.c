@@ -167,16 +167,16 @@ G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
 	}
 }
 
-static int react_to_scrollbar_change = 1;
+static int react_to_hscrollbar_change = 1;
 
 G_MODULE_EXPORT void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
 {
-	react_to_scrollbar_change = 0;
+	react_to_hscrollbar_change = 0;
 	double start = multi_event_set_first_event_start(&g_mes);
 	double end = multi_event_set_last_event_end(&g_mes);
 	double page_size = right-left;
 
-	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(g_scroll_bar));
+	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(g_hscroll_bar));
 
 	gtk_adjustment_set_lower(adj, start + page_size / 2.0);
 	gtk_adjustment_set_upper(adj, end + page_size / 2.0);
@@ -185,7 +185,28 @@ G_MODULE_EXPORT void trace_bounds_changed(GtkTrace *item, gdouble left, gdouble 
 	gtk_adjustment_set_step_increment(adj, page_size / 10.0);
 	gtk_adjustment_set_value(adj, (left+right)/2.0);
 
-	react_to_scrollbar_change = 1;
+	react_to_hscrollbar_change = 1;
+}
+
+static int react_to_vscrollbar_change = 1;
+
+G_MODULE_EXPORT void trace_ybounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
+{
+	react_to_vscrollbar_change = 0;
+	double start = 0;
+	double end = g_mes.num_sets;
+	double page_size = right-left;
+
+	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(g_vscroll_bar));
+
+	gtk_adjustment_set_lower(adj, start + page_size / 2.0);
+	gtk_adjustment_set_upper(adj, end + page_size / 2.0);
+	gtk_adjustment_set_page_size(adj, page_size);
+	gtk_adjustment_set_page_increment(adj, page_size);
+	gtk_adjustment_set_step_increment(adj, page_size / 10.0);
+	gtk_adjustment_set_value(adj, (left+right)/2.0);
+
+	react_to_vscrollbar_change = 1;
 }
 
 G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
@@ -252,14 +273,24 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	}
 }
 
-G_MODULE_EXPORT void scrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
+G_MODULE_EXPORT void hscrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
 {
 	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
 	double page_size = gtk_adjustment_get_page_size(adj);
 	double curr_value = gtk_adjustment_get_value(adj);
 
-	if(react_to_scrollbar_change)
+	if(react_to_hscrollbar_change)
 		gtk_trace_set_bounds(g_trace_widget, curr_value - page_size / 2.0, curr_value + page_size / 2.0);
+}
+
+G_MODULE_EXPORT void vscrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
+{
+	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
+	double page_size = gtk_adjustment_get_page_size(adj);
+	double curr_value = gtk_adjustment_get_value(adj);
+
+	if(react_to_hscrollbar_change)
+		gtk_trace_set_cpu_offset(g_trace_widget, curr_value - page_size / 2.0);
 }
 
 G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
