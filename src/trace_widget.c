@@ -1191,7 +1191,7 @@ struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y
 	if(x < g->axis_width || y > widget->allocation.height - g->axis_width)
 		return NULL;
 
-	worker_pointer = y / cpu_height;
+	worker_pointer = (y+cpu_height*g->cpu_offset) / cpu_height;
 
 	if(worker_pointer >= g->event_sets->num_sets)
 		return NULL;
