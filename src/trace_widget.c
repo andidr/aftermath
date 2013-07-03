@@ -734,8 +734,11 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 
 	double cpu_height = gtk_trace_cpu_height(g);
 	long double screen_x;
+	long double screen_y;
 	long double last_screen_x;
+	long double last_screen_y;
 	long double rel_val;
+	int line_segments_drawn = 0;
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
 	cairo_clip(cr);
@@ -776,8 +779,11 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					screen_x = gtk_trace_x_to_screen(g, g->left);
 				}
 
+				screen_y = cpu_height*(cpu_idx+1) - (rel_val*cpu_height);
 				last_screen_x = screen_x;
-				cairo_move_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
+				last_screen_y = screen_y;
+
+				cairo_move_to(cr, screen_x, screen_y);
 				event_idx++;
 
 				for(; event_idx < ces->num_events; event_idx++) {
@@ -801,12 +807,18 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 						screen_x = gtk_trace_x_to_screen(g, g->right);
 					}
 
-					if(cd->slope_mode) {
-						cairo_line_to(cr, last_screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
-						last_screen_x = screen_x;
+					screen_y = cpu_height*(cpu_idx+1) - (rel_val*cpu_height);
+
+					if(cd->slope_mode)
+						cairo_line_to(cr, last_screen_x, screen_y);
+
+					if(cd->slope_mode || round(screen_x) != round(last_screen_x) || round(screen_y) != round(last_screen_y)) {
+						cairo_line_to(cr, screen_x, screen_y);
+						line_segments_drawn++;
 					}
 
-					cairo_line_to(cr, screen_x, cpu_height*(cpu_idx+1) - (rel_val*cpu_height));
+					last_screen_x = screen_x;
+					last_screen_y = screen_y;
 
 					if(ces->events[event_idx].time > g->right)
 						break;
@@ -817,6 +829,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 		}
 	}
 
+	printf("Line segments drawn: %d\n", line_segments_drawn);
 	cairo_reset_clip(cr);
 }
 
