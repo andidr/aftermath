@@ -436,6 +436,8 @@ void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
 	cairo_rectangle(cr, 0, 0, g->widget.allocation.width, g->widget.allocation.height);
 	cairo_fill(cr);
 
+	cairo_rectangle(cr, 0, 0, g->widget.allocation.width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
 	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
 		if(cpu % 2 == 0) {
 			cairo_set_source_rgba(cr, .5, .5, .5, .5);
@@ -443,6 +445,8 @@ void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
 			cairo_fill(cr);
 		}
 	}
+
+	cairo_reset_clip(cr);
 }
 
 void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
@@ -454,6 +458,9 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size(cr, 8);
 
+	cairo_rectangle(cr, 0, 0, g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
 	/* Y labels */
 	double cpu_height = gtk_trace_cpu_height(g);
 
@@ -464,6 +471,8 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 		cairo_move_to(cr, 5, cpu*cpu_height + (cpu_height + extents.height) / 2);
 		cairo_show_text(cr, buf);
 	}
+
+	cairo_reset_clip(cr);
 
 	/* Axis lines */
 	cairo_set_source_rgb(cr, .5, .5, 0.0);
@@ -740,7 +749,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 	long double rel_val;
 	int line_segments_drawn = 0;
 
-	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
 
 	cairo_set_line_width(cr, 1.0);
@@ -838,7 +847,7 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	double cpu_height = gtk_trace_cpu_height(g);
 	const char* event_chars[] = { "C" };
 
-	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height);
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
 
 	cairo_set_source_rgb(cr, 0, 1.0, 0);
