@@ -344,7 +344,7 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		g->right += incr;
 
 		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 	}
 
 	/* Zoom for cpu_height */
@@ -360,8 +360,7 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		double start_cpu = g->cpu_offset;
 		double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
 		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED], 0, start_cpu, end_cpu);
-
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 	}
 
 	/* Vertical shift */
@@ -385,7 +384,7 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
 
 		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED], 0, start_cpu, end_cpu);
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 	}
 
 	/* Normal zoom */
@@ -407,7 +406,7 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 			g->right -= gxstar - curr_x;
 
 			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_BOUNDS_CHANGED], 0, (double)g->left, (double)g->right);
-			gtk_trace_paint(widget);
+			gtk_widget_queue_draw(widget);
 		}
 	}
 
@@ -453,7 +452,7 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 		if(se && (!g->filter || filter_has_task(g->filter, se->active_task))) {
 			g->highlight_state_event = se;
 			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
-			gtk_trace_paint(widget);
+			gtk_widget_queue_draw(widget);
 		}
 	}
 
@@ -478,7 +477,7 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 			g->last_mouse_y = event->y;
 
 			g->moved_during_navigation = 1;
-			gtk_trace_paint(widget);
+			gtk_widget_queue_draw(widget);
 			break;
 		default:
 			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
@@ -996,14 +995,14 @@ void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right
 	GtkTrace* g = GTK_TRACE(widget);
 	g->left = left;
 	g->right = right;
-	gtk_trace_paint(widget);
+	gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_cpu_offset(GtkWidget *widget, long double cpu_offset)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	g->cpu_offset = cpu_offset;
-	gtk_trace_paint(widget);
+	gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_get_bounds(GtkWidget *widget, long double* left, long double* right)
@@ -1034,7 +1033,7 @@ void gtk_trace_set_draw_states(GtkWidget *widget, int val)
 	g->draw_states = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_comm(GtkWidget *widget, int val)
@@ -1044,7 +1043,7 @@ void gtk_trace_set_draw_comm(GtkWidget *widget, int val)
 	g->draw_comm = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_comm_size(GtkWidget *widget, int val)
@@ -1054,7 +1053,7 @@ void gtk_trace_set_draw_comm_size(GtkWidget *widget, int val)
 	g->draw_comm_size = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_steals(GtkWidget *widget, int val)
@@ -1064,7 +1063,7 @@ void gtk_trace_set_draw_steals(GtkWidget *widget, int val)
 	g->draw_steals = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_pushes(GtkWidget *widget, int val)
@@ -1074,7 +1073,7 @@ void gtk_trace_set_draw_pushes(GtkWidget *widget, int val)
 	g->draw_pushes = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val)
@@ -1084,7 +1083,7 @@ void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val)
 	g->draw_data_reads = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 
@@ -1095,7 +1094,7 @@ void gtk_trace_set_draw_single_events(GtkWidget *widget, int val)
 	g->draw_single_events = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_draw_counters(GtkWidget *widget, int val)
@@ -1105,7 +1104,7 @@ void gtk_trace_set_draw_counters(GtkWidget *widget, int val)
 	g->draw_counters = val;
 
 	if(needs_redraw)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
@@ -1127,7 +1126,7 @@ void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 	}
 
 	if(value_changed)
-		gtk_trace_paint(widget);
+		gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_paint(GtkWidget *widget)
