@@ -173,7 +173,7 @@ int main(int argc, char** argv)
 
 	pthread_create(&tid, NULL, load_thread, &load_thread_data);
 
-	g_timeout_add_seconds(1, update_progress, &load_thread_data);
+	g_timeout_add(100, update_progress, &load_thread_data);
 
 	gtk_main();
 
