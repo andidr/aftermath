@@ -58,6 +58,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->tick_width = 10;
 	g->minor_tick_width = 5;
 	g->scroll_amount = 0.1;
+	g->cpu_scroll_px = 10;
 	g->zoom_factor = 1.1;
 	g->event_sets = mes;
 	g->cpu_height = 20;
@@ -367,10 +368,12 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	if((!(event->state & GDK_CONTROL_MASK) && event->x < g->axis_width) ||
 	   ((event->state & GDK_SHIFT_MASK) && (event->state & GDK_CONTROL_MASK)))
 	{
+		double cpu_height = gtk_trace_cpu_height(g);
+
 		if(event->direction == GDK_SCROLL_DOWN)
-			g->cpu_offset += .5;
+			g->cpu_offset += g->cpu_scroll_px / cpu_height;
 		else
-			g->cpu_offset -= .5;
+			g->cpu_offset -= g->cpu_scroll_px / cpu_height;
 
 		if(g->cpu_offset < 0)
 			g->cpu_offset = 0;
@@ -378,7 +381,6 @@ gint gtk_trace_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 		if(g->cpu_offset > g->event_sets->num_sets-1)
 			g->cpu_offset = g->event_sets->num_sets-1;
 
-		double cpu_height = gtk_trace_cpu_height(g);
 		double start_cpu = g->cpu_offset;
 		double end_cpu = start_cpu + ((g->widget.allocation.height - g->axis_width) / cpu_height);
 

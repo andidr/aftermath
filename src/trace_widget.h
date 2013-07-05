@@ -55,6 +55,7 @@ struct _GtkTrace {
 	int tick_width;
 	int minor_tick_width;
 	float scroll_amount;
+	float cpu_scroll_px;
 	float zoom_factor;
 	enum gtk_trace_modes mode;
 	int draw_states;
