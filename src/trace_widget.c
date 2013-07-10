@@ -275,10 +275,10 @@ gboolean gtk_trace_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
-static inline double gtk_trace_cpu_start(GtkTrace* g, int cpu)
+static inline double gtk_trace_cpu_start(GtkTrace* g, int cpu_idx)
 {
 	double height = gtk_trace_cpu_height(g);
-	return cpu*height - height*g->cpu_offset;
+	return cpu_idx*height - height*g->cpu_offset;
 }
 
 static inline long double optimal_step_size(long double lower, long double upper, long double* start_with)
@@ -501,9 +501,9 @@ void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
 
 	cairo_rectangle(cr, 0, 0, g->widget.allocation.width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
-		if(cpu % 2 == 0) {
-			cpu_start = gtk_trace_cpu_start(g, cpu);
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		if(cpu_idx % 2 == 0) {
+			cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 			cairo_set_source_rgba(cr, .5, .5, .5, .5);
 			cairo_rectangle(cr, 0, cpu_start, g->widget.allocation.width, cpu_height);
 			cairo_fill(cr);
@@ -530,10 +530,10 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 	/* Y labels */
 	double cpu_height = gtk_trace_cpu_height(g);
 
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
-		cpu_start = gtk_trace_cpu_start(g, cpu);
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
-		snprintf(buf, sizeof(buf), "CPU %d", g->event_sets->sets[cpu].cpu);
+		snprintf(buf, sizeof(buf), "CPU %d", g->event_sets->sets[cpu_idx].cpu);
 		cairo_text_extents(cr, buf, &extents);
 		cairo_set_source_rgb(cr, .5, .5, 0.0);
 		cairo_move_to(cr, 5, cpu_start + (cpu_height + extents.height) / 2);
@@ -929,20 +929,20 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size(cr, 8);
 
-	for(int cpu = 0; cpu < g->event_sets->num_sets; cpu++) {
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 		int last_ev_px = -1;
-		int single_event = event_set_get_first_single_event_in_interval(&g->event_sets->sets[cpu], (g->left > 0) ? g->left : 0, g->right);
-		double cpu_start = gtk_trace_cpu_start(g, cpu);
+		int single_event = event_set_get_first_single_event_in_interval(&g->event_sets->sets[cpu_idx], (g->left > 0) ? g->left : 0, g->right);
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
 		if(single_event != -1) {
-			for(; single_event < g->event_sets->sets[cpu].num_single_events; single_event++) {
-				uint64_t time = g->event_sets->sets[cpu].single_events[single_event].time;
-				int type = g->event_sets->sets[cpu].single_events[single_event].type;
+			for(; single_event < g->event_sets->sets[cpu_idx].num_single_events; single_event++) {
+				uint64_t time = g->event_sets->sets[cpu_idx].single_events[single_event].time;
+				int type = g->event_sets->sets[cpu_idx].single_events[single_event].type;
 
-				if(g->event_sets->sets[cpu].single_events[single_event].time > g->right)
+				if(g->event_sets->sets[cpu_idx].single_events[single_event].time > g->right)
 					break;
 
-				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu].single_events[single_event].active_task))
+				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_task))
 					continue;
 
 				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
