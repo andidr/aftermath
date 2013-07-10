@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 	char* tracefile = NULL;
 	char* executable = NULL;
 	enum trace_format format;
+	char buffer[30];
 
 	if(argc < 2 || argc > 3) {
 		fprintf(stderr, "Usage: %s trace_file [executable]\n", argv[0]);
@@ -203,6 +204,12 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_size);
+	IMPORT_GLADE_WIDGET(xml, use_global_values_check);
+	IMPORT_GLADE_WIDGET(xml, global_values_min_entry);
+	IMPORT_GLADE_WIDGET(xml, global_values_max_entry);
+	IMPORT_GLADE_WIDGET(xml, use_global_slopes_check);
+	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
+	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -220,6 +227,23 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 
+	g_use_global_values_check = use_global_values_check;
+	g_global_values_min_entry = global_values_min_entry;
+	g_global_values_max_entry = global_values_max_entry;
+	g_use_global_slopes_check = use_global_slopes_check;
+	g_global_slopes_min_entry = global_slopes_min_entry;
+	g_global_slopes_max_entry = global_slopes_max_entry;
+
+	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
+	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);
+	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_max_counter_value(&g_mes));
+	gtk_entry_set_text(GTK_ENTRY(g_global_values_max_entry), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%Lf", multi_event_get_min_counter_slope(&g_mes));
+	gtk_entry_set_text(GTK_ENTRY(g_global_slopes_min_entry), buffer);
+	snprintf(buffer, sizeof(buffer), "%Lf", multi_event_get_max_counter_slope(&g_mes));
+	gtk_entry_set_text(GTK_ENTRY(g_global_slopes_max_entry), buffer);
+
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "ybounds-changed", G_CALLBACK(trace_ybounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
@@ -231,7 +255,11 @@ int main(int argc, char** argv)
 	counter_list_init(GTK_TREE_VIEW(g_counter_treeview));
 	counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);
 
-	filter_init(&g_filter);
+	filter_init(&g_filter,
+		    multi_event_get_min_counter_value(&g_mes),
+		    multi_event_get_max_counter_value(&g_mes),
+		    multi_event_get_min_counter_slope(&g_mes),
+		    multi_event_get_max_counter_slope(&g_mes));
 
 	gtk_widget_show_all(toplevel_window);
 

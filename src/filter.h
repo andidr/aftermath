@@ -34,15 +34,32 @@ struct filter {
 
 	struct bitvector counters;
 	int filter_counters;
+
+	int filter_counter_values;
+	int64_t min;
+	int64_t max;
+
+	int filter_counter_slopes;
+	long double min_slope;
+	long double max_slope;
 };
 
-static inline int filter_init(struct filter* f)
+static inline int filter_init(struct filter* f, int64_t min, int64_t max,
+			      long double min_slope, long double max_slope)
 {
 	f->tasks = NULL;
 	f->num_tasks = 0;
 	f->num_tasks_free = 0;
 	f->filter_tasks = 0;
 	f->filter_counters = 0;
+
+	f->filter_counter_values = 0;
+	f->min = min;
+	f->max = max;
+
+	f->filter_counter_slopes = 0;
+	f->min_slope = min_slope;
+	f->max_slope = max_slope;
 
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;

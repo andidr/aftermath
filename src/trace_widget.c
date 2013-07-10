@@ -822,6 +822,12 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 	long double rel_val;
 	int line_segments_drawn = 0;
 
+	int64_t min;
+	int64_t max;
+
+	long double min_slope;
+	long double max_slope;
+
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
 
@@ -837,6 +843,22 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 			if(g->filter && !filter_has_counter(g->filter, cd))
 				continue;
 
+			if(g->filter && g->filter->filter_counter_values) {
+				min = g->filter->min;
+				max = g->filter->max;
+			} else {
+				min = cd->min;
+				max = cd->max;
+			}
+
+			if(g->filter && g->filter->filter_counter_slopes) {
+				min_slope = g->filter->min_slope;
+				max_slope = g->filter->max_slope;
+			} else {
+				min_slope = cd->min_slope;
+				max_slope = cd->max_slope;
+			}
+
 			cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
 
 			event_idx = counter_event_set_get_event_outside_interval(ces, (g->left > 0) ? g->left : 0, g->right);
@@ -846,22 +868,27 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
 
 					if(!cd->slope_mode)
-						rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+						rel_val = (long double)ces->events[event_idx].value / (long double)(max - min);
 					else
-						rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+						rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
 				} else {
 					if(!cd->slope_mode) {
 						long double xdiff = (long double)(ces->events[event_idx+1].time - ces->events[event_idx].time);
 						long double ydiff = (long double)(ces->events[event_idx+1].value - ces->events[event_idx].value);
 						long double xdiff_invisible = (long double)(g->left - ces->events[event_idx+1].time);
 						long double slope = ydiff / xdiff;
-						rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(cd->max - cd->min);
+						rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(max - min);
 					} else {
-						rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+						rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
 					}
 
 					screen_x = gtk_trace_x_to_screen(g, g->left);
 				}
+
+				if(rel_val < 0)
+					rel_val = 0;
+				else if(rel_val > 1.0)
+					rel_val = 1.0;
 
 				screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
 				last_screen_x = screen_x;
@@ -874,22 +901,27 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					if(ces->events[event_idx].time <= g->right) {
 						screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
 						if(!cd->slope_mode)
-							rel_val = (long double)ces->events[event_idx].value / (long double)(cd->max - cd->min);
+							rel_val = (long double)ces->events[event_idx].value / (long double)(max - min);
 						else
-							rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+							rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
 					} else {
 						if(!cd->slope_mode) {
 							long double xdiff = (long double)(ces->events[event_idx].time - ces->events[event_idx-1].time);
 							long double ydiff = (long double)(ces->events[event_idx].value - ces->events[event_idx-1].value);
 							long double xdiff_visible = (long double)(ces->events[event_idx].time - g->right);
 							long double slope = ydiff / xdiff;
-							rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(cd->max - cd->min);
+							rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(max - min);
 						} else {
-							rel_val = ces->events[event_idx].slope / (cd->max_slope - cd->min_slope);
+							rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
 						}
 
 						screen_x = gtk_trace_x_to_screen(g, g->right);
 					}
+
+					if(rel_val < 0)
+						rel_val = 0;
+					else if(rel_val > 1.0)
+						rel_val = 1.0;
 
 					screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
 

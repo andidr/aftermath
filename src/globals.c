@@ -31,6 +31,12 @@ GtkWidget* g_toggle_tool_button_draw_steals;
 GtkWidget* g_toggle_tool_button_draw_pushes;
 GtkWidget* g_toggle_tool_button_draw_data_reads;
 GtkWidget* g_toggle_tool_button_draw_size;
+GtkWidget* g_use_global_values_check;
+GtkWidget* g_global_values_min_entry;
+GtkWidget* g_global_values_max_entry;
+GtkWidget* g_use_global_slopes_check;
+GtkWidget* g_global_slopes_min_entry;
+GtkWidget* g_global_slopes_max_entry;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,

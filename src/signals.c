@@ -69,6 +69,18 @@ G_MODULE_EXPORT void toolbar_ffwd_clicked(GtkButton *button, gpointer data)
 	gtk_trace_set_right(g_trace_widget, end);
 }
 
+G_MODULE_EXPORT void use_global_values_toggled(GtkToggleButton *button, gpointer data)
+{
+	widget_toggle(g_global_values_min_entry, GTK_WIDGET(button));
+	widget_toggle(g_global_values_max_entry, GTK_WIDGET(button));
+}
+
+G_MODULE_EXPORT void use_global_slopes_toggled(GtkToggleButton *button, gpointer data)
+{
+	widget_toggle(g_global_slopes_min_entry, GTK_WIDGET(button));
+	widget_toggle(g_global_slopes_max_entry, GTK_WIDGET(button));
+}
+
 G_MODULE_EXPORT void toolbar_draw_states_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gtk_trace_set_draw_states(g_trace_widget, gtk_toggle_tool_button_get_active(button));
@@ -320,6 +332,68 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 
 G_MODULE_EXPORT void counter_filter_button_clicked(GtkMenuItem *item, gpointer data)
 {
+	int use_global_values = 0;
+	int use_global_slopes = 0;
+	const char* txt;
+	int64_t min;
+	int64_t max;
+	long double min_slope;
+	long double max_slope;
+
+	use_global_values = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_global_values_check));
+	use_global_slopes = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_global_slopes_check));
+
+	if(use_global_values) {
+		txt = gtk_entry_get_text(GTK_ENTRY(g_global_values_min_entry));
+		if(sscanf(txt, "%"PRId64, &min) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		txt = gtk_entry_get_text(GTK_ENTRY(g_global_values_max_entry));
+		if(sscanf(txt, "%"PRId64, &max) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		if(min >= max) {
+			show_error_message("Maximum value must be greater than the minimum value.");
+			return;
+		}
+	}
+
+	if(use_global_slopes) {
+		txt = gtk_entry_get_text(GTK_ENTRY(g_global_slopes_min_entry));
+		if(sscanf(txt, "%Lf", &min_slope) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		txt = gtk_entry_get_text(GTK_ENTRY(g_global_slopes_max_entry));
+		if(sscanf(txt, "%Lf", &max_slope) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		if(min_slope >= max_slope) {
+			show_error_message("Maximum value for slopes must be greater than the minimum value.");
+			return;
+		}
+	}
+
+	g_filter.filter_counter_values = use_global_values;
+	g_filter.filter_counter_slopes = use_global_slopes;
+
+	if(use_global_values) {
+		g_filter.min = min;
+		g_filter.max = max;
+	}
+
+	if(use_global_slopes) {
+		g_filter.min_slope = min_slope;
+		g_filter.max_slope = max_slope;
+	}
+
 	filter_clear_counters(&g_filter);
 	counter_list_build_filter(GTK_TREE_VIEW(g_counter_treeview), &g_filter);
 

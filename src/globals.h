@@ -36,6 +36,15 @@ extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;
 extern GtkWidget* g_toggle_tool_button_draw_size;
+
+extern GtkWidget* g_use_global_values_check;
+extern GtkWidget* g_global_values_min_entry;
+extern GtkWidget* g_global_values_max_entry;
+
+extern GtkWidget* g_use_global_slopes_check;
+extern GtkWidget* g_global_slopes_min_entry;
+extern GtkWidget* g_global_slopes_max_entry;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;

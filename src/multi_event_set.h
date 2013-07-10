@@ -49,6 +49,50 @@ static inline struct counter_description* multi_event_set_find_counter_descripti
 	return NULL;
 }
 
+static inline int64_t multi_event_get_min_counter_value(struct multi_event_set* mes)
+{
+	int64_t min = INT64_MAX;
+
+	for(int i = 0; i < mes->num_counters; i++)
+		if(mes->counters[i].min < min)
+			min = mes->counters[i].min;
+
+	return min;
+}
+
+static inline int64_t multi_event_get_max_counter_value(struct multi_event_set* mes)
+{
+	int64_t max = INT64_MIN;
+
+	for(int i = 0; i < mes->num_counters; i++)
+		if(mes->counters[i].max > max)
+			max = mes->counters[i].max;
+
+	return max;
+}
+
+static inline long double multi_event_get_min_counter_slope(struct multi_event_set* mes)
+{
+	long double min_slope = INT64_MAX;
+
+	for(int i = 0; i < mes->num_counters; i++)
+		if(mes->counters[i].min_slope < min_slope)
+			min_slope = mes->counters[i].min_slope;
+
+	return min_slope;
+}
+
+static inline long double multi_event_get_max_counter_slope(struct multi_event_set* mes)
+{
+	long double max_slope = INT64_MIN;
+
+	for(int i = 0; i < mes->num_counters; i++)
+		if(mes->counters[i].max_slope > max_slope)
+			max_slope = mes->counters[i].max_slope;
+
+	return max_slope;
+}
+
 static inline struct counter_description* multi_event_set_find_counter_description_by_index(struct multi_event_set* mes, int counter_index)
 {
 	if(counter_index >= 0 && counter_index < mes->num_counters)
