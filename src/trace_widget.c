@@ -774,10 +774,10 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 							cairo_stroke(cr);
 							num_events_drawn++;
 
-							if(lines_painted[(int)screen_x].y1 > y1)
+							if(lines_painted[(int)screen_x].y1 < y1)
 								lines_painted[(int)screen_x].y1 = y1;
 
-							if(lines_painted[(int)screen_x].y2 < y2)
+							if(lines_painted[(int)screen_x].y2 > y2)
 								lines_painted[(int)screen_x].y2 = y2;
 						}
 					} else {
