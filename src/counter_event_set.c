@@ -26,13 +26,13 @@ int counter_event_set_get_event_outside_interval(struct counter_event_set* es, u
 	if(es->num_events == 0)
 		return -1;
 
-	while(end_idx - start_idx > 1) {
+	while(end_idx - start_idx >= 0) {
 		center_idx = (start_idx + end_idx) / 2;
 
 		if(es->events[center_idx].time > interval_end)
-			end_idx = center_idx;
+			end_idx = center_idx - 1;
 		else if(es->events[center_idx].time < interval_start)
-			start_idx = center_idx;
+			start_idx = center_idx + 1;
 		else
 			break;
 	}

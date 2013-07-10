@@ -59,13 +59,13 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	if(es->num_state_events == 0)
 		return -1;
 
-	while(end_idx - start_idx > 1) {
+	while(end_idx - start_idx >= 0) {
 		center_idx = (start_idx + end_idx) / 2;
 
 		if(es->state_events[center_idx].start > interval_end)
-			end_idx = center_idx;
+			end_idx = center_idx-1;
 		else if(es->state_events[center_idx].end < interval_start)
-			start_idx = center_idx;
+			start_idx = center_idx+1;
 		else
 			break;
 	}
@@ -129,13 +129,13 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval
 	if(es->num_comm_events == 0)
 		return -1;
 
-	while(end_idx - start_idx > 1) {
+	while(end_idx - start_idx >= 0) {
 		center_idx = (start_idx + end_idx) / 2;
 
 		if(es->comm_events[center_idx].time > interval_end)
-			end_idx = center_idx;
+			end_idx = center_idx-1;
 		else if(es->comm_events[center_idx].time < interval_start)
-			start_idx = center_idx;
+			start_idx = center_idx+1;
 		else
 			break;
 	}
@@ -155,13 +155,13 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 	if(es->num_single_events == 0)
 		return -1;
 
-	while(end_idx - start_idx > 1) {
+	while(end_idx - start_idx >= 0) {
 		center_idx = (start_idx + end_idx) / 2;
 
 		if(es->single_events[center_idx].time > interval_end)
-			end_idx = center_idx;
+			end_idx = center_idx-1;
 		else if(es->single_events[center_idx].time < interval_start)
-			start_idx = center_idx;
+			start_idx = center_idx+1;
 		else
 			break;
 	}
