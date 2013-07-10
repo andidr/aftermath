@@ -287,6 +287,7 @@
             <property name="can_focus">True</property>
             <child>
               <widget class="GtkNotebook" id="notebook1">
+                <property name="width_request">250</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
