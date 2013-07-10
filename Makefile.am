@@ -55,6 +55,8 @@ ostv_SOURCES = src/ostv.c \
 		src/color.h \
 		src/cell_renderer_color_button.h \
 		src/cell_renderer_color_button.c \
+		src/glade_extras.h \
+		src/ansi_extras.h \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
