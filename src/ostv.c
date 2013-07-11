@@ -103,7 +103,7 @@ gboolean update_progress(gpointer pdata)
 	gtk_progress_bar_set_fraction(ltd->progress_widgets->progressbar,
 					(double)ltd->bytes_read / (double)ltd->trace_size);
 
-	if(ltd->bytes_read == ltd->trace_size) {
+	if(ltd->bytes_read == ltd->trace_size || ltd->error) {
 		gtk_widget_hide(GTK_WIDGET(ltd->progress_widgets->window));
 		gtk_main_quit();
 		return FALSE;
