@@ -126,7 +126,7 @@ struct trace_event_header {
 	uint32_t worker;
 
 	/* Task that was being executed when the event occured
-	 * (value of the pointer to the task's frame) */
+	 * (address of the work function) */
 	uint64_t active_task;
 } __attribute__((packed));;
 
