@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* fp, off_t* bytes_read)
+int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct frame_tree* ft, FILE* fp, off_t* bytes_read)
 {
 	struct trace_event_header dsk_eh;
 	struct trace_state_event dsk_se;
@@ -39,6 +39,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 	struct counter_event cre;
 
 	struct task* last_task = NULL;
+	struct frame* last_frame = NULL;
 
 	while(!feof(fp)) {
 		if(bytes_read)
@@ -75,6 +76,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 			if(!last_task || (last_task->work_fn != dsk_eh.active_task && !task_tree_find(tt, dsk_eh.active_task)))
 				last_task = task_tree_add(tt, dsk_eh.active_task);
 
+			if(!last_frame || (last_frame->addr != dsk_eh.active_frame && !frame_tree_find(ft, dsk_eh.active_frame)))
+				last_frame = frame_tree_add(ft, dsk_eh.active_frame);
+
 			if(dsk_eh.type == EVENT_TYPE_STATE) {
 				memcpy(&dsk_se, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_se, sizeof(dsk_se), trace_state_event_conversion_table, sizeof(dsk_eh)) != 0)
@@ -100,6 +104,16 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, FILE* 
 				ce.type = dsk_ce.type;
 				ce.what = dsk_ce.what;
 				event_set_add_comm_event(es, &ce);
+
+				if(dsk_ce.type == COMM_TYPE_STEAL || dsk_ce.type == COMM_TYPE_PUSH) {
+					if(!last_frame || (last_frame->addr != dsk_ce.what && !frame_tree_find(ft, dsk_ce.what)))
+						last_frame = frame_tree_add(ft, dsk_ce.what);
+
+					if(dsk_ce.type == COMM_TYPE_STEAL)
+						last_frame->num_steals++;
+					else if(dsk_ce.type == COMM_TYPE_PUSH)
+						last_frame->num_pushes++;
+				}
 			} else if(dsk_eh.type == EVENT_TYPE_SINGLE) {
 				memcpy(&dsk_sge, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_sge, sizeof(dsk_sge), trace_single_event_conversion_table, sizeof(dsk_eh)) != 0)
@@ -143,6 +157,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 {
 	struct trace_header header;
 	struct task_tree tt;
+	struct frame_tree ft;
 
 	int res = 1;
 	FILE* fp;
@@ -157,24 +172,31 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		goto out_fp;
 
 	task_tree_init(&tt);
+	frame_tree_init(&ft);
 
-	if(read_trace_samples(mes, &tt, fp, bytes_read) != 0)
-		goto out_fp;
+	if(read_trace_samples(mes, &tt, &ft, fp, bytes_read) != 0)
+		goto out_trees;
 
 	multi_event_set_sort_by_cpu(mes);
 
 	if(task_tree_to_array(&tt, &mes->tasks) != 0)
-		goto out_tt;
+		goto out_trees;
 
 	mes->num_tasks = tt.num_tasks;
+
+	if(frame_tree_to_array(&ft, &mes->frames) != 0)
+		goto out_trees;
+
+	mes->num_frames = ft.num_frames;
 
 	for(int i = 0; i < mes->num_sets; i++)
 		event_set_sort_comm(&mes->sets[i]);
 
 	res = 0;
 
-out_tt:
+out_trees:
 	task_tree_destroy(&tt);
+	frame_tree_destroy(&ft);
 out_fp:
 	if(bytes_read)
 		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);

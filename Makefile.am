@@ -50,6 +50,8 @@ ostv_SOURCES = src/ostv.c \
 		src/multi_event_set.c \
 		src/task.h \
 		src/task.c \
+		src/frame.h \
+		src/frame.c \
 		src/util.h \
 		src/util.c \
 		src/color.h \

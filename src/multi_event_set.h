@@ -22,6 +22,7 @@
 #include "event_set.h"
 #include "task.h"
 #include "color.h"
+#include "frame.h"
 #include <stdlib.h>
 
 #define SET_PREALLOC 5
@@ -34,6 +35,10 @@ struct multi_event_set {
 	struct task* tasks;
 	int num_tasks;
 	int num_tasks_free;
+
+	struct frame* frames;
+	int num_frames;
+	int num_frames_free;
 
 	struct counter_description* counters;
 	int num_counters;
@@ -179,6 +184,17 @@ static inline struct task* multi_event_set_find_task_by_work_fn(struct multi_eve
 	return multi_event_set_find_task(mes, &t);
 }
 
+static inline struct frame* multi_event_set_find_frame(struct multi_event_set* mes, struct frame* f)
+{
+	return bsearch(f, mes->frames, mes->num_frames, sizeof(struct frame), compare_frames);
+}
+
+static inline struct frame* multi_event_set_find_frame_by_address(struct multi_event_set* mes, uint64_t addr)
+{
+	struct frame f = { .addr = addr };
+	return multi_event_set_find_frame(mes, &f);
+}
+
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
 	for(int set = 0; set < mes->num_sets; set++)
@@ -192,6 +208,7 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 
 	free(mes->sets);
 	free(mes->tasks);
+	free(mes->frames);
 }
 
 static inline int multi_event_set_counter_description_alloc(struct multi_event_set* mes, uint64_t counter_id, int name_len)

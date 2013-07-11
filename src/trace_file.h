@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 3
+#define TRACE_VERSION 4
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -128,6 +128,9 @@ struct trace_event_header {
 	/* Task that was being executed when the event occured
 	 * (address of the work function) */
 	uint64_t active_task;
+
+	/* Task frame of the active task */
+	uint64_t active_frame;
 } __attribute__((packed));;
 
 extern int trace_event_header_conversion_table[];

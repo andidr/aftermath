@@ -50,7 +50,8 @@ int trace_header_conversion_table[] = {
 	FIELD_SIZE(struct trace_event_header, time), \
 	FIELD_SIZE(struct trace_event_header, cpu), \
 	FIELD_SIZE(struct trace_event_header, worker), \
-	FIELD_SIZE(struct trace_event_header, active_task)
+	FIELD_SIZE(struct trace_event_header, active_task), \
+	FIELD_SIZE(struct trace_event_header, active_frame)
 
 int trace_event_header_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
@@ -165,6 +166,7 @@ int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
 		header->version <= TRACE_VERSION &&
+		header->version >= 4 &&
 		header->day > 0 && header->day <= 31 &&
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);
