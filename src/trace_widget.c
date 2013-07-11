@@ -608,7 +608,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 		long double last_start = 0;
-		long double last_end;
+		long double last_end = 0;
 		int last_major_state = -1;
 		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
