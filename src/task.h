@@ -55,7 +55,12 @@ int compare_tasksp(const void *pt1, const void *pt2);
 static inline struct task* task_tree_find(struct task_tree* tt, uint64_t work_fn)
 {
 	struct task key = { .work_fn = work_fn };
-	return tfind(&key, &tt->root, compare_tasks);
+	struct task** pret = tfind(&key, &tt->root, compare_tasks);
+
+	if(pret)
+		return *pret;
+
+	return NULL;
 }
 
 static inline struct task* task_tree_add(struct task_tree* tt, uint64_t work_fn)
