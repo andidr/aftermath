@@ -172,7 +172,7 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 		int idx = event_set_get_enclosing_state(dst_es, ce->time);
 
 		if(idx == -1 ||
-		   (!filter_has_task(f, dst_es->state_events[idx].active_task) &&
+		   (!filter_has_task(f, dst_es->state_events[idx].active_task) ||
 		    !filter_has_frame(f, dst_es->state_events[idx].active_frame)))
 			return 0;
 
