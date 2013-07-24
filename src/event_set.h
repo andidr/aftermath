@@ -74,6 +74,13 @@ static inline int event_set_add_state_event(struct event_set* es, struct state_e
 	return 0;
 }
 
+static inline int event_set_has_state_event(struct event_set* es, struct state_event* se)
+{
+	return (es->state_events &&
+		se >= &es->state_events[0] &&
+		se <= &es->state_events[es->num_state_events-1]);
+}
+
 static inline int event_set_add_comm_event(struct event_set* es, struct comm_event* ce)
 {
 	if(add_buffer_grow((void**)&es->comm_events, ce, sizeof(*ce),

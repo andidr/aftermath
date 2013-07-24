@@ -653,8 +653,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 		}
 
 		if(g->highlight_state_event &&
-		   g->highlight_state_event >= g->event_sets->sets[cpu_idx].state_events &&
-		   g->highlight_state_event <= &g->event_sets->sets[cpu_idx].state_events[g->event_sets->sets[cpu_idx].num_state_events-1] &&
+		   event_set_has_state_event(&g->event_sets->sets[cpu_idx], g->highlight_state_event) &&
 		   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
 		{
 			if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
