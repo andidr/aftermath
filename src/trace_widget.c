@@ -25,6 +25,11 @@
 #define M_PI 3.141592654
 #endif
 
+static inline double satd(double val, double max)
+{
+	return (val > max) ? max : val;
+}
+
 gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS] = { 0 };
 
 gint gtk_trace_scroll_event(GtkWidget* widget, GdkEventScroll* event);
@@ -768,6 +773,10 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 							cairo_move_to(cr, screen_x+0.5, cpu_start + cpu_height/2);
 							cairo_line_to(cr, screen_x+0.5, dst_cpu_start + cpu_height/2);
 							cairo_stroke(cr);
+
+							cairo_arc(cr, screen_x, cpu_start + cpu_height/2, satd(10, cpu_height/4), 0, 2*M_PI);
+							cairo_fill(cr);
+
 							num_events_drawn++;
 
 							if(lines_painted[(int)screen_x].y1 < y1)
