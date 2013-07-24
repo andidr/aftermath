@@ -105,6 +105,7 @@ void frame_list_build_filter(GtkTreeView* frame_treeview, struct filter* filter)
 	} while(gtk_tree_model_iter_next(model, &iter));
 
 	filter_sort_frames(filter);
+	filter_set_frame_filtering(filter, 1);
 }
 
 void frame_list_set_status_all(GtkTreeView* frame_treeview, gboolean status)

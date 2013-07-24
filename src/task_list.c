@@ -117,6 +117,7 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 	} while(gtk_tree_model_iter_next(model, &iter));
 
 	filter_sort_tasks(filter);
+	filter_set_task_filtering(filter, 1);
 }
 
 void task_list_set_status_all(GtkTreeView* task_treeview, gboolean status)

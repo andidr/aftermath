@@ -79,32 +79,43 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	return 0;
 }
 
+static inline void filter_set_task_filtering(struct filter* f, int b)
+{
+	f->filter_tasks = b;
+}
+
 static inline void filter_clear_tasks(struct filter* f)
 {
 	f->num_tasks_free += f->num_tasks;
 	f->num_tasks = 0;
-	f->filter_tasks = 0;
+
+	filter_set_task_filtering(f, 0);
 }
 
 static inline int filter_add_task(struct filter* f, struct task* t)
 {
-	f->filter_tasks = 1;
+	filter_set_task_filtering(f, 1);
 
 	return add_buffer_grow((void**)&f->tasks, &t, sizeof(t),
 			&f->num_tasks, &f->num_tasks_free,
 			FILTER_TASK_PREALLOC);
 }
 
+static inline void filter_set_frame_filtering(struct filter* f, int b)
+{
+	f->filter_frames = b;
+}
+
 static inline void filter_clear_frames(struct filter* f)
 {
 	f->num_frames_free += f->num_frames;
 	f->num_frames = 0;
-	f->filter_frames = 0;
+	filter_set_frame_filtering(f, 0);
 }
 
 static inline int filter_add_frame(struct filter* f, struct frame* r)
 {
-	f->filter_frames = 1;
+	filter_set_frame_filtering(f, 1);
 
 	return add_buffer_grow((void**)&f->frames, &r, sizeof(r),
 			&f->num_frames, &f->num_frames_free,
