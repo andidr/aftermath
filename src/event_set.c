@@ -91,7 +91,7 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 	memset(state_durations, 0, sizeof(state_durations));
 
 	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
-		if(!f || filter_has_task(f, es->state_events[i].active_task)) {
+		if(!f || (filter_has_task(f, es->state_events[i].active_task) && filter_has_frame(f, es->state_events[i].active_frame))) {
 			state_durations[es->state_events[i].state] +=
 				(es->state_events[i].end - es->state_events[i].start);
 		}

@@ -449,7 +449,7 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 	if(!g->moved_during_navigation) {
 		se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
 
-		if(se && (!g->filter || filter_has_task(g->filter, se->active_task))) {
+		if(se && (!g->filter || (filter_has_task(g->filter, se->active_task) && filter_has_frame(g->filter, se->active_frame)))) {
 			g->highlight_state_event = se;
 			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
 			gtk_widget_queue_draw(widget);
@@ -481,7 +481,7 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 			break;
 		default:
 			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
-			if(se && (!g->filter || filter_has_task(g->filter, se->active_task)))
+			if(se && (!g->filter || (filter_has_task(g->filter, se->active_task) && filter_has_frame(g->filter, se->active_frame))))
 				g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
 
 			break;
@@ -652,7 +652,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 		if(g->highlight_state_event &&
 		   g->highlight_state_event >= g->event_sets->sets[cpu_idx].state_events &&
 		   g->highlight_state_event <= &g->event_sets->sets[cpu_idx].state_events[g->event_sets->sets[cpu_idx].num_state_events-1] &&
-		   (!g->filter || filter_has_task(g->filter, g->highlight_state_event->active_task)))
+		   (!g->filter || (filter_has_task(g->filter, g->highlight_state_event->active_task) && filter_has_frame(g->filter, g->highlight_state_event->active_frame))))
 		{
 			if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
 				double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
@@ -737,12 +737,33 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 					if(g->filter) {
 						if(comm_type == COMM_TYPE_DATA_READ &&
-						   !filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task))
+						   (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task) ||
+						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_frame)))
 						{
 							struct event_set* dst_es = multi_event_set_find_cpu(g->event_sets, dst_cpu);
 							int idx = event_set_get_enclosing_state(dst_es, time);
 
-							if(idx == -1 || !filter_has_task(g->filter, dst_es->state_events[idx].active_task))
+							if(idx == -1 ||
+							   !filter_has_task(g->filter, dst_es->state_events[idx].active_task) ||
+							   !filter_has_frame(g->filter, dst_es->state_events[idx].active_frame))
+								continue;
+						} else if((comm_type == COMM_TYPE_STEAL || comm_type == COMM_TYPE_PUSH) &&
+						   (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task) ||
+						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_frame) ||
+						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].what)))
+						{
+							struct event_set* dst_es = multi_event_set_find_cpu(g->event_sets, dst_cpu);
+							int idx = event_set_get_enclosing_state(dst_es, time);
+
+							if(idx == -1 ||
+							   (!filter_has_task(g->filter, dst_es->state_events[idx].active_task) &&
+							    !filter_has_frame(g->filter, dst_es->state_events[idx].active_frame)))
+								continue;
+
+							if(idx == -1 ||
+							   !((filter_has_task(g->filter, dst_es->state_events[idx].active_task) &&
+							      filter_has_frame(g->filter, dst_es->state_events[idx].active_frame)) ||
+							     filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].what)))
 								continue;
 						}
 					}
@@ -974,7 +995,8 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 				if(g->event_sets->sets[cpu_idx].single_events[single_event].time > g->right)
 					break;
 
-				if(g->filter && !filter_has_task(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_task))
+				if(g->filter && (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_task) ||
+						 !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_frame)))
 					continue;
 
 				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));

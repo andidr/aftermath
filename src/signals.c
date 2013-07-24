@@ -19,6 +19,7 @@
 #include "trace_widget.h"
 #include "dialogs.h"
 #include "task_list.h"
+#include "frame_list.h"
 #include "counter_list.h"
 #include "ansi_extras.h"
 #include <gtk/gtk.h>
@@ -328,6 +329,24 @@ G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer d
 G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
+}
+
+G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	filter_clear_frames(&g_filter);
+	frame_list_build_filter(GTK_TREE_VIEW(g_frame_treeview), &g_filter);
+	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	gtk_trace_paint(g_trace_widget);
+}
+
+G_MODULE_EXPORT void frame_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	frame_list_check_all(GTK_TREE_VIEW(g_frame_treeview));
+}
+
+G_MODULE_EXPORT void frame_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	frame_list_uncheck_all(GTK_TREE_VIEW(g_frame_treeview));
 }
 
 G_MODULE_EXPORT void counter_filter_button_clicked(GtkMenuItem *item, gpointer data)

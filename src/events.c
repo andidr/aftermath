@@ -89,6 +89,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				se.end = dsk_se.end_time;
 				se.state = dsk_se.state;
 				se.active_task = dsk_se.header.active_task;
+				se.active_frame = dsk_se.header.active_frame;
 				event_set_add_state_event(es, &se);
 			} else if(dsk_eh.type == EVENT_TYPE_COMM) {
 				memcpy(&dsk_ce, &dsk_eh, sizeof(dsk_eh));
@@ -98,6 +99,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu);
 				ce.time = dsk_ce.header.time;
 				ce.active_task = dsk_ce.header.active_task;
+				ce.active_frame = dsk_ce.header.active_frame;
 				ce.dst_cpu = dsk_ce.dst_cpu;
 				ce.dst_worker = dsk_ce.dst_worker;
 				ce.size = dsk_ce.size;
@@ -109,10 +111,12 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					if(!last_frame || (last_frame->addr != dsk_ce.what && !frame_tree_find(ft, dsk_ce.what)))
 						last_frame = frame_tree_add(ft, dsk_ce.what);
 
+					struct frame* curr_frame = frame_tree_find(ft, dsk_ce.what);
+
 					if(dsk_ce.type == COMM_TYPE_STEAL)
-						last_frame->num_steals++;
+						curr_frame->num_steals++;
 					else if(dsk_ce.type == COMM_TYPE_PUSH)
-						last_frame->num_pushes++;
+						curr_frame->num_pushes++;
 				}
 			} else if(dsk_eh.type == EVENT_TYPE_SINGLE) {
 				memcpy(&dsk_sge, &dsk_eh, sizeof(dsk_eh));
@@ -121,6 +125,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu);
 				sge.active_task = dsk_sge.header.active_task;
+				sge.active_frame = dsk_sge.header.active_frame;
 				sge.time = dsk_sge.header.time;
 				sge.type = dsk_sge.type;
 				event_set_add_single_event(es, &sge);
@@ -134,6 +139,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
 				cre.active_task = dsk_cre.header.active_task;
+				cre.active_frame = dsk_cre.header.active_frame;
 				cre.time = dsk_cre.header.time;
 				cre.counter_id = dsk_cre.counter_id;
 				cre.counter_index = cd->index;

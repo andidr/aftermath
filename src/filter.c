@@ -17,6 +17,7 @@
 
 #include "filter.h"
 #include "task.h"
+#include "frame.h"
 #include <stdlib.h>
 
 void filter_sort_tasks(struct filter* f)
@@ -36,5 +37,25 @@ int filter_has_task(struct filter* f, uint64_t work_fn)
 	return (bsearch(&pkey, f->tasks,
 			f->num_tasks, sizeof(struct task*),
 			compare_tasksp)
+		!= NULL);
+}
+
+void filter_sort_frames(struct filter* f)
+{
+	qsort(f->frames, f->num_frames,
+	      sizeof(struct frame*), compare_framesp);
+}
+
+int filter_has_frame(struct filter* f, uint64_t addr)
+{
+	struct frame key = { .addr = addr };
+	struct frame* pkey = &key;
+
+	if(!f->filter_frames)
+		return 1;
+
+	return (bsearch(&pkey, f->frames,
+			f->num_frames, sizeof(struct frame*),
+			compare_framesp)
 		!= NULL);
 }

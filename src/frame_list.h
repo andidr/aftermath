@@ -15,48 +15,28 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef FRAME_LIST_H
+#define FRAME_LIST_H
 
-#include <stdint.h>
-#include "trace_file.h"
+#include <gtk/gtk.h>
+#include "events.h"
+#include "filter.h"
+#include "frame.h"
 
-#define EVENT_PREALLOC (5*1024)
-
-struct state_event {
-	uint64_t start;
-	uint64_t end;
-	uint64_t active_task;
-	uint64_t active_frame;
-	int state;
+enum frame_list_columns {
+	FRAME_LIST_COL_FILTER = 0,
+	FRAME_LIST_COL_ADDR,
+	FRAME_LIST_COL_NUM_STEALS,
+	FRAME_LIST_COL_NUM_PUSHES,
+	FRAME_LIST_COL_FRAME_POINTER,
+	FRAME_LIST_COL_NUM
 };
 
-struct comm_event {
-	uint64_t time;
-	int dst_cpu;
-	int dst_worker;
-	int size;
-	enum comm_event_type type;
-	uint64_t active_task;
-	uint64_t active_frame;
-	uint64_t what;
-};
+void frame_list_init(GtkTreeView* frame_treeview);
+void frame_list_fill(GtkTreeView* frame_treeview, struct frame* frames, int num_frames);
+void frame_list_build_filter(GtkTreeView* frame_treeview, struct filter* filter);
 
-struct counter_event {
-	uint64_t time;
-	uint64_t active_task;
-	uint64_t active_frame;
-	uint64_t counter_id;
-	int64_t value;
-	long double slope;
-	int counter_index;
-};
-
-struct single_event {
-	uint64_t time;
-	enum single_event_type type;
-	uint64_t active_task;
-	uint64_t active_frame;
-};
+void frame_list_check_all(GtkTreeView* frame_treeview);
+void frame_list_uncheck_all(GtkTreeView* frame_treeview);
 
 #endif

@@ -27,6 +27,7 @@ extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_task_treeview;
+extern GtkWidget* g_frame_treeview;
 extern GtkWidget* g_counter_treeview;
 extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;

@@ -24,6 +24,7 @@
 #include "counter_description.h"
 
 #define FILTER_TASK_PREALLOC 16
+#define FILTER_FRAME_PREALLOC 1024
 #define FILTER_COUNTER_BITS 64
 
 struct filter {
@@ -31,6 +32,11 @@ struct filter {
 	int num_tasks;
 	int num_tasks_free;
 	int filter_tasks;
+
+	struct frame** frames;
+	int num_frames;
+	int num_frames_free;
+	int filter_frames;
 
 	struct bitvector counters;
 	int filter_counters;
@@ -50,7 +56,13 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->tasks = NULL;
 	f->num_tasks = 0;
 	f->num_tasks_free = 0;
+
+	f->frames = NULL;
+	f->num_frames = 0;
+	f->num_frames_free = 0;
+
 	f->filter_tasks = 0;
+	f->filter_frames = 0;
 	f->filter_counters = 0;
 
 	f->filter_counter_values = 0;
@@ -83,6 +95,22 @@ static inline int filter_add_task(struct filter* f, struct task* t)
 			FILTER_TASK_PREALLOC);
 }
 
+static inline void filter_clear_frames(struct filter* f)
+{
+	f->num_frames_free += f->num_frames;
+	f->num_frames = 0;
+	f->filter_frames = 0;
+}
+
+static inline int filter_add_frame(struct filter* f, struct frame* r)
+{
+	f->filter_frames = 1;
+
+	return add_buffer_grow((void**)&f->frames, &r, sizeof(r),
+			&f->num_frames, &f->num_frames_free,
+			FILTER_FRAME_PREALLOC);
+}
+
 static inline void filter_add_counter(struct filter* f, struct counter_description* c)
 {
 	f->filter_counters = 1;
@@ -103,9 +131,13 @@ static inline int filter_has_counter(struct filter* f, struct counter_descriptio
 void filter_sort_tasks(struct filter* f);
 int filter_has_task(struct filter* f, uint64_t work_fn);
 
+void filter_sort_frames(struct filter* f);
+int filter_has_frame(struct filter* f, uint64_t addr);
+
 static inline void filter_destroy(struct filter* f)
 {
 	free(f->tasks);
+	free(f->frames);
 	bitvector_destroy(&f->counters);
 }
 
