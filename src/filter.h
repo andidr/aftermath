@@ -145,6 +145,12 @@ int filter_has_task(struct filter* f, uint64_t work_fn);
 void filter_sort_frames(struct filter* f);
 int filter_has_frame(struct filter* f, uint64_t addr);
 
+static inline int filter_has_state_event(struct filter* f, struct state_event* se)
+{
+	return filter_has_task(f, se->active_task) &&
+		filter_has_frame(f, se->active_frame);
+}
+
 static inline void filter_destroy(struct filter* f)
 {
 	free(f->tasks);
