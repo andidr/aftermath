@@ -737,34 +737,8 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					else if(comm_type == COMM_TYPE_DATA_READ && !g->draw_data_reads)
 						continue;
 
-					if(g->filter) {
-						if(comm_type == COMM_TYPE_DATA_READ &&
-						   (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task) ||
-						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_frame)))
-						{
-							struct event_set* dst_es = multi_event_set_find_cpu(g->event_sets, dst_cpu);
-							int idx = event_set_get_enclosing_state(dst_es, time);
-
-							if(idx == -1 || !filter_has_state_event(g->filter, &dst_es->state_events[idx]))
-								continue;
-						} else if((comm_type == COMM_TYPE_STEAL || comm_type == COMM_TYPE_PUSH) &&
-						   (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_task) ||
-						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].active_frame) ||
-						    !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].what)))
-						{
-							struct event_set* dst_es = multi_event_set_find_cpu(g->event_sets, dst_cpu);
-							int idx = event_set_get_enclosing_state(dst_es, time);
-
-							if(idx == -1 ||
-							   (!filter_has_task(g->filter, dst_es->state_events[idx].active_task) &&
-							    !filter_has_frame(g->filter, dst_es->state_events[idx].active_frame)))
-								continue;
-
-							if(idx == -1 ||
-							   !(filter_has_state_event(g->filter, &dst_es->state_events[idx]) ||
-							     filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].comm_events[comm_event].what)))
-								continue;
-						}
+					if(g->filter && !filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event])) {
+						continue;
 					}
 
 					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));

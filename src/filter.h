@@ -22,6 +22,7 @@
 #include "buffer.h"
 #include "bitvector.h"
 #include "counter_description.h"
+#include "multi_event_set.h"
 
 #define FILTER_TASK_PREALLOC 16
 #define FILTER_FRAME_PREALLOC 1024
@@ -149,6 +150,39 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 {
 	return filter_has_task(f, se->active_task) &&
 		filter_has_frame(f, se->active_frame);
+}
+
+static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
+{
+	if(ce->type == COMM_TYPE_DATA_READ &&
+	   (!filter_has_task(f, ce->active_task) ||
+	    !filter_has_frame(f, ce->active_frame)))
+	{
+		struct event_set* dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
+		int idx = event_set_get_enclosing_state(dst_es, ce->time);
+
+		if(idx == -1 || !filter_has_state_event(f, &dst_es->state_events[idx]))
+			return 0;
+	} else if((ce->type == COMM_TYPE_STEAL || ce->type == COMM_TYPE_PUSH) &&
+		  (!filter_has_task(f, ce->active_task) ||
+		   !filter_has_frame(f, ce->active_frame) ||
+		   !filter_has_frame(f, ce->what)))
+	{
+		struct event_set* dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
+		int idx = event_set_get_enclosing_state(dst_es, ce->time);
+
+		if(idx == -1 ||
+		   (!filter_has_task(f, dst_es->state_events[idx].active_task) &&
+		    !filter_has_frame(f, dst_es->state_events[idx].active_frame)))
+			return 0;
+
+		if(idx == -1 ||
+		   !(filter_has_state_event(f, &dst_es->state_events[idx]) ||
+		     filter_has_frame(f, ce->what)))
+			return 0;
+	}
+
+	return 1;
 }
 
 static inline void filter_destroy(struct filter* f)
