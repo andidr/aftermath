@@ -71,7 +71,15 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/about_dialog.glade \
 		share/ui/settings.glade \
 		share/ui/progress_dialog.glade \
-		share/ui/color_dialog.glade
+		share/ui/color_dialog.glade \
+		share/icons/draw_states.svg \
+		share/icons/draw_comm.svg \
+		share/icons/draw_steals.svg \
+		share/icons/draw_pushes.svg \
+		share/icons/draw_reads.svg \
+		share/icons/draw_size.svg \
+		share/icons/draw_events.svg \
+		share/icons/draw_counters.svg
 
 clean-local:
 	-find . -iname "*~" | xargs rm

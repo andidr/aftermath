@@ -169,6 +169,7 @@
                 <property name="tooltip" translatable="yes">Draw worker states</property>
                 <property name="label" translatable="yes">S</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_states.svg</property>
                 <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_states_toggled"/>
               </widget>
@@ -183,6 +184,7 @@
                 <property name="tooltip" translatable="yes">Draw communication lines</property>
                 <property name="label" translatable="yes">C</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_comm.svg</property>
                 <signal name="toggled" handler="toolbar_draw_comm_toggled"/>
               </widget>
               <packing>
@@ -197,6 +199,7 @@
                 <property name="tooltip" translatable="yes">Draw lines for steals</property>
                 <property name="label" translatable="yes">St</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_steals.svg</property>
                 <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_steals_toggled"/>
               </widget>
@@ -212,6 +215,7 @@
                 <property name="tooltip" translatable="yes">Draw lines for pushes</property>
                 <property name="label" translatable="yes">Pu</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_pushes.svg</property>
                 <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_pushes_toggled"/>
               </widget>
@@ -227,6 +231,7 @@
                 <property name="tooltip" translatable="yes">Draw lines for data reads</property>
                 <property name="label" translatable="yes">DR</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_reads.svg</property>
                 <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_data_reads_toggled"/>
               </widget>
@@ -242,6 +247,7 @@
                 <property name="tooltip" translatable="yes">Draw size of communication events</property>
                 <property name="label" translatable="yes">Sz</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_size.svg</property>
                 <signal name="toggled" handler="toolbar_draw_comm_size_toggled"/>
               </widget>
               <packing>
@@ -255,6 +261,7 @@
                 <property name="tooltip" translatable="yes">Draw events</property>
                 <property name="label" translatable="yes">E</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_events.svg</property>
                 <signal name="toggled" handler="toolbar_draw_single_events_toggled"/>
               </widget>
               <packing>
@@ -268,6 +275,7 @@
                 <property name="tooltip" translatable="yes">Draw counter graphs</property>
                 <property name="label" translatable="yes">Ctr</property>
                 <property name="use_underline">True</property>
+                <property name="icon">draw_counters.svg</property>
                 <signal name="toggled" handler="toolbar_draw_counters_toggled"/>
               </widget>
               <packing>
