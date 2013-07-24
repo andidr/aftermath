@@ -318,7 +318,6 @@ G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
-	gtk_trace_paint(g_trace_widget);
 }
 
 G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -335,8 +334,8 @@ G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer dat
 {
 	filter_clear_frames(&g_filter);
 	frame_list_build_filter(GTK_TREE_VIEW(g_frame_treeview), &g_filter);
+
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
-	gtk_trace_paint(g_trace_widget);
 }
 
 G_MODULE_EXPORT void frame_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -417,7 +416,6 @@ G_MODULE_EXPORT void counter_filter_button_clicked(GtkMenuItem *item, gpointer d
 	counter_list_build_filter(GTK_TREE_VIEW(g_counter_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
-	gtk_trace_paint(g_trace_widget);
 }
 
 G_MODULE_EXPORT void counter_check_all_button_clicked(GtkMenuItem *item, gpointer data)

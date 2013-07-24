@@ -1024,6 +1024,8 @@ void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	g->filter = f;
+
+	gtk_widget_queue_draw(widget);
 }
 
 struct filter* gtk_trace_get_filter(GtkWidget *widget)
