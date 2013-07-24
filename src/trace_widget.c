@@ -481,8 +481,10 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 			break;
 		default:
 			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
-			if(se && (!g->filter || (filter_has_task(g->filter, se->active_task) && filter_has_frame(g->filter, se->active_frame))))
-				g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
+			if(se && (g->filter && (!filter_has_task(g->filter, se->active_task) || !filter_has_frame(g->filter, se->active_frame))))
+				se = NULL;
+
+			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
 
 			break;
 	}
