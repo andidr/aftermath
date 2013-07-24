@@ -102,6 +102,7 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
 	GtkTreeIter iter;
 	gboolean current_state;
+	gboolean has_unchecked = FALSE;
 	struct task* t;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
@@ -114,10 +115,14 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 
 		if(current_state)
 			filter_add_task(filter, t);
+		else
+			has_unchecked = TRUE;
 	} while(gtk_tree_model_iter_next(model, &iter));
 
-	filter_sort_tasks(filter);
-	filter_set_task_filtering(filter, 1);
+	if(has_unchecked) {
+		filter_sort_tasks(filter);
+		filter_set_task_filtering(filter, 1);
+	}
 }
 
 void task_list_set_status_all(GtkTreeView* task_treeview, gboolean status)

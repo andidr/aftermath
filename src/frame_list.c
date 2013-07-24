@@ -90,6 +90,7 @@ void frame_list_build_filter(GtkTreeView* frame_treeview, struct filter* filter)
 	GtkTreeModel* model = gtk_tree_view_get_model(frame_treeview);
 	GtkTreeIter iter;
 	gboolean current_state;
+	gboolean has_unchecked = FALSE;
 	struct frame* f;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
@@ -102,10 +103,14 @@ void frame_list_build_filter(GtkTreeView* frame_treeview, struct filter* filter)
 
 		if(current_state)
 			filter_add_frame(filter, f);
+		else
+			has_unchecked = TRUE;
 	} while(gtk_tree_model_iter_next(model, &iter));
 
-	filter_sort_frames(filter);
-	filter_set_frame_filtering(filter, 1);
+	if(has_unchecked) {
+		filter_sort_frames(filter);
+		filter_set_frame_filtering(filter, 1);
+	}
 }
 
 void frame_list_set_status_all(GtkTreeView* frame_treeview, gboolean status)
