@@ -185,6 +185,12 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	return 1;
 }
 
+static inline int filter_has_single_event(struct filter* f, struct single_event* se)
+{
+	return filter_has_task(f, se->active_task) &&
+		filter_has_frame(f, se->active_frame);
+}
+
 static inline void filter_destroy(struct filter* f)
 {
 	free(f->tasks);

@@ -968,8 +968,7 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 				if(g->event_sets->sets[cpu_idx].single_events[single_event].time > g->right)
 					break;
 
-				if(g->filter && (!filter_has_task(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_task) ||
-						 !filter_has_frame(g->filter, g->event_sets->sets[cpu_idx].single_events[single_event].active_frame)))
+				if(g->filter && !filter_has_single_event(g->filter, &g->event_sets->sets[cpu_idx].single_events[single_event]))
 					continue;
 
 				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
