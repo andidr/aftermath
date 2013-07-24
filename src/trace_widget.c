@@ -679,12 +679,14 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 	}
 
 	if(cpu_height > 3) {
+		cairo_set_line_width (cr, 1);
 		cairo_set_source_rgb(cr, 0, 0, 0);
+
 		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
-			cairo_move_to(cr, g->axis_width, cpu_start+0.5);
-			cairo_line_to(cr, g->widget.allocation.width, cpu_start+0.5);
+			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
 			cairo_stroke(cr);
 		}
 	}
