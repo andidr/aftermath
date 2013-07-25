@@ -144,6 +144,14 @@ void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description
 	}
 }
 
+void counter_list_clear(GtkTreeView* counter_treeview)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+
+	gtk_list_store_clear(store);
+}
+
 void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* filter)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);

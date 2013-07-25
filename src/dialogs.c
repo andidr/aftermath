@@ -65,6 +65,70 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	return ret;
 }
 
+int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt)
+{
+	GladeXML* xml = glade_xml_new(DATA_PATH "/derived_counter_dialog.glade", NULL, NULL);
+	char buffer[32];
+	int type_idx;
+	int cpu_idx;
+	int ret = 0;
+	const char* name;
+
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, combo_type);
+	IMPORT_GLADE_WIDGET(xml, combo_cpu);
+	IMPORT_GLADE_WIDGET(xml, scale_samples);
+	IMPORT_GLADE_WIDGET(xml, entry_name);
+
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_cpu), 0);
+	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
+		snprintf(buffer, sizeof(buffer), "CPU %d", mes->sets[cpu_idx].cpu);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cpu), buffer);
+	}
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_type), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cpu), 0);
+
+retry:
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		if((type_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_type))) == -1) {
+			show_error_message("Please select a type for the derived counter.");
+			goto retry;
+		}
+
+		if((cpu_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_cpu))) == -1) {
+			show_error_message("Please select a CPU to attach the counter to.");
+			goto retry;
+		}
+
+		name = gtk_entry_get_text(GTK_ENTRY(entry_name));
+
+		if(strlen(name) == 0) {
+			show_error_message("Please specify a name for the counter.");
+			goto retry;
+		}
+
+		opt->type = type_idx;
+		opt->cpu = mes->sets[cpu_idx].cpu;
+		opt->num_samples = gtk_range_get_value(GTK_RANGE(scale_samples));
+		opt->name = malloc(strlen(name)+1);
+
+		if(!opt->name) {
+			show_error_message("Could not allocate space for counter name.");
+			goto retry;
+		}
+
+		strcpy(opt->name, name);
+		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}
+
 void show_progress_window_persistent(struct progress_window_widgets* widgets)
 {
 	GladeXML* xml = glade_xml_new(DATA_PATH "/progress_dialog.glade", NULL, NULL);

@@ -79,6 +79,20 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	return center_idx;
 }
 
+int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum worker_state state)
+{
+	int idx = curr_idx+1;
+
+	while(idx < es->num_state_events) {
+		if(es->state_events[idx].state == state)
+			return idx;
+
+		idx++;
+	}
+
+	return -1;
+}
+
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
 {
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);

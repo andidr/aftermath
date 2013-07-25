@@ -56,6 +56,8 @@ ostv_SOURCES = src/ostv.c \
 		src/frame.c \
 		src/util.h \
 		src/util.c \
+		src/derived_counters.h \
+		src/derived_counters.c \
 		src/color.h \
 		src/cell_renderer_color_button.h \
 		src/cell_renderer_color_button.c \
@@ -72,6 +74,7 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/settings.glade \
 		share/ui/progress_dialog.glade \
 		share/ui/color_dialog.glade \
+		share/ui/derived_counter_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_comm.svg \
 		share/icons/draw_steals.svg \

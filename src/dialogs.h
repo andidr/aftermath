@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include "settings.h"
+#include "multi_event_set.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -36,5 +37,18 @@ void show_about_dialog(void);
 int show_settings_dialog(struct settings* s);
 void show_progress_window_persistent(struct progress_window_widgets* widgets);
 int show_color_dialog(GdkColor* color);
+
+enum derived_counter_type {
+	DERIVED_COUNTER_PARALLELISM = 0
+};
+
+struct derived_counter_options {
+	enum derived_counter_type type;
+	unsigned int cpu;
+	unsigned int num_samples;
+	char* name;
+};
+
+int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);
 
 #endif

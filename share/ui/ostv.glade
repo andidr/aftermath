@@ -36,6 +36,26 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="menuitem6">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Data</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="menu5">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkMenuItem" id="menuitem7">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Add de_rived counter</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_add_derived_counter"/>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="menuitem5">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Edit</property>

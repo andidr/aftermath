@@ -250,6 +250,18 @@ static inline struct counter_description* multi_event_set_counter_description_al
 	return &mes->counters[mes->num_counters-1];
 }
 
+static inline uint64_t multi_event_set_get_free_counter_id(struct multi_event_set* mes)
+{
+	uint64_t id = 0;
+
+	for(int i = 0; i < mes->num_counters; i++) {
+		if(mes->counters[i].counter_id > id)
+			id = mes->counters[i].counter_id + 1;
+	}
+
+	return id;
+}
+
 static inline void multi_event_set_check_update_counter_bounds(struct multi_event_set* mes, struct counter_event* ce)
 {
 	struct counter_description* cd = multi_event_set_find_counter_description_by_index(mes, ce->counter_index);

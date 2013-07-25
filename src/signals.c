@@ -22,6 +22,7 @@
 #include "frame_list.h"
 #include "counter_list.h"
 #include "ansi_extras.h"
+#include "derived_counters.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -144,6 +145,29 @@ G_MODULE_EXPORT void menubar_settings(GtkCheckMenuItem *item, gpointer data)
 	if(show_settings_dialog(&g_settings)) {
 		if(write_user_settings(&g_settings) != 0)
 			show_error_message("Could not write settings");
+	}
+}
+
+G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer data)
+{
+	struct derived_counter_options opt;
+	int err = 1;
+
+	if(show_derived_counter_dialog(&g_mes, &opt)) {
+		switch(opt.type) {
+			case DERIVED_COUNTER_PARALLELISM:
+				err = derive_parallelism_counter(&g_mes, opt.name, WORKER_STATE_TASKEXEC, opt.num_samples, opt.cpu);
+				break;
+		}
+
+		if(err) {
+			show_error_message("Could not create derived counter.");
+		} else {
+			counter_list_clear(GTK_TREE_VIEW(g_counter_treeview));
+			counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);
+		}
+
+		free(opt.name);
 	}
 }
 
