@@ -120,6 +120,7 @@ int main(int argc, char** argv)
 	char* executable = NULL;
 	enum trace_format format;
 	char buffer[30];
+	char title[PATH_MAX+10];
 
 	if(argc < 2 || argc > 3) {
 		fprintf(stderr, "Usage: %s trace_file [executable]\n", argv[0]);
@@ -266,6 +267,9 @@ int main(int argc, char** argv)
 		    multi_event_get_max_counter_value(&g_mes),
 		    multi_event_get_min_counter_slope(&g_mes),
 		    multi_event_get_max_counter_slope(&g_mes));
+
+	snprintf(title, sizeof(title), "OSTV - %s", tracefile);
+	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
 	gtk_widget_show_all(toplevel_window);
 
