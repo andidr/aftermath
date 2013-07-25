@@ -154,35 +154,37 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
 {
-	if(ce->type == COMM_TYPE_DATA_READ &&
-	   (!filter_has_task(f, ce->active_task) ||
-	    !filter_has_frame(f, ce->active_frame)))
+	struct event_set* dst_es;
+	int dst_idx;
+
+	/* Active task *and* frame included in filter? */
+	if(filter_has_task(f, ce->active_task) &&
+	   filter_has_frame(f, ce->active_frame))
 	{
-		struct event_set* dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
-		int idx = event_set_get_enclosing_state(dst_es, ce->time);
-
-		if(idx == -1 || !filter_has_state_event(f, &dst_es->state_events[idx]))
-			return 0;
-	} else if((ce->type == COMM_TYPE_STEAL || ce->type == COMM_TYPE_PUSH) &&
-		  (!filter_has_task(f, ce->active_task) ||
-		   !filter_has_frame(f, ce->active_frame) ||
-		   !filter_has_frame(f, ce->what)))
-	{
-		struct event_set* dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
-		int idx = event_set_get_enclosing_state(dst_es, ce->time);
-
-		if(idx == -1 ||
-		   (!filter_has_task(f, dst_es->state_events[idx].active_task) ||
-		    !filter_has_frame(f, dst_es->state_events[idx].active_frame)))
-			return 0;
-
-		if(idx == -1 ||
-		   !(filter_has_state_event(f, &dst_es->state_events[idx]) ||
-		     filter_has_frame(f, ce->what)))
-			return 0;
+		return 1;
 	}
 
-	return 1;
+	/* Was the transferred entity a frame included in the filter? */
+	if((ce->type == COMM_TYPE_STEAL ||
+	    ce->type == COMM_TYPE_PUSH))
+	{
+		if(filter_has_frame(f, ce->what))
+			return 1;
+	}
+
+	/* Was the destination worker executing a
+	 * task and frame included in the filter?
+	 */
+	dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
+	dst_idx = event_set_get_enclosing_state(dst_es, ce->time);
+
+	if(dst_idx != -1 &&
+	   filter_has_state_event(f, &dst_es->state_events[dst_idx]))
+	{
+		return 1;
+	}
+
+	return 0;
 }
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
