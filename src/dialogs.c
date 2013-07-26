@@ -73,11 +73,13 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int cpu_idx;
 	int ret = 0;
 	const char* name;
+	enum worker_state state;
 
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, dialog);
 	IMPORT_GLADE_WIDGET(xml, combo_type);
 	IMPORT_GLADE_WIDGET(xml, combo_cpu);
+	IMPORT_GLADE_WIDGET(xml, combo_state);
 	IMPORT_GLADE_WIDGET(xml, scale_samples);
 	IMPORT_GLADE_WIDGET(xml, entry_name);
 
@@ -89,6 +91,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_type), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cpu), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_state), WORKER_STATE_TASKEXEC);
 
 retry:
 	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
@@ -99,6 +102,11 @@ retry:
 
 		if((cpu_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_cpu))) == -1) {
 			show_error_message("Please select a CPU to attach the counter to.");
+			goto retry;
+		}
+
+		if((state = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_state))) == -1) {
+			show_error_message("Please select a state.");
 			goto retry;
 		}
 
@@ -113,6 +121,7 @@ retry:
 		opt->cpu = mes->sets[cpu_idx].cpu;
 		opt->num_samples = gtk_range_get_value(GTK_RANGE(scale_samples));
 		opt->name = malloc(strlen(name)+1);
+		opt->state = state;
 
 		if(!opt->name) {
 			show_error_message("Could not allocate space for counter name.");

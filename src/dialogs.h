@@ -47,6 +47,7 @@ struct derived_counter_options {
 	unsigned int cpu;
 	unsigned int num_samples;
 	char* name;
+	enum worker_state state;
 };
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);

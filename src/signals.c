@@ -156,7 +156,7 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 	if(show_derived_counter_dialog(&g_mes, &opt)) {
 		switch(opt.type) {
 			case DERIVED_COUNTER_PARALLELISM:
-				err = derive_parallelism_counter(&g_mes, opt.name, WORKER_STATE_TASKEXEC, opt.num_samples, opt.cpu);
+				err = derive_parallelism_counter(&g_mes, opt.name, opt.state, opt.num_samples, opt.cpu);
 				break;
 		}
 
