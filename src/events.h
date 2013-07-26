@@ -59,4 +59,25 @@ struct single_event {
 	uint64_t active_frame;
 };
 
+static inline uint64_t state_event_length_in_interval(struct state_event* se, uint64_t start, uint64_t end)
+{
+	if(se->start > end || se->end < start)
+		return 0;
+
+	if(se->start >= start && se->end <= end)
+		return se->end - se->start;
+
+	if(se->start <= start && se->end <= end)
+		return se->end - start;
+
+	if(se->start <= end && se->end >= end)
+		return end - se->start;
+
+	if(se->start <= start && se->end >= end)
+		return end - start;
+
+	/* Should never happen */
+	return 0;
+}
+
 #endif

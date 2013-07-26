@@ -107,7 +107,7 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
 		if(!f || filter_has_state_event(f, &es->state_events[i])) {
 			state_durations[es->state_events[i].state] +=
-				(es->state_events[i].end - es->state_events[i].start);
+				state_event_length_in_interval(&es->state_events[i], start, end);
 		}
 	}
 
