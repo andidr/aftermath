@@ -255,7 +255,7 @@ static inline uint64_t multi_event_set_get_free_counter_id(struct multi_event_se
 	uint64_t id = 0;
 
 	for(int i = 0; i < mes->num_counters; i++) {
-		if(mes->counters[i].counter_id > id)
+		if(mes->counters[i].counter_id >= id)
 			id = mes->counters[i].counter_id + 1;
 	}
 
