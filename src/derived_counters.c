@@ -69,7 +69,11 @@ int derive_parallelism_counter(struct multi_event_set* mes, const char* counter_
 	strcpy(cd->name, counter_name);
 
 	for(int i = 0; i < mes->num_sets; i++) {
-		curr_idx[i] = (mes->sets[i].num_state_events > 0) ? 0 : -1;
+		if(mes->sets[i].num_state_events > 0)
+			curr_idx[i] = event_set_get_next_state_event(&mes->sets[i], -1, state);
+		else
+			curr_idx[i] = -1;
+
 		curr_start[i] = (curr_idx[i] != -1) ? mes->sets[i].state_events[curr_idx[i]].start : 0;
 	}
 
