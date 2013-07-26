@@ -42,3 +42,45 @@ int counter_event_set_get_event_outside_interval(struct counter_event_set* es, u
 
 	return center_idx;
 }
+
+uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t time)
+{
+	int start_idx = 0;
+	int end_idx = ces->num_events-1;
+	int center_idx = 0;
+
+	if(ces->num_events == 0)
+		return 0;
+
+	while(end_idx - start_idx >= 0) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(ces->events[center_idx].time > time)
+			end_idx = center_idx - 1;
+		else if(ces->events[center_idx].time < time)
+			start_idx = center_idx + 1;
+		else
+			return ces->events[center_idx].value;
+	}
+
+	if(ces->events[center_idx].time > time) {
+		if(center_idx == 0)
+			return ces->events[center_idx].value;
+		else
+			return (ces->events[center_idx-1].value +
+				((time - ces->events[center_idx-1].time) *
+				 (ces->events[center_idx].value - ces->events[center_idx-1].value)) /
+				(ces->events[center_idx].time - ces->events[center_idx-1].value));
+	} else {
+		if(center_idx == ces->num_events-1)
+			return ces->events[center_idx].value;
+		else
+			return (ces->events[center_idx].value +
+				((time - ces->events[center_idx].time) *
+				 (ces->events[center_idx+1].value - ces->events[center_idx].value)) /
+				(ces->events[center_idx+1].time - ces->events[center_idx].value));
+	}
+
+	/* Should never happen */
+	return 0;
+}

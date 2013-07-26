@@ -65,52 +65,131 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	return ret;
 }
 
+struct derived_counter_dialog_context {
+	GtkWidget* dialog;
+	GtkWidget* table_properties;
+	GtkWidget* combo_type;
+	GtkWidget* combo_cpu;
+	GtkWidget* combo_counter;
+	GtkWidget* combo_state;
+	GtkWidget* scale_samples;
+	GtkWidget* entry_name;
+	GtkWidget* label_type;
+	GtkWidget* label_cpu;
+	GtkWidget* label_counter;
+	GtkWidget* label_state;
+	GtkWidget* label_samples;
+	GtkWidget* label_name;
+};
+
+G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
+{
+	struct derived_counter_dialog_context* ctx;
+	int curr_type = gtk_combo_box_get_active(widget);
+
+	ctx = g_object_get_data(G_OBJECT(widget), "context");
+	gtk_widget_hide_all(ctx->table_properties);
+	gtk_widget_show(ctx->table_properties);
+
+	GtkWidget** visible_widgets[2];
+
+	visible_widgets[0] = (GtkWidget*[]){
+		ctx->combo_type, ctx->label_type,
+		ctx->combo_cpu, ctx->label_cpu,
+		ctx->combo_state, ctx->label_state,
+		ctx->scale_samples, ctx->label_samples,
+		ctx->entry_name, ctx->label_name,
+		NULL };
+
+	visible_widgets[1] = (GtkWidget*[]){
+		ctx->combo_type, ctx->label_type,
+		ctx->combo_cpu, ctx->label_cpu,
+		ctx->combo_counter, ctx->label_counter,
+		ctx->scale_samples, ctx->label_samples,
+		ctx->entry_name, ctx->label_name,
+		NULL };
+
+	for(int i = 0; visible_widgets[curr_type][i]; i++)
+		gtk_widget_show_all(visible_widgets[curr_type][i]);
+
+	gtk_container_check_resize(GTK_CONTAINER(ctx->table_properties));
+}
+
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt)
 {
 	GladeXML* xml = glade_xml_new(DATA_PATH "/derived_counter_dialog.glade", NULL, NULL);
-	char buffer[32];
+	char buffer[256];
 	int type_idx;
 	int cpu_idx;
+	int ctr_idx;
 	int ret = 0;
 	const char* name;
 	enum worker_state state;
+	struct derived_counter_dialog_context ctx;
 
 	glade_xml_signal_autoconnect(xml);
-	IMPORT_GLADE_WIDGET(xml, dialog);
-	IMPORT_GLADE_WIDGET(xml, combo_type);
-	IMPORT_GLADE_WIDGET(xml, combo_cpu);
-	IMPORT_GLADE_WIDGET(xml, combo_state);
-	IMPORT_GLADE_WIDGET(xml, scale_samples);
-	IMPORT_GLADE_WIDGET(xml, entry_name);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, dialog);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, table_properties);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_type);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_cpu);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_counter);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_state);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scale_samples);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, entry_name);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_type);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_cpu);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_counter);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_state);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_samples);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_name);
 
-	gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_cpu), 0);
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
 		snprintf(buffer, sizeof(buffer), "CPU %d", mes->sets[cpu_idx].cpu);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cpu), buffer);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_cpu), buffer);
 	}
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_type), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cpu), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_state), WORKER_STATE_TASKEXEC);
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_counter), 0);
+	for(ctr_idx = 0; ctr_idx < mes->num_counters; ctr_idx++) {
+		strncpy(buffer, mes->counters[ctr_idx].name, sizeof(buffer));
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_counter), buffer);
+	}
+
+
+	g_object_set_data(G_OBJECT(ctx.combo_type), "context", &ctx);
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_type), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_cpu), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_counter), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), WORKER_STATE_TASKEXEC);
 
 retry:
-	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-		if((type_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_type))) == -1) {
+	if(gtk_dialog_run(GTK_DIALOG(ctx.dialog)) == GTK_RESPONSE_ACCEPT) {
+		if((type_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_type))) == -1) {
 			show_error_message("Please select a type for the derived counter.");
 			goto retry;
 		}
 
-		if((cpu_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_cpu))) == -1) {
+		if((cpu_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_cpu))) == -1) {
 			show_error_message("Please select a CPU to attach the counter to.");
 			goto retry;
 		}
 
-		if((state = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_state))) == -1) {
+		if(type_idx == DERIVED_COUNTER_PARALLELISM &&
+		   (state = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_state))) == -1)
+		{
 			show_error_message("Please select a state.");
 			goto retry;
 		}
 
-		name = gtk_entry_get_text(GTK_ENTRY(entry_name));
+		if(type_idx == DERIVED_COUNTER_AGGREGATE &&
+		   (ctr_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_counter))) == -1)
+		{
+			show_error_message("Please select a counter.");
+			goto retry;
+		}
+
+		name = gtk_entry_get_text(GTK_ENTRY(ctx.entry_name));
 
 		if(strlen(name) == 0) {
 			show_error_message("Please specify a name for the counter.");
@@ -119,9 +198,10 @@ retry:
 
 		opt->type = type_idx;
 		opt->cpu = mes->sets[cpu_idx].cpu;
-		opt->num_samples = gtk_range_get_value(GTK_RANGE(scale_samples));
+		opt->num_samples = gtk_range_get_value(GTK_RANGE(ctx.scale_samples));
 		opt->name = malloc(strlen(name)+1);
 		opt->state = state;
+		opt->counter_idx = ctr_idx;
 
 		if(!opt->name) {
 			show_error_message("Could not allocate space for counter name.");
@@ -132,7 +212,7 @@ retry:
 		ret = 1;
 	}
 
-	gtk_widget_destroy(dialog);
+	gtk_widget_destroy(ctx.dialog);
 	g_object_unref(G_OBJECT(xml));
 
 	return ret;

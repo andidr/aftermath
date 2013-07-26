@@ -38,6 +38,65 @@ int get_min_index(struct multi_event_set* mes, int* curr_idx, uint64_t* curr_sta
 	return min_idx;
 }
 
+int derive_aggregate_counter(struct multi_event_set* mes, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu)
+{
+	struct counter_description* cd;
+	struct event_set* cpu_es;
+	struct counter_event ce;
+
+	int set_indexes[mes->num_sets];
+	int sets_having[mes->num_sets];
+	int num_sets_having;
+	int cpu_idx;
+
+	uint64_t id;
+	uint64_t min_time = multi_event_set_first_event_start(mes);
+	uint64_t max_time = multi_event_set_last_event_end(mes);
+	uint64_t interval_length = (max_time - min_time) / (uint64_t)num_samples;
+
+	cpu_idx = multi_event_set_find_cpu_idx(mes, cpu);
+	cpu_es = &mes->sets[cpu_idx];
+
+	id = multi_event_set_get_free_counter_id(mes);
+
+	if(!(cd = multi_event_set_counter_description_alloc_ptr(mes, id, strlen(counter_name))))
+		return 1;
+
+	cd->counter_id = id;
+	strcpy(cd->name, counter_name);
+
+	ce.active_task = 0x0;
+	ce.active_frame = 0x0;
+	ce.counter_id = id;
+	ce.counter_index = cd->index;
+
+	num_sets_having = 0;
+	for(int i = 0; i < mes->num_sets; i++) {
+		int j = event_set_counter_event_set_index(&mes->sets[i], counter_idx);
+
+		if(j != -1) {
+			sets_having[num_sets_having] = i;
+			set_indexes[num_sets_having] = j;
+			num_sets_having++;
+		}
+	}
+
+	for(int sample = 0; sample < num_samples; sample++) {
+		ce.time = min_time + (uint64_t)sample * interval_length;
+		ce.value = 0;
+
+		for(int i = 0; i < num_sets_having; i++)
+			ce.value += counter_event_set_get_value(&mes->sets[sets_having[i]].counter_event_sets[set_indexes[i]], ce.time);
+
+		if(event_set_add_counter_event(cpu_es, &ce) != 0)
+			return 1;
+
+		multi_event_set_check_update_counter_bounds(mes, &ce);
+	}
+
+	return 0;
+}
+
 int derive_parallelism_counter(struct multi_event_set* mes, const char* counter_name, enum worker_state state, int num_samples, int cpu)
 {
 	struct counter_description* cd;

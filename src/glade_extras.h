@@ -28,4 +28,19 @@
 #define IMPORT_GLADE_WIDGET(xml, name) \
 	GtkWidget* name  = glade_xml_get_widget(xml, #name)
 
+/**
+ * Retrieves the widget whose name is given by "name" from the glade XML
+ * object and assigns it to the variable specified by var_name.
+ */
+#define IMPORT_GLADE_WIDGET_ASSIGN(xml, var_name, name)	\
+	var_name  = glade_xml_get_widget(xml, #name)
+
+/**
+ * Retrieves the widget whose name is given by "name" from the glade XML
+ * object and assigns it to the struct member of having the same name of
+ * the structure instance specified by struct_ref.
+ */
+#define IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, struct_ref, name)	\
+	(struct_ref)->name  = glade_xml_get_widget(xml, #name)
+
 #endif

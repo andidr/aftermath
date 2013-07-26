@@ -31,6 +31,7 @@ struct counter_event_set {
 };
 
 int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end);
+uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t time);
 
 static inline void counter_event_set_destroy(struct counter_event_set* ces)
 {

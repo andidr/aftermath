@@ -39,12 +39,14 @@ void show_progress_window_persistent(struct progress_window_widgets* widgets);
 int show_color_dialog(GdkColor* color);
 
 enum derived_counter_type {
-	DERIVED_COUNTER_PARALLELISM = 0
+	DERIVED_COUNTER_PARALLELISM = 0,
+	DERIVED_COUNTER_AGGREGATE
 };
 
 struct derived_counter_options {
 	enum derived_counter_type type;
 	unsigned int cpu;
+	unsigned int counter_idx;
 	unsigned int num_samples;
 	char* name;
 	enum worker_state state;
