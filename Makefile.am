@@ -56,6 +56,8 @@ ostv_SOURCES = src/ostv.c \
 		src/frame.c \
 		src/util.h \
 		src/util.c \
+		src/statistics.h \
+		src/statistics.c \
 		src/derived_counters.h \
 		src/derived_counters.c \
 		src/color.h \

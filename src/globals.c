@@ -39,6 +39,19 @@ GtkWidget* g_use_global_slopes_check;
 GtkWidget* g_global_slopes_min_entry;
 GtkWidget* g_global_slopes_max_entry;
 
+GtkWidget* g_label_perc_seeking;
+GtkWidget* g_label_perc_texec;
+GtkWidget* g_label_perc_tcreate;
+GtkWidget* g_label_perc_resdep;
+GtkWidget* g_label_perc_tdec;
+GtkWidget* g_label_perc_bcast;
+GtkWidget* g_label_perc_init;
+GtkWidget* g_label_perc_estimate;
+GtkWidget* g_label_perc_reorder;
+
+GtkWidget* g_label_range_selection;
+GtkWidget* g_button_clear_range;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

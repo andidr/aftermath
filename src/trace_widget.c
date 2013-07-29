@@ -76,6 +76,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_pushes = 1;
 	g->draw_data_reads = 1;
 	g->draw_counters = 0;
+	g->range_selection = 0;
 
 	g->draw_single_events = 0;
 	g->back_buffer = NULL;
@@ -174,6 +175,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
 
 	gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED] =
                 g_signal_new("ybounds-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
+                             G_TYPE_NONE, 2,
+                             G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+
+	gtk_trace_signals[GTK_TRACE_RANGE_SELECTION_CHANGED] =
+                g_signal_new("range-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
                              GTK_RUN_FIRST,
                              G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
                              NULL, NULL,
@@ -432,6 +442,11 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton *event)
 			g->last_mouse_y = event->y;
 			g->moved_during_navigation = 0;
 			break;
+		case GTK_TRACE_MODE_SELECT_RANGE_START:
+			g->range_selection = 1;
+			g->range_selection_start = gtk_trace_screen_x_to_trace(g, event->x);
+			g->mode = GTK_TRACE_MODE_SELECT_RANGE;
+			break;
 		default:
 			break;
 	}
@@ -444,22 +459,34 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 	struct state_event* se;
 	int worker, cpu;
 	GtkTrace* g = GTK_TRACE(widget);
+	uint64_t tmp;
 
 	if(event->button != 1)
 		return TRUE;
 
-	g->mode = GTK_TRACE_MODE_NORMAL;
+	if(g->mode == GTK_TRACE_MODE_SELECT_RANGE) {
+		if(g->range_selection_start > g->range_selection_end) {
+			tmp = g->range_selection_start;
+			g->range_selection_start = g->range_selection_end;
+			g->range_selection_end = tmp;
+		}
 
-	/* Normal click? */
-	if(!g->moved_during_navigation) {
-		se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
+		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_RANGE_SELECTION_CHANGED], 0,
+			      (double)g->range_selection_start, (double)g->range_selection_end);
+	} else {
+		/* Normal click? */
+		if(!g->moved_during_navigation) {
+			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
 
-		if(se && (!g->filter || filter_has_state_event(g->filter, se))) {
-			g->highlight_state_event = se;
-			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
-			gtk_widget_queue_draw(widget);
+			if(se && (!g->filter || filter_has_state_event(g->filter, se))) {
+				g->highlight_state_event = se;
+				g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
+				gtk_widget_queue_draw(widget);
+			}
 		}
 	}
+
+	g->mode = GTK_TRACE_MODE_NORMAL;
 
 	return TRUE;
 }
@@ -482,6 +509,10 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 			g->last_mouse_y = event->y;
 
 			g->moved_during_navigation = 1;
+			gtk_widget_queue_draw(widget);
+			break;
+		case GTK_TRACE_MODE_SELECT_RANGE:
+			g->range_selection_end = gtk_trace_screen_x_to_trace(g, event->x);
 			gtk_widget_queue_draw(widget);
 			break;
 		default:
@@ -1003,6 +1034,24 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_selection(GtkTrace* g, cairo_t* cr)
+{
+	long double left_x = gtk_trace_x_to_screen(g, g->range_selection_start);
+	long double right_x = gtk_trace_x_to_screen(g, g->range_selection_end);
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.3);
+	cairo_rectangle(cr, left_x, 0, right_x - left_x, g->widget.allocation.height - g->axis_width);
+	cairo_fill(cr);
+
+	cairo_set_source_rgba(cr, 1.0, 1.0, 0.0, 0.3);
+	cairo_rectangle(cr, left_x, 0, right_x - left_x, g->widget.allocation.height - g->axis_width);
+	cairo_stroke(cr);
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1197,6 +1246,9 @@ void gtk_trace_paint(GtkWidget *widget)
 	if(g->draw_comm)
 		gtk_trace_paint_comm(g, cr);
 
+	if(g->range_selection)
+		gtk_trace_paint_selection(g, cr);
+
 	/* Draw axes */
 	gtk_trace_paint_axes(g, cr);
 
@@ -1208,6 +1260,19 @@ void gtk_trace_paint(GtkWidget *widget)
 	}
 
 	cairo_destroy(cr);
+}
+
+void gtk_trace_enter_range_selection_mode(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->mode = GTK_TRACE_MODE_SELECT_RANGE_START;
+}
+
+void gtk_trace_clear_range_selection(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->range_selection = 0;
+	gtk_widget_queue_draw(widget);
 }
 
 double gtk_trace_get_time_at(GtkWidget *widget, int x)

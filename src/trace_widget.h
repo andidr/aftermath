@@ -36,12 +36,15 @@ enum gtk_trace_signals {
 	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
 	GTK_TRACE_STATE_EVENT_SELECTION_CHANGED,
 	GTK_TRACE_YBOUNDS_CHANGED,
+	GTK_TRACE_RANGE_SELECTION_CHANGED,
 	GTK_TRACE_MAX_SIGNALS
 };
 
 enum gtk_trace_modes {
 	GTK_TRACE_MODE_NORMAL = 0,
 	GTK_TRACE_MODE_NAVIGATE,
+	GTK_TRACE_MODE_SELECT_RANGE_START,
+	GTK_TRACE_MODE_SELECT_RANGE,
 	GTK_TRACE_MODE_ZOOM
 };
 
@@ -67,6 +70,10 @@ struct _GtkTrace {
 	int draw_single_events;
 	int draw_counters;
 	int moved_during_navigation;
+
+	int64_t range_selection_start;
+	int64_t range_selection_end;
+	int range_selection;
 
 	int double_buffering;
 	cairo_surface_t* back_buffer;
@@ -96,6 +103,8 @@ void gtk_trace_realize(GtkWidget *widget);
 gboolean gtk_trace_expose(GtkWidget *widget, GdkEventExpose *event);
 void gtk_trace_init(GtkTrace *trace);
 void gtk_trace_paint(GtkWidget *widget);
+void gtk_trace_enter_range_selection_mode(GtkWidget *widget);
+void gtk_trace_clear_range_selection(GtkWidget *widget);
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right);
 void gtk_trace_set_cpu_offset(GtkWidget *widget, long double cpu_offset);
 void gtk_trace_set_left(GtkWidget *widget, long double left);

@@ -46,6 +46,19 @@ extern GtkWidget* g_use_global_slopes_check;
 extern GtkWidget* g_global_slopes_min_entry;
 extern GtkWidget* g_global_slopes_max_entry;
 
+extern GtkWidget* g_label_perc_seeking;
+extern GtkWidget* g_label_perc_texec;
+extern GtkWidget* g_label_perc_tcreate;
+extern GtkWidget* g_label_perc_resdep;
+extern GtkWidget* g_label_perc_tdec;
+extern GtkWidget* g_label_perc_bcast;
+extern GtkWidget* g_label_perc_init;
+extern GtkWidget* g_label_perc_estimate;
+extern GtkWidget* g_label_perc_reorder;
+
+extern GtkWidget* g_label_range_selection;
+extern GtkWidget* g_button_clear_range;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;

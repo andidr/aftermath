@@ -23,6 +23,7 @@
 #include "counter_list.h"
 #include "ansi_extras.h"
 #include "derived_counters.h"
+#include "statistics.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -269,6 +270,75 @@ G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpo
 
 		message_id = gtk_statusbar_push(GTK_STATUSBAR(g_statusbar), context_id, buffer);
 	}
+}
+
+G_MODULE_EXPORT void select_range_from_graph_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	gtk_trace_enter_range_selection_mode(g_trace_widget);
+}
+
+G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	gtk_widget_set_sensitive(g_button_clear_range, FALSE);
+	gtk_trace_clear_range_selection(g_trace_widget);
+	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), "<b>No range selected</b>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_seeking), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_texec), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_tcreate), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_resdep), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_tdec), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_bcast), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_init), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_estimate), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_reorder), "<i>No selection</i>");
+}
+
+G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
+{
+	char buffer[128];
+	struct state_statistics s;
+	double length = right - left;
+
+	gtk_widget_set_sensitive(g_button_clear_range, TRUE);
+
+	snprintf(buffer, sizeof(buffer), "<b>%.0f - %.0f</b>", left, right);
+	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), buffer);
+
+	if(left < 0)
+		left = 0;
+
+	if(right < 0)
+		right = 0;
+
+	state_statistics_init(&s);
+	state_statistics_gather(&g_mes, &s, left, right);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_SEEKING]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_seeking), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_TASKEXEC]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_texec), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TCREATE]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_tcreate), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_resdep), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_tdec), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TDEC]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_bcast), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_INIT]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_init), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_estimate), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_REORDER]) / (length*g_mes.num_sets));
+	gtk_label_set_text(GTK_LABEL(g_label_perc_reorder), buffer);
 }
 
 G_MODULE_EXPORT gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data)

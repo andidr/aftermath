@@ -214,6 +214,19 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
 
+	IMPORT_GLADE_WIDGET(xml, label_perc_seeking);
+	IMPORT_GLADE_WIDGET(xml, label_perc_texec);
+	IMPORT_GLADE_WIDGET(xml, label_perc_tcreate);
+	IMPORT_GLADE_WIDGET(xml, label_perc_resdep);
+	IMPORT_GLADE_WIDGET(xml, label_perc_tdec);
+	IMPORT_GLADE_WIDGET(xml, label_perc_bcast);
+	IMPORT_GLADE_WIDGET(xml, label_perc_init);
+	IMPORT_GLADE_WIDGET(xml, label_perc_estimate);
+	IMPORT_GLADE_WIDGET(xml, label_perc_reorder);
+
+	IMPORT_GLADE_WIDGET(xml, button_clear_range);
+	IMPORT_GLADE_WIDGET(xml, label_range_selection);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
@@ -238,6 +251,19 @@ int main(int argc, char** argv)
 	g_global_slopes_min_entry = global_slopes_min_entry;
 	g_global_slopes_max_entry = global_slopes_max_entry;
 
+	g_label_perc_seeking = label_perc_seeking;
+	g_label_perc_texec = label_perc_texec;
+	g_label_perc_tcreate = label_perc_tcreate;
+	g_label_perc_resdep = label_perc_resdep;
+	g_label_perc_tdec = label_perc_tdec;
+	g_label_perc_bcast = label_perc_bcast;
+	g_label_perc_init = label_perc_init;
+	g_label_perc_estimate = label_perc_estimate;
+	g_label_perc_reorder = label_perc_reorder;
+
+	g_button_clear_range = button_clear_range;
+	g_label_range_selection = label_range_selection;
+
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_max_counter_value(&g_mes));
@@ -252,6 +278,7 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "ybounds-changed", G_CALLBACK(trace_ybounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "range-selection-changed", G_CALLBACK(trace_range_selection_changed), g_trace_widget);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
