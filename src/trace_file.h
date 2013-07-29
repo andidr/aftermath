@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 4
+#define TRACE_VERSION 5
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -78,7 +78,9 @@ enum comm_event_type {
 };
 
 enum single_event_type {
-	SINGLE_TYPE_TCREATE = 0
+	SINGLE_TYPE_TCREATE = 0,
+	SINGLE_TYPE_TEXEC_START = 1,
+	SINGLE_TYPE_TEXEC_END = 2
 };
 
 
@@ -220,6 +222,14 @@ struct trace_single_event {
 
 	/* Single event type */
 	uint32_t type;
+
+	/* Depending on the event the what field might be
+	 * used for different purposes:
+	 * - tcreate: the frame pointer of the newly created task
+	 * - texec start: the frame pointer of the task that starts execution
+	 * - texec finish: the frame pointer of the task that finishes execution
+	*/
+	uint64_t what;
 } __attribute__((packed));
 
 extern int trace_single_event_conversion_table[];

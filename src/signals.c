@@ -164,11 +164,10 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 				break;
 		}
 
-		if(err) {
+		if(err)
 			show_error_message("Could not create derived counter.");
-		} else {
+		else
 			counter_list_append(GTK_TREE_VIEW(g_counter_treeview), cd, FALSE);
-		}
 
 		free(opt.name);
 	}

@@ -189,8 +189,18 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
-	return filter_has_task(f, se->active_task) &&
-		filter_has_frame(f, se->active_frame);
+	if(filter_has_task(f, se->active_task) &&
+	   filter_has_frame(f, se->active_frame))
+		return 1;
+
+	switch(se->type) {
+		case SINGLE_TYPE_TCREATE:
+		case SINGLE_TYPE_TEXEC_START:
+		case SINGLE_TYPE_TEXEC_END:
+			return filter_has_frame(f, se->what);
+	}
+
+	return 0;
 }
 
 static inline void filter_destroy(struct filter* f)

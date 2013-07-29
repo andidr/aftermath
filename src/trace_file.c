@@ -78,6 +78,7 @@ int trace_comm_event_conversion_table[] = {
 int trace_single_event_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct trace_single_event, type),
+	FIELD_SIZE(struct trace_single_event, what),
 	CONVERSION_TABLE_END
 };
 
@@ -166,7 +167,7 @@ int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
 		header->version <= TRACE_VERSION &&
-		header->version >= 4 &&
+		header->version == 5 &&
 		header->day > 0 && header->day <= 31 &&
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);

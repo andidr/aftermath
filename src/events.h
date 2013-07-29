@@ -57,6 +57,7 @@ struct single_event {
 	enum single_event_type type;
 	uint64_t active_task;
 	uint64_t active_frame;
+	uint64_t what;
 };
 
 static inline uint64_t state_event_length_in_interval(struct state_event* se, uint64_t start, uint64_t end)
