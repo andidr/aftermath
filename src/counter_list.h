@@ -37,6 +37,7 @@ enum counter_list_columns {
 };
 
 void counter_list_init(GtkTreeView* counter_treeview);
+void counter_list_append(GtkTreeView* counter_treeview, struct counter_description* counter, gboolean active);
 void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description* counters, int num_counters);
 void counter_list_clear(GtkTreeView* counter_treeview);
 void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* filter);

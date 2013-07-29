@@ -151,23 +151,23 @@ G_MODULE_EXPORT void menubar_settings(GtkCheckMenuItem *item, gpointer data)
 G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer data)
 {
 	struct derived_counter_options opt;
+	struct counter_description* cd;
 	int err = 1;
 
 	if(show_derived_counter_dialog(&g_mes, &opt)) {
 		switch(opt.type) {
 			case DERIVED_COUNTER_PARALLELISM:
-				err = derive_parallelism_counter(&g_mes, opt.name, opt.state, opt.num_samples, opt.cpu);
+				err = derive_parallelism_counter(&g_mes, &cd, opt.name, opt.state, opt.num_samples, opt.cpu);
 				break;
 			case DERIVED_COUNTER_AGGREGATE:
-				err = derive_aggregate_counter(&g_mes, opt.name, opt.counter_idx, opt.num_samples, opt.cpu);
+				err = derive_aggregate_counter(&g_mes, &cd, opt.name, opt.counter_idx, opt.num_samples, opt.cpu);
 				break;
 		}
 
 		if(err) {
 			show_error_message("Could not create derived counter.");
 		} else {
-			counter_list_clear(GTK_TREE_VIEW(g_counter_treeview));
-			counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);
+			counter_list_append(GTK_TREE_VIEW(g_counter_treeview), cd, FALSE);
 		}
 
 		free(opt.name);

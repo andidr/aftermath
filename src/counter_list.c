@@ -108,40 +108,53 @@ void counter_list_init(GtkTreeView* counter_treeview)
 	g_object_unref(store);
 }
 
-void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description* counters, int num_counters)
+void __counter_list_append(GtkListStore* store, struct counter_description* counter, gboolean active)
 {
-	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
-	GtkListStore* store = GTK_LIST_STORE(model);
 	GtkTreeIter iter;
 	char buff_min[32];
 	char buff_max[32];
 	char buff_min_slope[32];
 	char buff_max_slope[32];
 
-	for(int i = 0; i < num_counters; i++) {
-		gtk_list_store_append(store, &iter);
+	gtk_list_store_append(store, &iter);
 
-		snprintf(buff_min, sizeof(buff_min), "%"PRId64, counters[i].min);
-		snprintf(buff_max, sizeof(buff_max), "%"PRId64, counters[i].max);
-		snprintf(buff_min_slope, sizeof(buff_min_slope), "%Lf", counters[i].min_slope);
-		snprintf(buff_max_slope, sizeof(buff_max_slope), "%Lf", counters[i].max_slope);
+	snprintf(buff_min, sizeof(buff_min), "%"PRId64, counter->min);
+	snprintf(buff_max, sizeof(buff_max), "%"PRId64, counter->max);
+	snprintf(buff_min_slope, sizeof(buff_min_slope), "%Lf", counter->min_slope);
+	snprintf(buff_max_slope, sizeof(buff_max_slope), "%Lf", counter->max_slope);
 
-		GdkColor color = { .red = counters[i].color_r*65535,
-				   .green = counters[i].color_g*65535,
-				   .blue = counters[i].color_b*65535 };
+	GdkColor color = { .red = counter->color_r*65535,
+			   .green = counter->color_g*65535,
+			   .blue = counter->color_b*65535 };
 
-		gtk_list_store_set(store, &iter,
-				   COUNTER_LIST_COL_FILTER, TRUE,
-				   COUNTER_LIST_COL_COLOR, &color,
-				   COUNTER_LIST_COL_NAME, counters[i].name,
-				   COUNTER_LIST_COL_MODE, FALSE,
-				   COUNTER_LIST_COL_MIN, buff_min,
-				   COUNTER_LIST_COL_MAX, buff_max,
-				   COUNTER_LIST_COL_MIN_SLOPE, buff_min_slope,
-				   COUNTER_LIST_COL_MAX_SLOPE, buff_max_slope,
-				   COUNTER_LIST_COL_COUNTER_POINTER, &counters[i],
-				   -1);
-	}
+	gtk_list_store_set(store, &iter,
+			   COUNTER_LIST_COL_FILTER, active,
+			   COUNTER_LIST_COL_COLOR, &color,
+			   COUNTER_LIST_COL_NAME, counter->name,
+			   COUNTER_LIST_COL_MODE, FALSE,
+			   COUNTER_LIST_COL_MIN, buff_min,
+			   COUNTER_LIST_COL_MAX, buff_max,
+			   COUNTER_LIST_COL_MIN_SLOPE, buff_min_slope,
+			   COUNTER_LIST_COL_MAX_SLOPE, buff_max_slope,
+			   COUNTER_LIST_COL_COUNTER_POINTER, counter,
+			   -1);
+}
+
+void counter_list_append(GtkTreeView* counter_treeview, struct counter_description* counter, gboolean active)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+
+	__counter_list_append(store, counter, active);
+}
+
+void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description* counters, int num_counters)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+
+	for(int i = 0; i < num_counters; i++)
+		__counter_list_append(store, &counters[i], TRUE);
 }
 
 void counter_list_clear(GtkTreeView* counter_treeview)

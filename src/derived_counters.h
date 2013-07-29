@@ -20,7 +20,7 @@
 
 #include "multi_event_set.h"
 
-int derive_aggregate_counter(struct multi_event_set* mes, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu);
-int derive_parallelism_counter(struct multi_event_set* mes, const char* counter_name, enum worker_state state, int num_samples, int cpu);
+int derive_aggregate_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu);
+int derive_parallelism_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum worker_state state, int num_samples, int cpu);
 
 #endif
