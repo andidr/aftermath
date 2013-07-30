@@ -49,6 +49,16 @@ GtkWidget* g_label_perc_init;
 GtkWidget* g_label_perc_estimate;
 GtkWidget* g_label_perc_reorder;
 
+GtkWidget* g_label_par_seeking;
+GtkWidget* g_label_par_texec;
+GtkWidget* g_label_par_tcreate;
+GtkWidget* g_label_par_resdep;
+GtkWidget* g_label_par_tdec;
+GtkWidget* g_label_par_bcast;
+GtkWidget* g_label_par_init;
+GtkWidget* g_label_par_estimate;
+GtkWidget* g_label_par_reorder;
+
 GtkWidget* g_label_range_selection;
 GtkWidget* g_button_clear_range;
 

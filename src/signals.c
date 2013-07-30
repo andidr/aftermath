@@ -282,15 +282,25 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_widget_set_sensitive(g_button_clear_range, FALSE);
 	gtk_trace_clear_range_selection(g_trace_widget);
 	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), "<b>No range selected</b>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_seeking), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_texec), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_tcreate), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_resdep), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_tdec), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_bcast), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_init), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_estimate), "<i>No selection</i>");
-	gtk_label_set_markup(GTK_LABEL(g_label_perc_reorder), "<i>No selection</i>");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_seeking), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_texec), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_tcreate), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_resdep), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_tdec), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_bcast), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_init), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_estimate), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_perc_reorder), "");
+
+	gtk_label_set_markup(GTK_LABEL(g_label_par_seeking), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_texec), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_tcreate), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_resdep), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_tdec), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_bcast), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_init), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_estimate), "");
+	gtk_label_set_markup(GTK_LABEL(g_label_par_reorder), "");
 }
 
 void update_statistics(void)
@@ -343,6 +353,34 @@ void update_statistics(void)
 
 	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_REORDER]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_reorder), buffer);
+
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_SEEKING] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_seeking), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_TASKEXEC] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_texec), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_TCREATE] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_tcreate), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_resdep), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_tdec), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_TDEC] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_bcast), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_INIT] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_init), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_estimate), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_REORDER] / (double)length);
+	gtk_label_set_text(GTK_LABEL(g_label_par_reorder), buffer);
 }
 
 G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)

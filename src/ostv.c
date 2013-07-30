@@ -224,6 +224,16 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, label_perc_estimate);
 	IMPORT_GLADE_WIDGET(xml, label_perc_reorder);
 
+	IMPORT_GLADE_WIDGET(xml, label_par_seeking);
+	IMPORT_GLADE_WIDGET(xml, label_par_texec);
+	IMPORT_GLADE_WIDGET(xml, label_par_tcreate);
+	IMPORT_GLADE_WIDGET(xml, label_par_resdep);
+	IMPORT_GLADE_WIDGET(xml, label_par_tdec);
+	IMPORT_GLADE_WIDGET(xml, label_par_bcast);
+	IMPORT_GLADE_WIDGET(xml, label_par_init);
+	IMPORT_GLADE_WIDGET(xml, label_par_estimate);
+	IMPORT_GLADE_WIDGET(xml, label_par_reorder);
+
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
 
@@ -260,6 +270,16 @@ int main(int argc, char** argv)
 	g_label_perc_init = label_perc_init;
 	g_label_perc_estimate = label_perc_estimate;
 	g_label_perc_reorder = label_perc_reorder;
+
+	g_label_par_seeking = label_par_seeking;
+	g_label_par_texec = label_par_texec;
+	g_label_par_tcreate = label_par_tcreate;
+	g_label_par_resdep = label_par_resdep;
+	g_label_par_tdec = label_par_tdec;
+	g_label_par_bcast = label_par_bcast;
+	g_label_par_init = label_par_init;
+	g_label_par_estimate = label_par_estimate;
+	g_label_par_reorder = label_par_reorder;
 
 	g_button_clear_range = button_clear_range;
 	g_label_range_selection = label_range_selection;

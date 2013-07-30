@@ -1242,19 +1242,21 @@
                                 <child>
                                   <widget class="GtkTable" id="table1">
                                     <property name="visible">True</property>
-                                    <property name="n_rows">9</property>
-                                    <property name="n_columns">2</property>
+                                    <property name="n_rows">10</property>
+                                    <property name="n_columns">3</property>
                                     <property name="column_spacing">3</property>
                                     <property name="row_spacing">3</property>
                                     <child>
                                       <widget class="GtkLabel" id="label_perc_seeking">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
                                         <property name="right_attach">2</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1292,6 +1294,8 @@
                                         </child>
                                       </widget>
                                       <packing>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1329,8 +1333,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1368,8 +1372,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">2</property>
-                                        <property name="bottom_attach">3</property>
+                                        <property name="top_attach">3</property>
+                                        <property name="bottom_attach">4</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1407,8 +1411,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">3</property>
-                                        <property name="bottom_attach">4</property>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1435,7 +1439,7 @@
                                               <widget class="GtkLabel" id="label33">
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Tdecrease:&lt;/b&gt;</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;Tdec:&lt;/b&gt;</property>
                                                 <property name="use_markup">True</property>
                                               </widget>
                                               <packing>
@@ -1446,8 +1450,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">4</property>
-                                        <property name="bottom_attach">5</property>
+                                        <property name="top_attach">5</property>
+                                        <property name="bottom_attach">6</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1485,8 +1489,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">6</property>
-                                        <property name="bottom_attach">7</property>
+                                        <property name="top_attach">7</property>
+                                        <property name="bottom_attach">8</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1513,7 +1517,7 @@
                                               <widget class="GtkLabel" id="label37">
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Broadcast:&lt;/b&gt;</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;Bcast:&lt;/b&gt;</property>
                                                 <property name="use_markup">True</property>
                                               </widget>
                                               <packing>
@@ -1524,8 +1528,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">5</property>
-                                        <property name="bottom_attach">6</property>
+                                        <property name="top_attach">6</property>
+                                        <property name="bottom_attach">7</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1552,7 +1556,7 @@
                                               <widget class="GtkLabel" id="label39">
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Estimate cost:&lt;/b&gt;</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;Est. cost:&lt;/b&gt;</property>
                                                 <property name="use_markup">True</property>
                                               </widget>
                                               <packing>
@@ -1563,8 +1567,8 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">7</property>
-                                        <property name="bottom_attach">8</property>
+                                        <property name="top_attach">8</property>
+                                        <property name="bottom_attach">9</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -1591,7 +1595,7 @@
                                               <widget class="GtkLabel" id="label41">
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Task reorder:&lt;/b&gt;</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;Reorder:&lt;/b&gt;</property>
                                                 <property name="use_markup">True</property>
                                               </widget>
                                               <packing>
@@ -1602,29 +1606,15 @@
                                         </child>
                                       </widget>
                                       <packing>
-                                        <property name="top_attach">8</property>
-                                        <property name="bottom_attach">9</property>
+                                        <property name="top_attach">9</property>
+                                        <property name="bottom_attach">10</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
                                     <child>
                                       <widget class="GtkLabel" id="label_perc_texec">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="left_attach">1</property>
-                                        <property name="right_attach">2</property>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                        <property name="y_options"></property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkLabel" id="label_perc_tcreate">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1636,9 +1626,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_resdep">
+                                      <widget class="GtkLabel" id="label_perc_tcreate">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1650,9 +1640,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_tdec">
+                                      <widget class="GtkLabel" id="label_perc_resdep">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1664,9 +1654,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_bcast">
+                                      <widget class="GtkLabel" id="label_perc_tdec">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1678,9 +1668,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_init">
+                                      <widget class="GtkLabel" id="label_perc_bcast">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1692,9 +1682,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_estimate">
+                                      <widget class="GtkLabel" id="label_perc_init">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1706,9 +1696,9 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label_perc_reorder">
+                                      <widget class="GtkLabel" id="label_perc_estimate">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;i&gt;No selection&lt;/i&gt;</property>
+                                        <property name="xalign">1</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -1717,6 +1707,156 @@
                                         <property name="top_attach">8</property>
                                         <property name="bottom_attach">9</property>
                                         <property name="y_options"></property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_perc_reorder">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="use_markup">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">9</property>
+                                        <property name="bottom_attach">10</property>
+                                        <property name="y_options"></property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_seeking">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_texec">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_tcreate">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">3</property>
+                                        <property name="bottom_attach">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_resdep">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_tdec">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">5</property>
+                                        <property name="bottom_attach">6</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_bcast">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">6</property>
+                                        <property name="bottom_attach">7</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_init">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">7</property>
+                                        <property name="bottom_attach">8</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_estimate">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">8</property>
+                                        <property name="bottom_attach">9</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label_par_reorder">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">9</property>
+                                        <property name="bottom_attach">10</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label22">
+                                        <property name="visible">True</property>
+                                        <property name="use_markup">True</property>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label42">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Cyc&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label43">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Par&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
                                       </packing>
                                     </child>
                                   </widget>
@@ -1735,6 +1875,7 @@
                             </child>
                           </widget>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
