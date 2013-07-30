@@ -1275,6 +1275,22 @@ void gtk_trace_clear_range_selection(GtkWidget *widget)
 	gtk_widget_queue_draw(widget);
 }
 
+int gtk_trace_has_range_selection(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	return g->range_selection;
+}
+
+void gtk_trace_get_range_selection(GtkWidget *widget, int64_t* left, int64_t* right)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+
+	if(g->range_selection) {
+		*left = g->range_selection_start;
+		*right = g->range_selection_end;
+	}
+}
+
 double gtk_trace_get_time_at(GtkWidget *widget, int x)
 {
 	GtkTrace* g = GTK_TRACE(widget);

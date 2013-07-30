@@ -20,12 +20,13 @@
 
 #include "trace_file.h"
 #include "multi_event_set.h"
+#include "filter.h"
 
 struct state_statistics {
 	uint64_t state_cycles[WORKER_STATE_MAX];
 };
 
 void state_statistics_init(struct state_statistics* s);
-void state_statistics_gather(struct multi_event_set* mes, struct state_statistics* s, int64_t start, int64_t end);
+void state_statistics_gather(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
 
 #endif

@@ -293,15 +293,19 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_markup(GTK_LABEL(g_label_perc_reorder), "<i>No selection</i>");
 }
 
-G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
+void update_statistics(void)
 {
 	char buffer[128];
 	struct state_statistics s;
-	double length = right - left;
+	int64_t left, right;
+	int64_t length;
+
+	gtk_trace_get_range_selection(g_trace_widget, &left, &right);
+	length = right - left;
 
 	gtk_widget_set_sensitive(g_button_clear_range, TRUE);
 
-	snprintf(buffer, sizeof(buffer), "<b>%.0f - %.0f</b>", left, right);
+	snprintf(buffer, sizeof(buffer), "<b>%"PRId64" - %"PRId64"</b>", left, right);
 	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), buffer);
 
 	if(left < 0)
@@ -311,34 +315,39 @@ G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left,
 		right = 0;
 
 	state_statistics_init(&s);
-	state_statistics_gather(&g_mes, &s, left, right);
+	state_statistics_gather(&g_mes, &g_filter, &s, left, right);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_SEEKING]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_SEEKING]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_seeking), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_TASKEXEC]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_TASKEXEC]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_texec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TCREATE]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TCREATE]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_tcreate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_resdep), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_tdec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TDEC]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TDEC]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_bcast), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_INIT]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_INIT]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_init), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_estimate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_REORDER]) / (length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_REORDER]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_reorder), buffer);
+}
+
+G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
+{
+	update_statistics();
 }
 
 G_MODULE_EXPORT gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data)
@@ -416,6 +425,7 @@ G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_statistics();
 }
 
 G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -434,6 +444,7 @@ G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer dat
 	frame_list_build_filter(GTK_TREE_VIEW(g_frame_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_statistics();
 }
 
 G_MODULE_EXPORT void frame_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -514,6 +525,7 @@ G_MODULE_EXPORT void counter_filter_button_clicked(GtkMenuItem *item, gpointer d
 	counter_list_build_filter(GTK_TREE_VIEW(g_counter_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_statistics();
 }
 
 G_MODULE_EXPORT void counter_check_all_button_clicked(GtkMenuItem *item, gpointer data)

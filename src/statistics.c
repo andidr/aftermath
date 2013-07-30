@@ -22,7 +22,7 @@ void state_statistics_init(struct state_statistics* s)
 	memset(s->state_cycles, 0, sizeof(s->state_cycles));
 }
 
-void state_statistics_gather(struct multi_event_set* mes, struct state_statistics* s, int64_t start, int64_t end)
+void state_statistics_gather(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end)
 {
 	int state_idx;
 	struct state_event* se;
@@ -36,7 +36,9 @@ void state_statistics_gather(struct multi_event_set* mes, struct state_statistic
 		while(state_idx < mes->sets[cpu_idx].num_state_events &&
 		      se->start < end)
 		{
-			s->state_cycles[se->state] += state_event_length_in_interval(se, start, end);
+			if(filter_has_state_event(f, se))
+				s->state_cycles[se->state] += state_event_length_in_interval(se, start, end);
+
 			state_idx++;
 			se++;
 		}
