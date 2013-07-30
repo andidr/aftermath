@@ -315,7 +315,7 @@ void update_statistics(void)
 		right = 0;
 
 	state_statistics_init(&s);
-	state_statistics_gather(&g_mes, &g_filter, &s, left, right);
+	state_statistics_gather_cycles(&g_mes, &g_filter, &s, left, right);
 
 	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_SEEKING]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_seeking), buffer);

@@ -22,7 +22,7 @@ void state_statistics_init(struct state_statistics* s)
 	memset(s->state_cycles, 0, sizeof(s->state_cycles));
 }
 
-void state_statistics_gather(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end)
+void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end)
 {
 	int state_idx;
 	struct state_event* se;

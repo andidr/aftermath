@@ -27,6 +27,6 @@ struct state_statistics {
 };
 
 void state_statistics_init(struct state_statistics* s);
-void state_statistics_gather(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
+void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
 
 #endif
