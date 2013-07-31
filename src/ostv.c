@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #include "glade_extras.h"
 #include "trace_widget.h"
+#include "histogram_widget.h"
 #include "paraver.h"
 #include "globals.h"
 #include "signals.h"
@@ -194,6 +195,7 @@ int main(int argc, char** argv)
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
+	IMPORT_GLADE_WIDGET(xml, hist_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
@@ -234,11 +236,20 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, label_par_estimate);
 	IMPORT_GLADE_WIDGET(xml, label_par_reorder);
 
+	IMPORT_GLADE_WIDGET(xml, label_hist_num_tasks);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_perc);
+
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
+
+	g_histogram_widget = gtk_histogram_new();
+	gtk_container_add(GTK_CONTAINER(hist_box), g_histogram_widget);
 
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
@@ -281,6 +292,12 @@ int main(int argc, char** argv)
 	g_label_par_estimate = label_par_estimate;
 	g_label_par_reorder = label_par_reorder;
 
+	g_label_hist_num_tasks = label_hist_num_tasks;
+	g_label_hist_min_cycles = label_hist_min_cycles;
+	g_label_hist_max_cycles = label_hist_max_cycles;
+	g_label_hist_min_perc = label_hist_min_perc;
+	g_label_hist_max_perc = label_hist_max_perc;
+
 	g_button_clear_range = button_clear_range;
 	g_label_range_selection = label_range_selection;
 
@@ -315,6 +332,11 @@ int main(int argc, char** argv)
 		    multi_event_get_min_counter_slope(&g_mes),
 		    multi_event_get_max_counter_slope(&g_mes));
 
+	if(histogram_init(&g_task_histogram, HISTOGRAM_DEFAULT_NUM_BINS, 0, 1)) {
+		show_error_message("Cannot initialize task length histogram structure.");
+		return 1;
+	}
+
 	snprintf(title, sizeof(title), "OSTV - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
@@ -327,6 +349,7 @@ int main(int argc, char** argv)
 	multi_event_set_destroy(&g_mes);
 	filter_destroy(&g_filter);
 	settings_destroy(&g_settings);
+	histogram_destroy(&g_task_histogram);
 
 	return 0;
 }

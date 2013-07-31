@@ -19,6 +19,7 @@
 #include "multi_event_set.h"
 
 GtkWidget* g_trace_widget;
+GtkWidget* g_histogram_widget;
 GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
 GtkWidget* g_task_treeview;
@@ -59,6 +60,12 @@ GtkWidget* g_label_par_init;
 GtkWidget* g_label_par_estimate;
 GtkWidget* g_label_par_reorder;
 
+GtkWidget* g_label_hist_num_tasks;
+GtkWidget* g_label_hist_min_cycles;
+GtkWidget* g_label_hist_max_cycles;
+GtkWidget* g_label_hist_min_perc;
+GtkWidget* g_label_hist_max_perc;
+
 GtkWidget* g_label_range_selection;
 GtkWidget* g_button_clear_range;
 
@@ -77,3 +84,4 @@ struct multi_event_set g_mes = { .sets = NULL,
 
 struct filter g_filter;
 struct settings g_settings;
+struct histogram g_task_histogram;

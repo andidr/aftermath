@@ -22,6 +22,68 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+int trace_update_task_execution_bounds(struct event_set* es)
+{
+	struct single_event* ese;
+	struct single_event* eee;
+
+	struct single_event* last_ese = NULL;
+	struct single_event* last_eee = NULL;
+
+	struct state_event* se;
+
+	int exec_start_idx = -1;
+	int exec_end_idx = -1;
+	int state_idx;
+
+	/* Find execution start event */
+	while((exec_start_idx = event_set_get_next_single_event(es, exec_end_idx, SINGLE_TYPE_TEXEC_START)) != -1) {
+		/* Find execution end event */
+		if((exec_end_idx = event_set_get_next_single_event(es, exec_start_idx, SINGLE_TYPE_TEXEC_END)) == -1)
+			return 1;
+
+		/* Get pointers to events */
+		ese = &es->single_events[exec_start_idx];
+		eee = &es->single_events[exec_end_idx];
+
+		/* Check if events' frames match */
+		if(ese->what != eee->what)
+			return 1;
+
+		/* Update event chain */
+		ese->next_texec_end = eee;
+		ese->prev_texec_end = last_eee;
+		ese->prev_texec_start = last_ese;
+
+		eee->prev_texec_start = ese;
+		eee->next_texec_start = NULL;
+		eee->prev_texec_end = last_eee;
+
+		if(last_eee)
+			last_eee->next_texec_start = ese;
+
+		if(last_ese)
+			last_ese->next_texec_start = ese;
+
+		/* Update state events between start and end */
+		if((state_idx = event_set_get_first_state_starting_in_interval(es, ese->time, eee->time)) != -1) {
+			while(state_idx < es->num_state_events &&
+			      es->state_events[state_idx].start < eee->time)
+			{
+				se = &es->state_events[state_idx];
+				se->texec_start = ese;
+				se->texec_end = eee;
+				state_idx++;
+			}
+		}
+
+		last_ese = ese;
+		last_eee = eee;
+	}
+
+	return 0;
+}
+
 int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct frame_tree* ft, FILE* fp, off_t* bytes_read)
 {
 	struct trace_event_header dsk_eh;
@@ -129,6 +191,11 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				sge.time = dsk_sge.header.time;
 				sge.what = dsk_sge.what;
 				sge.type = dsk_sge.type;
+				sge.next_texec_end = NULL;
+				sge.prev_texec_end = NULL;
+				sge.prev_texec_start = NULL;
+				sge.next_texec_start = NULL;
+
 				event_set_add_single_event(es, &sge);
 			} else if(dsk_eh.type == EVENT_TYPE_COUNTER) {
 				memcpy(&dsk_cre, &dsk_eh, sizeof(dsk_eh));
@@ -196,8 +263,12 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 	mes->num_frames = ft.num_frames;
 
-	for(int i = 0; i < mes->num_sets; i++)
+	for(int i = 0; i < mes->num_sets; i++) {
 		event_set_sort_comm(&mes->sets[i]);
+
+		if(trace_update_task_execution_bounds(&mes->sets[i]) != 0)
+			goto out_trees;
+	}
 
 	res = 0;
 

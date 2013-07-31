@@ -18,6 +18,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-void pretty_print_bytes(char* buffer, int buffer_size, double bytes, const char* add);
+#include <stdint.h>
+
+void pretty_print_bytes(char* buffer, int buffer_size, unsigned int bytes, const char* add);
+void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles);
 
 #endif

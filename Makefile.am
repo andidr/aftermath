@@ -11,6 +11,8 @@ UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 
 ostv_SOURCES = src/ostv.c \
 		src/trace_widget.c \
+		src/histogram_widget.h \
+		src/histogram_widget.c \
 		src/buffer.h \
 		src/buffer.c \
 		src/events.h \

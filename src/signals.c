@@ -17,6 +17,8 @@
 #include "signals.h"
 #include "globals.h"
 #include "trace_widget.h"
+#include "histogram_widget.h"
+#include "util.h"
 #include "dialogs.h"
 #include "task_list.h"
 #include "frame_list.h"
@@ -301,12 +303,21 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_markup(GTK_LABEL(g_label_par_init), "");
 	gtk_label_set_markup(GTK_LABEL(g_label_par_estimate), "");
 	gtk_label_set_markup(GTK_LABEL(g_label_par_reorder), "");
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), "0 tasks considered");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), "0");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), "MAX");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), "MAX");
+
+	gtk_histogram_set_data(g_histogram_widget, NULL);
 }
 
 void update_statistics(void)
 {
 	char buffer[128];
-	struct state_statistics s;
+	struct state_statistics sts;
+	struct task_statistics ts;
 	int64_t left, right;
 	int64_t length;
 
@@ -324,63 +335,87 @@ void update_statistics(void)
 	if(right < 0)
 		right = 0;
 
-	state_statistics_init(&s);
-	state_statistics_gather_cycles(&g_mes, &g_filter, &s, left, right);
+	state_statistics_init(&sts);
+	state_statistics_gather_cycles(&g_mes, &g_filter, &sts, left, right);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_SEEKING]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_SEEKING]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_seeking), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_TASKEXEC]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_TASKEXEC]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_texec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TCREATE]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_TCREATE]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_tcreate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_resdep), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_tdec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_TDEC]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_TDEC]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_bcast), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_INIT]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_INIT]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_init), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_estimate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)s.state_cycles[WORKER_STATE_RT_REORDER]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_REORDER]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_reorder), buffer);
 
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_SEEKING] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_SEEKING] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_seeking), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_TASKEXEC] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_TASKEXEC] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_texec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_TCREATE] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_TCREATE] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_tcreate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_resdep), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_tdec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_TDEC] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_TDEC] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_bcast), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_INIT] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_INIT] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_init), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_ESTIMATE_COSTS] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_estimate), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)s.state_cycles[WORKER_STATE_RT_REORDER] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_REORDER] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_reorder), buffer);
+
+	if(task_statistics_init(&ts, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
+		show_error_message("Cannot allocate task statistics structure.");
+		return;
+	}
+
+	task_statistics_gather(&g_mes, &g_filter, &ts, left, right);
+	task_statistics_to_task_length_histogram(&ts, &g_task_histogram);
+	gtk_histogram_set_data(g_histogram_widget, &g_task_histogram);
+
+	snprintf(buffer, sizeof(buffer), "%d tasks considered", ts.num_tasks);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), buffer);
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), "0");
+
+	pretty_print_cycles(buffer, sizeof(buffer), ts.max_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), buffer);
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0%");
+
+	snprintf(buffer, sizeof(buffer), "%.2f%%", 100.0*((double)ts.max_hist / (double)ts.num_tasks));
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), buffer);
+
+	task_statistics_destroy(&ts);
 }
 
 G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)

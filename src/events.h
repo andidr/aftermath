@@ -23,12 +23,29 @@
 
 #define EVENT_PREALLOC (5*1024)
 
+struct single_event {
+	enum single_event_type type;
+
+	uint64_t time;
+	uint64_t active_task;
+	uint64_t active_frame;
+	uint64_t what;
+
+	struct single_event* next_texec_start;
+	struct single_event* prev_texec_start;
+
+	struct single_event* next_texec_end;
+	struct single_event* prev_texec_end;
+};
+
 struct state_event {
 	uint64_t start;
 	uint64_t end;
 	uint64_t active_task;
 	uint64_t active_frame;
 	int state;
+	struct single_event* texec_start;
+	struct single_event* texec_end;
 };
 
 struct comm_event {
@@ -50,14 +67,6 @@ struct counter_event {
 	int64_t value;
 	long double slope;
 	int counter_index;
-};
-
-struct single_event {
-	uint64_t time;
-	enum single_event_type type;
-	uint64_t active_task;
-	uint64_t active_frame;
-	uint64_t what;
 };
 
 static inline uint64_t state_event_length_in_interval(struct state_event* se, uint64_t start, uint64_t end)

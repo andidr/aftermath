@@ -79,6 +79,44 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	return center_idx;
 }
 
+int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
+{
+	int idx = event_set_get_first_state_in_interval(es, interval_start, interval_end);
+
+	if(idx == -1)
+		return -1;
+
+	if(es->state_events[idx].start < interval_start) {
+		while(idx+1 < es->num_state_events &&
+		      es->state_events[idx].start < interval_start)
+		{
+			idx++;
+		}
+	}
+
+	if(es->state_events[idx].start < interval_start ||
+	   es->state_events[idx].start > interval_end)
+		return -1;
+
+	return idx;
+}
+
+int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum worker_state type)
+{
+	int idx = event_set_get_first_state_starting_in_interval(es, start, end);
+
+	if(idx == -1)
+		return -1;
+
+	if(es->state_events[idx].state != type) {
+		if((idx = event_set_get_next_state_event(es, idx, type)) != -1)
+			if(es->state_events[idx].start > end)
+				return -1;
+	}
+
+	return idx;
+}
+
 int event_set_get_counter_event_set(struct event_set* es, int counter_idx)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)
@@ -169,6 +207,20 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval
 	return center_idx;
 }
 
+int event_set_get_next_single_event(struct event_set* es, int start_idx, enum single_event_type type)
+{
+	int idx = start_idx+1;
+
+	while(idx < es->num_single_events) {
+		if(es->single_events[idx].type == type)
+			return idx;
+
+		idx++;
+	}
+
+	return -1;
+}
+
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -193,4 +245,20 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 		center_idx--;
 
 	return center_idx;
+}
+
+int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type)
+{
+	int idx = event_set_get_first_single_event_in_interval(es, start, end);
+
+	if(idx == -1)
+		return -1;
+
+	while(es->single_events[idx].type != type && idx+1 < es->num_single_events)
+		idx++;
+
+	if(es->single_events[idx].type != type)
+		return -1;
+
+	return idx;
 }

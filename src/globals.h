@@ -22,8 +22,10 @@
 #include "events.h"
 #include "filter.h"
 #include "settings.h"
+#include "statistics.h"
 
 extern GtkWidget* g_trace_widget;
+extern GtkWidget* g_histogram_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_task_treeview;
@@ -66,11 +68,18 @@ extern GtkWidget* g_label_par_init;
 extern GtkWidget* g_label_par_estimate;
 extern GtkWidget* g_label_par_reorder;
 
+extern GtkWidget* g_label_hist_num_tasks;
+extern GtkWidget* g_label_hist_min_cycles;
+extern GtkWidget* g_label_hist_max_cycles;
+extern GtkWidget* g_label_hist_min_perc;
+extern GtkWidget* g_label_hist_max_perc;
+
 extern GtkWidget* g_label_range_selection;
 extern GtkWidget* g_button_clear_range;
 
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
+extern struct histogram g_task_histogram;
 
 #endif

@@ -22,11 +22,41 @@
 #include "multi_event_set.h"
 #include "filter.h"
 
+#define HISTOGRAM_DEFAULT_NUM_BINS 100
+
+struct histogram {
+	unsigned int num_bins;
+	long double* values;
+	long double left;
+	long double right;
+
+	unsigned int max_hist;
+	unsigned int num_hist;
+};
+
+int histogram_init(struct histogram* h, unsigned int num_bins, long double left, long double right);
+void histogram_destroy(struct histogram* h);
+
 struct state_statistics {
 	uint64_t state_cycles[WORKER_STATE_MAX];
 };
 
 void state_statistics_init(struct state_statistics* s);
 void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
+
+struct task_statistics {
+	unsigned int num_tasks;
+	uint64_t cycles;
+	uint64_t max_cycles;
+	unsigned int num_hist_bins;
+	uint64_t* cycles_hist;
+	unsigned int max_hist;
+};
+
+int task_statistics_init(struct task_statistics* s, unsigned int num_hist_bins);
+void task_statistics_reset(struct task_statistics* s);
+void task_statistics_destroy(struct task_statistics* s);
+void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* s, int64_t start, int64_t end);
+int task_statistics_to_task_length_histogram(struct task_statistics* s, struct histogram* h);
 
 #endif

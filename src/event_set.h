@@ -49,10 +49,14 @@ struct event_set {
 struct filter;
 int event_set_get_enclosing_state(struct event_set* es, uint64_t time);
 int event_set_get_first_state_in_interval(struct event_set* es, uint64_t start, uint64_t end);
+int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_t start, uint64_t end);
+int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum worker_state type);
 int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum worker_state state);
 int event_set_get_counter_event_set(struct event_set* es, int counter_idx);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
+int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
+int event_set_get_next_single_event(struct event_set* es, int start_idx, enum single_event_type type);
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state);
 void event_set_sort_comm(struct event_set* es);
 int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t counter_id, uint64_t start, uint64_t end);
