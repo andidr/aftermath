@@ -350,10 +350,10 @@ void update_statistics(void)
 	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_resdep), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_RESDEP]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_TDEC]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_tdec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_TDEC]) / (double)(length*g_mes.num_sets));
+	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_BCAST]) / (double)(length*g_mes.num_sets));
 	gtk_label_set_text(GTK_LABEL(g_label_perc_bcast), buffer);
 
 	snprintf(buffer, sizeof(buffer), "%.2f%%", (100*(double)sts.state_cycles[WORKER_STATE_RT_INIT]) / (double)(length*g_mes.num_sets));
@@ -378,10 +378,10 @@ void update_statistics(void)
 	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_resdep), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_RESDEP] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_TDEC] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_tdec), buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_TDEC] / (double)length);
+	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_BCAST] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_bcast), buffer);
 
 	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_INIT] / (double)length);
