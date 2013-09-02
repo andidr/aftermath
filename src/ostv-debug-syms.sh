@@ -14,4 +14,6 @@ then
     exit 1
 fi
 
-nm -l "$EXECUTABLE" | grep '[0-9A-Fa-f]* [tT]' | sed 's/:/ /g'
+nm -l "$EXECUTABLE" | grep '[0-9A-Fa-f]* [tT]' | \
+    sed -e 's/:/ /g' -e 's/[\t]/ /g' -e 's/[ ]\{1,\}/ /g' | \
+    grep '[0-9A-Fa-f]\{1,\} [tT] [^ ]\{1,\} [^ ]\{1,\} [0-9]\{1,\}'
