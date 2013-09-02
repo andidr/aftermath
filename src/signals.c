@@ -305,6 +305,8 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_markup(GTK_LABEL(g_label_par_reorder), "");
 
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), "0 tasks considered");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length), "0 cycles");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_avg_task_length), "0 cycles / task (avg)");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), "MAX");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
@@ -316,6 +318,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 void update_statistics(void)
 {
 	char buffer[128];
+	char buffer2[128];
 	struct state_statistics sts;
 	struct task_statistics ts;
 	int64_t left, right;
@@ -328,6 +331,10 @@ void update_statistics(void)
 
 	snprintf(buffer, sizeof(buffer), "<b>%"PRId64" - %"PRId64"</b>", left, right);
 	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), right - left);
+	snprintf(buffer2, sizeof(buffer2), "%scycles selected", buffer);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length), buffer2);
 
 	if(left < 0)
 		left = 0;
@@ -399,6 +406,13 @@ void update_statistics(void)
 	}
 
 	task_statistics_gather(&g_mes, &g_filter, &ts, left, right);
+
+	if(ts.num_tasks > 0) {
+		pretty_print_cycles(buffer, sizeof(buffer), ts.cycles / ts.num_tasks);
+		snprintf(buffer2, sizeof(buffer2), "%scycles / task (avg)", buffer);
+		gtk_label_set_text(GTK_LABEL(g_label_hist_avg_task_length), buffer2);
+	}
+
 	task_statistics_to_task_length_histogram(&ts, &g_task_histogram);
 	gtk_histogram_set_data(g_histogram_widget, &g_task_histogram);
 
