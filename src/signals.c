@@ -256,6 +256,7 @@ G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpo
 	static int message_id = -1;
 	guint context_id = 0;
 	char buffer[256];
+	char buf_duration[40];
 	struct task* task;
 	struct state_event* se = pstate_event;
 	const char* symbol_name;
@@ -267,8 +268,10 @@ G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpo
 		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
 		symbol_name = (task) ? task->symbol_name : "No symbol found";
 
-		snprintf(buffer, sizeof(buffer), "CPU %d: state %d (%s) from %"PRIu64" to %"PRIu64", duration: %"PRIu64" cycles, active task: 0x%"PRIx64" %s",
-			 cpu, se->state, worker_state_names[se->state], se->start, se->end, se->end - se->start, se->active_task, symbol_name);
+		pretty_print_cycles(buf_duration, sizeof(buf_duration), se->end - se->start);
+
+		snprintf(buffer, sizeof(buffer), "CPU %d: state %d (%s) from %"PRIu64" to %"PRIu64", duration: %scycles, active task: 0x%"PRIx64" %s",
+			 cpu, se->state, worker_state_names[se->state], se->start, se->end, buf_duration, se->active_task, symbol_name);
 
 		message_id = gtk_statusbar_push(GTK_STATUSBAR(g_statusbar), context_id, buffer);
 	}
@@ -455,6 +458,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 {
 	struct state_event* se = pstate_event;
 	char buffer[256];
+	char buf_duration[40];
 	struct task* task;
 	const char* symbol_name;
 
@@ -462,11 +466,13 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
 		symbol_name = (task) ? task->symbol_name : "No symbol found";
 
+		pretty_print_cycles(buf_duration, sizeof(buf_duration), se->end - se->start);
+
 		snprintf(buffer, sizeof(buffer),
 			 "CPU:\t\t%d\n"
 			 "State\t\t%d (%s)\n"
 			 "From\t\t%"PRIu64" to %"PRIu64"\n"
-			 "Duration:\t%"PRIu64" cycles\n"
+			 "Duration:\t%scycles\n"
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Active frame: 0x%"PRIx64"",
 			 cpu,
@@ -474,7 +480,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 worker_state_names[se->state],
 			 se->start,
 			 se->end,
-			 se->end - se->start,
+			 buf_duration,
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
