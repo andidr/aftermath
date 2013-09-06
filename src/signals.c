@@ -86,6 +86,12 @@ G_MODULE_EXPORT void use_global_slopes_toggled(GtkToggleButton *button, gpointer
 	widget_toggle(g_global_slopes_max_entry, GTK_WIDGET(button));
 }
 
+G_MODULE_EXPORT void use_task_length_check_toggle(GtkToggleButton *button, gpointer data)
+{
+	widget_toggle(g_task_length_min_entry, GTK_WIDGET(button));
+	widget_toggle(g_task_length_max_entry, GTK_WIDGET(button));
+}
+
 G_MODULE_EXPORT void toolbar_draw_states_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gtk_trace_set_draw_states(g_trace_widget, gtk_toggle_tool_button_get_active(button));
@@ -422,7 +428,8 @@ void update_statistics(void)
 	snprintf(buffer, sizeof(buffer), "%d tasks considered", ts.num_tasks);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), buffer);
 
-	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), "0");
+	pretty_print_cycles(buffer, sizeof(buffer), ts.min_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), buffer);
 
 	pretty_print_cycles(buffer, sizeof(buffer), ts.max_cycles);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), buffer);
@@ -514,8 +521,33 @@ G_MODULE_EXPORT void vscrollbar_value_changed(GtkHScrollbar *item, gdouble value
 
 G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
 {
+	int use_task_length_filter;
+	const char* txt;
+	int64_t min_task_length;
+	int64_t max_task_length;
+
 	filter_clear_tasks(&g_filter);
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
+
+	use_task_length_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_task_length_check));
+
+	if(use_task_length_filter) {
+		txt = gtk_entry_get_text(GTK_ENTRY(g_task_length_min_entry));
+		if(sscanf(txt, "%"PRId64, &min_task_length) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		txt = gtk_entry_get_text(GTK_ENTRY(g_task_length_max_entry));
+		if(sscanf(txt, "%"PRId64, &max_task_length) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		filter_set_task_length_filtering_range(&g_filter, min_task_length, max_task_length);
+	}
+
+	filter_set_task_length_filtering(&g_filter, use_task_length_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();

@@ -48,6 +48,7 @@ struct task_statistics {
 	unsigned int num_tasks;
 	uint64_t cycles;
 	uint64_t max_cycles;
+	uint64_t min_cycles;
 	unsigned int num_hist_bins;
 	uint64_t* cycles_hist;
 	unsigned int max_hist;

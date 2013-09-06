@@ -49,6 +49,10 @@ struct filter {
 	int filter_counter_slopes;
 	long double min_slope;
 	long double max_slope;
+
+	int filter_task_length;
+	int64_t min_task_length;
+	int64_t max_task_length;
 };
 
 static inline int filter_init(struct filter* f, int64_t min, int64_t max,
@@ -73,6 +77,8 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->filter_counter_slopes = 0;
 	f->min_slope = min_slope;
 	f->max_slope = max_slope;
+
+	f->filter_task_length = 0;
 
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;
@@ -146,8 +152,28 @@ int filter_has_task(struct filter* f, uint64_t work_fn);
 void filter_sort_frames(struct filter* f);
 int filter_has_frame(struct filter* f, uint64_t addr);
 
+static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
+{
+	if(!f->filter_task_length)
+		return 1;
+
+	return (duration >= f->min_task_length &&
+		duration <= f->max_task_length);
+}
+
 static inline int filter_has_state_event(struct filter* f, struct state_event* se)
 {
+	uint64_t duration = 0;
+	int valid;
+
+	if(f->filter_task_length) {
+		if(se->active_task != 0)
+			duration = task_length_of_active_frame(se, &valid);
+
+		if(!valid || !filter_has_task_duration(f, duration))
+			return 0;
+	}
+
 	return filter_has_task(f, se->active_task) &&
 		filter_has_frame(f, se->active_frame);
 }
@@ -208,6 +234,17 @@ static inline void filter_destroy(struct filter* f)
 	free(f->tasks);
 	free(f->frames);
 	bitvector_destroy(&f->counters);
+}
+
+static inline void filter_set_task_length_filtering(struct filter* f, int b)
+{
+	f->filter_task_length = b;
+}
+
+static inline void filter_set_task_length_filtering_range(struct filter* f, int64_t min, int64_t max)
+{
+	f->min_task_length = min;
+	f->max_task_length = max;
 }
 
 #endif

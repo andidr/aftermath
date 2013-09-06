@@ -79,6 +79,10 @@ extern GtkWidget* g_label_hist_max_perc;
 extern GtkWidget* g_label_range_selection;
 extern GtkWidget* g_button_clear_range;
 
+extern GtkWidget* g_use_task_length_check;
+extern GtkWidget* g_task_length_min_entry;
+extern GtkWidget* g_task_length_max_entry;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;

@@ -69,6 +69,24 @@ struct counter_event {
 	int counter_index;
 };
 
+static inline uint64_t task_length_of_active_frame(struct state_event* se, int* valid)
+{
+	*valid = 0;
+
+	/* Might be the case for main task, for example */
+	if(!se->texec_start || !se->texec_start->next_texec_end)
+		return 0;
+
+	uint64_t task_start = se->texec_start->time;
+	uint64_t task_end = se->texec_start->next_texec_end->time;
+
+	if(task_end < se->start || task_start > se->end)
+		return 0;
+
+	*valid = 1;
+	return task_end - task_start;
+}
+
 static inline uint64_t state_event_length_in_interval(struct state_event* se, uint64_t start, uint64_t end)
 {
 	if(se->start > end || se->end < start)

@@ -52,6 +52,7 @@ void task_statistics_reset(struct task_statistics* s)
 	s->cycles = 0;
 	s->max_hist = 0;
 	s->max_cycles = 0;
+	s->min_cycles = UINT64_MAX;
 
 	memset(s->cycles_hist, 0, sizeof(s->cycles_hist[0]) * s->num_hist_bins);
 }
@@ -93,6 +94,9 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 
 				curr_length = se->next_texec_end->time - se->time;
 
+				if(!filter_has_task_duration(f, curr_length))
+					goto next;
+
 				first_texec_idx = event_set_get_first_state_starting_in_interval_type(&mes->sets[cpu_idx],
 												      se->time,
 												      se->next_texec_end->time,
@@ -109,7 +113,11 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 					goto next;
 
 				if(histogram) {
-					hist_bin = ((uint64_t)(s->num_hist_bins-1) * curr_length) / s->max_cycles;
+					if(s->max_cycles - s->min_cycles > 0)
+						hist_bin = ((uint64_t)(s->num_hist_bins-1) * (curr_length - s->min_cycles)) / (s->max_cycles - s->min_cycles);
+					else
+						hist_bin = 0;
+
 					s->cycles_hist[hist_bin]++;
 				} else {
 					s->cycles += curr_length;
@@ -117,6 +125,8 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 
 					if(curr_length > s->max_cycles)
 						s->max_cycles = curr_length;
+					if(curr_length < s->min_cycles)
+						s->min_cycles = curr_length;
 				}
 
 next:
