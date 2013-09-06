@@ -92,6 +92,12 @@ G_MODULE_EXPORT void use_task_length_check_toggle(GtkToggleButton *button, gpoin
 	widget_toggle(g_task_length_max_entry, GTK_WIDGET(button));
 }
 
+G_MODULE_EXPORT void use_comm_size_check_toggle(GtkToggleButton *button, gpointer data)
+{
+	widget_toggle(g_comm_size_min_entry, GTK_WIDGET(button));
+	widget_toggle(g_comm_size_max_entry, GTK_WIDGET(button));
+}
+
 G_MODULE_EXPORT void toolbar_draw_states_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gtk_trace_set_draw_states(g_trace_widget, gtk_toggle_tool_button_get_active(button));
@@ -551,6 +557,35 @@ G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+}
+
+G_MODULE_EXPORT void comm_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	int use_comm_size_filter;
+	const char* txt;
+	int64_t min_comm_size;
+	int64_t max_comm_size;
+
+	use_comm_size_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_comm_size_check));
+
+	if(use_comm_size_filter) {
+		txt = gtk_entry_get_text(GTK_ENTRY(g_comm_size_min_entry));
+		if(sscanf(txt, "%"PRId64, &min_comm_size) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		txt = gtk_entry_get_text(GTK_ENTRY(g_comm_size_max_entry));
+		if(sscanf(txt, "%"PRId64, &max_comm_size) != 1) {
+			show_error_message("\"%s\" is not a correct integer value.", txt);
+			return;
+		}
+
+		filter_set_comm_size_filtering_range(&g_filter, min_comm_size, max_comm_size);
+	}
+
+	filter_set_comm_size_filtering(&g_filter, use_comm_size_filter);
+	gtk_trace_set_filter(g_trace_widget, &g_filter);
 }
 
 G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer data)

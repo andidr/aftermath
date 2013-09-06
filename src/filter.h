@@ -53,6 +53,10 @@ struct filter {
 	int filter_task_length;
 	int64_t min_task_length;
 	int64_t max_task_length;
+
+	int filter_comm_size;
+	int64_t min_comm_size;
+	int64_t max_comm_size;
 };
 
 static inline int filter_init(struct filter* f, int64_t min, int64_t max,
@@ -79,6 +83,7 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->max_slope = max_slope;
 
 	f->filter_task_length = 0;
+	f->filter_comm_size = 0;
 
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;
@@ -161,6 +166,15 @@ static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
 		duration <= f->max_task_length);
 }
 
+static inline int filter_has_comm_size(struct filter* f, uint64_t size)
+{
+	if(!f->filter_comm_size)
+		return 1;
+
+	return (size >= f->min_comm_size &&
+		size <= f->max_comm_size);
+}
+
 static inline int filter_has_state_event(struct filter* f, struct state_event* se)
 {
 	uint64_t duration = 0;
@@ -182,6 +196,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 {
 	struct event_set* dst_es;
 	int dst_idx;
+
+	if(!filter_has_comm_size(f, ce->size))
+		return 0;
 
 	/* Active task *and* frame included in filter? */
 	if(filter_has_task(f, ce->active_task) &&
@@ -245,6 +262,17 @@ static inline void filter_set_task_length_filtering_range(struct filter* f, int6
 {
 	f->min_task_length = min;
 	f->max_task_length = max;
+}
+
+static inline void filter_set_comm_size_filtering(struct filter* f, int b)
+{
+	f->filter_comm_size = b;
+}
+
+static inline void filter_set_comm_size_filtering_range(struct filter* f, int64_t min, int64_t max)
+{
+	f->min_comm_size = min;
+	f->max_comm_size = max;
 }
 
 #endif

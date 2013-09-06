@@ -248,6 +248,10 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, task_length_min_entry);
 	IMPORT_GLADE_WIDGET(xml, task_length_max_entry);
 
+	IMPORT_GLADE_WIDGET(xml, use_comm_size_check);
+	IMPORT_GLADE_WIDGET(xml, comm_size_min_entry);
+	IMPORT_GLADE_WIDGET(xml, comm_size_max_entry);
+
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
 
@@ -309,6 +313,10 @@ int main(int argc, char** argv)
 	g_use_task_length_check = use_task_length_check;
 	g_task_length_min_entry = task_length_min_entry;
 	g_task_length_max_entry = task_length_max_entry;
+
+	g_use_comm_size_check = use_comm_size_check;
+	g_comm_size_min_entry = comm_size_min_entry;
+	g_comm_size_max_entry = comm_size_max_entry;
 
 	g_button_clear_range = button_clear_range;
 	g_label_range_selection = label_range_selection;

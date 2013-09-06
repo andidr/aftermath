@@ -75,6 +75,10 @@ GtkWidget* g_use_task_length_check;
 GtkWidget* g_task_length_min_entry;
 GtkWidget* g_task_length_max_entry;
 
+GtkWidget* g_use_comm_size_check;
+GtkWidget* g_comm_size_min_entry;
+GtkWidget* g_comm_size_max_entry;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

@@ -83,6 +83,10 @@ extern GtkWidget* g_use_task_length_check;
 extern GtkWidget* g_task_length_min_entry;
 extern GtkWidget* g_task_length_max_entry;
 
+extern GtkWidget* g_use_comm_size_check;
+extern GtkWidget* g_comm_size_min_entry;
+extern GtkWidget* g_comm_size_max_entry;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
