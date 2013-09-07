@@ -28,7 +28,9 @@ void trace_ybounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer
 void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
-gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data);
+void task_link_activated(uint64_t work_fn);
+void time_link_activated(uint64_t time);
+gint link_activated(GtkLabel *label, gchar *uri, gpointer user_data);
 void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 void show_task_code(struct task* t);
 

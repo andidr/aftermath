@@ -188,37 +188,47 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 	}
 }
 
-G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
+void goto_time(double time)
 {
-	double start = multi_event_set_first_event_start(&g_mes);
-	double end = multi_event_set_last_event_end(&g_mes);
 	long double left, right, new_left, new_right, range;
-	double time;
+	double end = multi_event_set_last_event_end(&g_mes);
 
 	gtk_trace_get_bounds(g_trace_widget, &left, &right);
 	range = right - left;
 
-	if(show_goto_dialog(start, end, (double)((left+right)/2.0), &time)) {
-		new_left = time - (range / 2);
-		new_right = new_left + range;
+	new_left = time - (range / 2);
+	new_right = new_left + range;
 
-		if(new_left < 0) {
-			new_right -= new_left;
-			new_left = 0;
+	if(new_left < 0) {
+		new_right -= new_left;
+		new_left = 0;
 
-			if(new_right > end)
-				new_right = end;
-		} else if(new_right > end) {
-			new_left -= new_right - end;
+		if(new_right > end)
 			new_right = end;
+	} else if(new_right > end) {
+		new_left -= new_right - end;
+		new_right = end;
 
-			if(new_left < 0)
-				new_left = 0;
-		}
-
-		gtk_trace_set_bounds(g_trace_widget, new_left, new_right);
-		trace_bounds_changed(GTK_TRACE(g_trace_widget), new_left, new_right, NULL);
+		if(new_left < 0)
+			new_left = 0;
 	}
+
+	gtk_trace_set_bounds(g_trace_widget, new_left, new_right);
+	trace_bounds_changed(GTK_TRACE(g_trace_widget), new_left, new_right, NULL);
+}
+
+G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
+{
+	double time;
+	long double left, right;
+
+	double start = multi_event_set_first_event_start(&g_mes);
+	double end = multi_event_set_last_event_end(&g_mes);
+
+	gtk_trace_get_bounds(g_trace_widget, &left, &right);
+
+	if(show_goto_dialog(start, end, (double)((left+right)/2.0), &time))
+		goto_time(time);
 }
 
 static int react_to_hscrollbar_change = 1;
@@ -453,16 +463,31 @@ G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left,
 	update_statistics();
 }
 
-G_MODULE_EXPORT gint task_link_activated(GtkLabel *label, gchar *uri, gpointer user_data)
+void task_link_activated(uint64_t work_fn)
 {
-	uint64_t work_fn;
-	struct task* t;
-
-	sscanf(uri, "task://0x%"PRIx64"", &work_fn);
-	t = multi_event_set_find_task_by_work_fn(&g_mes, work_fn);
+	struct task* t = multi_event_set_find_task_by_work_fn(&g_mes, work_fn);
 
 	if(t && t->source_filename)
 		show_task_code(t);
+}
+
+void time_link_activated(uint64_t time)
+{
+	goto_time(time);
+}
+
+G_MODULE_EXPORT gint link_activated(GtkLabel *label, gchar *uri, gpointer user_data)
+{
+	uint64_t work_fn;
+	uint64_t time;
+
+	if(strstr(uri, "task://") == uri) {
+		sscanf(uri, "task://0x%"PRIx64"", &work_fn);
+		task_link_activated(work_fn);
+	} else if(strstr(uri, "time://") == uri) {
+		sscanf(uri, "time://%"PRIu64"", &time);
+		time_link_activated(time);
+	}
 
 	return 1;
 }
@@ -472,8 +497,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	struct state_event* se = pstate_event;
 	char buffer[512];
 	char buf_duration[40];
-	char buf_tcreate[40];
-	char buf_first_writer[40];
+	char buf_tcreate[128];
+	char buf_first_writer[128];
 	struct task* task;
 	const char* symbol_name;
 	uint64_t task_length;
@@ -510,8 +535,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame);
 
 			snprintf(buf_tcreate, sizeof(buf_tcreate),
-				 "CPU %d at %"PRIu64" cycles",
-				 tcreate_cpu, tcreate->time);
+				 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>",
+				 tcreate_cpu, tcreate->time, tcreate->time);
 
 			g_trace_markers[num_markers].time = tcreate->time;
 			g_trace_markers[num_markers].cpu = tcreate_cpu;
@@ -523,8 +548,9 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 			if((first_write = multi_event_set_find_first_write(&g_mes, &first_writer_cpu, se->active_frame))) {
 				snprintf(buf_first_writer, sizeof(buf_first_writer),
-					 "CPU %d at %"PRIu64" cycles, %d bytes",
-					 first_writer_cpu, first_write->time, first_write->size);
+					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
+					 first_writer_cpu, first_write->time, first_write->time,
+					 first_write->size);
 
 				g_trace_markers[num_markers].time = first_write->time;
 				g_trace_markers[num_markers].cpu = first_writer_cpu;
