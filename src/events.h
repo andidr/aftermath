@@ -56,6 +56,7 @@ struct comm_event {
 	enum comm_event_type type;
 	uint64_t active_task;
 	uint64_t active_frame;
+	uint64_t prod_ts;
 	uint64_t what;
 };
 

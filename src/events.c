@@ -166,6 +166,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				ce.dst_worker = dsk_ce.dst_worker;
 				ce.size = dsk_ce.size;
 				ce.type = dsk_ce.type;
+				ce.prod_ts = dsk_ce.prod_ts;
 				ce.what = dsk_ce.what;
 				event_set_add_comm_event(es, &ce);
 

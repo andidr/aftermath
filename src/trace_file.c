@@ -71,6 +71,7 @@ int trace_comm_event_conversion_table[] = {
 	FIELD_SIZE(struct trace_comm_event, dst_cpu),
 	FIELD_SIZE(struct trace_comm_event, dst_worker),
 	FIELD_SIZE(struct trace_comm_event, size),
+	FIELD_SIZE(struct trace_comm_event, prod_ts),
 	FIELD_SIZE(struct trace_comm_event, what),
 	CONVERSION_TABLE_END
 };
@@ -166,8 +167,7 @@ int write_struct_convert(FILE* fp, void* in, int size, int* conversion_table, in
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
-		header->version <= TRACE_VERSION &&
-		header->version == 5 &&
+		header->version == TRACE_VERSION &&
 		header->day > 0 && header->day <= 31 &&
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);

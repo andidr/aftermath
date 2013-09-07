@@ -734,7 +734,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 
 void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 {
-	char buffer[20];
+	char buffer[40];
 	double cpu_height = gtk_trace_cpu_height(g);
 	struct coord { int y1; int y2; } lines_painted[g->widget.allocation.width];
 	cairo_text_extents_t extents;
@@ -767,6 +767,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					int dst_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].dst_cpu;
 					int comm_type = g->event_sets->sets[cpu_idx].comm_events[comm_event].type;
 					uint64_t comm_size = g->event_sets->sets[cpu_idx].comm_events[comm_event].size;
+					uint64_t prod_ts = g->event_sets->sets[cpu_idx].comm_events[comm_event].prod_ts;
 
 					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
 						continue;
@@ -790,7 +791,11 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					if(cpu_idx != dst_cpu_idx) {
 						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
 							if(g->draw_comm_size) {
-								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+								if(comm_type == COMM_TYPE_DATA_READ)
+									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
+								else
+									snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+
 								cairo_text_extents(cr, buffer, &extents);
 
 								cairo_save(cr);
@@ -827,7 +832,11 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						cairo_fill(cr);
 
 						if(g->draw_comm_size) {
-							snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+							if(comm_type == COMM_TYPE_DATA_READ)
+								snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
+							else
+								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+
 							cairo_text_extents(cr, buffer, &extents);
 							cairo_move_to(cr, screen_x+0.5+triangle_width+3, cpu_start + cpu_height/2 + extents.height / 2.0);
 							cairo_show_text(cr, buffer);

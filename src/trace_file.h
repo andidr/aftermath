@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 5
+#define TRACE_VERSION 6
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -172,6 +172,9 @@ struct trace_comm_event {
 
 	/* Indicates how much data in bytes was transferred */
 	uint64_t size;
+
+	/* When was the data of the communication produced? */
+	uint64_t prod_ts;
 
 	/* What was transferred, e.g. value of the pointer to the data */
 	uint64_t what;
