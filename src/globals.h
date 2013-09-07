@@ -35,6 +35,7 @@ extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;
 extern GtkWidget* g_statusbar;
 extern GtkWidget* g_selected_event_label;
+extern GtkWidget* g_active_task_label;
 extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;

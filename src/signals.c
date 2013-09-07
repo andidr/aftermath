@@ -485,21 +485,25 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "CPU:\t\t%d\n"
 			 "State\t\t%d (%s)\n"
 			 "From\t\t%"PRIu64" to %"PRIu64"\n"
-			 "Duration:\t%scycles\n"
-			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
-			 "Active frame: 0x%"PRIx64"",
+			 "Duration:\t%scycles\n",
 			 cpu,
 			 se->state,
 			 worker_state_names[se->state],
 			 se->start,
 			 se->end,
-			 buf_duration,
+			 buf_duration);
+
+		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), buffer);
+
+		snprintf(buffer, sizeof(buffer),
+			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
+			 "Active frame: 0x%"PRIx64"",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame);
 
-		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), buffer);
+		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 	} else {
 		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), "");
 	}

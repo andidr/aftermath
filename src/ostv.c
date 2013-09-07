@@ -205,6 +205,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, main_notebook);
 	IMPORT_GLADE_WIDGET(xml, statusbar);
 	IMPORT_GLADE_WIDGET(xml, selected_event_label);
+	IMPORT_GLADE_WIDGET(xml, active_task_label);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
@@ -270,6 +271,7 @@ int main(int argc, char** argv)
 	g_main_notebook = main_notebook;
 	g_statusbar = statusbar;
 	g_selected_event_label = selected_event_label;
+	g_active_task_label = active_task_label;
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
