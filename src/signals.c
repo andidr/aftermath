@@ -474,6 +474,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_duration[40];
 	struct task* task;
 	const char* symbol_name;
+	uint64_t task_length;
+	int valid;
 
 	if(se) {
 		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
@@ -495,13 +497,20 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), buffer);
 
+		task_length = task_length_of_active_frame(se, &valid);
+		if(valid) {
+			pretty_print_cycles(buf_duration, sizeof(buf_duration), task_length);
+		}
+
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
-			 "Active frame: 0x%"PRIx64"",
+			 "Active frame: 0x%"PRIx64"\n"
+			 "Task duration: %s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
-			 se->active_frame);
+			 se->active_frame,
+			 (valid) ? buf_duration : "Invalid active task");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 	} else {
