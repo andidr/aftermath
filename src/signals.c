@@ -472,9 +472,12 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	struct state_event* se = pstate_event;
 	char buffer[256];
 	char buf_duration[40];
+	char buf_tcreate[40];
 	struct task* task;
 	const char* symbol_name;
 	uint64_t task_length;
+	struct single_event* tcreate = NULL;
+	int tcreate_cpu;
 	int valid;
 
 	if(se) {
@@ -500,17 +503,24 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		task_length = task_length_of_active_frame(se, &valid);
 		if(valid) {
 			pretty_print_cycles(buf_duration, sizeof(buf_duration), task_length);
+			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame);
+
+			snprintf(buf_tcreate, sizeof(buf_tcreate),
+				 "CPU %d at %"PRIu64" cycles",
+				 tcreate_cpu, tcreate->time);
 		}
 
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Active frame: 0x%"PRIx64"\n"
-			 "Task duration: %s",
+			 "Task duration: %scycles\n"
+			 "First allocation of frame: %s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame,
-			 (valid) ? buf_duration : "Invalid active task");
+			 (valid) ? buf_duration : "Invalid active task",
+			 (valid) ? buf_tcreate : "Invalid active task");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 	} else {

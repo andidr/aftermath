@@ -262,3 +262,13 @@ int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint
 
 	return idx;
 }
+
+struct single_event* event_set_find_first_tcreate(struct event_set* es, uint64_t frame_addr)
+{
+	for(int i = 0; i < es->num_single_events; i++)
+		if(es->single_events[i].type == SINGLE_TYPE_TCREATE &&
+		   es->single_events[i].what == frame_addr)
+			return &es->single_events[i];
+
+	return NULL;
+}
