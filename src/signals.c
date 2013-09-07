@@ -470,15 +470,19 @@ G_MODULE_EXPORT gint task_link_activated(GtkLabel *label, gchar *uri, gpointer u
 G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
 {
 	struct state_event* se = pstate_event;
-	char buffer[256];
+	char buffer[512];
 	char buf_duration[40];
 	char buf_tcreate[40];
+	char buf_first_writer[40];
 	struct task* task;
 	const char* symbol_name;
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
+	struct comm_event* first_write = NULL;
 	int tcreate_cpu;
+	int first_writer_cpu;
 	int valid;
+	int num_markers = 0;
 
 	if(se) {
 		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task);
@@ -508,21 +512,47 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			snprintf(buf_tcreate, sizeof(buf_tcreate),
 				 "CPU %d at %"PRIu64" cycles",
 				 tcreate_cpu, tcreate->time);
+
+			g_trace_markers[num_markers].time = tcreate->time;
+			g_trace_markers[num_markers].cpu = tcreate_cpu;
+			g_trace_markers[num_markers].color_r = TCREATE_TRACE_MARKER_COLOR_R;
+			g_trace_markers[num_markers].color_g = TCREATE_TRACE_MARKER_COLOR_G;
+			g_trace_markers[num_markers].color_b = TCREATE_TRACE_MARKER_COLOR_B;
+			num_markers++;
+
+
+			if((first_write = multi_event_set_find_first_write(&g_mes, &first_writer_cpu, se->active_frame))) {
+				snprintf(buf_first_writer, sizeof(buf_first_writer),
+					 "CPU %d at %"PRIu64" cycles, %d bytes",
+					 first_writer_cpu, first_write->time, first_write->size);
+
+				g_trace_markers[num_markers].time = first_write->time;
+				g_trace_markers[num_markers].cpu = first_writer_cpu;
+				g_trace_markers[num_markers].color_r = FIRSTWRITE_TRACE_MARKER_COLOR_R;
+				g_trace_markers[num_markers].color_g = FIRSTWRITE_TRACE_MARKER_COLOR_G;
+				g_trace_markers[num_markers].color_b = FIRSTWRITE_TRACE_MARKER_COLOR_B;
+				num_markers++;
+			} else {
+				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
+			}
 		}
 
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Active frame: 0x%"PRIx64"\n"
 			 "Task duration: %scycles\n"
-			 "First allocation of frame: %s",
+			 "First allocation of frame: %s\n"
+			 "First writer: %s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame,
 			 (valid) ? buf_duration : "Invalid active task",
-			 (valid) ? buf_tcreate : "Invalid active task");
+			 (valid) ? buf_tcreate : "Invalid active task",
+			 (valid) ? buf_first_writer : "Invalid active task");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
+		gtk_trace_set_markers(g_trace_widget, g_trace_markers, num_markers);
 	} else {
 		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), "");
 	}

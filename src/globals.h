@@ -23,6 +23,7 @@
 #include "filter.h"
 #include "settings.h"
 #include "statistics.h"
+#include "trace_widget.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
@@ -92,5 +93,16 @@ extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
 extern struct histogram g_task_histogram;
+
+#define NUM_TRACE_MARKERS 2
+extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
+
+#define TCREATE_TRACE_MARKER_COLOR_R 0.0
+#define TCREATE_TRACE_MARKER_COLOR_G 1.0
+#define TCREATE_TRACE_MARKER_COLOR_B 0.0
+
+#define FIRSTWRITE_TRACE_MARKER_COLOR_R 1.0
+#define FIRSTWRITE_TRACE_MARKER_COLOR_G 0.0
+#define FIRSTWRITE_TRACE_MARKER_COLOR_B 1.0
 
 #endif

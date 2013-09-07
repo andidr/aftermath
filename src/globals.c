@@ -96,3 +96,4 @@ struct multi_event_set g_mes = { .sets = NULL,
 struct filter g_filter;
 struct settings g_settings;
 struct histogram g_task_histogram;
+struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];

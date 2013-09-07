@@ -62,6 +62,23 @@ static inline struct single_event* multi_event_set_find_first_tcreate(struct mul
 	return ret;
 }
 
+static inline struct comm_event* multi_event_set_find_first_write(struct multi_event_set* mes, int* cpu, uint64_t frame_addr)
+{
+	struct comm_event* ret = NULL;
+	struct comm_event* curr = NULL;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		curr = event_set_find_first_write(&mes->sets[i], frame_addr);
+
+		if(curr && (!ret || ret->time > curr->time)) {
+			*cpu = mes->sets[i].cpu;
+			ret = curr;
+		}
+	}
+
+	return ret;
+}
+
 static inline struct counter_description* multi_event_set_find_counter_description(struct multi_event_set* mes, uint64_t counter_id)
 {
 	for(int i = 0; i < mes->num_counters; i++)

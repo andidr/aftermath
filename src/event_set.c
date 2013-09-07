@@ -272,3 +272,22 @@ struct single_event* event_set_find_first_tcreate(struct event_set* es, uint64_t
 
 	return NULL;
 }
+
+struct comm_event* event_set_find_first_write(struct event_set* es, uint64_t frame_addr)
+{
+	struct comm_event* ret = NULL;
+	struct comm_event* curr;
+
+	for(int i = 0; i < es->num_comm_events; i++) {
+		curr = &es->comm_events[i];
+
+		if(curr->type == COMM_TYPE_DATA_READ &&
+		   curr->active_frame == frame_addr)
+		{
+			if(!ret || curr->prod_ts < ret->prod_ts)
+				ret = curr;
+		}
+	}
+
+	return ret;
+}
