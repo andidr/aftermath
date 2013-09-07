@@ -31,6 +31,14 @@ G_BEGIN_DECLS
 typedef struct _GtkTrace GtkTrace;
 typedef struct _GtkTraceClass GtkTraceClass;
 
+struct trace_marker {
+	int cpu;
+	uint64_t time;
+	double color_r;
+	double color_g;
+	double color_b;
+};
+
 enum gtk_trace_signals {
 	GTK_TRACE_BOUNDS_CHANGED = 0,
 	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
@@ -85,6 +93,8 @@ struct _GtkTrace {
 
 	struct filter* filter;
 	struct state_event* highlight_state_event;
+	struct trace_marker* markers;
+	int num_markers;
 };
 
 struct _GtkTraceClass {
@@ -127,6 +137,7 @@ void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event
 struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget);
 double gtk_trace_get_time_at(GtkWidget *widget, int x);
 struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
+void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_markers);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

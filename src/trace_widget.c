@@ -84,6 +84,9 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->filter = NULL;
 	g->highlight_state_event = NULL;
 
+	g->markers = NULL;
+	g->num_markers = 0;
+
 	return GTK_WIDGET(g);
 }
 
@@ -1061,6 +1064,36 @@ void gtk_trace_paint_selection(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_markers(GtkTrace* g, cairo_t* cr)
+{
+	int line_width = 2;
+	int rect_width = 8;
+	double cpu_height = gtk_trace_cpu_height(g);
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	for(int i = 0; i < g->num_markers; i++) {
+		if(g->markers[i].time < g->left || g->markers[i].time > g->right)
+			continue;
+
+		int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, g->markers[i].cpu);
+		double cpu_start_y = gtk_trace_cpu_start(g, cpu_idx);
+		long double x = gtk_trace_x_to_screen(g, g->markers[i].time);
+
+		cairo_set_source_rgb(cr, g->markers[i].color_r, g->markers[i].color_g, g->markers[i].color_b);
+		cairo_rectangle(cr, x-rect_width/2, cpu_start_y-rect_width/2+cpu_height/2, rect_width, rect_width);
+		cairo_fill(cr);
+
+		cairo_set_source_rgb(cr, 0, 0, 0);
+		cairo_set_line_width(cr, line_width);
+		cairo_rectangle(cr, x-rect_width/2, cpu_start_y-rect_width/2+cpu_height/2, rect_width, rect_width);
+		cairo_stroke(cr);
+	}
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1255,6 +1288,9 @@ void gtk_trace_paint(GtkWidget *widget)
 	if(g->draw_comm)
 		gtk_trace_paint_comm(g, cr);
 
+	if(g->num_markers)
+		gtk_trace_paint_markers(g, cr);
+
 	if(g->range_selection)
 		gtk_trace_paint_selection(g, cr);
 
@@ -1308,6 +1344,13 @@ double gtk_trace_get_time_at(GtkWidget *widget, int x)
 	double xrel = x - g->axis_width;
 
 	return g->left + (xrel / pxwidth) * width;
+}
+
+void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_markers)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->markers = m;
+	g->num_markers = num_markers;
 }
 
 struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker)
