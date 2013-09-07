@@ -63,6 +63,7 @@ int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t
 int event_set_compare_cpus(const void* p1, const void* p2);
 struct single_event* event_set_find_first_tcreate(struct event_set* es, uint64_t frame_addr);
 struct comm_event* event_set_find_first_write(struct event_set* es, uint64_t frame_addr);
+struct single_event* event_set_find_first_texec_start(struct event_set* es, uint64_t frame_addr);
 
 static inline int event_set_counter_event_set_index(struct event_set* es, int counter_index)
 {

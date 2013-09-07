@@ -62,6 +62,23 @@ static inline struct single_event* multi_event_set_find_first_tcreate(struct mul
 	return ret;
 }
 
+static inline struct single_event* multi_event_set_find_first_texec_start(struct multi_event_set* mes, int* cpu, uint64_t frame_addr)
+{
+	struct single_event* ret = NULL;
+	struct single_event* curr = NULL;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		curr = event_set_find_first_texec_start(&mes->sets[i], frame_addr);
+
+		if(curr && (!ret || ret->time > curr->time)) {
+			*cpu = mes->sets[i].cpu;
+			ret = curr;
+		}
+	}
+
+	return ret;
+}
+
 static inline struct comm_event* multi_event_set_find_first_write(struct multi_event_set* mes, int* cpu, uint64_t frame_addr)
 {
 	struct comm_event* ret = NULL;
@@ -71,6 +88,33 @@ static inline struct comm_event* multi_event_set_find_first_write(struct multi_e
 		curr = event_set_find_first_write(&mes->sets[i], frame_addr);
 
 		if(curr && (!ret || ret->time > curr->time)) {
+			*cpu = mes->sets[i].cpu;
+			ret = curr;
+		}
+	}
+
+	return ret;
+}
+
+static inline struct comm_event* multi_event_set_find_first_max_write(struct multi_event_set* mes, int* cpu, uint64_t frame_addr)
+{
+	struct comm_event* ret = NULL;
+	struct comm_event* curr = NULL;
+	int first_texec_start_cpu;
+
+	struct single_event* first_texec_start =
+		multi_event_set_find_first_texec_start(mes, &first_texec_start_cpu, frame_addr);
+	struct single_event* first_texec_end = first_texec_start->next_texec_end;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		curr = event_set_find_first_write(&mes->sets[i], frame_addr);
+
+		if(curr &&
+		   curr->time >= first_texec_start->time &&
+		   curr->time <= first_texec_end->time &&
+		   (!ret || ret->size < curr->size  ||
+		    (ret->size == curr->size && ret->time > curr->time)))
+		{
 			*cpu = mes->sets[i].cpu;
 			ret = curr;
 		}

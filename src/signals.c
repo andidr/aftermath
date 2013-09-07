@@ -499,13 +499,17 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_duration[40];
 	char buf_tcreate[128];
 	char buf_first_writer[128];
+	char buf_first_max_writer[128];
+
 	struct task* task;
 	const char* symbol_name;
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
 	struct comm_event* first_write = NULL;
+	struct comm_event* first_max_write = NULL;
 	int tcreate_cpu;
 	int first_writer_cpu;
+	int first_max_writer_cpu;
 	int valid;
 	int num_markers = 0;
 
@@ -561,6 +565,22 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			} else {
 				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
+
+			if((first_max_write = multi_event_set_find_first_max_write(&g_mes, &first_max_writer_cpu, se->active_frame))) {
+				snprintf(buf_first_max_writer, sizeof(buf_first_max_writer),
+					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
+					 first_max_writer_cpu, first_max_write->time, first_max_write->time,
+					 first_max_write->size);
+
+				g_trace_markers[num_markers].time = first_max_write->time;
+				g_trace_markers[num_markers].cpu = first_max_writer_cpu;
+				g_trace_markers[num_markers].color_r = FIRSTMAXWRITE_TRACE_MARKER_COLOR_R;
+				g_trace_markers[num_markers].color_g = FIRSTMAXWRITE_TRACE_MARKER_COLOR_G;
+				g_trace_markers[num_markers].color_b = FIRSTMAXWRITE_TRACE_MARKER_COLOR_B;
+				num_markers++;
+			} else {
+				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
+			}
 		}
 
 		snprintf(buffer, sizeof(buffer),
@@ -568,14 +588,16 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "Active frame: 0x%"PRIx64"\n"
 			 "Task duration: %scycles\n"
 			 "First allocation of frame: %s\n"
-			 "First writer: %s",
+			 "First writer: %s\n"
+			 "First max writer: %s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame,
 			 (valid) ? buf_duration : "Invalid active task",
 			 (valid) ? buf_tcreate : "Invalid active task",
-			 (valid) ? buf_first_writer : "Invalid active task");
+			 (valid) ? buf_first_writer : "Invalid active task",
+			 (valid) ? buf_first_max_writer : "Invalid active task");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 		gtk_trace_set_markers(g_trace_widget, g_trace_markers, num_markers);

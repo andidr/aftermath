@@ -94,7 +94,7 @@ extern struct filter g_filter;
 extern struct settings g_settings;
 extern struct histogram g_task_histogram;
 
-#define NUM_TRACE_MARKERS 2
+#define NUM_TRACE_MARKERS 3
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 
 #define TCREATE_TRACE_MARKER_COLOR_R 0.0
@@ -104,5 +104,9 @@ extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 #define FIRSTWRITE_TRACE_MARKER_COLOR_R 1.0
 #define FIRSTWRITE_TRACE_MARKER_COLOR_G 0.0
 #define FIRSTWRITE_TRACE_MARKER_COLOR_B 1.0
+
+#define FIRSTMAXWRITE_TRACE_MARKER_COLOR_R 1.0
+#define FIRSTMAXWRITE_TRACE_MARKER_COLOR_G 0.0
+#define FIRSTMAXWRITE_TRACE_MARKER_COLOR_B 0.0
 
 #endif
