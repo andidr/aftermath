@@ -580,7 +580,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				g_trace_markers[num_markers].color_b = FIRSTMAXWRITE_TRACE_MARKER_COLOR_B;
 				num_markers++;
 			} else {
-				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
+				strncpy(buf_first_max_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
 		}
 
