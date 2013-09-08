@@ -540,8 +540,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame);
 
 			snprintf(buf_tcreate, sizeof(buf_tcreate),
-				 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>",
-				 tcreate_cpu, tcreate->time, tcreate->time);
+				 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %"PRId32" bytes",
+				 tcreate_cpu, tcreate->time, tcreate->time, tcreate->size);
 
 			g_trace_markers[num_markers].time = tcreate->time;
 			g_trace_markers[num_markers].cpu = tcreate_cpu;

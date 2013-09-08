@@ -29,6 +29,7 @@ struct single_event {
 	uint64_t time;
 	uint64_t active_task;
 	uint64_t active_frame;
+	uint32_t size;
 	uint64_t what;
 
 	struct single_event* next_texec_start;

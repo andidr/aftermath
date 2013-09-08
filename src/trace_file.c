@@ -80,6 +80,7 @@ int trace_single_event_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct trace_single_event, type),
 	FIELD_SIZE(struct trace_single_event, what),
+	FIELD_SIZE(struct trace_single_event, size),
 	CONVERSION_TABLE_END
 };
 

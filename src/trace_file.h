@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 6
+#define TRACE_VERSION 7
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -233,6 +233,14 @@ struct trace_single_event {
 	 * - texec finish: the frame pointer of the task that finishes execution
 	*/
 	uint64_t what;
+
+	/* Depending on the event the size field might be
+	 * used for different purposes:
+	 * - tcreate: the size of the frame associated to the newly created task
+	 * - texec start: the frame size of the task that starts execution
+	 * - texec finish: the frame size of the task that finishes execution
+	*/
+	uint32_t size;
 } __attribute__((packed));
 
 extern int trace_single_event_conversion_table[];

@@ -191,6 +191,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				sge.active_frame = dsk_sge.header.active_frame;
 				sge.time = dsk_sge.header.time;
 				sge.what = dsk_sge.what;
+				sge.size = dsk_sge.size;
 				sge.type = dsk_sge.type;
 				sge.next_texec_end = NULL;
 				sge.prev_texec_end = NULL;
