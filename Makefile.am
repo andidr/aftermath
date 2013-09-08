@@ -63,6 +63,8 @@ ostv_SOURCES = src/ostv.c \
 		src/derived_counters.h \
 		src/derived_counters.c \
 		src/color.h \
+		src/page.h \
+		src/page.c \
 		src/cell_renderer_color_button.h \
 		src/cell_renderer_color_button.c \
 		src/glade_extras.h \

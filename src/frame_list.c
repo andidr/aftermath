@@ -16,6 +16,7 @@
  */
 
 #include "frame_list.h"
+#include "page.h"
 #include <inttypes.h>
 
 void frame_list_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer user_data)
@@ -47,13 +48,21 @@ void frame_list_init(GtkTreeView* frame_treeview)
 	column = gtk_tree_view_column_new_with_attributes("Address", renderer, "text", FRAME_LIST_COL_ADDR, NULL);
 	gtk_tree_view_append_column(frame_treeview, column);
 
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("4K page", renderer, "text", FRAME_LIST_COL_PAGE4K, NULL);
+	gtk_tree_view_append_column(frame_treeview, column);
+
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("2M page", renderer, "text", FRAME_LIST_COL_PAGE2M, NULL);
+	gtk_tree_view_append_column(frame_treeview, column);
+
 	column = gtk_tree_view_column_new_with_attributes("Steals", renderer, "text", FRAME_LIST_COL_NUM_STEALS, NULL);
 	gtk_tree_view_append_column(frame_treeview, column);
 
 	column = gtk_tree_view_column_new_with_attributes("Pushes", renderer, "text", FRAME_LIST_COL_NUM_PUSHES, NULL);
 	gtk_tree_view_append_column(frame_treeview, column);
 
-	store = gtk_list_store_new(FRAME_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+	store = gtk_list_store_new(FRAME_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 
 	gtk_tree_view_set_model(frame_treeview, GTK_TREE_MODEL(store));
 
@@ -66,11 +75,15 @@ void frame_list_fill(GtkTreeView* frame_treeview, struct frame* frames, int num_
 	GtkListStore* store = GTK_LIST_STORE(model);
 	GtkTreeIter iter;
 	char buff_addr[19];
+	char buff_page4k[19];
+	char buff_page2m[19];
 	char buff_num_steals[10];
 	char buff_num_pushes[10];
 
 	for(int i = 0; i < num_frames; i++) {
 		snprintf(buff_addr, sizeof(buff_addr), "0x%"PRIx64, frames[i].addr);
+		snprintf(buff_page4k, sizeof(buff_page4k), "0x%"PRIx64, get_base_address(frames[i].addr,  1 << 12));
+		snprintf(buff_page2m, sizeof(buff_page2m), "0x%"PRIx64, get_base_address(frames[i].addr,  1 << 21));
 		snprintf(buff_num_steals, sizeof(buff_num_steals), "%d", frames[i].num_steals);
 		snprintf(buff_num_pushes, sizeof(buff_num_pushes), "%d", frames[i].num_pushes);
 
@@ -78,6 +91,8 @@ void frame_list_fill(GtkTreeView* frame_treeview, struct frame* frames, int num_
 		gtk_list_store_set(store, &iter,
 				   FRAME_LIST_COL_FILTER, TRUE,
 				   FRAME_LIST_COL_ADDR, buff_addr,
+				   FRAME_LIST_COL_PAGE4K, buff_page4k,
+				   FRAME_LIST_COL_PAGE2M, buff_page2m,
 				   FRAME_LIST_COL_NUM_STEALS, buff_num_steals,
 				   FRAME_LIST_COL_NUM_PUSHES, buff_num_pushes,
 				   FRAME_LIST_COL_FRAME_POINTER, &frames[i],

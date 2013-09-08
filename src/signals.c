@@ -26,6 +26,7 @@
 #include "ansi_extras.h"
 #include "derived_counters.h"
 #include "statistics.h"
+#include "page.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -586,6 +587,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Active frame: 0x%"PRIx64"\n"
+			 "4K page: 0x%"PRIx64"\n"
+			 "2M page: 0x%"PRIx64"\n"
 			 "Task duration: %scycles\n"
 			 "First allocation of frame: %s\n"
 			 "First writer: %s\n"
@@ -594,6 +597,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame,
+			 get_base_address(se->active_frame, 1 << 12),
+			 get_base_address(se->active_frame, 1 << 21),
 			 (valid) ? buf_duration : "Invalid active task",
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",

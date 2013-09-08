@@ -15,30 +15,20 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef FRAME_LIST_H
-#define FRAME_LIST_H
+#ifndef PAGE_H
+#define PAGE_H
 
-#include <gtk/gtk.h>
-#include "events.h"
-#include "filter.h"
-#include "frame.h"
+#include <stdint.h>
 
-enum frame_list_columns {
-	FRAME_LIST_COL_FILTER = 0,
-	FRAME_LIST_COL_ADDR,
-	FRAME_LIST_COL_PAGE4K,
-	FRAME_LIST_COL_PAGE2M,
-	FRAME_LIST_COL_NUM_STEALS,
-	FRAME_LIST_COL_NUM_PUSHES,
-	FRAME_LIST_COL_FRAME_POINTER,
-	FRAME_LIST_COL_NUM
-};
+static inline uint64_t get_base_address(uint64_t addr, uint64_t alignment)
+{
+	return addr & ~(alignment-1);
+}
 
-void frame_list_init(GtkTreeView* frame_treeview);
-void frame_list_fill(GtkTreeView* frame_treeview, struct frame* frames, int num_frames);
-void frame_list_build_filter(GtkTreeView* frame_treeview, struct filter* filter);
-
-void frame_list_check_all(GtkTreeView* frame_treeview);
-void frame_list_uncheck_all(GtkTreeView* frame_treeview);
+static inline void get_page_bounds(uint64_t addr, uint64_t* start, uint64_t* end, uint64_t page_size)
+{
+	*start = get_base_address(addr, page_size);
+	*end = (*start) + (page_size-1);
+}
 
 #endif
