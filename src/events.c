@@ -152,6 +152,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				se.state = dsk_se.state;
 				se.active_task = dsk_se.header.active_task;
 				se.active_frame = dsk_se.header.active_frame;
+				se.texec_start = NULL;
+				se.texec_end = NULL;
 				event_set_add_state_event(es, &se);
 			} else if(dsk_eh.type == EVENT_TYPE_COMM) {
 				memcpy(&dsk_ce, &dsk_eh, sizeof(dsk_eh));
