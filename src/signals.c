@@ -597,22 +597,22 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
+			 "Task duration:\t%s\n\n"
 			 "Active frame: 0x%"PRIx64"\n"
-			 "Owner: %s\n"
-			 "4K page: 0x%"PRIx64"\n"
-			 "2M page: 0x%"PRIx64"\n"
-			 "Task duration: %scycles\n"
-			 "First allocation of frame: %s\n"
-			 "First writer: %s\n"
-			 "First max writer: %s",
+			 "4K page:\t\t0x%"PRIx64"\n"
+			 "2M page:\t0x%"PRIx64"\n"
+			 "Owner:\t\t%s\n\n"
+			 "1st allocation: %s\n"
+			 "1st writer:\t %s\n"
+			 "1st max writer: %s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
+			 (valid) ? buf_duration : "Invalid active task",
 			 se->active_frame,
-			 (valid) ? buf_first_texec_start : "Invalid active task",
 			 get_base_address(se->active_frame, 1 << 12),
 			 get_base_address(se->active_frame, 1 << 21),
-			 (valid) ? buf_duration : "Invalid active task",
+			 (valid) ? buf_first_texec_start : "Invalid active task",
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",
 			 (valid) ? buf_first_max_writer : "Invalid active task");
