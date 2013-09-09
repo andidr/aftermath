@@ -204,6 +204,14 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval
 	while(center_idx > 0 && es->comm_events[center_idx-1].time < interval_end && es->comm_events[center_idx-1].time > interval_start)
 		center_idx--;
 
+	if(center_idx >= 0 && center_idx <= es->num_comm_events-1) {
+		if(es->comm_events[center_idx].time < interval_start ||
+		   es->comm_events[center_idx].time > interval_end)
+		{
+			return -1;
+		}
+	}
+
 	return center_idx;
 }
 
