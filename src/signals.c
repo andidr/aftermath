@@ -496,12 +496,13 @@ G_MODULE_EXPORT gint link_activated(GtkLabel *label, gchar *uri, gpointer user_d
 G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
 {
 	struct state_event* se = pstate_event;
-	char buffer[512];
+	char buffer[1024];
 	char buf_duration[40];
 	char buf_tcreate[128];
 	char buf_first_writer[128];
 	char buf_first_max_writer[128];
 	char buf_first_texec_start[128];
+	char consumer_info[1024];
 
 	struct task* task;
 	const char* symbol_name;
@@ -510,10 +511,12 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	struct single_event* first_texec_start = NULL;
 	struct comm_event* first_write = NULL;
 	struct comm_event* first_max_write = NULL;
+	struct comm_event* first_reader = NULL;
 	int tcreate_cpu;
 	int first_writer_cpu;
 	int first_max_writer_cpu;
 	int first_texec_start_cpu;
+	int first_reader_cpu;
 	int valid;
 	int num_markers = 0;
 
@@ -593,6 +596,30 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			} else {
 				strncpy(buf_first_texec_start, "Task never executed", sizeof(buf_first_texec_start));
 			}
+
+			struct event_set* writer_event_set = multi_event_set_find_cpu(&g_mes, cpu);
+			uint64_t hint_time = se->texec_start->next_texec_end->time;
+			int consumer_info_offs = 0;
+			consumer_info[0] = '\0';
+
+			while((first_reader =
+			       event_set_find_first_write_producing_in_interval(writer_event_set,
+										&first_reader_cpu,
+										hint_time,
+										se->texec_start->time,
+										se->texec_start->next_texec_end->time)))
+			{
+				snprintf(consumer_info+consumer_info_offs,
+					 sizeof(consumer_info)-consumer_info_offs-1,
+					 "CPU %d, %d bytes, <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>\n",
+					 first_reader_cpu,
+					 first_reader->size,
+					 first_reader->time,
+					 first_reader->time);
+
+				consumer_info_offs += strlen(consumer_info+consumer_info_offs);
+				hint_time = first_reader->time+1;
+			}
 		}
 
 		snprintf(buffer, sizeof(buffer),
@@ -604,7 +631,9 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "Owner:\t\t%s\n\n"
 			 "1st allocation: %s\n"
 			 "1st writer:\t %s\n"
-			 "1st max writer: %s",
+			 "1st max writer: %s\n\n"
+			 "Consumer info:\n"
+			 "%s",
 			 se->active_task,
 			 se->active_task,
 			 symbol_name,
@@ -615,7 +644,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_first_texec_start : "Invalid active task",
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",
-			 (valid) ? buf_first_max_writer : "Invalid active task");
+			 (valid) ? buf_first_max_writer : "Invalid active task",
+			 (valid) ? consumer_info : "No consumer information available");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 		gtk_trace_set_markers(g_trace_widget, g_trace_markers, num_markers);
