@@ -81,6 +81,7 @@ int trace_single_event_conversion_table[] = {
 	FIELD_SIZE(struct trace_single_event, type),
 	FIELD_SIZE(struct trace_single_event, what),
 	FIELD_SIZE(struct trace_single_event, size),
+	FIELD_SIZE(struct trace_single_event, numa_node),
 	CONVERSION_TABLE_END
 };
 

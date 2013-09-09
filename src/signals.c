@@ -501,16 +501,19 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_tcreate[128];
 	char buf_first_writer[128];
 	char buf_first_max_writer[128];
+	char buf_first_texec_start[128];
 
 	struct task* task;
 	const char* symbol_name;
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
+	struct single_event* first_texec_start = NULL;
 	struct comm_event* first_write = NULL;
 	struct comm_event* first_max_write = NULL;
 	int tcreate_cpu;
 	int first_writer_cpu;
 	int first_max_writer_cpu;
+	int first_texec_start_cpu;
 	int valid;
 	int num_markers = 0;
 
@@ -582,11 +585,20 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			} else {
 				strncpy(buf_first_max_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
+
+			if((first_texec_start = multi_event_set_find_first_texec_start(&g_mes, &first_texec_start_cpu, se->active_frame))) {
+				snprintf(buf_first_texec_start, sizeof(buf_first_texec_start),
+					 "Node %d",
+					 first_texec_start->numa_node);
+			} else {
+				strncpy(buf_first_texec_start, "Task never executed", sizeof(buf_first_texec_start));
+			}
 		}
 
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Active frame: 0x%"PRIx64"\n"
+			 "Owner: %s\n"
 			 "4K page: 0x%"PRIx64"\n"
 			 "2M page: 0x%"PRIx64"\n"
 			 "Task duration: %scycles\n"
@@ -597,6 +609,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 se->active_task,
 			 symbol_name,
 			 se->active_frame,
+			 (valid) ? buf_first_texec_start : "Invalid active task",
 			 get_base_address(se->active_frame, 1 << 12),
 			 get_base_address(se->active_frame, 1 << 21),
 			 (valid) ? buf_duration : "Invalid active task",
