@@ -293,6 +293,14 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		{
 			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
 			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+
+			if(se->type == SINGLE_TYPE_TEXEC_START) {
+				if(!se->active_frame->first_texec_start ||
+				   se->active_frame->first_texec_start->time > se->time)
+				{
+					se->active_frame->first_texec_start = se;
+				}
+			}
 		}
 
 		for(struct state_event* se = &es->state_events[0];

@@ -507,14 +507,12 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
-	struct single_event* first_texec_start = NULL;
 	struct comm_event* first_write = NULL;
 	struct comm_event* first_max_write = NULL;
 	struct comm_event* first_reader = NULL;
 	int tcreate_cpu;
 	int first_writer_cpu;
 	int first_max_writer_cpu;
-	int first_texec_start_cpu;
 	int first_reader_cpu;
 	int valid;
 	int num_markers = 0;
@@ -585,10 +583,10 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				strncpy(buf_first_max_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
 
-			if((first_texec_start = multi_event_set_find_first_texec_start(&g_mes, &first_texec_start_cpu, se->active_frame->addr))) {
+			if(se->active_frame->first_texec_start) {
 				snprintf(buf_first_texec_start, sizeof(buf_first_texec_start),
 					 "Node %d",
-					 first_texec_start->numa_node);
+					 se->active_frame->first_texec_start->numa_node);
 			} else {
 				strncpy(buf_first_texec_start, "Task never executed", sizeof(buf_first_texec_start));
 			}
