@@ -209,6 +209,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
+	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_writes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_size);
 	IMPORT_GLADE_WIDGET(xml, use_global_values_check);
 	IMPORT_GLADE_WIDGET(xml, global_values_min_entry);
@@ -275,6 +276,7 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
+	g_toggle_tool_button_draw_data_writes = toggle_tool_button_draw_data_writes;
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 
 	g_use_global_values_check = use_global_values_check;

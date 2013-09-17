@@ -33,6 +33,7 @@ GtkWidget* g_active_task_label;
 GtkWidget* g_toggle_tool_button_draw_steals;
 GtkWidget* g_toggle_tool_button_draw_pushes;
 GtkWidget* g_toggle_tool_button_draw_data_reads;
+GtkWidget* g_toggle_tool_button_draw_data_writes;
 GtkWidget* g_toggle_tool_button_draw_size;
 GtkWidget* g_use_global_values_check;
 GtkWidget* g_global_values_min_entry;

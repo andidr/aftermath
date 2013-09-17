@@ -75,6 +75,7 @@ struct _GtkTrace {
 	int draw_steals;
 	int draw_pushes;
 	int draw_data_reads;
+	int draw_data_writes;
 	int draw_single_events;
 	int draw_counters;
 	int moved_during_navigation;
@@ -128,6 +129,7 @@ void gtk_trace_set_draw_comm_size(GtkWidget *widget, int val);
 void gtk_trace_set_draw_steals(GtkWidget *widget, int val);
 void gtk_trace_set_draw_pushes(GtkWidget *widget, int val);
 void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val);
+void gtk_trace_set_draw_data_writes(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);

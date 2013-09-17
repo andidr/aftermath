@@ -113,6 +113,7 @@ G_MODULE_EXPORT void toolbar_draw_comm_toggled(GtkToggleToolButton *button, gpoi
 	gtk_widget_set_sensitive(g_toggle_tool_button_draw_steals, new_state);
 	gtk_widget_set_sensitive(g_toggle_tool_button_draw_pushes, new_state);
 	gtk_widget_set_sensitive(g_toggle_tool_button_draw_data_reads, new_state);
+	gtk_widget_set_sensitive(g_toggle_tool_button_draw_data_writes, new_state);
 	gtk_widget_set_sensitive(g_toggle_tool_button_draw_size, new_state);
 }
 
@@ -134,6 +135,11 @@ G_MODULE_EXPORT void toolbar_draw_pushes_toggled(GtkToggleToolButton *button, gp
 G_MODULE_EXPORT void toolbar_draw_data_reads_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gtk_trace_set_draw_data_reads(g_trace_widget, gtk_toggle_tool_button_get_active(button));
+}
+
+G_MODULE_EXPORT void toolbar_draw_data_writes_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	gtk_trace_set_draw_data_writes(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
 G_MODULE_EXPORT void toolbar_draw_single_events_toggled(GtkToggleToolButton *button, gpointer data)

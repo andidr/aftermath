@@ -40,6 +40,7 @@ extern GtkWidget* g_active_task_label;
 extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;
+extern GtkWidget* g_toggle_tool_button_draw_data_writes;
 extern GtkWidget* g_toggle_tool_button_draw_size;
 
 extern GtkWidget* g_use_global_values_check;

@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 8
+#define TRACE_VERSION 9
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -74,7 +74,8 @@ enum comm_event_type {
 	COMM_TYPE_UNKNOWN = 0,
 	COMM_TYPE_STEAL = 1,
 	COMM_TYPE_PUSH = 2,
-	COMM_TYPE_DATA_READ = 3
+	COMM_TYPE_DATA_READ = 3,
+	COMM_TYPE_DATA_WRITE = 4
 };
 
 enum single_event_type {

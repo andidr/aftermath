@@ -50,7 +50,8 @@ static double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(2
 static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
 				  {COL_NORM(225.0), COL_NORM(137.0), COL_NORM(  0.0)},
 				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)},
-				  {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)}};
+				  {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)},
+				  {COL_NORM( 47.0), COL_NORM(102.0), COL_NORM(255.0)}};
 
 static double highlight_color[3] = {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)};
 
@@ -75,6 +76,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_steals = 1;
 	g->draw_pushes = 1;
 	g->draw_data_reads = 1;
+	g->draw_data_writes = 1;
 	g->draw_counters = 0;
 	g->range_selection = 0;
 
@@ -778,6 +780,8 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						continue;
 					else if(comm_type == COMM_TYPE_DATA_READ && !g->draw_data_reads)
 						continue;
+					else if(comm_type == COMM_TYPE_DATA_WRITE && !g->draw_data_writes)
+						continue;
 
 					if(g->filter && !filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event])) {
 						continue;
@@ -794,7 +798,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					if(cpu_idx != dst_cpu_idx) {
 						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
 							if(g->draw_comm_size) {
-								if(comm_type == COMM_TYPE_DATA_READ)
+								if(comm_type == COMM_TYPE_DATA_READ || comm_type == COMM_TYPE_DATA_WRITE)
 									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
 								else
 									snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
@@ -835,7 +839,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						cairo_fill(cr);
 
 						if(g->draw_comm_size) {
-							if(comm_type == COMM_TYPE_DATA_READ)
+							if(comm_type == COMM_TYPE_DATA_READ || comm_type == COMM_TYPE_DATA_WRITE)
 								snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
 							else
 								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
@@ -1216,6 +1220,15 @@ void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
+void gtk_trace_set_draw_data_writes(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_data_writes);
+	g->draw_data_writes = val;
+
+	if(needs_redraw)
+		gtk_widget_queue_draw(widget);
+}
 
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val)
 {

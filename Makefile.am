@@ -86,6 +86,7 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/icons/draw_steals.svg \
 		share/icons/draw_pushes.svg \
 		share/icons/draw_reads.svg \
+		share/icons/draw_writes.svg \
 		share/icons/draw_size.svg \
 		share/icons/draw_events.svg \
 		share/icons/draw_counters.svg
