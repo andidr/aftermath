@@ -27,8 +27,8 @@ struct single_event {
 	enum single_event_type type;
 
 	uint64_t time;
-	uint64_t active_task;
-	uint64_t active_frame;
+	uint64_t active_task_addr;
+	uint64_t active_frame_addr;
 	uint32_t size;
 	uint64_t what;
 	int32_t numa_node;
@@ -43,8 +43,8 @@ struct single_event {
 struct state_event {
 	uint64_t start;
 	uint64_t end;
-	uint64_t active_task;
-	uint64_t active_frame;
+	uint64_t active_task_addr;
+	uint64_t active_frame_addr;
 	int state;
 	struct single_event* texec_start;
 	struct single_event* texec_end;
@@ -56,16 +56,16 @@ struct comm_event {
 	int dst_worker;
 	int size;
 	enum comm_event_type type;
-	uint64_t active_task;
-	uint64_t active_frame;
+	uint64_t active_task_addr;
+	uint64_t active_frame_addr;
 	uint64_t prod_ts;
 	uint64_t what;
 };
 
 struct counter_event {
 	uint64_t time;
-	uint64_t active_task;
-	uint64_t active_frame;
+	uint64_t active_task_addr;
+	uint64_t active_frame_addr;
 	uint64_t counter_id;
 	int64_t value;
 	long double slope;

@@ -151,8 +151,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				se.start = dsk_se.header.time;
 				se.end = dsk_se.end_time;
 				se.state = dsk_se.state;
-				se.active_task = dsk_se.header.active_task;
-				se.active_frame = dsk_se.header.active_frame;
+				se.active_task_addr = dsk_se.header.active_task;
+				se.active_frame_addr = dsk_se.header.active_frame;
 				se.texec_start = NULL;
 				se.texec_end = NULL;
 				event_set_add_state_event(es, &se);
@@ -163,8 +163,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu);
 				ce.time = dsk_ce.header.time;
-				ce.active_task = dsk_ce.header.active_task;
-				ce.active_frame = dsk_ce.header.active_frame;
+				ce.active_task_addr = dsk_ce.header.active_task;
+				ce.active_frame_addr = dsk_ce.header.active_frame;
 				ce.dst_cpu = dsk_ce.dst_cpu;
 				ce.dst_worker = dsk_ce.dst_worker;
 				ce.size = dsk_ce.size;
@@ -190,8 +190,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu);
-				sge.active_task = dsk_sge.header.active_task;
-				sge.active_frame = dsk_sge.header.active_frame;
+				sge.active_task_addr = dsk_sge.header.active_task;
+				sge.active_frame_addr = dsk_sge.header.active_frame;
 				sge.time = dsk_sge.header.time;
 				sge.what = dsk_sge.what;
 				sge.size = dsk_sge.size;
@@ -212,8 +212,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
-				cre.active_task = dsk_cre.header.active_task;
-				cre.active_frame = dsk_cre.header.active_frame;
+				cre.active_task_addr = dsk_cre.header.active_task;
+				cre.active_frame_addr = dsk_cre.header.active_frame;
 				cre.time = dsk_cre.header.time;
 				cre.counter_id = dsk_cre.counter_id;
 				cre.counter_index = cd->index;

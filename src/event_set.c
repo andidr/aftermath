@@ -302,7 +302,7 @@ struct comm_event* event_set_find_first_write(struct event_set* es, uint64_t fra
 		curr = &es->comm_events[i];
 
 		if(curr->type == COMM_TYPE_DATA_READ &&
-		   curr->active_frame == frame_addr)
+		   curr->active_frame_addr == frame_addr)
 		{
 			if(!ret || curr->prod_ts < ret->prod_ts)
 				ret = curr;

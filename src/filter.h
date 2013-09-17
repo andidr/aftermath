@@ -181,15 +181,15 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 	int valid;
 
 	if(f->filter_task_length) {
-		if(se->active_task != 0)
+		if(se->active_task_addr != 0)
 			duration = task_length_of_active_frame(se, &valid);
 
 		if(!valid || !filter_has_task_duration(f, duration))
 			return 0;
 	}
 
-	return filter_has_task(f, se->active_task) &&
-		filter_has_frame(f, se->active_frame);
+	return filter_has_task(f, se->active_task_addr) &&
+		filter_has_frame(f, se->active_frame_addr);
 }
 
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
@@ -201,8 +201,8 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 		return 0;
 
 	/* Active task *and* frame included in filter? */
-	if(filter_has_task(f, ce->active_task) &&
-	   filter_has_frame(f, ce->active_frame))
+	if(filter_has_task(f, ce->active_task_addr) &&
+	   filter_has_frame(f, ce->active_frame_addr))
 	{
 		return 1;
 	}
@@ -232,8 +232,8 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
-	if(filter_has_task(f, se->active_task) &&
-	   filter_has_frame(f, se->active_frame))
+	if(filter_has_task(f, se->active_task_addr) &&
+	   filter_has_frame(f, se->active_frame_addr))
 		return 1;
 
 	switch(se->type) {

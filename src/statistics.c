@@ -109,7 +109,7 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 					goto next;
 				}
 
-				if(!filter_has_task(f, mes->sets[cpu_idx].state_events[first_texec_idx].active_task))
+				if(!filter_has_task(f, mes->sets[cpu_idx].state_events[first_texec_idx].active_task_addr))
 					goto next;
 
 				if(histogram) {
