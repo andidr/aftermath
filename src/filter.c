@@ -26,15 +26,12 @@ void filter_sort_tasks(struct filter* f)
 	      sizeof(struct task*), compare_tasksp);
 }
 
-int filter_has_task(struct filter* f, uint64_t work_fn)
+int filter_has_task(struct filter* f, struct task* t)
 {
-	struct task key = { .work_fn = work_fn };
-	struct task* pkey = &key;
-
 	if(!f->filter_tasks)
 		return 1;
 
-	return (bsearch(&pkey, f->tasks,
+	return (bsearch(&t, f->tasks,
 			f->num_tasks, sizeof(struct task*),
 			compare_tasksp)
 		!= NULL);
@@ -46,15 +43,12 @@ void filter_sort_frames(struct filter* f)
 	      sizeof(struct frame*), compare_framesp);
 }
 
-int filter_has_frame(struct filter* f, uint64_t addr)
+int filter_has_frame(struct filter* f, struct frame* fr)
 {
-	struct frame key = { .addr = addr };
-	struct frame* pkey = &key;
-
 	if(!f->filter_frames)
 		return 1;
 
-	return (bsearch(&pkey, f->frames,
+	return (bsearch(&fr, f->frames,
 			f->num_frames, sizeof(struct frame*),
 			compare_framesp)
 		!= NULL);

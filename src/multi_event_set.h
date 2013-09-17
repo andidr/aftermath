@@ -256,9 +256,9 @@ static inline struct task* multi_event_set_find_task(struct multi_event_set* mes
 	return bsearch(t, mes->tasks, mes->num_tasks, sizeof(struct task), compare_tasks);
 }
 
-static inline struct task* multi_event_set_find_task_by_work_fn(struct multi_event_set* mes, uint64_t work_fn)
+static inline struct task* multi_event_set_find_task_by_addr(struct multi_event_set* mes, uint64_t addr)
 {
-	struct task t = { .work_fn = work_fn };
+	struct task t = { .addr = addr };
 	return multi_event_set_find_task(mes, &t);
 }
 
@@ -267,7 +267,7 @@ static inline struct frame* multi_event_set_find_frame(struct multi_event_set* m
 	return bsearch(f, mes->frames, mes->num_frames, sizeof(struct frame), compare_frames);
 }
 
-static inline struct frame* multi_event_set_find_frame_by_address(struct multi_event_set* mes, uint64_t addr)
+static inline struct frame* multi_event_set_find_frame_by_addr(struct multi_event_set* mes, uint64_t addr)
 {
 	struct frame f = { .addr = addr };
 	return multi_event_set_find_frame(mes, &f);

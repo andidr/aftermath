@@ -286,21 +286,16 @@ G_MODULE_EXPORT void trace_state_event_under_pointer_changed(GtkTrace* item, gpo
 	guint context_id = 0;
 	char buffer[256];
 	char buf_duration[40];
-	struct task* task;
 	struct state_event* se = pstate_event;
-	const char* symbol_name;
 
 	if(message_id != -1)
 		gtk_statusbar_remove(GTK_STATUSBAR(g_statusbar), context_id, message_id);
 
 	if(se) {
-		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task_addr);
-		symbol_name = (task) ? task->symbol_name : "No symbol found";
-
 		pretty_print_cycles(buf_duration, sizeof(buf_duration), se->end - se->start);
 
 		snprintf(buffer, sizeof(buffer), "CPU %d: state %d (%s) from %"PRIu64" to %"PRIu64", duration: %scycles, active task: 0x%"PRIx64" %s",
-			 cpu, se->state, worker_state_names[se->state], se->start, se->end, buf_duration, se->active_task_addr, symbol_name);
+			 cpu, se->state, worker_state_names[se->state], se->start, se->end, buf_duration, se->active_task->addr, se->active_task->symbol_name);
 
 		message_id = gtk_statusbar_push(GTK_STATUSBAR(g_statusbar), context_id, buffer);
 	}
@@ -470,9 +465,9 @@ G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left,
 	update_statistics();
 }
 
-void task_link_activated(uint64_t work_fn)
+void task_link_activated(uint64_t addr)
 {
-	struct task* t = multi_event_set_find_task_by_work_fn(&g_mes, work_fn);
+	struct task* t = multi_event_set_find_task_by_addr(&g_mes, addr);
 
 	if(t && t->source_filename)
 		show_task_code(t);
@@ -510,8 +505,6 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_first_texec_start[128];
 	char consumer_info[1024];
 
-	struct task* task;
-	const char* symbol_name;
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
 	struct single_event* first_texec_start = NULL;
@@ -527,9 +520,6 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	int num_markers = 0;
 
 	if(se) {
-		task = multi_event_set_find_task_by_work_fn(&g_mes, se->active_task_addr);
-		symbol_name = (task) ? task->symbol_name : "No symbol found";
-
 		pretty_print_cycles(buf_duration, sizeof(buf_duration), se->end - se->start);
 
 		snprintf(buffer, sizeof(buffer),
@@ -549,7 +539,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		task_length = task_length_of_active_frame(se, &valid);
 		if(valid) {
 			pretty_print_cycles(buf_duration, sizeof(buf_duration), task_length);
-			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame_addr);
+			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame->addr);
 
 			snprintf(buf_tcreate, sizeof(buf_tcreate),
 				 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %"PRId32" bytes",
@@ -563,7 +553,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			num_markers++;
 
 
-			if((first_write = multi_event_set_find_first_write(&g_mes, &first_writer_cpu, se->active_frame_addr))) {
+			if((first_write = multi_event_set_find_first_write(&g_mes, &first_writer_cpu, se->active_frame->addr))) {
 				snprintf(buf_first_writer, sizeof(buf_first_writer),
 					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
 					 first_writer_cpu, first_write->time, first_write->time,
@@ -579,7 +569,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
 
-			if((first_max_write = multi_event_set_find_first_max_write(&g_mes, &first_max_writer_cpu, se->active_frame_addr))) {
+			if((first_max_write = multi_event_set_find_first_max_write(&g_mes, &first_max_writer_cpu, se->active_frame->addr))) {
 				snprintf(buf_first_max_writer, sizeof(buf_first_max_writer),
 					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
 					 first_max_writer_cpu, first_max_write->time, first_max_write->time,
@@ -595,7 +585,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				strncpy(buf_first_max_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
 
-			if((first_texec_start = multi_event_set_find_first_texec_start(&g_mes, &first_texec_start_cpu, se->active_frame_addr))) {
+			if((first_texec_start = multi_event_set_find_first_texec_start(&g_mes, &first_texec_start_cpu, se->active_frame->addr))) {
 				snprintf(buf_first_texec_start, sizeof(buf_first_texec_start),
 					 "Node %d",
 					 first_texec_start->numa_node);
@@ -640,13 +630,13 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "1st max writer: %s\n\n"
 			 "Consumer info:\n"
 			 "%s",
-			 se->active_task_addr,
-			 se->active_task_addr,
-			 symbol_name,
+			 se->active_task->addr,
+			 se->active_task->addr,
+			 se->active_task->symbol_name,
 			 (valid) ? buf_duration : "Invalid active task",
-			 se->active_frame_addr,
-			 get_base_address(se->active_frame_addr, 1 << 12),
-			 get_base_address(se->active_frame_addr, 1 << 21),
+			 se->active_frame->addr,
+			 get_base_address(se->active_frame->addr, 1 << 12),
+			 get_base_address(se->active_frame->addr, 1 << 21),
 			 (valid) ? buf_first_texec_start : "Invalid active task",
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",

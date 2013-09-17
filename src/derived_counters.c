@@ -65,8 +65,8 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	ce.active_task_addr = 0x0;
-	ce.active_frame_addr = 0x0;
+	ce.active_task = multi_event_set_find_task(mes, 0x0);
+	ce.active_frame = multi_event_set_find_frame(mes, 0x0);
 	ce.counter_id = id;
 	ce.counter_index = cd->index;
 
@@ -161,8 +161,8 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.active_task_addr = 0x0;
-		ce.active_frame_addr = 0x0;
+		ce.active_task = multi_event_set_find_task(mes, 0x0);
+		ce.active_frame = multi_event_set_find_frame(mes, 0x0);
 		ce.counter_id = id;
 		ce.counter_index = cd->index;
 		ce.value = parallelism / interval_length;

@@ -23,9 +23,9 @@ int compare_tasksp(const void *pt1, const void *pt2)
 	const struct task* t1 = *((struct task**)pt1);
 	const struct task* t2 = *((struct task**)pt2);
 
-	if(t1->work_fn < t2->work_fn)
+	if(t1->addr < t2->addr)
 		return -1;
-	else if(t1->work_fn > t2->work_fn)
+	else if(t1->addr > t2->addr)
 		return 1;
 
 	return 0;
@@ -36,9 +36,9 @@ int compare_tasks(const void *pt1, const void *pt2)
 	const struct task* t1 = pt1;
 	const struct task* t2 = pt2;
 
-	if(t1->work_fn < t2->work_fn)
+	if(t1->addr < t2->addr)
 		return -1;
-	else if(t1->work_fn > t2->work_fn)
+	else if(t1->addr > t2->addr)
 		return 1;
 
 	return 0;

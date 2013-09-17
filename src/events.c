@@ -136,7 +136,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
 					return 1;
 
-			if(!last_task || (last_task->work_fn != dsk_eh.active_task && !task_tree_find(tt, dsk_eh.active_task)))
+			if(!last_task || (last_task->addr != dsk_eh.active_task && !task_tree_find(tt, dsk_eh.active_task)))
 				last_task = task_tree_add(tt, dsk_eh.active_task);
 
 			if(!last_frame || (last_frame->addr != dsk_eh.active_frame && !frame_tree_find(ft, dsk_eh.active_frame)))
@@ -151,8 +151,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				se.start = dsk_se.header.time;
 				se.end = dsk_se.end_time;
 				se.state = dsk_se.state;
-				se.active_task_addr = dsk_se.header.active_task;
-				se.active_frame_addr = dsk_se.header.active_frame;
+				se.active_task = task_tree_find(tt, dsk_se.header.active_task);
+				se.active_frame = frame_tree_find(ft, dsk_se.header.active_frame);
 				se.texec_start = NULL;
 				se.texec_end = NULL;
 				event_set_add_state_event(es, &se);
@@ -163,8 +163,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu);
 				ce.time = dsk_ce.header.time;
-				ce.active_task_addr = dsk_ce.header.active_task;
-				ce.active_frame_addr = dsk_ce.header.active_frame;
+				ce.active_task = task_tree_find(tt, dsk_ce.header.active_task);
+				ce.active_frame = frame_tree_find(ft, dsk_ce.header.active_frame);
 				ce.dst_cpu = dsk_ce.dst_cpu;
 				ce.dst_worker = dsk_ce.dst_worker;
 				ce.size = dsk_ce.size;
@@ -190,8 +190,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu);
-				sge.active_task_addr = dsk_sge.header.active_task;
-				sge.active_frame_addr = dsk_sge.header.active_frame;
+				sge.active_task = task_tree_find(tt, dsk_sge.header.active_task);
+				sge.active_frame = frame_tree_find(ft, dsk_sge.header.active_frame);
 				sge.time = dsk_sge.header.time;
 				sge.what = dsk_sge.what;
 				sge.size = dsk_sge.size;
@@ -212,8 +212,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
-				cre.active_task_addr = dsk_cre.header.active_task;
-				cre.active_frame_addr = dsk_cre.header.active_frame;
+				cre.active_task = task_tree_find(tt, dsk_cre.header.active_task);
+				cre.active_frame = frame_tree_find(ft, dsk_cre.header.active_frame);
 				cre.time = dsk_cre.header.time;
 				cre.counter_id = dsk_cre.counter_id;
 				cre.counter_index = cd->index;
@@ -284,6 +284,45 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 		if(trace_update_task_execution_bounds(&mes->sets[i]) != 0)
 			goto out_trees;
+	}
+
+	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+		for(struct single_event* se = &es->single_events[0];
+		    se < &es->single_events[es->num_single_events];
+		    se++)
+		{
+			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
+			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+		}
+
+		for(struct state_event* se = &es->state_events[0];
+		    se < &es->state_events[es->num_state_events];
+		    se++)
+		{
+			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
+			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+		}
+
+		for(struct comm_event* ce = &es->comm_events[0];
+		    ce < &es->comm_events[es->num_comm_events];
+		    ce++)
+		{
+			ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
+			ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
+		}
+
+		for(struct counter_event_set* ces = &es->counter_event_sets[0];
+		    ces < &es->counter_event_sets[es->num_counter_event_sets];
+		    ces++)
+		{
+			for(struct counter_event* ce = &ces->events[0];
+			    ce < &ces->events[ces->num_events];
+			    ce++)
+			{
+				ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
+				ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
+			}
+		}
 	}
 
 	res = 0;

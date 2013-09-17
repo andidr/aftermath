@@ -43,7 +43,7 @@ int debug_read_task_symbols(const char* filename, struct multi_event_set* mes)
 		char c = ' ';
 		fscanf(fp, "%"PRIx64" %c %s %s %d", &curr_addr, &curr_sym_type, curr_sym_name, curr_file_name, &curr_line_number);
 
-		key.work_fn = curr_addr;
+		key.addr = curr_addr;
 		if((t = multi_event_set_find_task(mes, &key))) {
 			if(!(t->source_filename = strdup(curr_file_name)))
 				goto out_fp;

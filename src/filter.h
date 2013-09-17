@@ -152,10 +152,10 @@ static inline int filter_has_counter(struct filter* f, struct counter_descriptio
 }
 
 void filter_sort_tasks(struct filter* f);
-int filter_has_task(struct filter* f, uint64_t work_fn);
+int filter_has_task(struct filter* f, struct task* t);
 
 void filter_sort_frames(struct filter* f);
-int filter_has_frame(struct filter* f, uint64_t addr);
+int filter_has_frame(struct filter* f, struct frame* fr);
 
 static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
 {
@@ -181,28 +181,29 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 	int valid;
 
 	if(f->filter_task_length) {
-		if(se->active_task_addr != 0)
+		if(se->active_task->addr != 0)
 			duration = task_length_of_active_frame(se, &valid);
 
 		if(!valid || !filter_has_task_duration(f, duration))
 			return 0;
 	}
 
-	return filter_has_task(f, se->active_task_addr) &&
-		filter_has_frame(f, se->active_frame_addr);
+	return filter_has_task(f, se->active_task) &&
+		filter_has_frame(f, se->active_frame);
 }
 
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
 {
 	struct event_set* dst_es;
 	int dst_idx;
+	struct frame key;
 
 	if(!filter_has_comm_size(f, ce->size))
 		return 0;
 
 	/* Active task *and* frame included in filter? */
-	if(filter_has_task(f, ce->active_task_addr) &&
-	   filter_has_frame(f, ce->active_frame_addr))
+	if(filter_has_task(f, ce->active_task) &&
+	   filter_has_frame(f, ce->active_frame))
 	{
 		return 1;
 	}
@@ -211,7 +212,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	if((ce->type == COMM_TYPE_STEAL ||
 	    ce->type == COMM_TYPE_PUSH))
 	{
-		if(filter_has_frame(f, ce->what))
+		key.addr = ce->what;
+
+		if(filter_has_frame(f, &key))
 			return 1;
 	}
 
@@ -232,15 +235,18 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
-	if(filter_has_task(f, se->active_task_addr) &&
-	   filter_has_frame(f, se->active_frame_addr))
+	struct frame key;
+
+	if(filter_has_task(f, se->active_task) &&
+	   filter_has_frame(f, se->active_frame))
 		return 1;
 
 	switch(se->type) {
 		case SINGLE_TYPE_TCREATE:
 		case SINGLE_TYPE_TEXEC_START:
 		case SINGLE_TYPE_TEXEC_END:
-			return filter_has_frame(f, se->what);
+			key.addr = se->what;
+			return filter_has_frame(f, &key);
 	}
 
 	return 0;

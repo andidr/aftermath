@@ -19,14 +19,15 @@
 #define TASK_H
 
 #define _GNU_SOURCE
-#define __USE_GNU 1
 #include <stdint.h>
 #include <malloc.h>
 #include <search.h>
 #include <sys/types.h>
 
+void tdestroy(void *root, void (*free_node)(void *nodep));
+
 struct task {
-	uint64_t work_fn;
+	uint64_t addr;
 	char* source_filename;
 	char* symbol_name;
 	int source_line;
@@ -52,9 +53,9 @@ static inline void task_tree_init(struct task_tree* tt)
 int compare_tasks(const void *pt1, const void *pt2);
 int compare_tasksp(const void *pt1, const void *pt2);
 
-static inline struct task* task_tree_find(struct task_tree* tt, uint64_t work_fn)
+static inline struct task* task_tree_find(struct task_tree* tt, uint64_t addr)
 {
-	struct task key = { .work_fn = work_fn };
+	struct task key = { .addr = addr };
 	struct task** pret = tfind(&key, &tt->root, compare_tasks);
 
 	if(pret)
@@ -63,7 +64,7 @@ static inline struct task* task_tree_find(struct task_tree* tt, uint64_t work_fn
 	return NULL;
 }
 
-static inline struct task* task_tree_add(struct task_tree* tt, uint64_t work_fn)
+static inline struct task* task_tree_add(struct task_tree* tt, uint64_t addr)
 {
 	struct task* key = malloc(sizeof(struct task));
 	struct task** t;
@@ -71,7 +72,7 @@ static inline struct task* task_tree_add(struct task_tree* tt, uint64_t work_fn)
 	if(!key)
 		return NULL;
 
-	key->work_fn = work_fn;
+	key->addr = addr;
 
 	if((t = tsearch(key, &tt->root, compare_tasks)) == NULL) {
 		free(key);

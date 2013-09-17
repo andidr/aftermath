@@ -19,11 +19,12 @@
 #define FRAME_H
 
 #define _GNU_SOURCE
-#define __USE_GNU 1
 #include <stdint.h>
 #include <malloc.h>
 #include <search.h>
 #include <sys/types.h>
+
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct frame {
 	uint64_t addr;

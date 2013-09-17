@@ -74,7 +74,7 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 	char* symbol;
 
 	for(int i = 0; i < num_tasks; i++) {
-		snprintf(buff_addr, sizeof(buff_addr), "0x%"PRIx64, tasks[i].work_fn);
+		snprintf(buff_addr, sizeof(buff_addr), "0x%"PRIx64, tasks[i].addr);
 		symbol = (tasks[i].symbol_name) ? tasks[i].symbol_name : "(no symbol found)";
 
 		if(tasks[i].source_filename) {
