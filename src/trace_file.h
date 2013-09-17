@@ -45,14 +45,15 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 9
+#define TRACE_VERSION 10
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
 	EVENT_TYPE_COMM = 1,
 	EVENT_TYPE_SINGLE = 2,
 	EVENT_TYPE_COUNTER = 3,
-	EVENT_TYPE_COUNTER_DESCRIPTION = 4
+	EVENT_TYPE_COUNTER_DESCRIPTION = 4,
+	EVENT_TYPE_FRAME_INFO = 5
 };
 
 enum worker_state {
@@ -255,6 +256,18 @@ struct trace_single_event {
 } __attribute__((packed));
 
 extern int trace_single_event_conversion_table[];
+
+struct trace_frame_info {
+	struct trace_event_header header;
+
+	/* Frame's address */
+	uint64_t addr;
+
+	/* Owning NUMA node */
+	int32_t numa_node;
+} __attribute__((packed));
+
+extern int trace_frame_info_conversion_table[];
 
 enum conversion_direction {
 	CONVERT_DSK_TO_HOST = 0,

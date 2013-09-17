@@ -29,6 +29,7 @@ struct frame {
 	uint64_t addr;
 	unsigned int num_pushes;
 	unsigned int num_steals;
+	int32_t numa_node;
 };
 
 struct frame_tree {
@@ -73,6 +74,7 @@ static inline struct frame* frame_tree_add(struct frame_tree* ft, uint64_t addr)
 
 	(*f)->num_steals = 0;
 	(*f)->num_pushes = 0;
+	(*f)->numa_node = -1;
 
 	ft->num_frames++;
 

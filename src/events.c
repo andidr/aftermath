@@ -92,6 +92,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct trace_single_event dsk_sge;
 	struct trace_counter_description dsk_cd;
 	struct trace_counter_event dsk_cre;
+	struct trace_frame_info dsk_fi;
 
 	struct event_set* es;
 	struct state_event se;
@@ -222,6 +223,16 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				multi_event_set_check_update_counter_bounds(mes, &cre);
+			} else if(dsk_eh.type == EVENT_TYPE_FRAME_INFO) {
+				memcpy(&dsk_fi, &dsk_eh, sizeof(dsk_eh));
+
+				if(read_struct_convert(fp, &dsk_fi, sizeof(dsk_fi), trace_frame_info_conversion_table, sizeof(dsk_eh)) != 0)
+					return 1;
+
+				if(!last_frame || (last_frame->addr != dsk_fi.addr && !frame_tree_find(ft, dsk_fi.addr)))
+					last_frame = frame_tree_add(ft, dsk_fi.addr);
+
+				last_frame->numa_node = dsk_fi.numa_node;
 			}
 		}
 	}

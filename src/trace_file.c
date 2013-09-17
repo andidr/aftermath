@@ -99,6 +99,13 @@ int trace_counter_event_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_frame_info_conversion_table[] = {
+	EVENT_HEADER_CONVERSION_FIELDS,
+	FIELD_SIZE(struct trace_frame_info, addr),
+	FIELD_SIZE(struct trace_frame_info, numa_node),
+	CONVERSION_TABLE_END
+};
+
 /* Convert struct from disk format to host format */
 void convert_struct(void* ptr, int* conversion_table, int offset, enum conversion_direction dir)
 {
