@@ -586,7 +586,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			if(se->active_frame->first_texec_start) {
 				snprintf(buf_first_texec_start, sizeof(buf_first_texec_start),
 					 "Node %d",
-					 se->active_frame->first_texec_start->numa_node);
+					 se->active_frame->numa_node);
 			} else {
 				strncpy(buf_first_texec_start, "Task never executed", sizeof(buf_first_texec_start));
 			}

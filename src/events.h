@@ -36,7 +36,6 @@ struct single_event {
 
 	uint32_t size;
 	uint64_t what;
-	int32_t numa_node;
 
 	struct single_event* next_texec_start;
 	struct single_event* prev_texec_start;

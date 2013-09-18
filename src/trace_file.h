@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 10
+#define TRACE_VERSION 11
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -84,7 +84,6 @@ enum single_event_type {
 	SINGLE_TYPE_TEXEC_START = 1,
 	SINGLE_TYPE_TEXEC_END = 2
 };
-
 
 /* File header */
 struct trace_header {
@@ -235,24 +234,6 @@ struct trace_single_event {
 	 * - texec finish: the frame pointer of the task that finishes execution
 	*/
 	uint64_t what;
-
-	/* Depending on the event the size field might be
-	 * used for different purposes:
-	 * - tcreate: the size of the frame associated to the newly created task
-	 * - texec start: the frame size of the task that starts execution
-	 * - texec finish: the frame size of the task that finishes execution
-	*/
-	uint32_t size;
-
-	/* Depending on the event the numa_node field might be
-	 * used for different purposes:
-	 * - tcreate: not used
-	 * - texec start: the owner node of the task that starts execution
-	 * - texec finish: not used
-	 *
-	 * A negative value indicates an unknown numa node
-	*/
-	int32_t numa_node;
 } __attribute__((packed));
 
 extern int trace_single_event_conversion_table[];
@@ -265,6 +246,9 @@ struct trace_frame_info {
 
 	/* Owning NUMA node */
 	int32_t numa_node;
+
+	/* Size of the frame */
+	uint32_t size;
 } __attribute__((packed));
 
 extern int trace_frame_info_conversion_table[];

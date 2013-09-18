@@ -31,6 +31,7 @@ struct frame {
 	unsigned int num_pushes;
 	unsigned int num_steals;
 	int32_t numa_node;
+	uint32_t size;
 	struct single_event* first_texec_start;
 	struct comm_event* first_write;
 	struct comm_event* first_max_write;
@@ -82,6 +83,7 @@ static inline struct frame* frame_tree_add(struct frame_tree* ft, uint64_t addr)
 	(*f)->first_texec_start = NULL;
 	(*f)->first_max_write = NULL;
 	(*f)->first_write = NULL;
+	(*f)->size = 0;
 
 	ft->num_frames++;
 

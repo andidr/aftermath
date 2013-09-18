@@ -80,8 +80,6 @@ int trace_single_event_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct trace_single_event, type),
 	FIELD_SIZE(struct trace_single_event, what),
-	FIELD_SIZE(struct trace_single_event, size),
-	FIELD_SIZE(struct trace_single_event, numa_node),
 	CONVERSION_TABLE_END
 };
 
@@ -103,6 +101,7 @@ int trace_frame_info_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct trace_frame_info, addr),
 	FIELD_SIZE(struct trace_frame_info, numa_node),
+	FIELD_SIZE(struct trace_frame_info, size),
 	CONVERSION_TABLE_END
 };
 
