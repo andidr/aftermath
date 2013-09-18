@@ -212,7 +212,7 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	if((ce->type == COMM_TYPE_STEAL ||
 	    ce->type == COMM_TYPE_PUSH))
 	{
-		key.addr = ce->what;
+		key.addr = ce->what->addr;
 
 		if(filter_has_frame(f, &key))
 			return 1;

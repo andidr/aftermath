@@ -103,6 +103,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 	struct task* last_task = NULL;
 	struct frame* last_frame = NULL;
+	struct frame* last_what = NULL;
 
 	while(!feof(fp)) {
 		if(bytes_read)
@@ -136,10 +137,10 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
 					return 1;
 
-			if(!last_task || (last_task->addr != dsk_eh.active_task && !task_tree_find(tt, dsk_eh.active_task)))
+			if(!last_task || (last_task->addr != dsk_eh.active_task && !(last_task = task_tree_find(tt, dsk_eh.active_task))))
 				last_task = task_tree_add(tt, dsk_eh.active_task);
 
-			if(!last_frame || (last_frame->addr != dsk_eh.active_frame && !frame_tree_find(ft, dsk_eh.active_frame)))
+			if(!last_frame || (last_frame->addr != dsk_eh.active_frame && !(last_frame = frame_tree_find(ft, dsk_eh.active_frame))))
 				last_frame = frame_tree_add(ft, dsk_eh.active_frame);
 
 			if(dsk_eh.type == EVENT_TYPE_STATE) {
@@ -170,20 +171,18 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				ce.size = dsk_ce.size;
 				ce.type = dsk_ce.type;
 				ce.prod_ts = dsk_ce.prod_ts;
-				ce.what = dsk_ce.what;
+
+				if(!last_what || (last_what->addr != dsk_ce.what && !(last_what = frame_tree_find(ft, dsk_ce.what))))
+					last_what = frame_tree_add(ft, dsk_ce.what);
+
+				ce.what = last_what;
+
+				if(dsk_ce.type == COMM_TYPE_STEAL)
+					last_what->num_steals++;
+				else if(dsk_ce.type == COMM_TYPE_PUSH)
+					last_what->num_pushes++;
+
 				event_set_add_comm_event(es, &ce);
-
-				if(dsk_ce.type == COMM_TYPE_STEAL || dsk_ce.type == COMM_TYPE_PUSH) {
-					if(!last_frame || (last_frame->addr != dsk_ce.what && !frame_tree_find(ft, dsk_ce.what)))
-						last_frame = frame_tree_add(ft, dsk_ce.what);
-
-					struct frame* curr_frame = frame_tree_find(ft, dsk_ce.what);
-
-					if(dsk_ce.type == COMM_TYPE_STEAL)
-						curr_frame->num_steals++;
-					else if(dsk_ce.type == COMM_TYPE_PUSH)
-						curr_frame->num_pushes++;
-				}
 			} else if(dsk_eh.type == EVENT_TYPE_SINGLE) {
 				memcpy(&dsk_sge, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_sge, sizeof(dsk_sge), trace_single_event_conversion_table, sizeof(dsk_eh)) != 0)
@@ -229,7 +228,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_fi, sizeof(dsk_fi), trace_frame_info_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
-				if(!last_frame || (last_frame->addr != dsk_fi.addr && !frame_tree_find(ft, dsk_fi.addr)))
+				if(!last_frame || (last_frame->addr != dsk_fi.addr && !(last_frame = frame_tree_find(ft, dsk_fi.addr))))
 					last_frame = frame_tree_add(ft, dsk_fi.addr);
 
 				last_frame->numa_node = dsk_fi.numa_node;
@@ -286,14 +285,25 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			goto out_trees;
 	}
 
+	/* Update references to frames, tasks and event sets
+	 * This is necessary, as old references frames and tasks point to
+	 * elements of the frame / task tree and not to the updated array
+	 * of frames / tasks.
+	 * References to event sets must be updated as the address of the array
+	 * containing these data structures might have changed due to a call
+	 * to realloc in add_buffer_grow()
+	 */
 	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+		/* Update single events */
 		for(struct single_event* se = &es->single_events[0];
 		    se < &es->single_events[es->num_single_events];
 		    se++)
 		{
 			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
 			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+			se->event_set = es;
 
+			/* Update frame's references to first texec start if necessary */
 			if(se->type == SINGLE_TYPE_TEXEC_START) {
 				if(!se->active_frame->first_texec_start ||
 				   se->active_frame->first_texec_start->time > se->time)
@@ -303,22 +313,28 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			}
 		}
 
+		/* Update state events */
 		for(struct state_event* se = &es->state_events[0];
 		    se < &es->state_events[es->num_state_events];
 		    se++)
 		{
 			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
 			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+			se->event_set = es;
 		}
 
+		/* Update communication events */
 		for(struct comm_event* ce = &es->comm_events[0];
 		    ce < &es->comm_events[es->num_comm_events];
 		    ce++)
 		{
 			ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
 			ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
+			ce->what = multi_event_set_find_frame_by_addr(mes, ce->what->addr);
+			ce->event_set = es;
 		}
 
+		/* Update communication events */
 		for(struct counter_event_set* ces = &es->counter_event_sets[0];
 		    ces < &es->counter_event_sets[es->num_counter_event_sets];
 		    ces++)
@@ -329,6 +345,39 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			{
 				ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
 				ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
+				ce->event_set = es;
+			}
+		}
+	}
+
+	/* Second round for communication events; update frame references to
+	 * write events
+	 */
+	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+		for(struct comm_event* ce = &es->comm_events[0];
+		    ce < &es->comm_events[es->num_comm_events];
+		    ce++)
+		{
+			if(ce->type == COMM_TYPE_DATA_WRITE) {
+				/* Update first write to the frame */
+				if(!ce->what->first_write ||
+				   ce->what->first_write->time > ce->time)
+				{
+					ce->what->first_write = ce;
+				}
+
+				/* Update first maximal write to the frame */
+				if(ce->what->first_texec_start &&
+				   ce->time < ce->what->first_texec_start->time)
+				{
+					if(!ce->what->first_max_write ||
+					   ce->what->first_max_write->size < ce->size ||
+					   (ce->what->first_max_write->size == ce->size &&
+					    ce->what->first_max_write->time > ce->time))
+					{
+						ce->what->first_max_write = ce;
+					}
+				}
 			}
 		}
 	}

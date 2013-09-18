@@ -507,12 +507,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 	uint64_t task_length;
 	struct single_event* tcreate = NULL;
-	struct comm_event* first_write = NULL;
-	struct comm_event* first_max_write = NULL;
 	struct comm_event* first_reader = NULL;
 	int tcreate_cpu;
-	int first_writer_cpu;
-	int first_max_writer_cpu;
 	int first_reader_cpu;
 	int valid;
 	int num_markers = 0;
@@ -551,14 +547,16 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			num_markers++;
 
 
-			if((first_write = multi_event_set_find_first_write(&g_mes, &first_writer_cpu, se->active_frame->addr))) {
+			if(se->active_frame->first_write) {
 				snprintf(buf_first_writer, sizeof(buf_first_writer),
 					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
-					 first_writer_cpu, first_write->time, first_write->time,
-					 first_write->size);
+					 se->active_frame->first_write->event_set->cpu,
+					 se->active_frame->first_write->time,
+					 se->active_frame->first_write->time,
+					 se->active_frame->first_write->size);
 
-				g_trace_markers[num_markers].time = first_write->time;
-				g_trace_markers[num_markers].cpu = first_writer_cpu;
+				g_trace_markers[num_markers].time = se->active_frame->first_write->time;
+				g_trace_markers[num_markers].cpu = se->active_frame->first_write->event_set->cpu;
 				g_trace_markers[num_markers].color_r = FIRSTWRITE_TRACE_MARKER_COLOR_R;
 				g_trace_markers[num_markers].color_g = FIRSTWRITE_TRACE_MARKER_COLOR_G;
 				g_trace_markers[num_markers].color_b = FIRSTWRITE_TRACE_MARKER_COLOR_B;
@@ -567,14 +565,16 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				strncpy(buf_first_writer, "Task has no input data", sizeof(buf_first_writer));
 			}
 
-			if((first_max_write = multi_event_set_find_first_max_write(&g_mes, &first_max_writer_cpu, se->active_frame->addr))) {
+			if(se->active_frame->first_max_write) {
 				snprintf(buf_first_max_writer, sizeof(buf_first_max_writer),
 					 "CPU %d at <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %d bytes",
-					 first_max_writer_cpu, first_max_write->time, first_max_write->time,
-					 first_max_write->size);
+					 se->active_frame->first_max_write->event_set->cpu,
+					 se->active_frame->first_max_write->time,
+					 se->active_frame->first_max_write->time,
+					 se->active_frame->first_max_write->size);
 
-				g_trace_markers[num_markers].time = first_max_write->time;
-				g_trace_markers[num_markers].cpu = first_max_writer_cpu;
+				g_trace_markers[num_markers].time = se->active_frame->first_max_write->time;
+				g_trace_markers[num_markers].cpu = se->active_frame->first_max_write->event_set->cpu;
 				g_trace_markers[num_markers].color_r = FIRSTMAXWRITE_TRACE_MARKER_COLOR_R;
 				g_trace_markers[num_markers].color_g = FIRSTMAXWRITE_TRACE_MARKER_COLOR_G;
 				g_trace_markers[num_markers].color_b = FIRSTMAXWRITE_TRACE_MARKER_COLOR_B;

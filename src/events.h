@@ -26,6 +26,7 @@
 #define EVENT_PREALLOC (5*1024)
 
 struct single_event {
+	struct event_set* event_set;
 	enum single_event_type type;
 
 	uint64_t time;
@@ -45,6 +46,7 @@ struct single_event {
 };
 
 struct state_event {
+	struct event_set* event_set;
 	uint64_t start;
 	uint64_t end;
 
@@ -57,20 +59,22 @@ struct state_event {
 };
 
 struct comm_event {
+	struct event_set* event_set;
 	uint64_t time;
 	int dst_cpu;
 	int dst_worker;
 	int size;
 	enum comm_event_type type;
 
+	struct frame* what;
 	struct task* active_task;
 	struct frame* active_frame;
 
 	uint64_t prod_ts;
-	uint64_t what;
 };
 
 struct counter_event {
+	struct event_set* event_set;
 	uint64_t time;
 
 	struct task* active_task;

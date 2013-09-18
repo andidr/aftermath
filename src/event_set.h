@@ -90,6 +90,8 @@ static inline int event_set_add_state_event(struct event_set* es, struct state_e
 	if(se->end > es->last_end)
 		es->last_end = se->end;
 
+	se->event_set = es;
+
 	return 0;
 }
 
@@ -115,6 +117,8 @@ static inline int event_set_add_comm_event(struct event_set* es, struct comm_eve
 	if(ce->time > es->last_end)
 		es->last_end = ce->time;
 
+	ce->event_set = es;
+
 	return 0;
 }
 
@@ -132,6 +136,8 @@ static inline int event_set_add_single_event(struct event_set* es, struct single
 
 	if(se->time > es->last_end)
 		es->last_end = se->time;
+
+	se->event_set = es;
 
 	return 0;
 }
@@ -200,6 +206,7 @@ static inline int event_set_add_counter_event(struct event_set* es, struct count
 	}
 
 	ces->events[ces->num_events-1].slope = ce->slope;
+	ce->event_set = es;
 
 	return 0;
 }
