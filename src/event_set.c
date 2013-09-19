@@ -300,47 +300,6 @@ int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint
 	return idx;
 }
 
-
-struct single_event* event_set_find_first_texec_start(struct event_set* es, uint64_t frame_addr)
-{
-	for(int i = 0; i < es->num_single_events; i++)
-		if(es->single_events[i].type == SINGLE_TYPE_TEXEC_START &&
-		   es->single_events[i].what == frame_addr)
-			return &es->single_events[i];
-
-	return NULL;
-
-}
-
-struct single_event* event_set_find_first_tcreate(struct event_set* es, uint64_t frame_addr)
-{
-	for(int i = 0; i < es->num_single_events; i++)
-		if(es->single_events[i].type == SINGLE_TYPE_TCREATE &&
-		   es->single_events[i].what == frame_addr)
-			return &es->single_events[i];
-
-	return NULL;
-}
-
-struct comm_event* event_set_find_first_write(struct event_set* es, uint64_t frame_addr)
-{
-	struct comm_event* ret = NULL;
-	struct comm_event* curr;
-
-	for(int i = 0; i < es->num_comm_events; i++) {
-		curr = &es->comm_events[i];
-
-		if(curr->type == COMM_TYPE_DATA_READ &&
-		   curr->active_frame->addr == frame_addr)
-		{
-			if(!ret || curr->prod_ts < ret->prod_ts)
-				ret = curr;
-		}
-	}
-
-	return ret;
-}
-
 struct comm_event* event_set_find_first_write_producing_in_interval(struct event_set* es, int* consumer_cpu, uint64_t hint_start, uint64_t start, uint64_t end)
 {
 	int comm_idx = event_set_get_first_comm_in_interval(es, hint_start, UINT64_MAX);
