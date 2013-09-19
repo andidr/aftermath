@@ -22,6 +22,7 @@
 #include "dialogs.h"
 #include "task_list.h"
 #include "frame_list.h"
+#include "numa_node_list.h"
 #include "counter_list.h"
 #include "ansi_extras.h"
 #include "derived_counters.h"
@@ -744,10 +745,23 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
 
+G_MODULE_EXPORT void numa_node_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_check_all(GTK_TREE_VIEW(g_numa_node_treeview));
+}
+
+G_MODULE_EXPORT void numa_node_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_uncheck_all(GTK_TREE_VIEW(g_numa_node_treeview));
+}
+
 G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	filter_clear_frames(&g_filter);
 	frame_list_build_filter(GTK_TREE_VIEW(g_frame_treeview), &g_filter);
+
+	filter_clear_numa_nodes(&g_filter);
+	numa_node_list_build_filter(GTK_TREE_VIEW(g_numa_node_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();

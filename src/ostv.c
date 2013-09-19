@@ -33,6 +33,7 @@
 #include "dialogs.h"
 #include "task_list.h"
 #include "frame_list.h"
+#include "numa_node_list.h"
 #include "counter_list.h"
 #include "debug.h"
 #include "ansi_extras.h"
@@ -200,6 +201,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
+	IMPORT_GLADE_WIDGET(xml, numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, counter_treeview);
 	IMPORT_GLADE_WIDGET(xml, code_view);
 	IMPORT_GLADE_WIDGET(xml, main_notebook);
@@ -267,6 +269,7 @@ int main(int argc, char** argv)
 	g_vscroll_bar = vscroll_bar;
 	g_task_treeview = task_treeview;
 	g_frame_treeview = frame_treeview;
+	g_numa_node_treeview = numa_node_treeview;
 	g_counter_treeview = counter_treeview;
 	g_code_view = code_view;
 	g_main_notebook = main_notebook;
@@ -346,6 +349,9 @@ int main(int argc, char** argv)
 
 	frame_list_init(GTK_TREE_VIEW(g_frame_treeview));
 	frame_list_fill(GTK_TREE_VIEW(g_frame_treeview), g_mes.frames, g_mes.num_frames);
+
+	numa_node_list_init(GTK_TREE_VIEW(g_numa_node_treeview));
+	numa_node_list_fill(GTK_TREE_VIEW(g_numa_node_treeview), g_mes.max_numa_node_id);
 
 	counter_list_init(GTK_TREE_VIEW(g_counter_treeview));
 	counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);
