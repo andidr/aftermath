@@ -432,6 +432,7 @@
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x25CF;</property>
+                                            <signal name="activate" handler="task_length_entry_activated"/>
                                           </widget>
                                           <packing>
                                             <property name="position">0</property>
@@ -443,6 +444,7 @@
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x25CF;</property>
+                                            <signal name="activate" handler="task_length_entry_activated"/>
                                           </widget>
                                           <packing>
                                             <property name="position">1</property>

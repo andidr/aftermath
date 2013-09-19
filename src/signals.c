@@ -672,7 +672,7 @@ G_MODULE_EXPORT void vscrollbar_value_changed(GtkHScrollbar *item, gdouble value
 		gtk_trace_set_cpu_offset(g_trace_widget, curr_value - page_size / 2.0);
 }
 
-G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void task_filter_update(void)
 {
 	int use_task_length_filter;
 	const char* txt;
@@ -704,6 +704,16 @@ G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+}
+
+G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	task_filter_update();
+}
+
+G_MODULE_EXPORT void task_length_entry_activated(GtkEntry *e, gpointer data)
+{
+	task_filter_update();
 }
 
 G_MODULE_EXPORT void comm_filter_button_clicked(GtkMenuItem *item, gpointer data)
