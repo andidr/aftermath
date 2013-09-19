@@ -281,6 +281,7 @@ static inline void filter_destroy(struct filter* f)
 	free(f->tasks);
 	free(f->frames);
 	bitvector_destroy(&f->counters);
+	bitvector_destroy(&f->numa_nodes);
 }
 
 static inline void filter_set_task_length_filtering(struct filter* f, int b)
