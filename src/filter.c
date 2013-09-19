@@ -48,7 +48,7 @@ int filter_has_frame(struct filter* f, struct frame* fr)
 	if(!f->filter_frames)
 		return 1;
 
-	if(!filter_has_numa_node(f, fr->numa_node))
+	if(!filter_has_frame_numa_node(f, fr->numa_node))
 		return 0;
 
 	return (bsearch(&fr, f->frames,

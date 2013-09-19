@@ -71,7 +71,12 @@ void numa_node_list_fill(GtkTreeView* numa_node_treeview, int max_numa_node_id)
 	}
 }
 
-void numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filter* filter)
+enum filter_mode {
+	FILTER_MODE_FRAME,
+	FILTER_MODE_COMM
+};
+
+void __numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filter* filter, enum filter_mode mode)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(numa_node_treeview);
 	GtkTreeIter iter;
@@ -87,16 +92,34 @@ void numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filter*
 				   NUMA_NODE_LIST_COL_FILTER, &current_state,
 				   -1);
 
-		if(current_state)
-			filter_add_numa_node(filter, node_id);
-		else
+		if(current_state) {
+			if(mode == FILTER_MODE_FRAME)
+				filter_add_frame_numa_node(filter, node_id);
+			else if(mode == FILTER_MODE_COMM)
+				filter_add_comm_numa_node(filter, node_id);
+		} else {
 			has_unchecked = TRUE;
+		}
 
 		node_id++;
 	} while(gtk_tree_model_iter_next(model, &iter));
 
-	if(!has_unchecked)
-		filter_set_numa_node_filtering(filter, 0);
+	if(!has_unchecked) {
+		if(mode == FILTER_MODE_FRAME)
+			filter_set_frame_numa_node_filtering(filter, 0);
+		else if(mode == FILTER_MODE_COMM)
+			filter_set_comm_numa_node_filtering(filter, 0);
+	}
+}
+
+void numa_node_list_build_frame_filter(GtkTreeView* numa_node_treeview, struct filter* filter)
+{
+	__numa_node_list_build_filter(numa_node_treeview, filter, FILTER_MODE_FRAME);
+}
+
+void numa_node_list_build_comm_filter(GtkTreeView* numa_node_treeview, struct filter* filter)
+{
+	__numa_node_list_build_filter(numa_node_treeview, filter, FILTER_MODE_COMM);
 }
 
 void numa_node_list_set_status_all(GtkTreeView* numa_node_treeview, gboolean status)

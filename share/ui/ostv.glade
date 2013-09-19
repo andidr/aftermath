@@ -1172,7 +1172,7 @@
                                     <property name="hscrollbar_policy">automatic</property>
                                     <property name="vscrollbar_policy">automatic</property>
                                     <child>
-                                      <widget class="GtkTreeView" id="numa_node_treeview">
+                                      <widget class="GtkTreeView" id="frame_numa_node_treeview">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="enable_grid_lines">vertical</property>
@@ -1189,7 +1189,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_underline">True</property>
-                                    <signal name="clicked" handler="numa_node_uncheck_all_button_clicked"/>
+                                    <signal name="clicked" handler="frame_numa_node_uncheck_all_button_clicked"/>
                                     <child>
                                       <widget class="GtkHBox" id="hbox10">
                                         <property name="visible">True</property>
@@ -1230,7 +1230,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_underline">True</property>
-                                    <signal name="clicked" handler="numa_node_check_all_button_clicked"/>
+                                    <signal name="clicked" handler="frame_numa_node_check_all_button_clicked"/>
                                     <child>
                                       <widget class="GtkHBox" id="hbox11">
                                         <property name="visible">True</property>
@@ -1476,6 +1476,141 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="GtkFrame" id="frame10">
+                        <property name="height_request">250</property>
+                        <property name="visible">True</property>
+                        <property name="label_xalign">0</property>
+                        <child>
+                          <widget class="GtkAlignment" id="alignment19">
+                            <property name="visible">True</property>
+                            <property name="top_padding">8</property>
+                            <property name="bottom_padding">8</property>
+                            <property name="left_padding">8</property>
+                            <property name="right_padding">8</property>
+                            <child>
+                              <widget class="GtkVBox" id="vbox25">
+                                <property name="visible">True</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <widget class="GtkScrolledWindow" id="scrolledwindow8">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="hscrollbar_policy">automatic</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <child>
+                                      <widget class="GtkTreeView" id="comm_numa_node_treeview">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="enable_grid_lines">vertical</property>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkButton" id="button14">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="clicked" handler="comm_numa_node_uncheck_all_button_clicked"/>
+                                    <child>
+                                      <widget class="GtkHBox" id="hbox28">
+                                        <property name="visible">True</property>
+                                        <property name="spacing">5</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image13">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-remove</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkLabel" id="label62">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Select none</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkButton" id="button15">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="use_underline">True</property>
+                                    <signal name="clicked" handler="comm_numa_node_check_all_button_clicked"/>
+                                    <child>
+                                      <widget class="GtkHBox" id="hbox29">
+                                        <property name="visible">True</property>
+                                        <property name="spacing">5</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image14">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-add</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkLabel" id="label63">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Select all</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label64">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Target / source NUMA node&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </widget>
+                          <packing>
+                            <property name="type">label_item</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="GtkButton" id="button10">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -1512,7 +1647,7 @@
                       </widget>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </widget>

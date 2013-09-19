@@ -59,8 +59,11 @@ struct filter {
 	int64_t min_comm_size;
 	int64_t max_comm_size;
 
-	struct bitvector numa_nodes;
-	int filter_numa_nodes;
+	struct bitvector frame_numa_nodes;
+	int filter_frame_numa_nodes;
+
+	struct bitvector comm_numa_nodes;
+	int filter_comm_numa_nodes;
 };
 
 static inline int filter_init(struct filter* f, int64_t min, int64_t max,
@@ -77,7 +80,8 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->filter_tasks = 0;
 	f->filter_frames = 0;
 	f->filter_counters = 0;
-	f->filter_numa_nodes = 0;
+	f->filter_frame_numa_nodes = 0;
+	f->filter_comm_numa_nodes = 0;
 
 	f->filter_counter_values = 0;
 	f->min = min;
@@ -93,7 +97,10 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;
 
-	if(bitvector_init(&f->numa_nodes, FILTER_NUMA_NODE_BITS))
+	if(bitvector_init(&f->frame_numa_nodes, FILTER_NUMA_NODE_BITS))
+		return 1;
+
+	if(bitvector_init(&f->comm_numa_nodes, FILTER_NUMA_NODE_BITS))
 		return 1;
 
 	return 0;
@@ -159,26 +166,48 @@ static inline int filter_has_counter(struct filter* f, struct counter_descriptio
 	return !f->filter_counters || bitvector_test_bit(&f->counters, cd->index);
 }
 
-static inline void filter_add_numa_node(struct filter* f, int node_id)
+static inline void filter_add_frame_numa_node(struct filter* f, int node_id)
 {
-	f->filter_numa_nodes = 1;
-	bitvector_set_bit(&f->numa_nodes, node_id);
+	f->filter_frame_numa_nodes = 1;
+	bitvector_set_bit(&f->frame_numa_nodes, node_id);
 }
 
-static inline void filter_clear_numa_nodes(struct filter* f)
+static inline void filter_clear_frame_numa_nodes(struct filter* f)
 {
-	f->filter_numa_nodes = 0;
-	bitvector_clear(&f->numa_nodes);
+	f->filter_frame_numa_nodes = 0;
+	bitvector_clear(&f->frame_numa_nodes);
 }
 
-static inline int filter_has_numa_node(struct filter* f, int node_id)
+static inline int filter_has_frame_numa_node(struct filter* f, int node_id)
 {
-	return !f->filter_numa_nodes || bitvector_test_bit(&f->numa_nodes, node_id);
+	return !f->filter_frame_numa_nodes || bitvector_test_bit(&f->frame_numa_nodes, node_id);
 }
 
-static inline void filter_set_numa_node_filtering(struct filter* f, int b)
+static inline void filter_set_frame_numa_node_filtering(struct filter* f, int b)
 {
-	f->filter_numa_nodes = b;
+	f->filter_frame_numa_nodes = b;
+}
+
+static inline void filter_add_comm_numa_node(struct filter* f, int node_id)
+{
+	f->filter_comm_numa_nodes = 1;
+	bitvector_set_bit(&f->comm_numa_nodes, node_id);
+}
+
+static inline void filter_clear_comm_numa_nodes(struct filter* f)
+{
+	f->filter_comm_numa_nodes = 0;
+	bitvector_clear(&f->comm_numa_nodes);
+}
+
+static inline int filter_has_comm_numa_node(struct filter* f, int node_id)
+{
+	return !f->filter_comm_numa_nodes || bitvector_test_bit(&f->comm_numa_nodes, node_id);
+}
+
+static inline void filter_set_comm_numa_node_filtering(struct filter* f, int b)
+{
+	f->filter_comm_numa_nodes = b;
 }
 
 void filter_sort_tasks(struct filter* f);
@@ -228,6 +257,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	int dst_idx;
 
 	if(!filter_has_comm_size(f, ce->size))
+		return 0;
+
+	if(!filter_has_comm_numa_node(f, ce->what->numa_node))
 		return 0;
 
 	/* Active task *and* frame included in filter? */
@@ -281,7 +313,8 @@ static inline void filter_destroy(struct filter* f)
 	free(f->tasks);
 	free(f->frames);
 	bitvector_destroy(&f->counters);
-	bitvector_destroy(&f->numa_nodes);
+	bitvector_destroy(&f->frame_numa_nodes);
+	bitvector_destroy(&f->comm_numa_nodes);
 }
 
 static inline void filter_set_task_length_filtering(struct filter* f, int b)

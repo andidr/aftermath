@@ -742,6 +742,10 @@ G_MODULE_EXPORT void comm_filter_update(void)
 	}
 
 	filter_set_comm_size_filtering(&g_filter, use_comm_size_filter);
+
+	filter_clear_comm_numa_nodes(&g_filter);
+	numa_node_list_build_comm_filter(GTK_TREE_VIEW(g_comm_numa_node_treeview), &g_filter);
+
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 }
 
@@ -765,14 +769,24 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
 
-G_MODULE_EXPORT void numa_node_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void frame_numa_node_check_all_button_clicked(GtkMenuItem *item, gpointer data)
 {
-	numa_node_list_check_all(GTK_TREE_VIEW(g_numa_node_treeview));
+	numa_node_list_check_all(GTK_TREE_VIEW(g_frame_numa_node_treeview));
 }
 
-G_MODULE_EXPORT void numa_node_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void frame_numa_node_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
 {
-	numa_node_list_uncheck_all(GTK_TREE_VIEW(g_numa_node_treeview));
+	numa_node_list_uncheck_all(GTK_TREE_VIEW(g_frame_numa_node_treeview));
+}
+
+G_MODULE_EXPORT void comm_numa_node_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_check_all(GTK_TREE_VIEW(g_comm_numa_node_treeview));
+}
+
+G_MODULE_EXPORT void comm_numa_node_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_uncheck_all(GTK_TREE_VIEW(g_comm_numa_node_treeview));
 }
 
 G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer data)
@@ -780,8 +794,8 @@ G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer dat
 	filter_clear_frames(&g_filter);
 	frame_list_build_filter(GTK_TREE_VIEW(g_frame_treeview), &g_filter);
 
-	filter_clear_numa_nodes(&g_filter);
-	numa_node_list_build_filter(GTK_TREE_VIEW(g_numa_node_treeview), &g_filter);
+	filter_clear_frame_numa_nodes(&g_filter);
+	numa_node_list_build_frame_filter(GTK_TREE_VIEW(g_frame_numa_node_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();

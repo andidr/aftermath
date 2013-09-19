@@ -31,7 +31,7 @@ extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_task_treeview;
 extern GtkWidget* g_frame_treeview;
-extern GtkWidget* g_numa_node_treeview;
+extern GtkWidget* g_frame_numa_node_treeview;
 extern GtkWidget* g_counter_treeview;
 extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;
@@ -90,6 +90,7 @@ extern GtkWidget* g_task_length_max_entry;
 extern GtkWidget* g_use_comm_size_check;
 extern GtkWidget* g_comm_size_min_entry;
 extern GtkWidget* g_comm_size_max_entry;
+extern GtkWidget* g_comm_numa_node_treeview;
 
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;

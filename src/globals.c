@@ -24,7 +24,7 @@ GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
 GtkWidget* g_task_treeview;
 GtkWidget* g_frame_treeview;
-GtkWidget* g_numa_node_treeview;
+GtkWidget* g_frame_numa_node_treeview;
 GtkWidget* g_counter_treeview;
 GtkWidget* g_code_view;
 GtkWidget* g_main_notebook;
@@ -81,6 +81,7 @@ GtkWidget* g_task_length_max_entry;
 GtkWidget* g_use_comm_size_check;
 GtkWidget* g_comm_size_min_entry;
 GtkWidget* g_comm_size_max_entry;
+GtkWidget* g_comm_numa_node_treeview;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
