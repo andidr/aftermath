@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 #include "settings.h"
 #include "multi_event_set.h"
+#include "derived_counters.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -52,6 +53,7 @@ struct derived_counter_options {
 	unsigned int numa_node;
 	char* name;
 	enum worker_state state;
+	enum access_type contention_type;
 };
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);

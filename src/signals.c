@@ -185,7 +185,7 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 				err = derive_aggregate_counter(&g_mes, &cd, opt.name, opt.counter_idx, opt.num_samples, opt.cpu);
 				break;
 			case DERIVED_COUNTER_NUMA_CONTENTION:
-				err = derive_numa_contention_counter(&g_mes, &cd, opt.name, opt.numa_node, opt.num_samples, opt.cpu);
+				err = derive_numa_contention_counter(&g_mes, &cd, opt.name, opt.numa_node, opt.contention_type, opt.num_samples, opt.cpu);
 				break;
 		}
 

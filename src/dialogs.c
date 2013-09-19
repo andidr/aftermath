@@ -75,6 +75,9 @@ struct derived_counter_dialog_context {
 	GtkWidget* combo_numa_node;
 	GtkWidget* scale_samples;
 	GtkWidget* entry_name;
+	GtkWidget* radio_reads_only;
+	GtkWidget* radio_writes_only;
+	GtkWidget* radio_reads_and_writes;
 	GtkWidget* label_type;
 	GtkWidget* label_cpu;
 	GtkWidget* label_counter;
@@ -82,6 +85,9 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_samples;
 	GtkWidget* label_name;
 	GtkWidget* label_numa_node;
+	GtkWidget* label_reads_only;
+	GtkWidget* label_writes_only;
+	GtkWidget* label_reads_and_writes;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -117,6 +123,12 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->combo_numa_node, ctx->label_numa_node,
 		ctx->scale_samples, ctx->label_samples,
 		ctx->entry_name, ctx->label_name,
+		ctx->label_reads_only,
+		ctx->label_writes_only,
+		ctx->label_reads_and_writes,
+		ctx->radio_reads_only,
+		ctx->radio_writes_only,
+		ctx->radio_reads_and_writes,
 		NULL };
 
 	for(int i = 0; visible_widgets[curr_type][i]; i++)
@@ -149,6 +161,9 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_numa_node);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scale_samples);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, entry_name);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_reads_only);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_writes_only);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_reads_and_writes);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_type);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_cpu);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_counter);
@@ -156,6 +171,9 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_samples);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_name);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_numa_node);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_reads_only);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_writes_only);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_reads_and_writes);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -222,6 +240,13 @@ retry:
 			show_error_message("Please specify a name for the counter.");
 			goto retry;
 		}
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_reads_only)))
+			opt->contention_type = ACCESS_TYPE_READS_ONLY;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_writes_only)))
+			opt->contention_type = ACCESS_TYPE_WRITES_ONLY;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_reads_and_writes)))
+			opt->contention_type = ACCESS_TYPE_READS_AND_WRITES;
 
 		opt->type = type_idx;
 		opt->cpu = mes->sets[cpu_idx].cpu;

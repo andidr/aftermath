@@ -178,7 +178,7 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 	return 0;
 }
 
-int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, int num_samples, int cpu)
+int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum access_type contention_type, int num_samples, int cpu)
 {
 	struct counter_description* cd;
 	int cpu_idx;
@@ -229,8 +229,13 @@ int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_d
 		{
 			ce = &mes->sets[min_idx].comm_events[curr_idx[min_idx]];
 
-			if(ce->what->numa_node == numa_node)
-				cre.value += ce->size;
+			if(contention_type == ACCESS_TYPE_READS_AND_WRITES ||
+			   (contention_type == ACCESS_TYPE_READS_ONLY && ce->type == COMM_TYPE_DATA_READ) ||
+			   (contention_type == ACCESS_TYPE_WRITES_ONLY && ce->type == COMM_TYPE_DATA_WRITE))
+			{
+				if(ce->what->numa_node == numa_node)
+					cre.value += ce->size;
+			}
 
 			curr_idx[min_idx] = event_set_get_next_comm_event_arr(&mes->sets[min_idx], curr_idx[min_idx], num_comm_types, comm_types);
 
