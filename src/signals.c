@@ -716,7 +716,7 @@ G_MODULE_EXPORT void task_length_entry_activated(GtkEntry *e, gpointer data)
 	task_filter_update();
 }
 
-G_MODULE_EXPORT void comm_filter_button_clicked(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void comm_filter_update(void)
 {
 	int use_comm_size_filter;
 	const char* txt;
@@ -743,6 +743,16 @@ G_MODULE_EXPORT void comm_filter_button_clicked(GtkMenuItem *item, gpointer data
 
 	filter_set_comm_size_filtering(&g_filter, use_comm_size_filter);
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
+}
+
+G_MODULE_EXPORT void comm_size_length_entry_activated(GtkEntry *e, gpointer data)
+{
+	comm_filter_update();
+}
+
+G_MODULE_EXPORT void comm_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	comm_filter_update();
 }
 
 G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer data)
