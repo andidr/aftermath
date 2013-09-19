@@ -88,6 +88,16 @@ static inline struct task* task_tree_add(struct task_tree* tt, uint64_t addr)
 	return key;
 }
 
+static inline struct task* task_tree_find_or_add(struct task_tree* tt, uint64_t addr)
+{
+	struct task* ret = task_tree_find(tt, addr);
+
+	if(!ret)
+		return task_tree_add(tt, addr);
+
+	return ret;
+}
+
 void task_tree_walk(const void* p, const VISIT which, const int depth);
 int task_tree_to_array(struct task_tree* tt, struct task** arr);
 

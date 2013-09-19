@@ -137,11 +137,11 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
 					return 1;
 
-			if(!last_task || (last_task->addr != dsk_eh.active_task && !(last_task = task_tree_find(tt, dsk_eh.active_task))))
-				last_task = task_tree_add(tt, dsk_eh.active_task);
+			if(!last_task || last_task->addr != dsk_eh.active_task)
+				last_task = task_tree_find_or_add(tt, dsk_eh.active_task);
 
-			if(!last_frame || (last_frame->addr != dsk_eh.active_frame && !(last_frame = frame_tree_find(ft, dsk_eh.active_frame))))
-				last_frame = frame_tree_add(ft, dsk_eh.active_frame);
+			if(!last_frame || last_frame->addr != dsk_eh.active_frame)
+				last_frame = frame_tree_find_or_add(ft, dsk_eh.active_frame);
 
 			if(dsk_eh.type == EVENT_TYPE_STATE) {
 				memcpy(&dsk_se, &dsk_eh, sizeof(dsk_eh));
@@ -172,8 +172,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				ce.type = dsk_ce.type;
 				ce.prod_ts = dsk_ce.prod_ts;
 
-				if(!last_what || (last_what->addr != dsk_ce.what && !(last_what = frame_tree_find(ft, dsk_ce.what))))
-					last_what = frame_tree_add(ft, dsk_ce.what);
+				if(!last_what || last_what->addr != dsk_ce.what)
+					last_what = frame_tree_find_or_add(ft, dsk_ce.what);
 
 				ce.what = last_what;
 
@@ -226,8 +226,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_fi, sizeof(dsk_fi), trace_frame_info_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
-				if(!last_frame || (last_frame->addr != dsk_fi.addr && !(last_frame = frame_tree_find(ft, dsk_fi.addr))))
-					last_frame = frame_tree_add(ft, dsk_fi.addr);
+				if(!last_frame || last_frame->addr != dsk_fi.addr)
+					last_frame = frame_tree_find_or_add(ft, dsk_fi.addr);
 
 				last_frame->numa_node = dsk_fi.numa_node;
 				last_frame->size = dsk_fi.size;

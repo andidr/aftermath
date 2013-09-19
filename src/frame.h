@@ -90,6 +90,16 @@ static inline struct frame* frame_tree_add(struct frame_tree* ft, uint64_t addr)
 	return key;
 }
 
+static inline struct frame* frame_tree_find_or_add(struct frame_tree* ft, uint64_t addr)
+{
+	struct frame* ret = frame_tree_find(ft, addr);
+
+	if(!ret)
+		return frame_tree_add(ft, addr);
+
+	return ret;
+}
+
 void frame_tree_walk(const void* p, const VISIT which, const int depth);
 int frame_tree_to_array(struct frame_tree* ft, struct frame** arr);
 
