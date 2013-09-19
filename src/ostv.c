@@ -26,10 +26,8 @@
 #include "glade_extras.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
-#include "paraver.h"
 #include "globals.h"
 #include "signals.h"
-#include "detect.h"
 #include "dialogs.h"
 #include "task_list.h"
 #include "frame_list.h"
@@ -42,7 +40,6 @@
 
 struct load_thread_data {
 	char* tracefile;
-	enum trace_format format;
 	off_t bytes_read;
 	off_t trace_size;
 	int error;
@@ -54,16 +51,9 @@ void* load_thread(void* pdata)
 {
 	struct load_thread_data* data = pdata;
 
-	if(data->format == TRACE_FORMAT_OSTV) {
-		if(read_trace_sample_file(&g_mes, data->tracefile, &data->bytes_read) != 0) {
-			data->error = 1;
-			return NULL;
-		}
-	} else if(data->format == TRACE_FORMAT_PARAVER) {
-		if(read_paraver_samples(&g_mes, data->tracefile, &data->bytes_read) != 0) {
-			data->error = 1;
-			return NULL;
-		}
+	if(read_trace_sample_file(&g_mes, data->tracefile, &data->bytes_read) != 0) {
+		data->error = 1;
+		return NULL;
 	}
 
 	return NULL;
@@ -120,7 +110,6 @@ int main(int argc, char** argv)
 	GladeXML *xml;
 	char* tracefile = NULL;
 	char* executable = NULL;
-	enum trace_format format;
 	char buffer[30];
 	char title[PATH_MAX+10];
 
@@ -142,16 +131,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if(detect_trace_format(tracefile, &format)) {
-		show_error_message("Could not open file %s", tracefile);
-		return 1;
-	}
-
-	if(format == TRACE_FORMAT_UNKNOWN) {
-		show_error_message("Cannot detect trace format of file %s", tracefile);
-		return 1;
-	}
-
 	off_t trace_size = file_size(tracefile);
 
 	if(trace_size == -1) {
@@ -168,7 +147,6 @@ int main(int argc, char** argv)
 
 	struct load_thread_data load_thread_data = {
 		.tracefile = tracefile,
-		.format = format,
 		.bytes_read = 0,
 		.error = 0,
 		.trace_size = trace_size,

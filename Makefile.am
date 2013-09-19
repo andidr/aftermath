@@ -19,8 +19,6 @@ ostv_SOURCES = src/ostv.c \
 		src/events.c \
 		src/filter.h \
 		src/filter.c \
-		src/paraver.h \
-		src/paraver.c \
 		src/signals.h \
 		src/signals.c \
 		src/globals.h \
@@ -31,8 +29,6 @@ ostv_SOURCES = src/ostv.c \
 		src/dialogs.c \
 		src/trace_file.h \
 		src/trace_file.c \
-		src/detect.h \
-		src/detect.c \
 		src/debug.h \
 		src/debug.c \
 		src/settings.h \
