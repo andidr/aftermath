@@ -80,7 +80,6 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 	uint64_t curr_length;
 	int hist_bin;
 	int first_texec_idx;
-	struct frame fkey;
 
 	for(int histogram = 0; histogram < 2; histogram++) {
 		for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -90,9 +89,7 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 			struct single_event* se = &mes->sets[cpu_idx].single_events[start_idx];
 
 			while(se && se->next_texec_end && se->next_texec_end->time <= end) {
-				fkey.addr = se->what;
-
-				if(!filter_has_frame(f, &fkey))
+				if(!filter_has_frame(f, se->active_frame))
 					goto next;
 
 				curr_length = se->next_texec_end->time - se->time;
