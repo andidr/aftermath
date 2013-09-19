@@ -177,3 +177,80 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 
 	return 0;
 }
+
+int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, int num_samples, int cpu)
+{
+	struct counter_description* cd;
+	int cpu_idx;
+	struct event_set* cpu_es;
+	uint64_t id;
+	int curr_idx[mes->num_sets];
+	uint64_t curr_time[mes->num_sets];
+
+	struct comm_event* ce;
+	int min_idx;
+	uint64_t min_time = multi_event_set_first_event_start(mes);
+	uint64_t max_time = multi_event_set_last_event_end(mes);
+	uint64_t interval_length = (max_time - min_time) / (uint64_t)num_samples;
+	uint64_t interval_start;
+	uint64_t interval_end;
+	struct counter_event cre;
+	enum comm_event_type comm_types[] = { COMM_TYPE_DATA_WRITE, COMM_TYPE_DATA_READ };
+	int num_comm_types = 2;
+
+	cpu_idx = multi_event_set_find_cpu_idx(mes, cpu);
+	cpu_es = &mes->sets[cpu_idx];
+
+	id = multi_event_set_get_free_counter_id(mes);
+
+	if(!(cd = multi_event_set_counter_description_alloc_ptr(mes, id, strlen(counter_name))))
+		return 1;
+
+	cd->counter_id = id;
+	strcpy(cd->name, counter_name);
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		if(mes->sets[i].num_comm_events > 0)
+			curr_idx[i] = event_set_get_next_comm_event_arr(&mes->sets[i], -1, num_comm_types, comm_types);
+		else
+			curr_idx[i] = -1;
+
+		curr_time[i] = (curr_idx[i] != -1) ? mes->sets[i].comm_events[curr_idx[i]].time : 0;
+	}
+
+	cre.value = 0;
+
+	for(int sample = 0; sample < num_samples; sample++) {
+		interval_start = min_time + (uint64_t)sample * interval_length;
+		interval_end = interval_start + interval_length;
+
+		while((min_idx = get_min_index(mes, curr_idx, curr_time)) != -1 &&
+			curr_time[min_idx] < interval_end)
+		{
+			ce = &mes->sets[min_idx].comm_events[curr_idx[min_idx]];
+
+			if(ce->what->numa_node == numa_node)
+				cre.value += ce->size;
+
+			curr_idx[min_idx] = event_set_get_next_comm_event_arr(&mes->sets[min_idx], curr_idx[min_idx], num_comm_types, comm_types);
+
+			if(curr_idx[min_idx] != -1)
+				curr_time[min_idx] = mes->sets[min_idx].comm_events[curr_idx[min_idx]].time;
+		}
+
+		cre.time = interval_start + interval_length / 2;
+		cre.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
+		cre.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
+		cre.counter_id = id;
+		cre.counter_index = cd->index;
+
+		if(event_set_add_counter_event(cpu_es, &cre) != 0)
+			return 1;
+
+		multi_event_set_check_update_counter_bounds(mes, &cre);
+	}
+
+	*cd_out = cd;
+
+	return 0;
+}

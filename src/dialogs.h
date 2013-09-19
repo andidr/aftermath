@@ -40,7 +40,8 @@ int show_color_dialog(GdkColor* color);
 
 enum derived_counter_type {
 	DERIVED_COUNTER_PARALLELISM = 0,
-	DERIVED_COUNTER_AGGREGATE
+	DERIVED_COUNTER_AGGREGATE,
+	DERIVED_COUNTER_NUMA_CONTENTION
 };
 
 struct derived_counter_options {
@@ -48,6 +49,7 @@ struct derived_counter_options {
 	unsigned int cpu;
 	unsigned int counter_idx;
 	unsigned int num_samples;
+	unsigned int numa_node;
 	char* name;
 	enum worker_state state;
 };

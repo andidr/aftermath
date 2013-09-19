@@ -43,6 +43,8 @@ struct multi_event_set {
 	struct counter_description* counters;
 	int num_counters;
 	int num_counters_free;
+
+	int max_numa_node_id;
 };
 
 static inline struct single_event* multi_event_set_find_first_tcreate(struct multi_event_set* mes, int* cpu, uint64_t frame_addr)

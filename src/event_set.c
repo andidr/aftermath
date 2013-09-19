@@ -140,6 +140,35 @@ int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum work
 	return -1;
 }
 
+int event_set_get_next_comm_event(struct event_set* es, int curr_idx, enum comm_event_type type)
+{
+	int idx = curr_idx+1;
+
+	while(idx < es->num_comm_events) {
+		if(es->comm_events[idx].type == type)
+			return idx;
+
+		idx++;
+	}
+
+	return -1;
+}
+
+int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int num_types, enum comm_event_type* types)
+{
+	int idx = curr_idx+1;
+
+	while(idx < es->num_comm_events) {
+		for(int i = 0; i < num_types; i++)
+			if(es->comm_events[idx].type == types[i])
+				return idx;
+
+		idx++;
+	}
+
+	return -1;
+}
+
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
 {
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);

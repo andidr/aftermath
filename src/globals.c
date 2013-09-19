@@ -92,7 +92,8 @@ struct multi_event_set g_mes = { .sets = NULL,
 				 .frames = NULL,
 				 .counters = NULL,
 				 .num_counters = 0,
-				 .num_counters_free = 0};
+				 .num_counters_free = 0,
+				 .max_numa_node_id = 0};
 
 struct filter g_filter;
 struct settings g_settings;

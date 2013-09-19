@@ -231,6 +231,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				last_frame->numa_node = dsk_fi.numa_node;
 				last_frame->size = dsk_fi.size;
+
+				if(mes->max_numa_node_id < dsk_fi.numa_node)
+					mes->max_numa_node_id = dsk_fi.numa_node;
 			}
 		}
 	}

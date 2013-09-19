@@ -72,6 +72,7 @@ struct derived_counter_dialog_context {
 	GtkWidget* combo_cpu;
 	GtkWidget* combo_counter;
 	GtkWidget* combo_state;
+	GtkWidget* combo_numa_node;
 	GtkWidget* scale_samples;
 	GtkWidget* entry_name;
 	GtkWidget* label_type;
@@ -80,6 +81,7 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_state;
 	GtkWidget* label_samples;
 	GtkWidget* label_name;
+	GtkWidget* label_numa_node;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -91,7 +93,7 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 	gtk_widget_hide_all(ctx->table_properties);
 	gtk_widget_show(ctx->table_properties);
 
-	GtkWidget** visible_widgets[2];
+	GtkWidget** visible_widgets[3];
 
 	visible_widgets[0] = (GtkWidget*[]){
 		ctx->combo_type, ctx->label_type,
@@ -109,6 +111,14 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->entry_name, ctx->label_name,
 		NULL };
 
+	visible_widgets[2] = (GtkWidget*[]){
+		ctx->combo_type, ctx->label_type,
+		ctx->combo_cpu, ctx->label_cpu,
+		ctx->combo_numa_node, ctx->label_numa_node,
+		ctx->scale_samples, ctx->label_samples,
+		ctx->entry_name, ctx->label_name,
+		NULL };
+
 	for(int i = 0; visible_widgets[curr_type][i]; i++)
 		gtk_widget_show_all(visible_widgets[curr_type][i]);
 
@@ -122,6 +132,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int type_idx;
 	int cpu_idx;
 	int ctr_idx;
+	int numa_node_idx;
+	int numa_node;
 	int ret = 0;
 	const char* name;
 	enum worker_state state;
@@ -134,6 +146,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_cpu);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_counter);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_state);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_numa_node);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scale_samples);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, entry_name);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_type);
@@ -142,6 +155,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_state);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_samples);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_name);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_numa_node);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -155,12 +169,18 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_counter), buffer);
 	}
 
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
+	for(numa_node = 0; numa_node <= mes->max_numa_node_id; numa_node++) {
+		snprintf(buffer, sizeof(buffer), "Node %d", numa_node);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_numa_node), buffer);
+	}
 
 	g_object_set_data(G_OBJECT(ctx.combo_type), "context", &ctx);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_type), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_counter), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), WORKER_STATE_TASKEXEC);
 
 retry:
@@ -189,6 +209,13 @@ retry:
 			goto retry;
 		}
 
+		if(type_idx == DERIVED_COUNTER_NUMA_CONTENTION &&
+		   (numa_node_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_numa_node))) == -1)
+		{
+			show_error_message("Please select a NUMA node.");
+			goto retry;
+		}
+
 		name = gtk_entry_get_text(GTK_ENTRY(ctx.entry_name));
 
 		if(strlen(name) == 0) {
@@ -202,6 +229,7 @@ retry:
 		opt->name = malloc(strlen(name)+1);
 		opt->state = state;
 		opt->counter_idx = ctr_idx;
+		opt->numa_node = numa_node_idx;
 
 		if(!opt->name) {
 			show_error_message("Could not allocate space for counter name.");
