@@ -34,8 +34,7 @@ struct single_event {
 	struct task* active_task;
 	struct frame* active_frame;
 
-	uint32_t size;
-	uint64_t what;
+	struct frame* what;
 
 	struct single_event* next_texec_start;
 	struct single_event* prev_texec_start;

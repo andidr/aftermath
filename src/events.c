@@ -188,11 +188,14 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_sge, sizeof(dsk_sge), trace_single_event_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
+				if(!last_what || last_what->addr != dsk_sge.what)
+					last_what = frame_tree_find_or_add(ft, dsk_sge.what);
+
 				es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu);
 				sge.active_task = task_tree_find(tt, dsk_sge.header.active_task);
 				sge.active_frame = frame_tree_find(ft, dsk_sge.header.active_frame);
 				sge.time = dsk_sge.header.time;
-				sge.what = dsk_sge.what;
+				sge.what = last_what;
 				sge.type = dsk_sge.type;
 				sge.next_texec_end = NULL;
 				sge.prev_texec_end = NULL;
@@ -303,6 +306,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		{
 			se->active_task = multi_event_set_find_task_by_addr(mes, se->active_task->addr);
 			se->active_frame = multi_event_set_find_frame_by_addr(mes, se->active_frame->addr);
+			se->what = multi_event_set_find_frame_by_addr(mes, se->what->addr);
 			se->event_set = es;
 
 			/* Update frame's references to first texec start if necessary */
@@ -311,6 +315,15 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 				   se->active_frame->first_texec_start->time > se->time)
 				{
 					se->active_frame->first_texec_start = se;
+				}
+			}
+
+			/* Update frame's references to first tcreate if necessary */
+			if(se->type == SINGLE_TYPE_TCREATE) {
+				if(!se->what->first_tcreate ||
+				   se->what->first_tcreate->time > se->time)
+				{
+					se->what->first_tcreate = se;
 				}
 			}
 		}

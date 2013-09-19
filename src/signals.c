@@ -510,9 +510,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char consumer_info[1024];
 
 	uint64_t task_length;
-	struct single_event* tcreate = NULL;
 	struct comm_event* first_reader = NULL;
-	int tcreate_cpu;
 	int first_reader_cpu;
 	int valid;
 	int num_markers = 0;
@@ -537,14 +535,16 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		task_length = task_length_of_active_frame(se, &valid);
 		if(valid) {
 			pretty_print_cycles(buf_duration, sizeof(buf_duration), task_length);
-			tcreate = multi_event_set_find_first_tcreate(&g_mes, &tcreate_cpu, se->active_frame->addr);
 
 			snprintf(buf_tcreate, sizeof(buf_tcreate),
 				 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>, %"PRId32" bytes",
-				 tcreate_cpu, tcreate->time, tcreate->time, tcreate->size);
+				 se->active_frame->first_tcreate->event_set->cpu,
+				 se->active_frame->first_tcreate->time,
+				 se->active_frame->first_tcreate->time,
+				 se->active_frame->size);
 
-			g_trace_markers[num_markers].time = tcreate->time;
-			g_trace_markers[num_markers].cpu = tcreate_cpu;
+			g_trace_markers[num_markers].time = se->active_frame->first_tcreate->time;
+			g_trace_markers[num_markers].cpu = se->active_frame->first_tcreate->event_set->cpu;
 			g_trace_markers[num_markers].color_r = TCREATE_TRACE_MARKER_COLOR_R;
 			g_trace_markers[num_markers].color_g = TCREATE_TRACE_MARKER_COLOR_G;
 			g_trace_markers[num_markers].color_b = TCREATE_TRACE_MARKER_COLOR_B;
