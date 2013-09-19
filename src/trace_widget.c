@@ -773,6 +773,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					int comm_type = g->event_sets->sets[cpu_idx].comm_events[comm_event].type;
 					uint64_t comm_size = g->event_sets->sets[cpu_idx].comm_events[comm_event].size;
 					uint64_t prod_ts = g->event_sets->sets[cpu_idx].comm_events[comm_event].prod_ts;
+					uint32_t dst_node = g->event_sets->sets[cpu_idx].comm_events[comm_event].what->numa_node;
 
 					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
 						continue;
@@ -798,8 +799,10 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 					if(cpu_idx != dst_cpu_idx) {
 						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
 							if(g->draw_comm_size) {
-								if(comm_type == COMM_TYPE_DATA_READ || comm_type == COMM_TYPE_DATA_WRITE)
+								if(comm_type == COMM_TYPE_DATA_READ)
 									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
+								else if(comm_type == COMM_TYPE_DATA_WRITE)
+									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes to N%"PRIu32, comm_size, dst_node);
 								else
 									snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
 
@@ -839,8 +842,10 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 						cairo_fill(cr);
 
 						if(g->draw_comm_size) {
-							if(comm_type == COMM_TYPE_DATA_READ || comm_type == COMM_TYPE_DATA_WRITE)
+							if(comm_type == COMM_TYPE_DATA_READ)
 								snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
+							else if(comm_type == COMM_TYPE_DATA_WRITE)
+									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes to N%"PRIu32, comm_size, dst_node);
 							else
 								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
 
