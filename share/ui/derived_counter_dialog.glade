@@ -86,7 +86,7 @@ NUMA node contention</property>
               <widget class="GtkHScale" id="scale_samples">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">1000 10 10000 1 10 10</property>
+                <property name="adjustment">1000 10 1000000 1 10 10</property>
                 <property name="value_pos">right</property>
               </widget>
               <packing>
