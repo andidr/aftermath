@@ -101,7 +101,8 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 
 	GtkWidget** visible_widgets[3];
 
-	visible_widgets[0] = (GtkWidget*[]){
+	visible_widgets[DERIVED_COUNTER_PARALLELISM] =
+		(GtkWidget*[]) {
 		ctx->combo_type, ctx->label_type,
 		ctx->combo_cpu, ctx->label_cpu,
 		ctx->combo_state, ctx->label_state,
@@ -109,7 +110,8 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->entry_name, ctx->label_name,
 		NULL };
 
-	visible_widgets[1] = (GtkWidget*[]){
+	visible_widgets[DERIVED_COUNTER_AGGREGATE] =
+		(GtkWidget*[]){
 		ctx->combo_type, ctx->label_type,
 		ctx->combo_cpu, ctx->label_cpu,
 		ctx->combo_counter, ctx->label_counter,
@@ -117,7 +119,8 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->entry_name, ctx->label_name,
 		NULL };
 
-	visible_widgets[2] = (GtkWidget*[]){
+	visible_widgets[DERIVED_COUNTER_NUMA_CONTENTION] =
+		(GtkWidget*[]){
 		ctx->combo_type, ctx->label_type,
 		ctx->combo_cpu, ctx->label_cpu,
 		ctx->combo_numa_node, ctx->label_numa_node,
