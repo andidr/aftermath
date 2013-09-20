@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 11
+#define TRACE_VERSION 12
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -165,11 +165,12 @@ struct trace_comm_event {
 	/* Communication type, e.g. steal or push */
 	uint32_t type;
 
-	/* Destination CPU */
-	uint32_t dst_cpu;
-
-	/* Destination worker */
-	uint32_t dst_worker;
+	/* Source or destination CPU depending on the communication
+	 * type. For data reads and steals this is the source CPU,
+	 * for pushes this is the destination CPU. For data writes
+	 * the value is ignored.
+	 */
+	uint32_t src_or_dst_cpu;
 
 	/* Indicates how much data in bytes was transferred */
 	uint64_t size;

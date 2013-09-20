@@ -166,8 +166,21 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				ce.time = dsk_ce.header.time;
 				ce.active_task = task_tree_find(tt, dsk_ce.header.active_task);
 				ce.active_frame = frame_tree_find(ft, dsk_ce.header.active_frame);
-				ce.dst_cpu = dsk_ce.dst_cpu;
-				ce.dst_worker = dsk_ce.dst_worker;
+
+				switch(dsk_ce.type) {
+					case COMM_TYPE_DATA_WRITE:
+					case COMM_TYPE_PUSH:
+						ce.dst_cpu = dsk_ce.src_or_dst_cpu;
+						ce.src_cpu = dsk_ce.header.cpu;
+						break;
+
+					case COMM_TYPE_DATA_READ:
+					case COMM_TYPE_STEAL:
+						ce.dst_cpu = dsk_ce.header.cpu;
+						ce.src_cpu = dsk_ce.src_or_dst_cpu;
+						break;
+				}
+
 				ce.size = dsk_ce.size;
 				ce.type = dsk_ce.type;
 				ce.prod_ts = dsk_ce.prod_ts;

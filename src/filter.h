@@ -254,7 +254,9 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
 {
 	struct event_set* dst_es;
+	struct event_set* src_es;
 	int dst_idx;
+	int src_idx;
 
 	if(!filter_has_comm_size(f, ce->size))
 		return 0;
@@ -283,8 +285,11 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
 	dst_idx = event_set_get_enclosing_state(dst_es, ce->time);
 
-	if(dst_idx != -1 &&
-	   filter_has_state_event(f, &dst_es->state_events[dst_idx]))
+	src_es = multi_event_set_find_cpu(mes, ce->src_cpu);
+	src_idx = event_set_get_enclosing_state(src_es, ce->time);
+
+	if((dst_idx != -1 && filter_has_state_event(f, &dst_es->state_events[dst_idx])) ||
+	   (src_idx != -1 && filter_has_state_event(f, &src_es->state_events[src_idx])))
 	{
 		return 1;
 	}

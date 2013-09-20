@@ -59,8 +59,10 @@ struct state_event {
 struct comm_event {
 	struct event_set* event_set;
 	uint64_t time;
+
 	int dst_cpu;
-	int dst_worker;
+	int src_cpu;
+
 	int size;
 	enum comm_event_type type;
 

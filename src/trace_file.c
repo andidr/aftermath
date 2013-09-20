@@ -68,8 +68,7 @@ int trace_state_event_conversion_table[] = {
 int trace_comm_event_conversion_table[] = {
 	EVENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct trace_comm_event, type),
-	FIELD_SIZE(struct trace_comm_event, dst_cpu),
-	FIELD_SIZE(struct trace_comm_event, dst_worker),
+	FIELD_SIZE(struct trace_comm_event, src_or_dst_cpu),
 	FIELD_SIZE(struct trace_comm_event, size),
 	FIELD_SIZE(struct trace_comm_event, prod_ts),
 	FIELD_SIZE(struct trace_comm_event, what),
