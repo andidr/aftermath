@@ -519,12 +519,14 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		snprintf(buffer, sizeof(buffer),
 			 "CPU:\t\t%d\n"
 			 "State\t\t%d (%s)\n"
-			 "From\t\t%"PRIu64" to %"PRIu64"\n"
+			 "From\t\t<a href=\"time://%"PRIu64"\">%"PRIu64"</a> to <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
 			 "Duration:\t%scycles\n",
 			 cpu,
 			 se->state,
 			 worker_state_names[se->state],
 			 se->start,
+			 se->start,
+			 se->end,
 			 se->end,
 			 buf_duration);
 
