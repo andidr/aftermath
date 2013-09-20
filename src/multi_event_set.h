@@ -284,4 +284,17 @@ static inline void multi_event_set_check_update_counter_bounds(struct multi_even
 /* Read all trace samples from a file and store the result in mes */
 int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t* bytes_read);
 
+static inline struct single_event* multi_event_set_find_next_texec_start_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
+{
+	struct single_event* ret = NULL;
+	struct single_event* curr = NULL;
+
+	for(int i = 0; i < mes->num_sets; i++)
+		if((curr = event_set_find_next_texec_start_for_frame(&mes->sets[i], start, f)))
+			if(!ret || curr->time < ret->time)
+				ret = curr;
+
+	return ret;
+}
+
 #endif

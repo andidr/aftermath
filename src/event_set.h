@@ -63,7 +63,12 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 void event_set_sort_comm(struct event_set* es);
 int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t counter_id, uint64_t start, uint64_t end);
 int event_set_compare_cpus(const void* p1, const void* p2);
-struct comm_event* event_set_find_first_write_producing_in_interval(struct event_set* es, int* consumer_cpu, uint64_t hint_start, uint64_t start, uint64_t end);
+struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f);
+
+#define for_each_comm_event_in_interval(es, start, end, ce) \
+	for(ce = &((es)->comm_events[event_set_get_first_comm_in_interval(es, start, end)]); \
+	    (ce >= &((es)->comm_events[0]) && ce < &((es)->comm_events[(es)->num_comm_events])) && ce->time < end; \
+	    ce++)
 
 static inline int event_set_counter_event_set_index(struct event_set* es, int counter_index)
 {

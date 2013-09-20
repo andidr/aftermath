@@ -510,8 +510,6 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char consumer_info[1024];
 
 	uint64_t task_length;
-	struct comm_event* first_reader = NULL;
-	int first_reader_cpu;
 	int valid;
 	int num_markers = 0;
 
@@ -595,29 +593,37 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				strncpy(buf_first_texec_start, "Task never executed", sizeof(buf_first_texec_start));
 			}
 
-			struct event_set* writer_event_set = multi_event_set_find_cpu(&g_mes, cpu);
-			uint64_t hint_time = se->texec_start->next_texec_end->time;
 			int consumer_info_offs = 0;
 			consumer_info[0] = '\0';
 
-			while((first_reader =
-			       event_set_find_first_write_producing_in_interval(writer_event_set,
-										&first_reader_cpu,
-										hint_time,
-										se->texec_start->time,
-										se->texec_start->next_texec_end->time)))
+			struct comm_event* ce;
+			struct single_event* cons_texec_start;
+			int has_consumers = 0;
+			for_each_comm_event_in_interval(se->event_set,
+							se->texec_start->time,
+							se->texec_start->next_texec_end->time,
+							ce)
 			{
+				if(ce->type == COMM_TYPE_DATA_WRITE) {
+					if((cons_texec_start = multi_event_set_find_next_texec_start_for_frame(&g_mes, ce->time, ce->what))) {
+						snprintf(consumer_info+consumer_info_offs,
+							 sizeof(consumer_info)-consumer_info_offs-1,
+							 "CPU %d, %d bytes, <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>\n",
+							 cons_texec_start->event_set->cpu,
+							 ce->size,
+							 cons_texec_start->time,
+							 cons_texec_start->time);
+
+						consumer_info_offs += strlen(consumer_info+consumer_info_offs);
+						has_consumers = 1;
+					}
+				}
+			}
+
+			if(!has_consumers)
 				snprintf(consumer_info+consumer_info_offs,
 					 sizeof(consumer_info)-consumer_info_offs-1,
-					 "CPU %d, %d bytes, <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>\n",
-					 first_reader_cpu,
-					 first_reader->size,
-					 first_reader->time,
-					 first_reader->time);
-
-				consumer_info_offs += strlen(consumer_info+consumer_info_offs);
-				hint_time = first_reader->time+1;
-			}
+					 "No consumers found");
 		}
 
 		snprintf(buffer, sizeof(buffer),
