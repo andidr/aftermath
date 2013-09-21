@@ -253,10 +253,10 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
 {
-	struct event_set* dst_es;
-	struct event_set* src_es;
-	int dst_idx;
-	int src_idx;
+	struct event_set* dst_cpu_es;
+	struct event_set* src_cpu_es;
+	int dst_cpu_idx;
+	int src_cpu_idx;
 
 	if(!filter_has_comm_size(f, ce->size))
 		return 0;
@@ -282,14 +282,18 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	/* Was the destination worker executing a
 	 * task and frame included in the filter?
 	 */
-	dst_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
-	dst_idx = event_set_get_enclosing_state(dst_es, ce->time);
+	if(ce->type != COMM_TYPE_DATA_WRITE) {
+		dst_cpu_es = multi_event_set_find_cpu(mes, ce->dst_cpu);
+		dst_cpu_idx = event_set_get_enclosing_state(dst_cpu_es, ce->time);
+	} else {
+		dst_cpu_idx = -1;
+	}
 
-	src_es = multi_event_set_find_cpu(mes, ce->src_cpu);
-	src_idx = event_set_get_enclosing_state(src_es, ce->time);
+	src_cpu_es = multi_event_set_find_cpu(mes, ce->src_cpu);
+	src_cpu_idx = event_set_get_enclosing_state(src_cpu_es, ce->time);
 
-	if((dst_idx != -1 && filter_has_state_event(f, &dst_es->state_events[dst_idx])) ||
-	   (src_idx != -1 && filter_has_state_event(f, &src_es->state_events[src_idx])))
+	if((dst_cpu_idx != -1 && filter_has_state_event(f, &dst_cpu_es->state_events[dst_cpu_idx])) ||
+	   (src_cpu_idx != -1 && filter_has_state_event(f, &src_cpu_es->state_events[src_cpu_idx])))
 	{
 		return 1;
 	}
