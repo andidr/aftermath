@@ -508,6 +508,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_first_max_writer[128];
 	char buf_first_texec_start[128];
 	char production_info[1024];
+	char consumption_info[1024];
 	char consumer_info[1024];
 
 	uint64_t task_length;
@@ -602,6 +603,9 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			int production_info_offs = 0;
 			production_info[0] = '\0';
 
+			int consumption_info_offs = 0;
+			consumption_info[0] = '\0';
+
 			struct comm_event* ce;
 			struct single_event* cons_texec_start;
 			int has_consumers = 0;
@@ -632,6 +636,15 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 						consumer_info_offs += strlen(consumer_info+consumer_info_offs);
 						has_consumers = 1;
 					}
+				} else if(ce->type == COMM_TYPE_DATA_READ) {
+					snprintf(consumption_info+consumption_info_offs,
+							 sizeof(consumption_info)-consumption_info_offs-1,
+							 "Node %d, %d bytes, <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>\n",
+							 ce->what->numa_node,
+							 ce->size,
+							 ce->time,
+							 ce->time);
+					consumption_info_offs += strlen(consumption_info+consumption_info_offs);
 				}
 			}
 
@@ -651,6 +664,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "1st allocation: %s\n"
 			 "1st writer:\t %s\n"
 			 "1st max writer: %s\n\n"
+			 "Reads:\n"
+			 "%s\n"
 			 "Writes:\n"
 			 "%s\n"
 			 "Consumer info:\n"
@@ -666,6 +681,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",
 			 (valid) ? buf_first_max_writer : "Invalid active task",
+			 (valid) ? consumption_info : "No consumer information available",
 			 (valid) ? production_info : "No consumer information available",
 			 (valid) ? consumer_info : "No consumer information available");
 
