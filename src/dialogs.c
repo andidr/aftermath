@@ -78,6 +78,8 @@ struct derived_counter_dialog_context {
 	GtkWidget* radio_reads_only;
 	GtkWidget* radio_writes_only;
 	GtkWidget* radio_reads_and_writes;
+	GtkWidget* radio_spikes;
+	GtkWidget* radio_linear;
 	GtkWidget* label_type;
 	GtkWidget* label_cpu;
 	GtkWidget* label_counter;
@@ -88,6 +90,8 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_reads_only;
 	GtkWidget* label_writes_only;
 	GtkWidget* label_reads_and_writes;
+	GtkWidget* label_spikes;
+	GtkWidget* label_linear;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -132,6 +136,10 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->radio_reads_only,
 		ctx->radio_writes_only,
 		ctx->radio_reads_and_writes,
+		ctx->radio_spikes,
+		ctx->radio_linear,
+		ctx->label_spikes,
+		ctx->label_linear,
 		NULL };
 
 	for(int i = 0; visible_widgets[curr_type][i]; i++)
@@ -167,6 +175,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_reads_only);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_writes_only);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_reads_and_writes);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_spikes);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_linear);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_type);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_cpu);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_counter);
@@ -177,6 +187,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_reads_only);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_writes_only);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_reads_and_writes);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_spikes);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_linear);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -250,6 +262,11 @@ retry:
 			opt->contention_type = ACCESS_TYPE_WRITES_ONLY;
 		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_reads_and_writes)))
 			opt->contention_type = ACCESS_TYPE_READS_AND_WRITES;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_spikes)))
+			opt->contention_model = ACCESS_MODEL_SPIKES;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_linear)))
+			opt->contention_model = ACCESS_MODEL_LINEAR;
 
 		opt->type = type_idx;
 		opt->cpu = mes->sets[cpu_idx].cpu;
