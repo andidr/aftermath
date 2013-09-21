@@ -229,7 +229,8 @@ int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_d
 		{
 			ce = &mes->sets[min_idx].comm_events[curr_idx[min_idx]];
 
-			if(contention_type == ACCESS_TYPE_READS_AND_WRITES ||
+			if((contention_type == ACCESS_TYPE_READS_AND_WRITES &&
+			    (ce->type == COMM_TYPE_DATA_READ || ce->type == COMM_TYPE_DATA_WRITE)) ||
 			   (contention_type == ACCESS_TYPE_READS_ONLY && ce->type == COMM_TYPE_DATA_READ) ||
 			   (contention_type == ACCESS_TYPE_WRITES_ONLY && ce->type == COMM_TYPE_DATA_WRITE))
 			{
