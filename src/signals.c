@@ -501,12 +501,13 @@ G_MODULE_EXPORT gint link_activated(GtkLabel *label, gchar *uri, gpointer user_d
 G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
 {
 	struct state_event* se = pstate_event;
-	char buffer[1024];
+	char buffer[4096];
 	char buf_duration[40];
 	char buf_tcreate[128];
 	char buf_first_writer[128];
 	char buf_first_max_writer[128];
 	char buf_first_texec_start[128];
+	char production_info[1024];
 	char consumer_info[1024];
 
 	uint64_t task_length;
@@ -598,6 +599,9 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			int consumer_info_offs = 0;
 			consumer_info[0] = '\0';
 
+			int production_info_offs = 0;
+			production_info[0] = '\0';
+
 			struct comm_event* ce;
 			struct single_event* cons_texec_start;
 			int has_consumers = 0;
@@ -607,6 +611,15 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 							ce)
 			{
 				if(ce->type == COMM_TYPE_DATA_WRITE) {
+					snprintf(production_info+production_info_offs,
+							 sizeof(production_info)-production_info_offs-1,
+							 "Node %d, %d bytes, <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>\n",
+							 ce->what->numa_node,
+							 ce->size,
+							 ce->time,
+							 ce->time);
+					production_info_offs += strlen(production_info+production_info_offs);
+
 					if((cons_texec_start = multi_event_set_find_next_texec_start_for_frame(&g_mes, ce->time, ce->what))) {
 						snprintf(consumer_info+consumer_info_offs,
 							 sizeof(consumer_info)-consumer_info_offs-1,
@@ -638,6 +651,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "1st allocation: %s\n"
 			 "1st writer:\t %s\n"
 			 "1st max writer: %s\n\n"
+			 "Writes:\n"
+			 "%s\n"
 			 "Consumer info:\n"
 			 "%s",
 			 se->active_task->addr,
@@ -651,6 +666,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_tcreate : "Invalid active task",
 			 (valid) ? buf_first_writer : "Invalid active task",
 			 (valid) ? buf_first_max_writer : "Invalid active task",
+			 (valid) ? production_info : "No consumer information available",
 			 (valid) ? consumer_info : "No consumer information available");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
