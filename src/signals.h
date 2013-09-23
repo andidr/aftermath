@@ -32,6 +32,9 @@ void task_link_activated(uint64_t work_fn);
 void time_link_activated(uint64_t time);
 gint link_activated(GtkLabel *label, gchar *uri, gpointer user_data);
 void task_treeview_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+void trace_create_annotation(GtkTrace *item, int cpu, gdouble time);
+void trace_edit_annotation(GtkTrace *item, struct annotation* a);
 void show_task_code(struct task* t);
+gint check_quit(GtkWidget *widget, GdkEvent *event, gpointer data);
 
 #endif

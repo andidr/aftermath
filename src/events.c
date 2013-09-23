@@ -19,6 +19,7 @@
 #include "filter.h"
 #include "task.h"
 #include "multi_event_set.h"
+#include "convert.h"
 #include <stdlib.h>
 #include <unistd.h>
 

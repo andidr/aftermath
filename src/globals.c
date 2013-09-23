@@ -101,3 +101,6 @@ struct filter g_filter;
 struct settings g_settings;
 struct histogram g_task_histogram;
 struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
+
+int g_visuals_modified;
+char* g_visuals_filename;

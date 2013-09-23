@@ -28,6 +28,7 @@
 #include "derived_counters.h"
 #include "statistics.h"
 #include "page.h"
+#include "visuals_file.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -467,6 +468,37 @@ void update_statistics(void)
 G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)
 {
 	update_statistics();
+}
+
+G_MODULE_EXPORT void trace_create_annotation(GtkTrace *item, int cpu, gdouble time)
+{
+	struct annotation a;
+	struct event_set* es = multi_event_set_find_cpu(&g_mes, cpu);
+
+	annotation_init(&a, cpu, time, "");
+
+	if(show_annotation_dialog(&a, 0) == ANNOTATION_DIALOG_RESPONSE_OK) {
+		event_set_add_annotation(es, &a);
+		gtk_widget_queue_draw(g_trace_widget);
+
+		g_visuals_modified = 1;
+	}
+
+	annotation_destroy(&a);
+}
+
+G_MODULE_EXPORT void trace_edit_annotation(GtkTrace *item, struct annotation* a)
+{
+	switch(show_annotation_dialog(a, 1)) {
+		case ANNOTATION_DIALOG_RESPONSE_CANCEL:
+			break;
+		case ANNOTATION_DIALOG_RESPONSE_DELETE:
+			event_set_delete_annotation(a->event_set, a);
+		case ANNOTATION_DIALOG_RESPONSE_OK:
+			gtk_widget_queue_draw(g_trace_widget);
+			g_visuals_modified = 1;
+			break;
+	}
 }
 
 void task_link_activated(uint64_t addr)
@@ -1014,4 +1046,72 @@ G_MODULE_EXPORT void task_treeview_row_activated(GtkTreeView* tree_view, GtkTree
 		return;
 
 	show_task_code(t);
+}
+
+int store_visuals_with_dialog(void)
+{
+	if(!g_visuals_filename) {
+		if(!(g_visuals_filename = load_save_file_dialog("Save visuals",
+						    GTK_FILE_CHOOSER_ACTION_OPEN,
+						    "OpenStream visuals",
+						    "*.osv",
+						      NULL)))
+		{
+			return 1;
+		}
+	}
+
+	if(store_visuals(g_visuals_filename, &g_mes)) {
+		show_error_message("Could not save visuals to \"%s\".", g_visuals_filename);
+		return 1;
+	}
+
+	g_visuals_modified = 0;
+
+	return 0;
+}
+
+gint check_quit(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	if(g_visuals_modified) {
+		switch(show_yes_no_cancel_dialog("There are unsaved annotations.\n"
+						 "Would you like to save them before quitting?"))
+		{
+			case DIALOG_RESPONSE_YES:
+				if(store_visuals_with_dialog())
+					return TRUE;
+				break;
+			case DIALOG_RESPONSE_CANCEL:
+				return TRUE;
+			case DIALOG_RESPONSE_NO:
+				break;
+		}
+	}
+
+	gtk_main_quit();
+	return FALSE;
+}
+
+G_MODULE_EXPORT void menubar_save_visuals(GtkMenuItem *item, gpointer data)
+{
+	store_visuals_with_dialog();
+}
+
+G_MODULE_EXPORT void menubar_save_visuals_as(GtkMenuItem *item, gpointer data)
+{
+	char* filename;
+
+	if(!(filename = load_save_file_dialog("Save visuals",
+						    GTK_FILE_CHOOSER_ACTION_OPEN,
+						    "OpenStream visuals",
+						    "*.osv",
+						      NULL)))
+	{
+		return;
+	}
+
+	free(g_visuals_filename);
+	g_visuals_filename = filename;
+
+	store_visuals_with_dialog();
 }

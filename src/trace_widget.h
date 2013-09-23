@@ -45,6 +45,8 @@ enum gtk_trace_signals {
 	GTK_TRACE_STATE_EVENT_SELECTION_CHANGED,
 	GTK_TRACE_YBOUNDS_CHANGED,
 	GTK_TRACE_RANGE_SELECTION_CHANGED,
+	GTK_TRACE_CREATE_ANNOTATION,
+	GTK_TRACE_EDIT_ANNOTATION,
 	GTK_TRACE_MAX_SIGNALS
 };
 
@@ -78,6 +80,7 @@ struct _GtkTrace {
 	int draw_data_writes;
 	int draw_single_events;
 	int draw_counters;
+	int draw_annotations;
 	int moved_during_navigation;
 
 	int64_t range_selection_start;
@@ -94,6 +97,7 @@ struct _GtkTrace {
 
 	struct filter* filter;
 	struct state_event* highlight_state_event;
+	struct annotation* highlight_annotation;
 	struct trace_marker* markers;
 	int num_markers;
 };
@@ -132,6 +136,7 @@ void gtk_trace_set_draw_data_reads(GtkWidget *widget, int val);
 void gtk_trace_set_draw_data_writes(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
+void gtk_trace_set_draw_annotations(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
@@ -139,7 +144,10 @@ void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event
 struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget);
 double gtk_trace_get_time_at(GtkWidget *widget, int x);
 struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
+struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x, int y);
 void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_markers);
+int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
+struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

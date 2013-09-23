@@ -37,6 +37,7 @@
 #include "ansi_extras.h"
 #include "util.h"
 #include "multi_event_set.h"
+#include "visuals_file.h"
 
 struct load_thread_data {
 	char* tracefile;
@@ -113,8 +114,10 @@ int main(int argc, char** argv)
 	char buffer[30];
 	char title[PATH_MAX+10];
 
-	if(argc < 2 || argc > 3) {
-		fprintf(stderr, "Usage: %s trace_file [executable]\n", argv[0]);
+	g_visuals_filename = NULL;
+
+	if(argc < 2 || argc > 4) {
+		fprintf(stderr, "Usage: %s trace_file [executable [visuals]]\n", argv[0]);
 		return 1;
 	}
 
@@ -123,6 +126,11 @@ int main(int argc, char** argv)
 
 	if(argc > 2)
 		executable = argv[2];
+
+	if(argc > 3)
+		g_visuals_filename = strdup(argv[3]);
+
+	g_visuals_modified = 0;
 
 	settings_init(&g_settings);
 
@@ -169,6 +177,11 @@ int main(int argc, char** argv)
 
 	if(executable && debug_read_task_symbols(executable, &g_mes) != 0)
 		show_error_message("Could not read debug symbols from %s", executable);
+
+	if(g_visuals_filename) {
+		if(load_visuals(g_visuals_filename, &g_mes) != 0)
+			show_error_message("Could not read visuals from %s", g_visuals_filename);
+	}
 
 	xml = glade_xml_new(DATA_PATH "/ostv.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);
@@ -322,6 +335,9 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "range-selection-changed", G_CALLBACK(trace_range_selection_changed), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "create-annotation", G_CALLBACK(trace_create_annotation), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "edit-annotation", G_CALLBACK(trace_edit_annotation), g_trace_widget);
+	g_signal_connect(G_OBJECT(toplevel_window), "delete-event", G_CALLBACK(check_quit), NULL);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
@@ -362,6 +378,7 @@ int main(int argc, char** argv)
 	filter_destroy(&g_filter);
 	settings_destroy(&g_settings);
 	histogram_destroy(&g_task_histogram);
+	free(g_visuals_filename);
 
 	return 0;
 }

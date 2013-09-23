@@ -112,4 +112,7 @@ extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 #define FIRSTMAXWRITE_TRACE_MARKER_COLOR_G 0.0
 #define FIRSTMAXWRITE_TRACE_MARKER_COLOR_B 0.0
 
+extern int g_visuals_modified;
+extern char* g_visuals_filename;
+
 #endif

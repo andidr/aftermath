@@ -21,8 +21,10 @@
 #include "counter_event_set.h"
 #include "buffer.h"
 #include "events.h"
+#include "annotation.h"
 
 #define COUNTER_EVENT_SET_PREALLOC 5
+#define ANNOTATION_PREALLOC 10
 
 struct event_set {
 	struct state_event* state_events;
@@ -41,6 +43,10 @@ struct event_set {
 	int num_counter_event_sets;
 	int num_counter_event_sets_free;
 
+	struct annotation* annotations;
+	int num_annotations;
+	int num_annotations_free;
+
 	int cpu;
 	uint64_t first_start;
 	uint64_t last_end;
@@ -56,11 +62,13 @@ int event_set_get_counter_event_set(struct event_set* es, int counter_idx);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
+int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end);
 int event_set_get_next_comm_event(struct event_set* es, int curr_idx, enum comm_event_type type);
 int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int num_types, enum comm_event_type* types);
 int event_set_get_next_single_event(struct event_set* es, int start_idx, enum single_event_type type);
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state);
 void event_set_sort_comm(struct event_set* es);
+void event_set_sort_annotations(struct event_set* es);
 int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t counter_id, uint64_t start, uint64_t end);
 int event_set_compare_cpus(const void* p1, const void* p2);
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f);
@@ -233,6 +241,10 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_counter_event_sets_free = 0;
 	es->counter_event_sets = NULL;
 
+	es->num_annotations = 0;
+	es->num_annotations_free = 0;
+	es->annotations = NULL;
+
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;
 	es->last_end = 0;
@@ -247,7 +259,39 @@ static inline void event_set_destroy(struct event_set* es)
 	for(int i = 0; i < es->num_counter_event_sets; i++)
 		counter_event_set_destroy(&es->counter_event_sets[i]);
 
+	for(int i = 0; i < es->num_annotations; i++)
+		annotation_destroy(&es->annotations[i]);
+
 	free(es->counter_event_sets);
+	free(es->annotations);
+}
+
+static inline int event_set_add_annotation(struct event_set* es, struct annotation* a)
+{
+	if(add_buffer_grow((void**)&es->annotations, a, sizeof(*a),
+			&es->num_annotations, &es->num_annotations_free,
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
+
+	annotation_copy(&es->annotations[es->num_annotations-1], a);
+	es->annotations[es->num_annotations-1].event_set = es;
+	event_set_sort_annotations(es);
+
+	return 0;
+}
+
+static inline void event_set_delete_annotation(struct event_set* es, struct annotation* a)
+{
+	annotation_destroy(a);
+
+	int pos = a - es->annotations;
+
+	memmove(a, a+1, (es->num_annotations - pos - 1)*sizeof(struct annotation));
+
+	es->num_annotations--;
+	es->num_annotations_free++;
 }
 
 #endif

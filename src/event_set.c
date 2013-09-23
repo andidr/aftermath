@@ -37,6 +37,24 @@ void event_set_sort_comm(struct event_set* es)
 	qsort(es->comm_events, es->num_comm_events, sizeof(struct comm_event), comm_event_compare_time);
 }
 
+static int annotation_compare_time(const void* p1, const void* p2)
+{
+	const struct annotation* s1 = p1;
+	const struct annotation* s2 = p2;
+
+	if(s1->time > s2->time)
+		return 1;
+	else if(s1->time < s2->time)
+		return -1;
+
+	return 0;
+}
+
+void event_set_sort_annotations(struct event_set* es)
+{
+	qsort(es->annotations, es->num_annotations, sizeof(struct annotation), annotation_compare_time);
+}
+
 int event_set_compare_cpus(const void* p1, const void* p2)
 {
 	const struct event_set* s1 = p1;
@@ -282,6 +300,35 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 		center_idx--;
 
 	if(es->single_events[center_idx].time > interval_end || es->single_events[center_idx].time < interval_start)
+		return -1;
+
+	return center_idx;
+}
+
+int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
+{
+	int start_idx = 0;
+	int end_idx = es->num_annotations-1;
+	int center_idx = 0;
+
+	if(es->num_annotations == 0)
+		return -1;
+
+	while(end_idx - start_idx >= 0) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(es->annotations[center_idx].time > interval_end)
+			end_idx = center_idx-1;
+		else if(es->annotations[center_idx].time < interval_start)
+			start_idx = center_idx+1;
+		else
+			break;
+	}
+
+	while(center_idx > 0 && es->annotations[center_idx-1].time < interval_end && es->annotations[center_idx-1].time > interval_start)
+		center_idx--;
+
+	if(es->annotations[center_idx].time > interval_end || es->annotations[center_idx].time < interval_start)
 		return -1;
 
 	return center_idx;

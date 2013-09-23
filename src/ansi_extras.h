@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #define SWAP_BITS(val, ret, bits) \
 	do { \
@@ -97,6 +98,16 @@ static inline off_t file_size(const char* filename)
 		return -1;
 
 	return stat_buf.st_size;
+}
+
+static inline char* strdup(const char* s)
+{
+	char* ret = malloc(strlen(s)+1);
+
+	if(ret)
+		strcpy(ret, s);
+
+	return ret;
 }
 
 #endif

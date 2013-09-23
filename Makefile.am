@@ -67,6 +67,12 @@ ostv_SOURCES = src/ostv.c \
 		src/ansi_extras.h \
 		src/numa_node_list.h \
 		src/numa_node_list.c \
+		src/annotation.h \
+		src/annotation.c \
+		src/visuals_file.h \
+		src/visuals_file.c \
+		src/convert.h \
+		src/convert.c \
 		$(UNIT_TEST_SOURCES)
 ostv_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/ostv\""
 ostv_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -79,6 +85,7 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/progress_dialog.glade \
 		share/ui/color_dialog.glade \
 		share/ui/derived_counter_dialog.glade \
+		share/ui/annotation_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_comm.svg \
 		share/icons/draw_steals.svg \

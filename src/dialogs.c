@@ -19,6 +19,7 @@
 #include "glade_extras.h"
 #include <glade/glade.h>
 #include <math.h>
+#include <inttypes.h>
 
 /**
  * A simple message dialog. Format is a printf-style format string.
@@ -41,6 +42,87 @@ void show_error_message(char* format, ...)
 	gtk_widget_destroy (dialog);
 }
 
+/**
+ * Displays a simple dialog with three buttons: yes, no and cancel.
+ * @param format A printf-style format string
+ * @return 0 if the answer was no, 1 if yes and 2 if cancel was pressed.
+ */
+enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...)
+{
+	char buff[1024];
+	va_list ap;
+	enum yes_no_cancel_dialog_response ret;
+
+	va_start(ap, format);
+	vsnprintf(buff, sizeof(buff), format, ap);
+	va_end(ap);
+
+	GtkWidget* dialog = gtk_message_dialog_new (NULL,
+						    GTK_DIALOG_DESTROY_WITH_PARENT,
+						    GTK_MESSAGE_QUESTION,
+						    GTK_BUTTONS_YES_NO,
+						    buff);
+	/* FIXME: use a button from stock */
+	gtk_dialog_add_button(GTK_DIALOG(dialog),
+			      "Cancel",
+			      GTK_RESPONSE_REJECT);
+
+	gint resp = gtk_dialog_run(GTK_DIALOG (dialog));
+
+	switch(resp) {
+		case GTK_RESPONSE_NO:
+			ret = DIALOG_RESPONSE_NO;
+			break;
+		case GTK_RESPONSE_YES:
+			ret = DIALOG_RESPONSE_YES;
+			break;
+		case GTK_RESPONSE_REJECT:
+			ret = DIALOG_RESPONSE_CANCEL;
+			break;
+	}
+
+	gtk_widget_destroy (dialog);
+
+	return ret;
+}
+
+/**
+ * Runs a simple file selection dialog.
+ * @param title The string shown in the title bar of the dialog
+ * @param mode GTK_FILE_CHOOSER_ACTION_OPEN or GTK_FILE_CHOOSER_ACTION_SAVE
+ * @param filter_name Name for the file extension filter (e.g. "WAVE-Files")
+ * @param filter_extension The allowed file extension (e.g. "*.wav")
+ * @param default_dir The directory which is displayed by default
+ * @return The filename including the full path of the selected file or NULL if the dialog was cancelled
+ */
+char* load_save_file_dialog(const char* title, GtkFileChooserAction mode, const char* filter_name, const char* filter_extension, const char* default_dir)
+{
+	char *filename = NULL;
+
+	GtkWidget* dialog = gtk_file_chooser_dialog_new (title,
+							 NULL,
+							 mode,
+							 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+							 GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+							 NULL);
+
+	GtkFileFilter *filter = gtk_file_filter_new ();
+	gtk_file_filter_set_name(filter, filter_name);
+	gtk_file_filter_add_pattern(filter, filter_extension);
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+	if(default_dir)
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), default_dir);
+
+	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+
+	gtk_widget_destroy (dialog);
+
+	return filename;
+}
+
+
 int show_goto_dialog(double start, double end, double curr_value, double* time)
 {
 	int ret = 0;
@@ -57,6 +139,56 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		*time = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin));
 		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}
+
+enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int edit)
+{
+	int ret = ANNOTATION_DIALOG_RESPONSE_CANCEL;
+	char buffer[128];
+
+	GladeXML* xml = glade_xml_new(DATA_PATH "/annotation_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, label_cpu);
+	IMPORT_GLADE_WIDGET(xml, label_time);
+	IMPORT_GLADE_WIDGET(xml, text);
+	IMPORT_GLADE_WIDGET(xml, button_delete);
+
+	GtkTextBuffer* text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
+	GtkTextIter start;
+	GtkTextIter end;
+
+	snprintf(buffer, sizeof(buffer), "%d", a->cpu);
+	gtk_label_set_text(GTK_LABEL(label_cpu), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%"PRIu64, a->time);
+	gtk_label_set_text(GTK_LABEL(label_time), buffer);
+
+	if(edit) {
+		gtk_text_buffer_set_text(text_buffer, a->text, strlen(a->text));
+		gtk_window_set_title(GTK_WINDOW(dialog), "Edit annotation");
+		gtk_widget_show(button_delete);
+	} else {
+		gtk_window_set_title(GTK_WINDOW(dialog), "Create annotation");
+		gtk_widget_hide(button_delete);
+	}
+
+	switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
+		case GTK_RESPONSE_ACCEPT:
+			gtk_text_buffer_get_start_iter(text_buffer, &start);
+			gtk_text_buffer_get_end_iter(text_buffer, &end);
+			annotation_set_text(a, gtk_text_buffer_get_text(text_buffer, &start, &end, 0));
+			ret = ANNOTATION_DIALOG_RESPONSE_OK;
+			break;
+		case -99:
+			ret = ANNOTATION_DIALOG_RESPONSE_DELETE;
+			break;
 	}
 
 	gtk_widget_destroy(dialog);

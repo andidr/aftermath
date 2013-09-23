@@ -254,23 +254,6 @@ struct trace_frame_info {
 
 extern int trace_frame_info_conversion_table[];
 
-enum conversion_direction {
-	CONVERT_DSK_TO_HOST = 0,
-	CONVERT_HOST_TO_DSK,
-};
-
-/* Converts a structure either from or to on-disk format */
-void convert_struct(void* ptr, int* conversion_table, int offset, enum conversion_direction dir);
-
-/* Read a data structure from disk and convert it to host format */
-int read_struct_convert(FILE* fp, void* out, int size, int* conversion_table, int offset);
-
-/* Write a data structure to disk and convert it to on-disk format */
-int write_struct_convert(FILE* fp, void* out, int size, int* conversion_table, int offset);
-
-/* Read a unsigned 32-bit integer from disk and convert it to host format */
-int read_uint32_convert(FILE* fp, uint32_t* out);
-
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);
 

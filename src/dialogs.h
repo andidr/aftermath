@@ -22,6 +22,7 @@
 #include "settings.h"
 #include "multi_event_set.h"
 #include "derived_counters.h"
+#include "annotation.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -33,11 +34,28 @@ struct progress_window_widgets {
 };
 
 void show_error_message(char* format, ...);
+
+enum yes_no_cancel_dialog_response {
+	DIALOG_RESPONSE_YES,
+	DIALOG_RESPONSE_NO,
+	DIALOG_RESPONSE_CANCEL
+};
+
+enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...);
+char* load_save_file_dialog(const char* title, GtkFileChooserAction mode, const char* filter_name, const char* filter_extension, const char* default_dir);
 int show_goto_dialog(double start, double end, double curr_value, double* time);
 void show_about_dialog(void);
 int show_settings_dialog(struct settings* s);
 void show_progress_window_persistent(struct progress_window_widgets* widgets);
 int show_color_dialog(GdkColor* color);
+
+enum annotation_dialog_response {
+	ANNOTATION_DIALOG_RESPONSE_OK,
+	ANNOTATION_DIALOG_RESPONSE_CANCEL,
+	ANNOTATION_DIALOG_RESPONSE_DELETE
+};
+
+enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int edit);
 
 enum derived_counter_type {
 	DERIVED_COUNTER_PARALLELISM = 0,

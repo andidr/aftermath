@@ -17,10 +17,8 @@
 
 #include "trace_file.h"
 #include "ansi_extras.h"
+#include "convert.h"
 #include <stdio.h>
-
-#define CONVERSION_TABLE_END -1
-#define FIELD_SIZE(st, fld) sizeof(((st*)0)->fld)
 
 const char* worker_state_names[] = {
 	"seeking",
@@ -104,73 +102,6 @@ int trace_frame_info_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
-/* Convert struct from disk format to host format */
-void convert_struct(void* ptr, int* conversion_table, int offset, enum conversion_direction dir)
-{
-	int size;
-	int i = 0;
-	int curr_offset = 0;
-
-	/* Skip fields at the beginning of the structure */
-	while(curr_offset < offset) {
-		curr_offset += conversion_table[i];
-		i++;
-	}
-
-	ptr = ((char*)ptr)+offset;
-
-	/* Convert remaining fields */
-	while((size = conversion_table[i]) != CONVERSION_TABLE_END) {
-		if(dir == CONVERT_DSK_TO_HOST) {
-			switch(size) {
-				case 2: *((uint16_t*)ptr) = int16_letoh(*((uint16_t*)ptr)); break;
-				case 4: *((uint32_t*)ptr) = int32_letoh(*((uint32_t*)ptr)); break;
-				case 8: *((uint64_t*)ptr) = int64_letoh(*((uint64_t*)ptr)); break;
-			}
-		} else {
-			switch(size) {
-				case 2: *((uint16_t*)ptr) = int16_htole(*((uint16_t*)ptr)); break;
-				case 4: *((uint32_t*)ptr) = int32_htole(*((uint32_t*)ptr)); break;
-				case 8: *((uint64_t*)ptr) = int64_htole(*((uint64_t*)ptr)); break;
-			}
-		}
-
-		ptr = ((char*)ptr)+size;
-		i++;
-	}
-}
-
-#define READ_STRUCT(fp, st) fread(st, sizeof(*(st)), 1, fp)
-
-int read_uint32_convert(FILE* fp, uint32_t* out)
-{
-	if(fread(out, sizeof(*out), 1, fp) != 1)
-		return 1;
-
-	*out = int32_letoh(*out);
-
-	return 0;
-}
-
-int read_struct_convert(FILE* fp, void* out, int size, int* conversion_table, int offset)
-{
-	if(fread(((char*)out)+offset, size-offset, 1, fp) != 1)
-		return 1;
-
-	convert_struct(((char*)out)+offset, conversion_table, offset, CONVERT_DSK_TO_HOST);
-	return 0;
-}
-
-int write_struct_convert(FILE* fp, void* in, int size, int* conversion_table, int offset)
-{
-	convert_struct(((char*)in)+offset, conversion_table, offset, CONVERT_HOST_TO_DSK);
-
-	if(fwrite(((char*)in)+offset, size-offset, 1, fp) != 1)
-		return 1;
-
-	return 0;
-}
-
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
@@ -179,4 +110,3 @@ int trace_verify_header(struct trace_header* header)
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);
 }
-

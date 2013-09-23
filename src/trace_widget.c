@@ -78,6 +78,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_data_reads = 1;
 	g->draw_data_writes = 1;
 	g->draw_counters = 0;
+	g->draw_annotations = 1;
 	g->range_selection = 0;
 
 	g->draw_single_events = 0;
@@ -85,6 +86,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->double_buffering = 0;
 	g->filter = NULL;
 	g->highlight_state_event = NULL;
+	g->highlight_annotation = NULL;
 
 	g->markers = NULL;
 	g->num_markers = 0;
@@ -195,6 +197,24 @@ void gtk_trace_class_init(GtkTraceClass *class)
                              g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
                              G_TYPE_NONE, 2,
                              G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+
+	gtk_trace_signals[GTK_TRACE_CREATE_ANNOTATION] =
+                g_signal_new("create-annotation", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__INT_DOUBLE,
+                             G_TYPE_NONE, 2,
+                             G_TYPE_INT, G_TYPE_DOUBLE);
+
+	gtk_trace_signals[GTK_TRACE_EDIT_ANNOTATION] =
+                g_signal_new("edit-annotation", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER,
+                             G_TYPE_NONE, 1,
+                             G_TYPE_POINTER);
 }
 
 void gtk_trace_size_request(GtkWidget *widget, GtkRequisition *requisition)
@@ -440,6 +460,27 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton *event)
 	if(event->button != 1)
 		return TRUE;
 
+	/* Double click? */
+	if(event->type == GDK_2BUTTON_PRESS) {
+		if(event->x > g->axis_width) {
+			struct event_set* es = gtk_trace_get_event_set_at_y(widget, event->y);
+			long double time = gtk_trace_screen_x_to_trace(g, event->x);
+
+			if(es) {
+				struct annotation* a = gtk_trace_get_nearest_annotation_at(widget, event->x, event->y);
+
+				if(!a)
+					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_CREATE_ANNOTATION], 0, es->cpu, (double)time);
+				else
+					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_EDIT_ANNOTATION], 0, a);
+			}
+		}
+
+		g->mode = GTK_TRACE_MODE_NORMAL;
+
+		return TRUE;
+	}
+
 	switch(g->mode) {
 		case GTK_TRACE_MODE_NORMAL:
 			g->mode = GTK_TRACE_MODE_NAVIGATE;
@@ -502,6 +543,7 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 	double diff_x = event->x - g->last_mouse_x;
 	struct state_event* se;
 	int worker, cpu;
+	struct annotation* a;
 
 	switch(g->mode) {
 		case GTK_TRACE_MODE_NAVIGATE:
@@ -527,6 +569,13 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 				se = NULL;
 
 			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
+
+			a = gtk_trace_get_nearest_annotation_at(widget, event->x, event->y);
+
+			if(a != g->highlight_annotation) {
+				g->highlight_annotation = a;
+				gtk_widget_queue_draw(widget);
+			}
 
 			break;
 	}
@@ -1111,6 +1160,89 @@ void gtk_trace_paint_markers(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
+{
+	double cpu_height = gtk_trace_cpu_height(g);
+	int width, height;
+	double text_width, text_height;
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	PangoLayout* layout = pango_cairo_create_layout(cr);
+	char font_name[64];
+	snprintf(font_name, sizeof(font_name), "Sans %d", (int)(cpu_height / 4));
+	PangoFontDescription* font_desc = pango_font_description_from_string(font_name);
+	pango_layout_set_font_description(layout, font_desc);
+	pango_font_description_free(font_desc);
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		int annotation = event_set_get_first_annotation_in_interval(&g->event_sets->sets[cpu_idx], (g->left > 0) ? g->left : 0, g->right);
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+		if(annotation != -1) {
+			for(; annotation < g->event_sets->sets[cpu_idx].num_annotations; annotation++) {
+				uint64_t time = g->event_sets->sets[cpu_idx].annotations[annotation].time;
+
+				if(g->event_sets->sets[cpu_idx].annotations[annotation].time > g->right)
+					break;
+
+				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
+
+				if(g->highlight_annotation == &g->event_sets->sets[cpu_idx].annotations[annotation]) {
+					pango_layout_set_text(layout, g->highlight_annotation->text, -1);
+					pango_layout_get_size(layout, &width, &height);
+					text_height = (double)height / PANGO_SCALE;
+					text_width = (double)width / PANGO_SCALE;
+
+					for(int i = 0; i < 2; i++) {
+						cairo_move_to(cr, screen_x+cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_line_to(cr, screen_x, cpu_start+cpu_height - cpu_height/10);
+						cairo_line_to(cr, screen_x-cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_line_to(cr, screen_x-cpu_height/2,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_line_to(cr, screen_x-cpu_height/2,  cpu_start+cpu_height - cpu_height/10 - (3*cpu_height)/4 - text_height);
+						cairo_line_to(cr, screen_x+cpu_height/4 + text_width, cpu_start+cpu_height - cpu_height/10 - (3*cpu_height)/4 - text_height);
+						cairo_line_to(cr, screen_x+cpu_height/4 + text_width, cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_line_to(cr, screen_x+cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+
+						if(i == 0) {
+							cairo_set_source_rgb(cr, 1.0, 0.6, 0.6);
+							cairo_fill(cr);
+						} else {
+							cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+							cairo_stroke(cr);
+
+							cairo_move_to(cr, screen_x-(cpu_height/4),  cpu_start+cpu_height - cpu_height/10 - (5*cpu_height)/8 - text_height);
+							/* cairo_move_to(cr, screen_x-cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/4 - text_height); */
+							pango_cairo_show_layout (cr, layout);
+						}
+					}
+				} else {
+					for(int i = 0; i < 2; i++) {
+						cairo_move_to(cr, screen_x+cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_line_to(cr, screen_x, cpu_start+cpu_height - cpu_height/10);
+						cairo_line_to(cr, screen_x-cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+						cairo_curve_to(cr, screen_x-cpu_height/4, cpu_start+cpu_height/10,
+							       screen_x+cpu_height/4, cpu_start+cpu_height/10,
+							       screen_x+cpu_height/4, cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
+
+						if(i == 0) {
+							cairo_set_source_rgb(cr, 1.0, 0.6, 0.6);
+							cairo_fill(cr);
+						} else {
+							cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+							cairo_stroke(cr);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	g_object_unref(layout);
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1263,6 +1395,16 @@ void gtk_trace_set_draw_counters(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
+void gtk_trace_set_draw_annotations(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_annotations);
+	g->draw_annotations = val;
+
+	if(needs_redraw)
+		gtk_widget_queue_draw(widget);
+}
+
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1319,6 +1461,9 @@ void gtk_trace_paint(GtkWidget *widget)
 
 	if(g->range_selection)
 		gtk_trace_paint_selection(g, cr);
+
+	if(g->draw_annotations)
+		gtk_trace_paint_annotations(g, cr);
 
 	/* Draw axes */
 	gtk_trace_paint_axes(g, cr);
@@ -1377,6 +1522,46 @@ void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_ma
 	GtkTrace* g = GTK_TRACE(widget);
 	g->markers = m;
 	g->num_markers = num_markers;
+}
+
+struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	double cpu_height = gtk_trace_cpu_height(g);
+	int worker_pointer = (y+cpu_height*g->cpu_offset) / cpu_height;
+
+	if(g->event_sets->num_sets < worker_pointer ||
+	   worker_pointer < 0)
+	{
+		return NULL;
+	}
+
+	return &g->event_sets->sets[worker_pointer];
+}
+
+int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y)
+{
+	struct event_set* es = gtk_trace_get_event_set_at_y(widget, y);
+
+	if(es)
+		return es->cpu;
+
+	return -1;
+}
+
+struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x, int y)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	long double time = gtk_trace_screen_x_to_trace(g, x);
+	double cpu_height = gtk_trace_cpu_height(g);
+	long double delta = gtk_trace_screen_width_to_trace(g, cpu_height/2);
+	struct event_set* es = gtk_trace_get_event_set_at_y(widget, y);
+	int idx = event_set_get_first_annotation_in_interval(es, time - delta, time + delta);
+
+	if(idx == -1)
+		return NULL;
+
+	return &es->annotations[idx];
 }
 
 struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker)
