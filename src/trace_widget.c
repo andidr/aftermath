@@ -1183,6 +1183,9 @@ void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 		if(annotation != -1) {
 			for(; annotation < g->event_sets->sets[cpu_idx].num_annotations; annotation++) {
 				uint64_t time = g->event_sets->sets[cpu_idx].annotations[annotation].time;
+				double color_r = g->event_sets->sets[cpu_idx].annotations[annotation].color_r;
+				double color_g = g->event_sets->sets[cpu_idx].annotations[annotation].color_g;
+				double color_b = g->event_sets->sets[cpu_idx].annotations[annotation].color_b;
 
 				if(g->event_sets->sets[cpu_idx].annotations[annotation].time > g->right)
 					break;
@@ -1206,7 +1209,7 @@ void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 						cairo_line_to(cr, screen_x+cpu_height/4,  cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
 
 						if(i == 0) {
-							cairo_set_source_rgb(cr, 1.0, 0.6, 0.6);
+							cairo_set_source_rgb(cr, color_r, color_g, color_b);
 							cairo_fill(cr);
 						} else {
 							cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
@@ -1227,7 +1230,7 @@ void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 							       screen_x+cpu_height/4, cpu_start+cpu_height - cpu_height/10 - cpu_height/2);
 
 						if(i == 0) {
-							cairo_set_source_rgb(cr, 1.0, 0.6, 0.6);
+							cairo_set_source_rgb(cr, color_r, color_g, color_b);
 							cairo_fill(cr);
 						} else {
 							cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);

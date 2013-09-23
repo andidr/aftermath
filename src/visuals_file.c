@@ -36,6 +36,9 @@ int visuals_annotation_conversion_table[] = {
 	VISUALS_ELEMENT_HEADER_CONVERSION_FIELDS,
 	FIELD_SIZE(struct visuals_annotation, cpu),
 	FIELD_SIZE(struct visuals_annotation, time),
+	FIELD_SIZE(struct visuals_annotation, color_r),
+	FIELD_SIZE(struct visuals_annotation, color_g),
+	FIELD_SIZE(struct visuals_annotation, color_b),
 	FIELD_SIZE(struct visuals_annotation, length),
 	CONVERSION_TABLE_END
 };
@@ -71,6 +74,9 @@ int read_visual_elements(struct multi_event_set* mes, FILE* fp)
 
 			a.cpu = dsk_a.cpu;
 			a.time = dsk_a.time;
+			a.color_r = (double)dsk_a.color_r / 65535.0;
+			a.color_g = (double)dsk_a.color_g / 65535.0;
+			a.color_b = (double)dsk_a.color_b / 65535.0;
 
 			curr_buffer_length = dsk_a.length+1;
 
@@ -144,6 +150,9 @@ int write_visual_elements(struct multi_event_set* mes, FILE* fp)
 			dsk_a.cpu = a->cpu;
 			dsk_a.time = a->time;
 			dsk_a.length = strlen(a->text);
+			dsk_a.color_r = 65535.0*a->color_r;
+			dsk_a.color_g = 65535.0*a->color_g;
+			dsk_a.color_b = 65535.0*a->color_b;
 
 			if(write_struct_convert(fp, &dsk_a, sizeof(dsk_a), visuals_annotation_conversion_table, 0) != 0)
 				return 1;

@@ -22,7 +22,7 @@
 
 /* OSTA in ASCII */
 #define VISUALS_MAGIC 0x4154534f
-#define VISUALS_VERSION 0
+#define VISUALS_VERSION 1
 
 enum visual_type {
 	VISUAL_TYPE_ANNOTATION = 0
@@ -61,6 +61,11 @@ struct visuals_annotation {
 
 	/* Time of the annotation */
 	uint64_t time;
+
+	/* Annotation color, 16 bits per channel */
+	uint16_t color_r;
+	uint16_t color_g;
+	uint16_t color_b;
 
 	/* Length of the text not including the
 	 * terminating zero byte */

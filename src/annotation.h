@@ -27,6 +27,10 @@ struct annotation {
 	char* text;
 	uint64_t time;
 	int cpu;
+
+	double color_r;
+	double color_g;
+	double color_b;
 };
 
 int annotation_init(struct annotation* a, int cpu, uint64_t time, const char* text);

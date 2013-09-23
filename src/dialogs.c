@@ -151,6 +151,7 @@ enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int
 {
 	int ret = ANNOTATION_DIALOG_RESPONSE_CANCEL;
 	char buffer[128];
+	static GdkColor color = {.red = 65535, .green = 32767, .blue = 32767};
 
 	GladeXML* xml = glade_xml_new(DATA_PATH "/annotation_dialog.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);
@@ -158,6 +159,7 @@ enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int
 	IMPORT_GLADE_WIDGET(xml, label_cpu);
 	IMPORT_GLADE_WIDGET(xml, label_time);
 	IMPORT_GLADE_WIDGET(xml, text);
+	IMPORT_GLADE_WIDGET(xml, colorbutton);
 	IMPORT_GLADE_WIDGET(xml, button_delete);
 
 	GtkTextBuffer* text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
@@ -174,9 +176,17 @@ enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int
 		gtk_text_buffer_set_text(text_buffer, a->text, strlen(a->text));
 		gtk_window_set_title(GTK_WINDOW(dialog), "Edit annotation");
 		gtk_widget_show(button_delete);
+
+		color.red = 65535.0*a->color_r;
+		color.green = 65535.0*a->color_g;
+		color.blue = 65535.0*a->color_b;
+
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(colorbutton), &color);
 	} else {
 		gtk_window_set_title(GTK_WINDOW(dialog), "Create annotation");
 		gtk_widget_hide(button_delete);
+
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(colorbutton), &color);
 	}
 
 	switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
@@ -184,6 +194,12 @@ enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int
 			gtk_text_buffer_get_start_iter(text_buffer, &start);
 			gtk_text_buffer_get_end_iter(text_buffer, &end);
 			annotation_set_text(a, gtk_text_buffer_get_text(text_buffer, &start, &end, 0));
+
+			gtk_color_button_get_color(GTK_COLOR_BUTTON(colorbutton), &color);
+			a->color_r = (double)color.red / 65535.0;
+			a->color_g = (double)color.green / 65535.0;
+			a->color_b = (double)color.blue / 65535.0;
+
 			ret = ANNOTATION_DIALOG_RESPONSE_OK;
 			break;
 		case -99:
