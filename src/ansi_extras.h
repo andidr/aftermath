@@ -100,6 +100,7 @@ static inline off_t file_size(const char* filename)
 	return stat_buf.st_size;
 }
 
+#ifndef strdup
 static inline char* strdup(const char* s)
 {
 	char* ret = malloc(strlen(s)+1);
@@ -109,5 +110,6 @@ static inline char* strdup(const char* s)
 
 	return ret;
 }
+#endif
 
 #endif
