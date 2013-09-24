@@ -94,7 +94,8 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/icons/draw_writes.svg \
 		share/icons/draw_size.svg \
 		share/icons/draw_events.svg \
-		share/icons/draw_counters.svg
+		share/icons/draw_counters.svg \
+		share/icons/draw_annotations.svg
 
 clean-local:
 	-find . -iname "*~" | xargs rm

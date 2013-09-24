@@ -154,6 +154,11 @@ G_MODULE_EXPORT void toolbar_draw_counters_toggled(GtkToggleToolButton *button, 
 	gtk_trace_set_draw_counters(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
+G_MODULE_EXPORT void toolbar_draw_annotations_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	gtk_trace_set_draw_annotations(g_trace_widget, gtk_toggle_tool_button_get_active(button));
+}
+
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)
 {
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));
