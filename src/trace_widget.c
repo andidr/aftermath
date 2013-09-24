@@ -1559,6 +1559,10 @@ struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x,
 	double cpu_height = gtk_trace_cpu_height(g);
 	long double delta = gtk_trace_screen_width_to_trace(g, cpu_height/2);
 	struct event_set* es = gtk_trace_get_event_set_at_y(widget, y);
+
+	if(!es)
+		return NULL;
+
 	int idx = event_set_get_first_annotation_in_interval(es, time - delta, time + delta);
 
 	if(idx == -1)
