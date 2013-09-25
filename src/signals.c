@@ -159,6 +159,48 @@ G_MODULE_EXPORT void toolbar_draw_annotations_toggled(GtkToggleToolButton *butto
 	gtk_trace_set_draw_annotations(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
+int task_length_heatmap_update_params(void)
+{
+	const char* txt;
+	int64_t min_length;
+	int64_t max_length;
+	int num_shades;
+
+	txt = gtk_entry_get_text(GTK_ENTRY(g_heatmap_min_cycles));
+	if(sscanf(txt, "%"PRId64, &min_length) != 1) {
+		show_error_message("\"%s\" is not a correct integer value.", txt);
+		return 1;
+	}
+
+	txt = gtk_entry_get_text(GTK_ENTRY(g_heatmap_max_cycles));
+	if(sscanf(txt, "%"PRId64, &max_length) != 1) {
+		show_error_message("\"%s\" is not a correct integer value.", txt);
+		return 1;
+	}
+
+	num_shades = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_heatmap_num_shades));
+	gtk_trace_set_heatmap_params(g_trace_widget, num_shades, min_length, max_length);
+
+	return 0;
+}
+
+G_MODULE_EXPORT void task_length_heatmap_update_params_clicked(GtkButton *button, gpointer data)
+{
+	task_length_heatmap_update_params();
+}
+
+G_MODULE_EXPORT void tool_button_use_task_length_heatmap_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	int active = gtk_toggle_tool_button_get_active(button);
+
+	if(active) {
+		if(task_length_heatmap_update_params())
+			gtk_toggle_tool_button_set_active(button, 0);
+	}
+
+	gtk_trace_set_heatmap_mode(g_trace_widget, active);
+}
+
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)
 {
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));

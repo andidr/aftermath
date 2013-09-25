@@ -81,7 +81,12 @@ struct _GtkTrace {
 	int draw_single_events;
 	int draw_counters;
 	int draw_annotations;
+	int heatmap_mode;
+	int heatmap_shades;
 	int moved_during_navigation;
+
+	uint64_t heatmap_min;
+	uint64_t heatmap_max;
 
 	int64_t range_selection_start;
 	int64_t range_selection_end;
@@ -138,6 +143,8 @@ void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
 void gtk_trace_set_draw_annotations(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
+void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length);
+void gtk_trace_set_heatmap_mode(GtkWidget *widget, int val);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
 void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se);

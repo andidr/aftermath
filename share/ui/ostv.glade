@@ -367,6 +367,19 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkToggleToolButton" id="Heatmap">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">HM</property>
+                <property name="use_underline">True</property>
+                <property name="icon">heatmap.svg</property>
+                <signal name="toggled" handler="tool_button_use_task_length_heatmap_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2839,11 +2852,159 @@
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <widget class="GtkVBox" id="vbox27">
+                        <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">3</property>
+                        <child>
+                          <widget class="GtkTable" id="table3">
+                            <property name="visible">True</property>
+                            <property name="n_rows">3</property>
+                            <property name="n_columns">2</property>
+                            <property name="row_spacing">3</property>
+                            <child>
+                              <widget class="GtkLabel" id="label66">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Min. cycles:</property>
+                              </widget>
+                              <packing>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label67">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Max. cycles:</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="heatmap_min_cycles">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="text" translatable="yes">0</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="heatmap_max_cycles">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="text" translatable="yes">10000000</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label69">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Num. shades:</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="heatmap_num_shades">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="adjustment">100 0 10000 1 10 10</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkButton" id="button16">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="use_underline">True</property>
+                            <signal name="clicked" handler="task_length_heatmap_update_params_clicked"/>
+                            <child>
+                              <widget class="GtkHBox" id="hbox30">
+                                <property name="visible">True</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <widget class="GtkImage" id="image17">
+                                    <property name="visible">True</property>
+                                    <property name="stock">gtk-ok</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label70">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Apply</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label68">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <widget class="GtkLabel" id="label65">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Heatmap</property>
+                      </widget>
                       <packing>
+                        <property name="position">1</property>
+                        <property name="tab_fill">False</property>
                         <property name="type">tab</property>
                       </packing>
                     </child>

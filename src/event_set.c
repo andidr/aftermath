@@ -305,6 +305,35 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 	return center_idx;
 }
 
+int event_set_get_last_single_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
+{
+	int start_idx = 0;
+	int end_idx = es->num_single_events-1;
+	int center_idx = 0;
+
+	if(es->num_single_events == 0)
+		return -1;
+
+	while(end_idx - start_idx >= 0) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(es->single_events[center_idx].time > interval_end)
+			end_idx = center_idx-1;
+		else if(es->single_events[center_idx].time < interval_start)
+			start_idx = center_idx+1;
+		else
+			break;
+	}
+
+	while(center_idx < es->num_single_events-1 && es->single_events[center_idx+1].time < interval_end && es->single_events[center_idx+1].time > interval_start)
+		center_idx++;
+
+	if(es->single_events[center_idx].time > interval_end || es->single_events[center_idx].time < interval_start)
+		return -1;
+
+	return center_idx;
+}
+
 int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -350,6 +379,22 @@ int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint
 	return idx;
 }
 
+int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type)
+{
+	int idx = event_set_get_last_single_event_in_interval(es, start, end);
+
+	if(idx == -1)
+		return -1;
+
+	while(es->single_events[idx].type != type && idx-1 > 0)
+		idx--;
+
+	if(es->single_events[idx].type != type)
+		return -1;
+
+	return idx;
+}
+
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f)
 {
 	int se_idx = event_set_get_first_single_event_in_interval_type(es, start, es->last_end, SINGLE_TYPE_TEXEC_START);
@@ -362,4 +407,66 @@ struct single_event* event_set_find_next_texec_start_for_frame(struct event_set*
 		se = se->next_texec_start;
 
 	return se;
+}
+
+uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, struct filter* f, long double* num_tasks, uint64_t start, uint64_t end)
+{
+	long double lnum_tasks = 0.0;
+	uint64_t length_in_interval;
+	uint64_t length = 0;
+	struct single_event* texec_start;
+	int texec_start_idx;
+
+	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
+			goto out;
+
+	texec_start = &es->single_events[texec_start_idx];
+
+	while(texec_start && texec_start->time < end) {
+		uint64_t task_length = texec_start->next_texec_end->time - texec_start->time;
+
+		if(!f || (filter_has_task(f, texec_start->active_task) &&
+			  filter_has_frame(f, texec_start->active_frame) &&
+			  filter_has_task_duration(f, task_length)))
+		{
+
+			if(texec_start->time < start &&
+			   texec_start->next_texec_end->time > start &&
+			   texec_start->next_texec_end->time < end)
+			{
+				length_in_interval = texec_start->next_texec_end->time - start;
+				length += length_in_interval;
+				lnum_tasks += ((long double)length_in_interval) /
+					((long double)task_length);
+			} else if(texec_start->time < start &&
+				  texec_start->next_texec_end->time > end)
+			{
+				length_in_interval = end - start;
+				length += length_in_interval;
+				lnum_tasks += ((long double)length_in_interval) /
+					((long double)task_length);
+			} else if(texec_start->time > start &&
+				  texec_start->next_texec_end->time < end)
+			{
+				length_in_interval = texec_start->next_texec_end->time - texec_start->time;
+				length += length_in_interval;
+				lnum_tasks += ((long double)length_in_interval) /
+					((long double)task_length);
+			} else if(texec_start->time > start &&
+				  texec_start->next_texec_end->time > end)
+			{
+				length_in_interval = end - texec_start->time;
+				length += length_in_interval;
+				lnum_tasks += ((long double)length_in_interval) /
+					((long double)task_length);
+			}
+		}
+
+		texec_start = texec_start->next_texec_start;
+	}
+
+out:
+	*num_tasks = lnum_tasks;
+	return (uint64_t)(((long double)(length)) / lnum_tasks);
 }

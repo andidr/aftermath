@@ -92,6 +92,10 @@ extern GtkWidget* g_comm_size_min_entry;
 extern GtkWidget* g_comm_size_max_entry;
 extern GtkWidget* g_comm_numa_node_treeview;
 
+extern GtkWidget* g_heatmap_min_cycles;
+extern GtkWidget* g_heatmap_max_cycles;
+extern GtkWidget* g_heatmap_num_shades;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;

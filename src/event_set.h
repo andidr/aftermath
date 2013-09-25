@@ -71,6 +71,8 @@ void event_set_sort_comm(struct event_set* es);
 void event_set_sort_annotations(struct event_set* es);
 int event_set_get_first_counter_event_in_interval(struct event_set* es, uint64_t counter_id, uint64_t start, uint64_t end);
 int event_set_compare_cpus(const void* p1, const void* p2);
+uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, struct filter* f, long double* num_tasks, uint64_t start, uint64_t end);
+
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f);
 
 #define for_each_comm_event_in_interval(es, start, end, ce) \

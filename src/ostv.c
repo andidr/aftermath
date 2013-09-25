@@ -250,6 +250,10 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
 
+	IMPORT_GLADE_WIDGET(xml, heatmap_min_cycles);
+	IMPORT_GLADE_WIDGET(xml, heatmap_max_cycles);
+	IMPORT_GLADE_WIDGET(xml, heatmap_num_shades);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
@@ -319,6 +323,10 @@ int main(int argc, char** argv)
 
 	g_button_clear_range = button_clear_range;
 	g_label_range_selection = label_range_selection;
+
+	g_heatmap_min_cycles = heatmap_min_cycles;
+	g_heatmap_max_cycles = heatmap_max_cycles;
+	g_heatmap_num_shades = heatmap_num_shades;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);

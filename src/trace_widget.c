@@ -80,6 +80,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->draw_counters = 0;
 	g->draw_annotations = 1;
 	g->range_selection = 0;
+	g->heatmap_mode = 0;
 
 	g->draw_single_events = 0;
 	g->back_buffer = NULL;
@@ -786,6 +787,120 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_heatmap(GtkTrace* g, cairo_t* cr)
+{
+	uint64_t curr_length;
+	int64_t last_bin;
+	int64_t curr_bin;
+	double cpu_height = gtk_trace_cpu_height(g);
+	int valid;
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	cairo_set_source_rgb(cr, 1.0, 0, 0);
+	int num_parts_drawn = 0;
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		long double last_start = 0;
+		long double last_end = 0;
+		last_bin = -1;
+
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
+			long double start = gtk_trace_screen_x_to_trace(g, px);
+			long double end = gtk_trace_screen_x_to_trace(g, px+1);
+
+			if(start < 0)
+				continue;
+
+			long double num_tasks = 0.0;
+			curr_length = event_set_get_average_task_length_in_interval(&g->event_sets->sets[cpu_idx], g->filter, &num_tasks, start, end);
+			valid = (num_tasks > 0.0);
+
+			if(curr_length > g->heatmap_min)
+				curr_bin = (g->heatmap_shades*(curr_length - g->heatmap_min)) / (g->heatmap_max - g->heatmap_min);
+			else
+				curr_bin = 0;
+
+			if(curr_bin > g->heatmap_shades)
+				curr_bin = g->heatmap_shades;
+
+			if(last_bin != -1) {
+				if((valid && last_bin != curr_bin) || !valid) {
+					long double intensity = 1.0-((long double)last_bin)/((long double)g->heatmap_shades);
+					cairo_set_source_rgb(cr, 1.0, intensity, intensity);
+					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
+					cairo_fill(cr);
+					num_parts_drawn++;
+				}
+			}
+
+			if(valid && last_bin != curr_bin) {
+				last_bin = curr_bin;
+				last_start = px;
+			}
+
+			if(!valid)
+				last_bin = -1;
+			else
+				last_end = px;
+		}
+
+		if(last_bin != -1) {
+			long double intensity = 1.0-((long double)last_bin)/((long double)g->heatmap_shades);
+
+			cairo_set_source_rgb(cr, 1.0, intensity, intensity);
+			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
+			cairo_fill(cr);
+			num_parts_drawn++;
+		}
+	}
+
+	if(g->highlight_state_event &&
+	   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
+	{
+		if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
+			double cpu_start = gtk_trace_cpu_start(g, multi_event_set_find_cpu_idx(g->event_sets, g->highlight_state_event->event_set->cpu));
+			double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
+			double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
+
+			if(x_start < g->axis_width)
+				x_start = 0;
+
+			if(x_end > g->widget.allocation.width)
+				x_end = g->widget.allocation.width;
+
+			double width = x_end - x_start;
+
+			if(width < 1)
+				width = 1;
+
+			cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
+			cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+			cairo_fill(cr);
+		}
+	}
+
+	if(cpu_height > 3) {
+		cairo_set_line_width (cr, 1);
+		cairo_set_source_rgb(cr, 0, 0, 0);
+
+		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
+			cairo_stroke(cr);
+		}
+	}
+
+	printf("Heatmap parts drawn: %d\n", num_parts_drawn);
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 {
 	char buffer[40];
@@ -1408,6 +1523,27 @@ void gtk_trace_set_draw_annotations(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
+void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->heatmap_min = min_length;
+	g->heatmap_max = max_length;
+	g->heatmap_shades = num_shades;
+
+	if(g->heatmap_mode)
+		gtk_widget_queue_draw(widget);
+}
+
+void gtk_trace_set_heatmap_mode(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->heatmap_mode);
+	g->heatmap_mode = val;
+
+	if(needs_redraw)
+		gtk_widget_queue_draw(widget);
+}
+
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1447,8 +1583,11 @@ void gtk_trace_paint(GtkWidget *widget)
 	gtk_trace_paint_background(g, cr);
 
 	/* Draw events */
-	if(g->draw_states)
+	if(g->draw_states && !g->heatmap_mode)
 		gtk_trace_paint_states(g, cr);
+
+	if(g->heatmap_mode)
+		gtk_trace_paint_heatmap(g, cr);
 
 	if(g->draw_counters)
 		gtk_trace_paint_counters(g, cr);

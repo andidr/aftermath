@@ -83,6 +83,10 @@ GtkWidget* g_comm_size_min_entry;
 GtkWidget* g_comm_size_max_entry;
 GtkWidget* g_comm_numa_node_treeview;
 
+GtkWidget* g_heatmap_min_cycles;
+GtkWidget* g_heatmap_max_cycles;
+GtkWidget* g_heatmap_num_shades;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,
