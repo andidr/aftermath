@@ -204,7 +204,7 @@ struct trace_counter_description {
 extern int trace_counter_description_conversion_table[];
 
 /* Counter events are events are dumps of performance
- * counters, e.g. nulber of cache misses over time
+ * counters, e.g. number of cache misses over time
  */
 struct trace_counter_event {
 	struct trace_event_header header;
