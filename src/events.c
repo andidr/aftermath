@@ -108,7 +108,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 	while(!feof(fp)) {
 		if(bytes_read)
-			*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+			*bytes_read = ftell(fp);
 
 		if(read_uint32_convert(fp, &dsk_eh.type) != 0) {
 			if(feof(fp))
@@ -418,7 +418,7 @@ out_trees:
 	frame_tree_destroy(&ft);
 out_fp:
 	if(bytes_read)
-		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
+		*bytes_read = ftell(fp);
 
 	fclose(fp);
 out:
