@@ -246,6 +246,10 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_remote_and_local;
 	GtkWidget* label_spikes;
 	GtkWidget* label_linear;
+	GtkWidget* hsep_contention1;
+	GtkWidget* hsep_contention2;
+	GtkWidget* hsep_contention3;
+	GtkWidget* hsep_contention4;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -300,6 +304,10 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->radio_remote,
 		ctx->radio_local,
 		ctx->radio_remote_and_local,
+		ctx->hsep_contention1,
+		ctx->hsep_contention2,
+		ctx->hsep_contention3,
+		ctx->hsep_contention4,
 		NULL };
 
 	for(int i = 0; visible_widgets[curr_type][i]; i++)
@@ -355,6 +363,10 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_local);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote_and_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention1);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention2);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention3);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention4);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
