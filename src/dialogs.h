@@ -73,6 +73,7 @@ struct derived_counter_options {
 	enum worker_state state;
 	enum access_type contention_type;
 	enum access_model contention_model;
+	enum source_type source_type;
 };
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);

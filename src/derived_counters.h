@@ -26,6 +26,12 @@ enum access_type {
 	ACCESS_TYPE_READS_AND_WRITES
 };
 
+enum source_type {
+	SOURCE_TYPE_LOCAL,
+	SOURCE_TYPE_REMOTE,
+	SOURCE_TYPE_LOCAL_AND_REMOTE
+};
+
 enum access_model {
 	ACCESS_MODEL_SPIKES,
 	ACCESS_MODEL_LINEAR
@@ -33,6 +39,6 @@ enum access_model {
 
 int derive_aggregate_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu);
 int derive_parallelism_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum worker_state state, int num_samples, int cpu);
-int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
+int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
 
 #endif
