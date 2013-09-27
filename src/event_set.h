@@ -48,6 +48,7 @@ struct event_set {
 	int num_annotations_free;
 
 	int cpu;
+	int numa_node;
 	uint64_t first_start;
 	uint64_t last_end;
 };
@@ -250,6 +251,8 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;
 	es->last_end = 0;
+
+	es->numa_node = -1;
 }
 
 static inline void event_set_destroy(struct event_set* es)

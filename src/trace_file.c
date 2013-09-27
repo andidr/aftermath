@@ -102,6 +102,12 @@ int trace_frame_info_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_cpu_info_conversion_table[] = {
+	EVENT_HEADER_CONVERSION_FIELDS,
+	FIELD_SIZE(struct trace_cpu_info, numa_node),
+	CONVERSION_TABLE_END
+};
+
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&

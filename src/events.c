@@ -94,6 +94,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct trace_counter_description dsk_cd;
 	struct trace_counter_event dsk_cre;
 	struct trace_frame_info dsk_fi;
+	struct trace_cpu_info dsk_ci;
 
 	struct event_set* es;
 	struct state_event se;
@@ -251,6 +252,14 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				if(mes->max_numa_node_id < dsk_fi.numa_node)
 					mes->max_numa_node_id = dsk_fi.numa_node;
+			} else if(dsk_eh.type == EVENT_TYPE_CPU_INFO) {
+				memcpy(&dsk_ci, &dsk_eh, sizeof(dsk_eh));
+
+				if(read_struct_convert(fp, &dsk_ci, sizeof(dsk_ci), trace_cpu_info_conversion_table, sizeof(dsk_eh)) != 0)
+					return 1;
+
+				es = multi_event_set_find_alloc_cpu(mes, dsk_ci.header.cpu);
+				es->numa_node = dsk_ci.numa_node;
 			}
 		}
 	}

@@ -45,7 +45,7 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 12
+#define TRACE_VERSION 13
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -53,7 +53,8 @@ enum event_type {
 	EVENT_TYPE_SINGLE = 2,
 	EVENT_TYPE_COUNTER = 3,
 	EVENT_TYPE_COUNTER_DESCRIPTION = 4,
-	EVENT_TYPE_FRAME_INFO = 5
+	EVENT_TYPE_FRAME_INFO = 5,
+	EVENT_TYPE_CPU_INFO = 6
 };
 
 enum worker_state {
@@ -253,6 +254,15 @@ struct trace_frame_info {
 } __attribute__((packed));
 
 extern int trace_frame_info_conversion_table[];
+
+struct trace_cpu_info {
+	struct trace_event_header header;
+
+	/* NUMA node of the CPU's local allocations */
+	int32_t numa_node;
+} __attribute__((packed));
+
+extern int trace_cpu_info_conversion_table[];
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);
