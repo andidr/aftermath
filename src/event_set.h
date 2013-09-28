@@ -193,7 +193,7 @@ static inline struct counter_event_set* event_set_find_alloc_counter_event_set(s
 	return res;
 }
 
-static inline int event_set_add_counter_event(struct event_set* es, struct counter_event* ce)
+static inline int event_set_add_counter_event(struct event_set* es, struct counter_event* ce, int calc_slope)
 {
 	struct counter_event_set* ces;
 
@@ -213,11 +213,13 @@ static inline int event_set_add_counter_event(struct event_set* es, struct count
 	if(ce->time > es->last_end)
 		es->last_end = ce->time;
 
-	if(ces->num_events >= 2) {
-		ce->slope = (long double)(ces->events[ces->num_events-1].value - ces->events[ces->num_events-2].value) /
-			(long double)(ces->events[ces->num_events-1].time - ces->events[ces->num_events-2].time);
-	} else {
-		ce->slope = 0;
+	if(calc_slope) {
+		if(ces->num_events >= 2) {
+			ce->slope = (long double)(ces->events[ces->num_events-1].value - ces->events[ces->num_events-2].value) /
+				(long double)(ces->events[ces->num_events-1].time - ces->events[ces->num_events-2].time);
+		} else {
+			ce->slope = 0;
+		}
 	}
 
 	ces->events[ces->num_events-1].slope = ce->slope;

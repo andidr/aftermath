@@ -234,7 +234,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				cre.counter_index = cd->index;
 				cre.value = dsk_cre.value;
 
-				if(event_set_add_counter_event(es, &cre) != 0)
+				if(event_set_add_counter_event(es, &cre, 1) != 0)
 					return 1;
 
 				multi_event_set_check_update_counter_bounds(mes, &cre);

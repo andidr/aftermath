@@ -15,10 +15,9 @@
         <child>
           <widget class="GtkTable" id="table_properties">
             <property name="visible">True</property>
-            <property name="n_rows">19</property>
+            <property name="n_rows">21</property>
             <property name="n_columns">2</property>
             <property name="column_spacing">5</property>
-            <property name="row_spacing">5</property>
             <child>
               <widget class="GtkLabel" id="label_cpu">
                 <property name="visible">True</property>
@@ -26,8 +25,8 @@
                 <property name="label" translatable="yes">Attach to CPU:</property>
               </widget>
               <packing>
-                <property name="top_attach">16</property>
-                <property name="bottom_attach">17</property>
+                <property name="top_attach">18</property>
+                <property name="bottom_attach">19</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -41,8 +40,8 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">16</property>
-                <property name="bottom_attach">17</property>
+                <property name="top_attach">18</property>
+                <property name="bottom_attach">19</property>
               </packing>
             </child>
             <child>
@@ -62,7 +61,8 @@
                 <property name="active">1</property>
                 <property name="items" translatable="yes">Parallelism
 Aggregate
-NUMA node contention</property>
+NUMA node contention
+Ratio</property>
                 <signal name="changed" handler="derived_counter_dialog_type_changed"/>
               </widget>
               <packing>
@@ -77,8 +77,8 @@ NUMA node contention</property>
                 <property name="label" translatable="yes">Number of samples:</property>
               </widget>
               <packing>
-                <property name="top_attach">17</property>
-                <property name="bottom_attach">18</property>
+                <property name="top_attach">19</property>
+                <property name="bottom_attach">20</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -92,8 +92,8 @@ NUMA node contention</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">17</property>
-                <property name="bottom_attach">18</property>
+                <property name="top_attach">19</property>
+                <property name="bottom_attach">20</property>
               </packing>
             </child>
             <child>
@@ -103,8 +103,8 @@ NUMA node contention</property>
                 <property name="label" translatable="yes">Name:</property>
               </widget>
               <packing>
-                <property name="top_attach">18</property>
-                <property name="bottom_attach">19</property>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -118,8 +118,8 @@ NUMA node contention</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">18</property>
-                <property name="bottom_attach">19</property>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
               </packing>
             </child>
             <child>
@@ -185,8 +185,8 @@ Reordering</property>
                 <property name="label" translatable="yes">NUMA node:</property>
               </widget>
               <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
+                <property name="top_attach">5</property>
+                <property name="bottom_attach">6</property>
               </packing>
             </child>
             <child>
@@ -198,8 +198,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
+                <property name="top_attach">5</property>
+                <property name="bottom_attach">6</property>
               </packing>
             </child>
             <child>
@@ -209,8 +209,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Access type:</property>
               </widget>
               <packing>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
+                <property name="top_attach">7</property>
+                <property name="bottom_attach">8</property>
               </packing>
             </child>
             <child>
@@ -218,8 +218,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
+                <property name="top_attach">8</property>
+                <property name="bottom_attach">9</property>
               </packing>
             </child>
             <child>
@@ -227,8 +227,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">7</property>
-                <property name="bottom_attach">8</property>
+                <property name="top_attach">9</property>
+                <property name="bottom_attach">10</property>
               </packing>
             </child>
             <child>
@@ -243,8 +243,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
+                <property name="top_attach">7</property>
+                <property name="bottom_attach">8</property>
               </packing>
             </child>
             <child>
@@ -259,8 +259,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
+                <property name="top_attach">8</property>
+                <property name="bottom_attach">9</property>
               </packing>
             </child>
             <child>
@@ -275,8 +275,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">7</property>
-                <property name="bottom_attach">8</property>
+                <property name="top_attach">9</property>
+                <property name="bottom_attach">10</property>
               </packing>
             </child>
             <child>
@@ -286,8 +286,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Access model:</property>
               </widget>
               <packing>
-                <property name="top_attach">13</property>
-                <property name="bottom_attach">14</property>
+                <property name="top_attach">15</property>
+                <property name="bottom_attach">16</property>
               </packing>
             </child>
             <child>
@@ -295,8 +295,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">14</property>
-                <property name="bottom_attach">15</property>
+                <property name="top_attach">16</property>
+                <property name="bottom_attach">17</property>
               </packing>
             </child>
             <child>
@@ -312,8 +312,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">13</property>
-                <property name="bottom_attach">14</property>
+                <property name="top_attach">15</property>
+                <property name="bottom_attach">16</property>
               </packing>
             </child>
             <child>
@@ -328,8 +328,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">14</property>
-                <property name="bottom_attach">15</property>
+                <property name="top_attach">16</property>
+                <property name="bottom_attach">17</property>
               </packing>
             </child>
             <child>
@@ -339,8 +339,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Source:</property>
               </widget>
               <packing>
-                <property name="top_attach">9</property>
-                <property name="bottom_attach">10</property>
+                <property name="top_attach">11</property>
+                <property name="bottom_attach">12</property>
               </packing>
             </child>
             <child>
@@ -356,8 +356,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">9</property>
-                <property name="bottom_attach">10</property>
+                <property name="top_attach">11</property>
+                <property name="bottom_attach">12</property>
               </packing>
             </child>
             <child>
@@ -373,8 +373,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">10</property>
-                <property name="bottom_attach">11</property>
+                <property name="top_attach">12</property>
+                <property name="bottom_attach">13</property>
               </packing>
             </child>
             <child>
@@ -389,8 +389,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">11</property>
-                <property name="bottom_attach">12</property>
+                <property name="top_attach">13</property>
+                <property name="bottom_attach">14</property>
               </packing>
             </child>
             <child>
@@ -398,8 +398,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">10</property>
-                <property name="bottom_attach">11</property>
+                <property name="top_attach">12</property>
+                <property name="bottom_attach">13</property>
               </packing>
             </child>
             <child>
@@ -407,8 +407,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">11</property>
-                <property name="bottom_attach">12</property>
+                <property name="top_attach">13</property>
+                <property name="bottom_attach">14</property>
               </packing>
             </child>
             <child>
@@ -417,8 +417,8 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
+                <property name="top_attach">6</property>
+                <property name="bottom_attach">7</property>
               </packing>
             </child>
             <child>
@@ -427,8 +427,8 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">8</property>
-                <property name="bottom_attach">9</property>
+                <property name="top_attach">10</property>
+                <property name="bottom_attach">11</property>
               </packing>
             </child>
             <child>
@@ -437,8 +437,8 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">12</property>
-                <property name="bottom_attach">13</property>
+                <property name="top_attach">14</property>
+                <property name="bottom_attach">15</property>
               </packing>
             </child>
             <child>
@@ -447,8 +447,82 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">15</property>
-                <property name="bottom_attach">16</property>
+                <property name="top_attach">17</property>
+                <property name="bottom_attach">18</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label_divcounter">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Dividing counter:</property>
+              </widget>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkComboBox" id="combo_divcounter">
+                <property name="visible">True</property>
+                <property name="items" translatable="yes">
+</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label_divmode">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">Mode:</property>
+              </widget>
+              <packing>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkVBox" id="vbox_divmode">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <widget class="GtkRadioButton" id="radio_plain_div">
+                    <property name="label" translatable="yes">Plain division i.e. (A / B)</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkRadioButton" id="radio_div_sum">
+                    <property name="label" translatable="yes">Divide by sum (i.e. A/(A+B))</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">radio_plain_div</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
               </packing>
             </child>
           </widget>

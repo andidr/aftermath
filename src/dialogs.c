@@ -250,6 +250,12 @@ struct derived_counter_dialog_context {
 	GtkWidget* hsep_contention2;
 	GtkWidget* hsep_contention3;
 	GtkWidget* hsep_contention4;
+	GtkWidget* combo_divcounter;
+	GtkWidget* label_divcounter;
+	GtkWidget* label_divmode;
+	GtkWidget* vbox_divmode;
+	GtkWidget* radio_plain_div;
+	GtkWidget* radio_div_sum;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -261,7 +267,7 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 	gtk_widget_hide_all(ctx->table_properties);
 	gtk_widget_show(ctx->table_properties);
 
-	GtkWidget** visible_widgets[3];
+	GtkWidget** visible_widgets[4];
 
 	visible_widgets[DERIVED_COUNTER_PARALLELISM] =
 		(GtkWidget*[]) {
@@ -310,6 +316,17 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->hsep_contention4,
 		NULL };
 
+	visible_widgets[DERIVED_COUNTER_RATIO] =
+		(GtkWidget*[]){
+		ctx->combo_type, ctx->label_type,
+		ctx->combo_counter, ctx->label_counter,
+		ctx->combo_divcounter, ctx->label_divcounter,
+		ctx->vbox_divmode, ctx->label_divmode,
+		ctx->radio_plain_div, ctx->radio_div_sum,
+		ctx->scale_samples, ctx->label_samples,
+		ctx->entry_name, ctx->label_name,
+		NULL };
+
 	for(int i = 0; visible_widgets[curr_type][i]; i++)
 		gtk_widget_show_all(visible_widgets[curr_type][i]);
 
@@ -323,6 +340,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int type_idx;
 	int cpu_idx;
 	int ctr_idx;
+	int divctr_idx;
 	int numa_node_idx;
 	int numa_node;
 	int ret = 0;
@@ -367,6 +385,12 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention2);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention3);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention4);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_divcounter);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_divcounter);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_divmode);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_plain_div);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_div_sum);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, vbox_divmode);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -375,9 +399,11 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	}
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_counter), 0);
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_divcounter), 0);
 	for(ctr_idx = 0; ctr_idx < mes->num_counters; ctr_idx++) {
 		strncpy(buffer, mes->counters[ctr_idx].name, sizeof(buffer));
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_counter), buffer);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_divcounter), buffer);
 	}
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
@@ -391,6 +417,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_type), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_counter), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_divcounter), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), WORKER_STATE_TASKEXEC);
 
@@ -413,8 +440,15 @@ retry:
 			goto retry;
 		}
 
-		if(type_idx == DERIVED_COUNTER_AGGREGATE &&
+		if((type_idx == DERIVED_COUNTER_AGGREGATE || type_idx == DERIVED_COUNTER_RATIO) &&
 		   (ctr_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_counter))) == -1)
+		{
+			show_error_message("Please select a counter.");
+			goto retry;
+		}
+
+		if(type_idx == DERIVED_COUNTER_RATIO &&
+		   (divctr_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_divcounter))) == -1)
 		{
 			show_error_message("Please select a counter.");
 			goto retry;
@@ -453,12 +487,18 @@ retry:
 		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_linear)))
 			opt->contention_model = ACCESS_MODEL_LINEAR;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_plain_div)))
+			opt->ratio_type = RATIO_TYPE_PLAIN_DIV;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_div_sum)))
+			opt->ratio_type = RATIO_TYPE_DIV_SUM;
+
 		opt->type = type_idx;
 		opt->cpu = mes->sets[cpu_idx].cpu;
 		opt->num_samples = gtk_range_get_value(GTK_RANGE(ctx.scale_samples));
 		opt->name = malloc(strlen(name)+1);
 		opt->state = state;
 		opt->counter_idx = ctr_idx;
+		opt->divcounter_idx = divctr_idx;
 		opt->numa_node = numa_node_idx;
 
 		if(!opt->name) {

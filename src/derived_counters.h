@@ -37,8 +37,14 @@ enum access_model {
 	ACCESS_MODEL_LINEAR
 };
 
+enum ratio_type {
+	RATIO_TYPE_PLAIN_DIV,
+	RATIO_TYPE_DIV_SUM
+};
+
 int derive_aggregate_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu);
 int derive_parallelism_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum worker_state state, int num_samples, int cpu);
 int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
+int derive_ratio_counter(struct multi_event_set* g_mes, struct counter_description** cd_out, const char* counter_name, enum ratio_type ratio_type, int counter_idx, int divcounter_idx, int num_samples, int cpu);
 
 #endif

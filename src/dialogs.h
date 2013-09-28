@@ -60,13 +60,15 @@ enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int
 enum derived_counter_type {
 	DERIVED_COUNTER_PARALLELISM = 0,
 	DERIVED_COUNTER_AGGREGATE,
-	DERIVED_COUNTER_NUMA_CONTENTION
+	DERIVED_COUNTER_NUMA_CONTENTION,
+	DERIVED_COUNTER_RATIO
 };
 
 struct derived_counter_options {
 	enum derived_counter_type type;
 	unsigned int cpu;
 	unsigned int counter_idx;
+	unsigned int divcounter_idx;
 	unsigned int num_samples;
 	unsigned int numa_node;
 	char* name;
@@ -74,6 +76,7 @@ struct derived_counter_options {
 	enum access_type contention_type;
 	enum access_model contention_model;
 	enum source_type source_type;
+	enum ratio_type ratio_type;
 };
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);

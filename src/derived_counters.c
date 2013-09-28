@@ -88,7 +88,7 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 		for(int i = 0; i < num_sets_having; i++)
 			ce.value += counter_event_set_get_value(&mes->sets[sets_having[i]].counter_event_sets[set_indexes[i]], ce.time);
 
-		if(event_set_add_counter_event(cpu_es, &ce) != 0)
+		if(event_set_add_counter_event(cpu_es, &ce, 1) != 0)
 			return 1;
 
 		multi_event_set_check_update_counter_bounds(mes, &ce);
@@ -167,7 +167,7 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 		ce.counter_index = cd->index;
 		ce.value = parallelism / interval_length;
 
-		if(event_set_add_counter_event(cpu_es, &ce) != 0)
+		if(event_set_add_counter_event(cpu_es, &ce, 1) != 0)
 			return 1;
 
 		multi_event_set_check_update_counter_bounds(mes, &ce);
@@ -256,7 +256,7 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 		cre.counter_id = id;
 		cre.counter_index = cd->index;
 
-		if(event_set_add_counter_event(cpu_es, &cre) != 0)
+		if(event_set_add_counter_event(cpu_es, &cre, 1) != 0)
 			return 1;
 
 		multi_event_set_check_update_counter_bounds(mes, &cre);
@@ -362,7 +362,7 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 		ce.time = interval_start + interval_length / 2;
 		ce.counter_index = cd->index;
 
-		if(event_set_add_counter_event(cpu_es, &ce) != 0)
+		if(event_set_add_counter_event(cpu_es, &ce, 1) != 0)
 			return 1;
 
 		multi_event_set_check_update_counter_bounds(mes, &ce);
@@ -383,4 +383,97 @@ int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_d
 	}
 
 	return 1;
+}
+
+int derive_ratio_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum ratio_type ratio_type, int counter_idx, int divcounter_idx, int num_samples, int cpu)
+{
+	struct counter_description* cd;
+	struct event_set* cpu_es;
+	struct counter_event ce;
+
+	int set_indexes[mes->num_sets];
+	int set_divindexes[mes->num_sets];
+	int sets_having[mes->num_sets];
+	int num_sets_having;
+	int cpu_idx;
+
+	uint64_t id;
+	uint64_t min_time = multi_event_set_first_event_start(mes);
+	uint64_t max_time = multi_event_set_last_event_end(mes);
+	uint64_t interval_length = (max_time - min_time) / (uint64_t)num_samples;
+	int64_t val;
+	int64_t val_div;
+	int64_t val_next;
+	int64_t val_next_div;
+	uint64_t interval_start;
+	uint64_t interval_end;
+	int64_t numerator;
+	int64_t denominator;
+
+	cpu_idx = multi_event_set_find_cpu_idx(mes, cpu);
+	id = multi_event_set_get_free_counter_id(mes);
+
+	if(!(cd = multi_event_set_counter_description_alloc_ptr(mes, id, strlen(counter_name))))
+		return 1;
+
+	cd->counter_id = id;
+	strcpy(cd->name, counter_name);
+
+	ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
+	ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
+	ce.counter_id = id;
+	ce.counter_index = cd->index;
+
+	num_sets_having = 0;
+	for(int i = 0; i < mes->num_sets; i++) {
+		int j = event_set_counter_event_set_index(&mes->sets[i], counter_idx);
+		int k = event_set_counter_event_set_index(&mes->sets[i], divcounter_idx);
+
+		if(j != -1 && k != -1) {
+			sets_having[num_sets_having] = i;
+			set_indexes[num_sets_having] = j;
+			set_divindexes[num_sets_having] = k;
+			num_sets_having++;
+		}
+	}
+
+	for(int i = 0; i < num_sets_having; i++) {
+		cpu_es = &mes->sets[sets_having[i]];
+
+		for(int sample = 0; sample < num_samples; sample++) {
+			interval_start = min_time + (uint64_t)sample * interval_length;
+			interval_end = interval_start + interval_length;
+
+			ce.time = (interval_start + interval_end) / 2;
+			ce.value = 0;
+
+			val = counter_event_set_get_value(&cpu_es->counter_event_sets[set_indexes[i]], interval_start);
+			val_next = counter_event_set_get_value(&cpu_es->counter_event_sets[set_indexes[i]], interval_end);
+
+			val_div = counter_event_set_get_value(&cpu_es->counter_event_sets[set_divindexes[i]], interval_start);
+			val_next_div = counter_event_set_get_value(&cpu_es->counter_event_sets[set_divindexes[i]], interval_end);
+
+			numerator = val_next - val;
+			denominator = val_next_div - val_div;
+
+			if(ratio_type == RATIO_TYPE_DIV_SUM)
+				denominator += numerator;
+
+			if(denominator != 0)
+				ce.slope = (long double)numerator / (long double)denominator;
+			else if(numerator == 0)
+				ce.slope = 0;
+			else
+				ce.slope = (long double)LDBL_MAX;
+
+			if(event_set_add_counter_event(cpu_es, &ce, 0) != 0)
+				return 1;
+
+			multi_event_set_check_update_counter_bounds(mes, &ce);
+		}
+	}
+
+	*cd_out = cd;
+
+	return 0;
 }
