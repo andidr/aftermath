@@ -70,7 +70,7 @@ uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t tim
 			return (ces->events[center_idx-1].value +
 				((time - ces->events[center_idx-1].time) *
 				 (ces->events[center_idx].value - ces->events[center_idx-1].value)) /
-				(ces->events[center_idx].time - ces->events[center_idx-1].value));
+				(ces->events[center_idx].time - ces->events[center_idx-1].time));
 	} else {
 		if(center_idx == ces->num_events-1)
 			return ces->events[center_idx].value;
@@ -78,7 +78,7 @@ uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t tim
 			return (ces->events[center_idx].value +
 				((time - ces->events[center_idx].time) *
 				 (ces->events[center_idx+1].value - ces->events[center_idx].value)) /
-				(ces->events[center_idx+1].time - ces->events[center_idx].value));
+				(ces->events[center_idx+1].time - ces->events[center_idx].time));
 	}
 
 	/* Should never happen */
