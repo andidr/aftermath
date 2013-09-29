@@ -1097,18 +1097,18 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
 
 					if(!cd->slope_mode)
-						rel_val = (long double)ces->events[event_idx].value / (long double)(max - min);
+						rel_val = (long double)(ces->events[event_idx].value-min) / (long double)(max - min);
 					else
-						rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
+						rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
 				} else {
 					if(!cd->slope_mode) {
 						long double xdiff = (long double)(ces->events[event_idx+1].time - ces->events[event_idx].time);
 						long double ydiff = (long double)(ces->events[event_idx+1].value - ces->events[event_idx].value);
 						long double xdiff_invisible = (long double)(g->left - ces->events[event_idx+1].time);
 						long double slope = ydiff / xdiff;
-						rel_val = ((long double)ces->events[event_idx].value + slope*xdiff_invisible) / (long double)(max - min);
+						rel_val = (((long double)ces->events[event_idx].value + slope*xdiff_invisible)-min) / (long double)(max - min);
 					} else {
-						rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
+						rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
 					}
 
 					screen_x = gtk_trace_x_to_screen(g, g->left);
@@ -1130,18 +1130,18 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 					if(ces->events[event_idx].time <= g->right) {
 						screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
 						if(!cd->slope_mode)
-							rel_val = (long double)ces->events[event_idx].value / (long double)(max - min);
+							rel_val = (long double)(ces->events[event_idx].value-min) / (long double)(max - min);
 						else
-							rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
+							rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
 					} else {
 						if(!cd->slope_mode) {
 							long double xdiff = (long double)(ces->events[event_idx].time - ces->events[event_idx-1].time);
 							long double ydiff = (long double)(ces->events[event_idx].value - ces->events[event_idx-1].value);
 							long double xdiff_visible = (long double)(ces->events[event_idx].time - g->right);
 							long double slope = ydiff / xdiff;
-							rel_val = ((long double)ces->events[event_idx-1].value + slope*xdiff_visible) / (long double)(max - min);
+							rel_val = (((long double)ces->events[event_idx-1].value + slope*xdiff_visible)-min) / (long double)(max - min);
 						} else {
-							rel_val = ces->events[event_idx].slope / (max_slope - min_slope);
+							rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
 						}
 
 						screen_x = gtk_trace_x_to_screen(g, g->right);
