@@ -225,6 +225,9 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 	struct counter_description* cd;
 	int err = 1;
 
+	filter_init(&opt.task_filter, 0, 0, 0, 0);
+	bitvector_init(&opt.cpus, multi_event_get_max_cpu(&g_mes));
+
 	if(show_derived_counter_dialog(&g_mes, &opt)) {
 		switch(opt.type) {
 			case DERIVED_COUNTER_PARALLELISM:
@@ -239,6 +242,9 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 			case DERIVED_COUNTER_RATIO:
 				err = derive_ratio_counter(&g_mes, &cd, opt.name, opt.ratio_type, opt.counter_idx, opt.divcounter_idx, opt.num_samples, opt.cpu);
 				break;
+			case DERIVED_COUNTER_TASK_LENGTH:
+				err = derive_task_length_counter(&g_mes, &cd, opt.name, &opt.cpus, &opt.task_filter, opt.num_samples, opt.cpu);
+				break;
 		}
 
 		if(err)
@@ -248,6 +254,9 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 
 		free(opt.name);
 	}
+
+	filter_destroy(&opt.task_filter);
+	bitvector_destroy(&opt.cpus);
 }
 
 void goto_time(double time)

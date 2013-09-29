@@ -17,6 +17,8 @@
 
 #include "dialogs.h"
 #include "glade_extras.h"
+#include "cpu_list.h"
+#include "task_list.h"
 #include <glade/glade.h>
 #include <math.h>
 #include <inttypes.h>
@@ -256,6 +258,12 @@ struct derived_counter_dialog_context {
 	GtkWidget* vbox_divmode;
 	GtkWidget* radio_plain_div;
 	GtkWidget* radio_div_sum;
+	GtkWidget* label_cpus;
+	GtkWidget* scroll_cpus;
+	GtkWidget* treeview_cpus;
+	GtkWidget* label_tasks;
+	GtkWidget* scroll_tasks;
+	GtkWidget* treeview_tasks;
 };
 
 G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gpointer user_data)
@@ -267,7 +275,7 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 	gtk_widget_hide_all(ctx->table_properties);
 	gtk_widget_show(ctx->table_properties);
 
-	GtkWidget** visible_widgets[4];
+	GtkWidget** visible_widgets[5];
 
 	visible_widgets[DERIVED_COUNTER_PARALLELISM] =
 		(GtkWidget*[]) {
@@ -323,6 +331,18 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->combo_divcounter, ctx->label_divcounter,
 		ctx->vbox_divmode, ctx->label_divmode,
 		ctx->radio_plain_div, ctx->radio_div_sum,
+		ctx->scale_samples, ctx->label_samples,
+		ctx->entry_name, ctx->label_name,
+		NULL };
+
+	visible_widgets[DERIVED_COUNTER_TASK_LENGTH] =
+		(GtkWidget*[]){
+		ctx->combo_type, ctx->label_type,
+		ctx->combo_cpu, ctx->label_cpu,
+		ctx->label_cpus, ctx->treeview_cpus,
+		ctx->scroll_cpus,
+		ctx->label_tasks, ctx->treeview_tasks,
+		ctx->scroll_tasks,
 		ctx->scale_samples, ctx->label_samples,
 		ctx->entry_name, ctx->label_name,
 		NULL };
@@ -391,6 +411,12 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_plain_div);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_div_sum);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, vbox_divmode);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_cpus);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scroll_cpus);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, treeview_cpus);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_tasks);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scroll_tasks);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, treeview_tasks);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -411,6 +437,13 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 		snprintf(buffer, sizeof(buffer), "Node %d", numa_node);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_numa_node), buffer);
 	}
+
+	cpu_list_init(GTK_TREE_VIEW(ctx.treeview_cpus));
+	cpu_list_fill(GTK_TREE_VIEW(ctx.treeview_cpus), multi_event_get_max_cpu(mes));
+
+	task_list_init(GTK_TREE_VIEW(ctx.treeview_tasks));
+	task_list_fill(GTK_TREE_VIEW(ctx.treeview_tasks), mes->tasks, mes->num_tasks);
+	task_list_uncheck_all(GTK_TREE_VIEW(ctx.treeview_tasks));
 
 	g_object_set_data(G_OBJECT(ctx.combo_type), "context", &ctx);
 
@@ -459,6 +492,26 @@ retry:
 		{
 			show_error_message("Please select a NUMA node.");
 			goto retry;
+		}
+
+		if(type_idx == DERIVED_COUNTER_TASK_LENGTH) {
+			cpu_list_build_bitvector(GTK_TREE_VIEW(ctx.treeview_cpus), &opt->cpus);
+
+			if(bitvector_num_bits_set(&opt->cpus) == 0) {
+				show_error_message("Please select at least one CPU.");
+				goto retry;
+			}
+		}
+
+		filter_clear_tasks(&opt->task_filter);
+
+		if(type_idx == DERIVED_COUNTER_TASK_LENGTH) {
+			task_list_build_filter(GTK_TREE_VIEW(ctx.treeview_tasks), &opt->task_filter);
+
+			if(opt->task_filter.num_tasks == 0) {
+				show_error_message("Please select at least one task.");
+				goto retry;
+			}
 		}
 
 		name = gtk_entry_get_text(GTK_ENTRY(ctx.entry_name));

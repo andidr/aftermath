@@ -67,6 +67,17 @@ static inline int64_t multi_event_get_min_counter_value(struct multi_event_set* 
 	return min;
 }
 
+static inline int multi_event_get_max_cpu(struct multi_event_set* mes)
+{
+	int max_cpu = -1;
+
+	for(int i = 0; i < mes->num_sets; i++)
+		if(mes->sets[i].cpu > max_cpu)
+			max_cpu = mes->sets[i].cpu;
+
+	return max_cpu;
+}
+
 static inline int64_t multi_event_get_max_counter_value(struct multi_event_set* mes)
 {
 	int64_t max = INT64_MIN;

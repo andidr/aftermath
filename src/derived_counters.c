@@ -38,6 +38,28 @@ int get_min_index(struct multi_event_set* mes, int* curr_idx, uint64_t* curr_sta
 	return min_idx;
 }
 
+int get_min_ptr_index(struct multi_event_set* mes, void** curr_ptr, uint64_t* curr_start)
+{
+	int i;
+	int min_idx = -1;
+	uint64_t min = UINT64_MAX;
+	uint64_t time;
+
+	for(i = 0; i < mes->num_sets; i++) {
+		if(curr_ptr[i]) {
+			time = curr_start[i];
+
+			if(time < min) {
+				min = time;
+				min_idx = i;
+			}
+		}
+	}
+
+	return min_idx;
+}
+
+
 int derive_aggregate_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu)
 {
 	struct counter_description* cd;
@@ -383,6 +405,112 @@ int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_d
 	}
 
 	return 1;
+}
+
+int derive_task_length_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, struct bitvector* cpus, struct filter* task_filter, int num_samples, int cpu)
+{
+	struct counter_description* cd;
+	int cpu_idx;
+	struct event_set* cpu_es;
+	uint64_t id;
+	struct single_event* curr_texec_start[mes->num_sets];
+	uint64_t curr_start[mes->num_sets];
+
+	struct single_event* sge_start;
+	struct single_event* sge_end;
+
+	int min_idx;
+	int idx;
+	uint64_t min_time = multi_event_set_first_event_start(mes);
+	uint64_t max_time = multi_event_set_last_event_end(mes);
+	uint64_t interval_length = (max_time - min_time) / (uint64_t)num_samples;
+	uint64_t interval_start;
+	uint64_t interval_end;
+	struct counter_event ce;
+
+	cpu_idx = multi_event_set_find_cpu_idx(mes, cpu);
+	cpu_es = &mes->sets[cpu_idx];
+
+	id = multi_event_set_get_free_counter_id(mes);
+
+	if(!(cd = multi_event_set_counter_description_alloc_ptr(mes, id, strlen(counter_name))))
+		return 1;
+
+	cd->counter_id = id;
+	strcpy(cd->name, counter_name);
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		curr_texec_start[i] = NULL;
+
+		if(mes->sets[i].num_single_events > 0 && bitvector_test_bit(cpus, mes->sets[i].cpu)) {
+			idx = event_set_get_next_single_event(&mes->sets[i], -1, SINGLE_TYPE_TEXEC_START);
+
+			if(idx != -1)
+				curr_texec_start[i] = &mes->sets[i].single_events[idx];
+			else
+				curr_texec_start[i] = NULL;
+		}
+
+		curr_start[i] = (curr_texec_start[i]) ? curr_texec_start[i]->time : 0;
+	}
+
+	for(int sample = 0; sample < num_samples; sample++) {
+		interval_start = min_time + (uint64_t)sample * interval_length;
+		interval_end = interval_start + interval_length;
+		uint64_t cycles = 0;
+		uint64_t cycles_length = 0;
+		uint64_t curr_cycles;
+		uint64_t task_length;
+
+		while((min_idx = get_min_ptr_index(mes, (void**)curr_texec_start, curr_start)) != -1 &&
+			curr_start[min_idx] < interval_end)
+		{
+			sge_start = curr_texec_start[min_idx];
+			sge_end = sge_start->next_texec_end;
+			task_length = sge_end->time - sge_start->time;
+
+			if(sge_end->time < interval_end) {
+				curr_cycles = sge_end->time - curr_start[min_idx];
+
+				curr_texec_start[min_idx] = sge_start->next_texec_start;
+
+				if(curr_texec_start[min_idx])
+					curr_start[min_idx] = curr_texec_start[min_idx]->time;
+			} else {
+				curr_cycles = interval_end - curr_start[min_idx];
+				curr_start[min_idx] = interval_end;
+			}
+
+			if(filter_has_task(task_filter, sge_start->active_task)) {
+				cycles += curr_cycles;
+				cycles_length += curr_cycles*task_length;
+			}
+		}
+
+		ce.time = interval_start + interval_length / 2;
+		ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
+		ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
+		ce.counter_id = id;
+		ce.counter_index = cd->index;
+
+		if(cycles != 0) {
+			ce.value = cycles_length / cycles;
+		} else {
+			if(cycles_length == 0)
+				ce.value = 0;
+			else
+				ce.value = INT64_MAX;
+		}
+
+		if(event_set_add_counter_event(cpu_es, &ce, 1) != 0)
+			return 1;
+
+		multi_event_set_check_update_counter_bounds(mes, &ce);
+	}
+
+	*cd_out = cd;
+
+	return 0;
 }
 
 int derive_ratio_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum ratio_type ratio_type, int counter_idx, int divcounter_idx, int num_samples, int cpu)

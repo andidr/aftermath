@@ -19,6 +19,8 @@
 #define DERIVED_COUNTERS_H
 
 #include "multi_event_set.h"
+#include "filter.h"
+#include "bitvector.h"
 
 enum access_type {
 	ACCESS_TYPE_READS_ONLY,
@@ -46,5 +48,6 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 int derive_parallelism_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum worker_state state, int num_samples, int cpu);
 int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
 int derive_ratio_counter(struct multi_event_set* g_mes, struct counter_description** cd_out, const char* counter_name, enum ratio_type ratio_type, int counter_idx, int divcounter_idx, int num_samples, int cpu);
+int derive_task_length_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, struct bitvector* cpus, struct filter* task_filter, int num_samples, int cpu);
 
 #endif

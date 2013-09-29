@@ -23,6 +23,8 @@
 #include "multi_event_set.h"
 #include "derived_counters.h"
 #include "annotation.h"
+#include "bitvector.h"
+#include "filter.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -61,7 +63,8 @@ enum derived_counter_type {
 	DERIVED_COUNTER_PARALLELISM = 0,
 	DERIVED_COUNTER_AGGREGATE,
 	DERIVED_COUNTER_NUMA_CONTENTION,
-	DERIVED_COUNTER_RATIO
+	DERIVED_COUNTER_RATIO,
+	DERIVED_COUNTER_TASK_LENGTH
 };
 
 struct derived_counter_options {
@@ -77,6 +80,8 @@ struct derived_counter_options {
 	enum access_model contention_model;
 	enum source_type source_type;
 	enum ratio_type ratio_type;
+	struct bitvector cpus;
+	struct filter task_filter;
 };
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);
