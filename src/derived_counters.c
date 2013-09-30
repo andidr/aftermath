@@ -200,7 +200,7 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 	return 0;
 }
 
-int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source,  enum access_type contention_type, int num_samples, int cpu)
+int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum data_direction data_direction,  enum access_type contention_type, int num_samples, int cpu)
 {
 	struct counter_description* cd;
 	int cpu_idx;
@@ -257,12 +257,18 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 			   (contention_type == ACCESS_TYPE_WRITES_ONLY && ce->type == COMM_TYPE_DATA_WRITE))
 			{
 				if(ce->what->numa_node == numa_node) {
-					if(source == SOURCE_TYPE_LOCAL_AND_REMOTE ||
-					   (source == SOURCE_TYPE_LOCAL && ce->event_set->numa_node / 8 == numa_node) ||
-					   (source == SOURCE_TYPE_REMOTE && ce->event_set->numa_node != numa_node))
+					if(data_direction == DATA_DIRECTION_REMOTE_AND_LOCAL_TO_LOCAL ||
+					   data_direction == DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE ||
+					   (data_direction == DATA_DIRECTION_LOCAL_TO_LOCAL && ce->event_set->numa_node == numa_node) ||
+					   (data_direction == DATA_DIRECTION_REMOTE_TO_LOCAL && ce->event_set->numa_node != numa_node))
 					{
 						cre.value += ce->size;
 					}
+				} else if((data_direction == DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE ||
+					   data_direction == DATA_DIRECTION_LOCAL_TO_REMOTE) &&
+					  ce->event_set->numa_node == numa_node)
+				{
+					cre.value += ce->size;
 				}
 			}
 
@@ -289,7 +295,7 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 	return 0;
 }
 
-static uint64_t get_comm_bytes_in_interval(struct event_set* es, uint64_t start, uint64_t end, unsigned int numa_node, enum source_type source, enum access_type contention_type)
+static uint64_t get_comm_bytes_in_interval(struct event_set* es, uint64_t start, uint64_t end, unsigned int numa_node, enum data_direction data_direction, enum access_type contention_type)
 {
 	struct comm_event* ce;
 	uint64_t bytes = 0;
@@ -301,12 +307,18 @@ static uint64_t get_comm_bytes_in_interval(struct event_set* es, uint64_t start,
 		   (contention_type == ACCESS_TYPE_WRITES_ONLY && ce->type == COMM_TYPE_DATA_WRITE))
 		{
 			if(ce->what->numa_node == numa_node) {
-				if(source == SOURCE_TYPE_LOCAL_AND_REMOTE ||
-				   (source == SOURCE_TYPE_LOCAL && ce->event_set->numa_node == numa_node) ||
-				   (source == SOURCE_TYPE_REMOTE && ce->event_set->numa_node != numa_node))
+				if(data_direction == DATA_DIRECTION_REMOTE_AND_LOCAL_TO_LOCAL ||
+				   data_direction == DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE ||
+				   (data_direction == DATA_DIRECTION_LOCAL_TO_LOCAL && ce->event_set->numa_node == numa_node) ||
+				   (data_direction == DATA_DIRECTION_REMOTE_TO_LOCAL && ce->event_set->numa_node != numa_node))
 				{
 					bytes += ce->size;
 				}
+			} else if((data_direction == DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE ||
+				   data_direction == DATA_DIRECTION_LOCAL_TO_REMOTE) &&
+				  ce->event_set->numa_node == numa_node)
+			{
+				bytes += ce->size;
 			}
 		}
 	}
@@ -314,7 +326,7 @@ static uint64_t get_comm_bytes_in_interval(struct event_set* es, uint64_t start,
 	return bytes;
 }
 
-int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, int num_samples, int cpu)
+int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum data_direction data_direction, enum access_type contention_type, int num_samples, int cpu)
 {
 	struct counter_description* cd;
 	int cpu_idx;
@@ -350,7 +362,7 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 		curr_start[i] = (curr_idx[i] != -1) ? mes->sets[i].single_events[curr_idx[i]].time : 0;
 		curr_end[i] = (curr_idx[i] != -1) ? mes->sets[i].single_events[curr_idx[i]].next_texec_end->time : 0;
 		curr_length[i] = (curr_idx[i] != -1) ? curr_end[i] - curr_start[i] : 0;
-		curr_bytes[i] = (curr_idx[i] != -1) ? get_comm_bytes_in_interval(&mes->sets[i], curr_start[i], curr_end[i], numa_node, source, contention_type) : 0;
+		curr_bytes[i] = (curr_idx[i] != -1) ? get_comm_bytes_in_interval(&mes->sets[i], curr_start[i], curr_end[i], numa_node, data_direction, contention_type) : 0;
 	}
 
 	ce.value = 0;
@@ -373,7 +385,7 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 					curr_start[min_idx] = mes->sets[min_idx].single_events[curr_idx[min_idx]].time;
 					curr_end[min_idx] = mes->sets[min_idx].single_events[curr_idx[min_idx]].next_texec_end->time;
 					curr_length[min_idx] = curr_end[min_idx] - curr_start[min_idx];
-					curr_bytes[min_idx] = get_comm_bytes_in_interval(&mes->sets[min_idx], curr_start[min_idx], curr_end[min_idx], numa_node, source, contention_type);
+					curr_bytes[min_idx] = get_comm_bytes_in_interval(&mes->sets[min_idx], curr_start[min_idx], curr_end[min_idx], numa_node, data_direction, contention_type);
 				}
 			} else {
 				ce.value += ((interval_end - curr_start[min_idx]) * curr_bytes[min_idx]) / curr_length[min_idx];
@@ -395,13 +407,13 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 	return 0;
 }
 
-int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, enum access_model model, int num_samples, int cpu)
+int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum data_direction data_direction, enum access_type contention_type, enum access_model model, int num_samples, int cpu)
 {
 	switch(model) {
 		case ACCESS_MODEL_SPIKES:
-			return derive_numa_contention_counter_spikes(mes, cd_out, counter_name, numa_node, source, contention_type, num_samples, cpu);
+			return derive_numa_contention_counter_spikes(mes, cd_out, counter_name, numa_node, data_direction, contention_type, num_samples, cpu);
 		case ACCESS_MODEL_LINEAR:
-			return derive_numa_contention_counter_linear(mes, cd_out, counter_name, numa_node, source, contention_type, num_samples, cpu);
+			return derive_numa_contention_counter_linear(mes, cd_out, counter_name, numa_node, data_direction, contention_type, num_samples, cpu);
 	}
 
 	return 1;

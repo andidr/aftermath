@@ -15,7 +15,7 @@
         <child>
           <widget class="GtkTable" id="table_properties">
             <property name="visible">True</property>
-            <property name="n_rows">23</property>
+            <property name="n_rows">25</property>
             <property name="n_columns">2</property>
             <property name="column_spacing">5</property>
             <child>
@@ -25,8 +25,8 @@
                 <property name="label" translatable="yes">Attach to CPU:</property>
               </widget>
               <packing>
-                <property name="top_attach">18</property>
-                <property name="bottom_attach">19</property>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -40,8 +40,8 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">18</property>
-                <property name="bottom_attach">19</property>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
               </packing>
             </child>
             <child>
@@ -78,8 +78,8 @@ Task length</property>
                 <property name="label" translatable="yes">Number of samples:</property>
               </widget>
               <packing>
-                <property name="top_attach">19</property>
-                <property name="bottom_attach">20</property>
+                <property name="top_attach">21</property>
+                <property name="bottom_attach">22</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -93,8 +93,8 @@ Task length</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">19</property>
-                <property name="bottom_attach">20</property>
+                <property name="top_attach">21</property>
+                <property name="bottom_attach">22</property>
               </packing>
             </child>
             <child>
@@ -104,8 +104,8 @@ Task length</property>
                 <property name="label" translatable="yes">Name:</property>
               </widget>
               <packing>
-                <property name="top_attach">22</property>
-                <property name="bottom_attach">23</property>
+                <property name="top_attach">24</property>
+                <property name="bottom_attach">25</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -119,8 +119,8 @@ Task length</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">22</property>
-                <property name="bottom_attach">23</property>
+                <property name="top_attach">24</property>
+                <property name="bottom_attach">25</property>
               </packing>
             </child>
             <child>
@@ -287,8 +287,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Access model:</property>
               </widget>
               <packing>
-                <property name="top_attach">15</property>
-                <property name="bottom_attach">16</property>
+                <property name="top_attach">17</property>
+                <property name="bottom_attach">18</property>
               </packing>
             </child>
             <child>
@@ -296,8 +296,8 @@ Reordering</property>
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">16</property>
-                <property name="bottom_attach">17</property>
+                <property name="top_attach">18</property>
+                <property name="bottom_attach">19</property>
               </packing>
             </child>
             <child>
@@ -313,8 +313,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">15</property>
-                <property name="bottom_attach">16</property>
+                <property name="top_attach">17</property>
+                <property name="bottom_attach">18</property>
               </packing>
             </child>
             <child>
@@ -329,15 +329,15 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">16</property>
-                <property name="bottom_attach">17</property>
+                <property name="top_attach">18</property>
+                <property name="bottom_attach">19</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label_remote">
+              <widget class="GtkLabel" id="label_remote_to_local">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">Source:</property>
+                <property name="label" translatable="yes">Data direction:</property>
               </widget>
               <packing>
                 <property name="top_attach">11</property>
@@ -345,14 +345,14 @@ Reordering</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkRadioButton" id="radio_remote">
-                <property name="label" translatable="yes">Remote nodes only</property>
+              <widget class="GtkRadioButton" id="radio_remote_to_local">
+                <property name="label" translatable="yes">Remote nodes to / from local node only</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
-                <property name="group">radio_remote_and_local</property>
+                <property name="group">radio_remote_and_local_to_local</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -362,14 +362,14 @@ Reordering</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkRadioButton" id="radio_local">
-                <property name="label" translatable="yes">Local nodes only</property>
+              <widget class="GtkRadioButton" id="radio_local_to_local">
+                <property name="label" translatable="yes">Local node to / from local node only</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
-                <property name="group">radio_remote_and_local</property>
+                <property name="group">radio_remote_and_local_to_local</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -379,8 +379,8 @@ Reordering</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkRadioButton" id="radio_remote_and_local">
-                <property name="label" translatable="yes">Remote and local nodes</property>
+              <widget class="GtkRadioButton" id="radio_remote_and_local_to_local">
+                <property name="label" translatable="yes">Remote and local nodes to / from local node</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
@@ -390,12 +390,12 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">13</property>
-                <property name="bottom_attach">14</property>
+                <property name="top_attach">14</property>
+                <property name="bottom_attach">15</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label_local">
+              <widget class="GtkLabel" id="label_local_to_local">
                 <property name="visible">True</property>
               </widget>
               <packing>
@@ -404,12 +404,12 @@ Reordering</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label_remote_and_local">
+              <widget class="GtkLabel" id="label_remote_and_local_to_local">
                 <property name="visible">True</property>
               </widget>
               <packing>
-                <property name="top_attach">13</property>
-                <property name="bottom_attach">14</property>
+                <property name="top_attach">14</property>
+                <property name="bottom_attach">15</property>
               </packing>
             </child>
             <child>
@@ -438,8 +438,8 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">14</property>
-                <property name="bottom_attach">15</property>
+                <property name="top_attach">16</property>
+                <property name="bottom_attach">17</property>
               </packing>
             </child>
             <child>
@@ -448,8 +448,8 @@ Reordering</property>
               </widget>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="top_attach">17</property>
-                <property name="bottom_attach">18</property>
+                <property name="top_attach">19</property>
+                <property name="bottom_attach">20</property>
               </packing>
             </child>
             <child>
@@ -534,8 +534,8 @@ Reordering</property>
                 <property name="label" translatable="yes">CPUs:</property>
               </widget>
               <packing>
-                <property name="top_attach">20</property>
-                <property name="bottom_attach">21</property>
+                <property name="top_attach">22</property>
+                <property name="bottom_attach">23</property>
               </packing>
             </child>
             <child>
@@ -557,8 +557,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">20</property>
-                <property name="bottom_attach">21</property>
+                <property name="top_attach">22</property>
+                <property name="bottom_attach">23</property>
               </packing>
             </child>
             <child>
@@ -569,8 +569,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Tasks:</property>
               </widget>
               <packing>
-                <property name="top_attach">21</property>
-                <property name="bottom_attach">22</property>
+                <property name="top_attach">23</property>
+                <property name="bottom_attach">24</property>
               </packing>
             </child>
             <child>
@@ -592,8 +592,60 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">21</property>
-                <property name="bottom_attach">22</property>
+                <property name="top_attach">23</property>
+                <property name="bottom_attach">24</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label_local_to_remote">
+                <property name="visible">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">13</property>
+                <property name="bottom_attach">14</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioButton" id="radio_local_to_remote">
+                <property name="label" translatable="yes">Local node to / from remote nodes only</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+                <property name="group">radio_remote_and_local_to_local</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">13</property>
+                <property name="bottom_attach">14</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label_everything_involving_local_node">
+                <property name="visible">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">15</property>
+                <property name="bottom_attach">16</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioButton" id="radio_everything_involving_local_node">
+                <property name="label" translatable="yes">Everything involving local node</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+                <property name="group">radio_local_to_remote</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">15</property>
+                <property name="bottom_attach">16</property>
               </packing>
             </child>
           </widget>

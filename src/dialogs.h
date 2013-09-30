@@ -78,7 +78,7 @@ struct derived_counter_options {
 	enum worker_state state;
 	enum access_type contention_type;
 	enum access_model contention_model;
-	enum source_type source_type;
+	enum data_direction data_direction;
 	enum ratio_type ratio_type;
 	struct bitvector cpus;
 	struct filter task_filter;

@@ -228,9 +228,11 @@ struct derived_counter_dialog_context {
 	GtkWidget* radio_reads_only;
 	GtkWidget* radio_writes_only;
 	GtkWidget* radio_reads_and_writes;
-	GtkWidget* radio_remote;
-	GtkWidget* radio_local;
-	GtkWidget* radio_remote_and_local;
+	GtkWidget* radio_remote_to_local;
+	GtkWidget* radio_local_to_local;
+	GtkWidget* radio_local_to_remote;
+	GtkWidget* radio_remote_and_local_to_local;
+	GtkWidget* radio_everything_involving_local_node;
 	GtkWidget* radio_spikes;
 	GtkWidget* radio_linear;
 	GtkWidget* label_type;
@@ -243,11 +245,13 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_reads_only;
 	GtkWidget* label_writes_only;
 	GtkWidget* label_reads_and_writes;
-	GtkWidget* label_remote;
-	GtkWidget* label_local;
-	GtkWidget* label_remote_and_local;
 	GtkWidget* label_spikes;
 	GtkWidget* label_linear;
+	GtkWidget* label_remote_to_local;
+	GtkWidget* label_local_to_local;
+	GtkWidget* label_local_to_remote;
+	GtkWidget* label_remote_and_local_to_local;
+	GtkWidget* label_everything_involving_local_node;
 	GtkWidget* hsep_contention1;
 	GtkWidget* hsep_contention2;
 	GtkWidget* hsep_contention3;
@@ -312,12 +316,16 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->radio_linear,
 		ctx->label_spikes,
 		ctx->label_linear,
-		ctx->label_remote,
-		ctx->label_local,
-		ctx->label_remote_and_local,
-		ctx->radio_remote,
-		ctx->radio_local,
-		ctx->radio_remote_and_local,
+		ctx->radio_remote_to_local,
+		ctx->radio_local_to_local,
+		ctx->radio_local_to_remote,
+		ctx->radio_remote_and_local_to_local,
+		ctx->radio_everything_involving_local_node,
+		ctx->label_remote_to_local,
+		ctx->label_local_to_local,
+		ctx->label_local_to_remote,
+		ctx->label_remote_and_local_to_local,
+		ctx->label_everything_involving_local_node,
 		ctx->hsep_contention1,
 		ctx->hsep_contention2,
 		ctx->hsep_contention3,
@@ -395,12 +403,16 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_reads_and_writes);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_spikes);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_linear);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_remote);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_local);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_remote_and_local);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_local);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote_and_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_remote_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_local_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_local_to_remote);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_remote_and_local_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, radio_everything_involving_local_node);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_local_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_local_to_remote);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote_and_local_to_local);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_everything_involving_local_node);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention1);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention2);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention3);
@@ -528,12 +540,16 @@ retry:
 		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_reads_and_writes)))
 			opt->contention_type = ACCESS_TYPE_READS_AND_WRITES;
 
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_local)))
-			opt->source_type = SOURCE_TYPE_LOCAL;
-		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_remote)))
-			opt->source_type = SOURCE_TYPE_REMOTE;
-		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_remote_and_local)))
-			opt->source_type = SOURCE_TYPE_LOCAL_AND_REMOTE;
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_local_to_local)))
+			opt->data_direction = DATA_DIRECTION_LOCAL_TO_LOCAL;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_local_to_remote)))
+			opt->data_direction = DATA_DIRECTION_LOCAL_TO_REMOTE;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_remote_to_local)))
+			opt->data_direction = DATA_DIRECTION_REMOTE_TO_LOCAL;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_remote_and_local_to_local)))
+			opt->data_direction = DATA_DIRECTION_REMOTE_AND_LOCAL_TO_LOCAL;
+		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_everything_involving_local_node)))
+			opt->data_direction = DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE;
 
 		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_spikes)))
 			opt->contention_model = ACCESS_MODEL_SPIKES;

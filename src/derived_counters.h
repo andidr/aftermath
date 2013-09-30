@@ -28,10 +28,12 @@ enum access_type {
 	ACCESS_TYPE_READS_AND_WRITES
 };
 
-enum source_type {
-	SOURCE_TYPE_LOCAL,
-	SOURCE_TYPE_REMOTE,
-	SOURCE_TYPE_LOCAL_AND_REMOTE
+enum data_direction {
+	DATA_DIRECTION_LOCAL_TO_LOCAL,
+	DATA_DIRECTION_LOCAL_TO_REMOTE,
+	DATA_DIRECTION_REMOTE_TO_LOCAL,
+	DATA_DIRECTION_REMOTE_AND_LOCAL_TO_LOCAL,
+	DATA_DIRECTION_EVERYTHING_INVOLVING_LOCAL_NODE
 };
 
 enum access_model {
@@ -46,7 +48,7 @@ enum ratio_type {
 
 int derive_aggregate_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int counter_idx, int num_samples, int cpu);
 int derive_parallelism_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, enum worker_state state, int num_samples, int cpu);
-int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum source_type source, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
+int derive_numa_contention_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, unsigned int numa_node, enum data_direction direction, enum access_type contention_type, enum access_model model, int num_samples, int cpu);
 int derive_ratio_counter(struct multi_event_set* g_mes, struct counter_description** cd_out, const char* counter_name, enum ratio_type ratio_type, int counter_idx, int divcounter_idx, int num_samples, int cpu);
 int derive_task_length_counter(struct multi_event_set* mes, struct counter_description** cd_out, const char* counter_name, struct bitvector* cpus, struct filter* task_filter, int num_samples, int cpu);
 
