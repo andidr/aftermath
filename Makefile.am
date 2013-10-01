@@ -88,6 +88,7 @@ dist_ostv_DATA = share/ui/ostv.glade \
 		share/ui/color_dialog.glade \
 		share/ui/derived_counter_dialog.glade \
 		share/ui/annotation_dialog.glade \
+		share/ui/counter_offset_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_comm.svg \
 		share/icons/draw_steals.svg \

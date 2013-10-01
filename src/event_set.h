@@ -81,6 +81,16 @@ struct single_event* event_set_find_next_texec_start_for_frame(struct event_set*
 	    (ce >= &((es)->comm_events[0]) && ce < &((es)->comm_events[(es)->num_comm_events])) && ce->time < end; \
 	    ce++)
 
+static inline void event_set_add_counter_offset(struct event_set* es, int counter_id, int64_t offset)
+{
+	for(int i = 0; i < es->num_counter_event_sets; i++) {
+		if(es->counter_event_sets[i].counter_id == counter_id) {
+			counter_event_set_add_offset(&es->counter_event_sets[i], offset);
+			return;
+		}
+	}
+}
+
 static inline int event_set_counter_event_set_index(struct event_set* es, int counter_index)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)

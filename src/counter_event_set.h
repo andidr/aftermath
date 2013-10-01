@@ -47,4 +47,10 @@ static inline void counter_event_set_init(struct counter_event_set* ces, uint64_
 	ces->counter_index = counter_index;
 }
 
+static inline void counter_event_set_add_offset(struct counter_event_set* ces, int64_t offset)
+{
+	for(int i = 0; i < ces->num_events; i++)
+		ces->events[i].time += offset;
+}
+
 #endif

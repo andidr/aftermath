@@ -47,6 +47,12 @@ struct multi_event_set {
 	int max_numa_node_id;
 };
 
+static inline void multi_event_event_set_add_counter_offset(struct multi_event_set* mes, int counter_id, int64_t offset)
+{
+	for(int i = 0; i < mes->num_sets; i++)
+		event_set_add_counter_offset(&mes->sets[i], counter_id, offset);
+}
+
 static inline struct counter_description* multi_event_set_find_counter_description(struct multi_event_set* mes, uint64_t counter_id)
 {
 	for(int i = 0; i < mes->num_counters; i++)

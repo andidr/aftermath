@@ -195,6 +195,21 @@ void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* fil
 	} while(gtk_tree_model_iter_next(model, &iter));
 }
 
+struct counter_description* counter_list_get_highlighted_entry(GtkTreeView* counter_treeview)
+{
+	GtkTreeSelection* selection;
+	GtkTreeModel* model;
+	GtkTreeIter iter;
+	struct counter_description* cd = NULL;
+
+	selection = gtk_tree_view_get_selection(counter_treeview);
+
+	if(gtk_tree_selection_get_selected(selection, &model, &iter))
+		gtk_tree_model_get(model, &iter, COUNTER_LIST_COL_COUNTER_POINTER, &cd, -1);
+
+	return cd;
+}
+
 void counter_list_set_status_all(GtkTreeView* counter_treeview, gboolean status)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);

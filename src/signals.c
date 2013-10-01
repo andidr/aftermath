@@ -1174,3 +1174,16 @@ G_MODULE_EXPORT void menubar_save_visuals_as(GtkMenuItem *item, gpointer data)
 
 	store_visuals_with_dialog();
 }
+
+G_MODULE_EXPORT void define_counter_offset_clicked(GtkMenuItem *item, gpointer data)
+{
+	struct counter_description* selection = counter_list_get_highlighted_entry(GTK_TREE_VIEW(g_counter_treeview));
+	int64_t offset;
+
+	if(!selection) {
+		show_error_message("No counter selected");
+		return;
+	}
+
+	show_counter_offset_dialog(&g_mes, selection, g_trace_widget, &offset);
+}

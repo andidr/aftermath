@@ -677,3 +677,53 @@ int show_color_dialog(GdkColor* color)
 
 	return ret;
 }
+
+struct counter_offset_dialog_params {
+	struct multi_event_set* mes;
+	struct counter_description* cd;
+	GtkWidget* trace_widget;
+	int64_t last_offset;
+};
+
+G_MODULE_EXPORT void counter_offset_dialog_offset_changed(GtkSpinButton* spin, gpointer user_data)
+{
+	struct counter_offset_dialog_params* params = user_data;
+	int64_t curr_offset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin));
+	int64_t effective_offset = curr_offset - params->last_offset;
+
+	multi_event_event_set_add_counter_offset(params->mes, params->cd->counter_id, effective_offset);
+	gtk_widget_queue_draw(params->trace_widget);
+
+	params->last_offset = curr_offset;
+}
+
+int show_counter_offset_dialog(struct multi_event_set* mes, struct counter_description* cd, GtkWidget* trace_widget, int64_t* offset)
+{
+	int ret = 0;
+	GladeXML* xml = glade_xml_new(DATA_PATH "/counter_offset_dialog.glade", NULL, NULL);
+	struct counter_offset_dialog_params params = {
+		.mes = mes,
+		.cd = cd,
+		.trace_widget = trace_widget,
+		.last_offset = 0
+	};
+
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, spin);
+
+	g_signal_connect(G_OBJECT(spin), "value-changed", G_CALLBACK(counter_offset_dialog_offset_changed), &params);
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		*offset = params.last_offset;
+		ret = 1;
+	} else {
+		multi_event_event_set_add_counter_offset(mes, cd->counter_id, -params.last_offset);
+		gtk_widget_queue_draw(trace_widget);
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}
