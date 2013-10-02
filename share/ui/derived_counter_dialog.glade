@@ -15,7 +15,7 @@
         <child>
           <widget class="GtkTable" id="table_properties">
             <property name="visible">True</property>
-            <property name="n_rows">25</property>
+            <property name="n_rows">26</property>
             <property name="n_columns">2</property>
             <property name="column_spacing">5</property>
             <child>
@@ -25,8 +25,8 @@
                 <property name="label" translatable="yes">Attach to CPU:</property>
               </widget>
               <packing>
-                <property name="top_attach">20</property>
-                <property name="bottom_attach">21</property>
+                <property name="top_attach">21</property>
+                <property name="bottom_attach">22</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -40,8 +40,8 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">20</property>
-                <property name="bottom_attach">21</property>
+                <property name="top_attach">21</property>
+                <property name="bottom_attach">22</property>
               </packing>
             </child>
             <child>
@@ -78,8 +78,8 @@ Task length</property>
                 <property name="label" translatable="yes">Number of samples:</property>
               </widget>
               <packing>
-                <property name="top_attach">21</property>
-                <property name="bottom_attach">22</property>
+                <property name="top_attach">22</property>
+                <property name="bottom_attach">23</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -93,8 +93,8 @@ Task length</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">21</property>
-                <property name="bottom_attach">22</property>
+                <property name="top_attach">22</property>
+                <property name="bottom_attach">23</property>
               </packing>
             </child>
             <child>
@@ -104,8 +104,8 @@ Task length</property>
                 <property name="label" translatable="yes">Name:</property>
               </widget>
               <packing>
-                <property name="top_attach">24</property>
-                <property name="bottom_attach">25</property>
+                <property name="top_attach">25</property>
+                <property name="bottom_attach">26</property>
                 <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
@@ -119,8 +119,8 @@ Task length</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">24</property>
-                <property name="bottom_attach">25</property>
+                <property name="top_attach">25</property>
+                <property name="bottom_attach">26</property>
               </packing>
             </child>
             <child>
@@ -534,8 +534,8 @@ Reordering</property>
                 <property name="label" translatable="yes">CPUs:</property>
               </widget>
               <packing>
-                <property name="top_attach">22</property>
-                <property name="bottom_attach">23</property>
+                <property name="top_attach">23</property>
+                <property name="bottom_attach">24</property>
               </packing>
             </child>
             <child>
@@ -557,8 +557,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">22</property>
-                <property name="bottom_attach">23</property>
+                <property name="top_attach">23</property>
+                <property name="bottom_attach">24</property>
               </packing>
             </child>
             <child>
@@ -569,8 +569,8 @@ Reordering</property>
                 <property name="label" translatable="yes">Tasks:</property>
               </widget>
               <packing>
-                <property name="top_attach">23</property>
-                <property name="bottom_attach">24</property>
+                <property name="top_attach">24</property>
+                <property name="bottom_attach">25</property>
               </packing>
             </child>
             <child>
@@ -592,8 +592,8 @@ Reordering</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">23</property>
-                <property name="bottom_attach">24</property>
+                <property name="top_attach">24</property>
+                <property name="bottom_attach">25</property>
               </packing>
             </child>
             <child>
@@ -646,6 +646,34 @@ Reordering</property>
                 <property name="right_attach">2</property>
                 <property name="top_attach">15</property>
                 <property name="bottom_attach">16</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="check_exclude_node">
+                <property name="label" translatable="yes">Exclude reqs. from:</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="widget_toggle" object="combo_exclude_node"/>
+              </widget>
+              <packing>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkComboBox" id="combo_exclude_node">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="items" translatable="yes">
+</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">20</property>
+                <property name="bottom_attach">21</property>
               </packing>
             </child>
           </widget>

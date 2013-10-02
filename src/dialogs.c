@@ -252,6 +252,8 @@ struct derived_counter_dialog_context {
 	GtkWidget* label_local_to_remote;
 	GtkWidget* label_remote_and_local_to_local;
 	GtkWidget* label_everything_involving_local_node;
+	GtkWidget* check_exclude_node;
+	GtkWidget* combo_exclude_node;
 	GtkWidget* hsep_contention1;
 	GtkWidget* hsep_contention2;
 	GtkWidget* hsep_contention3;
@@ -330,6 +332,8 @@ G_MODULE_EXPORT void derived_counter_dialog_type_changed(GtkComboBox* widget, gp
 		ctx->hsep_contention2,
 		ctx->hsep_contention3,
 		ctx->hsep_contention4,
+		ctx->check_exclude_node,
+		ctx->combo_exclude_node,
 		NULL };
 
 	visible_widgets[DERIVED_COUNTER_RATIO] =
@@ -371,6 +375,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int divctr_idx;
 	int numa_node_idx;
 	int numa_node;
+	int exclude_idx;
 	int ret = 0;
 	const char* name;
 	enum worker_state state;
@@ -413,6 +418,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_local_to_remote);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_remote_and_local_to_local);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, label_everything_involving_local_node);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, check_exclude_node);
+	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_exclude_node);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention1);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention2);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, hsep_contention3);
@@ -445,9 +452,11 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	}
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_exclude_node), 0);
 	for(numa_node = 0; numa_node <= mes->max_numa_node_id; numa_node++) {
 		snprintf(buffer, sizeof(buffer), "Node %d", numa_node);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_numa_node), buffer);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_exclude_node), buffer);
 	}
 
 	cpu_list_init(GTK_TREE_VIEW(ctx.treeview_cpus));
@@ -464,6 +473,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_counter), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_divcounter), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_exclude_node), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), WORKER_STATE_TASKEXEC);
 
 retry:
@@ -561,6 +571,16 @@ retry:
 		else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.radio_div_sum)))
 			opt->ratio_type = RATIO_TYPE_DIV_SUM;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctx.check_exclude_node))) {
+			if((exclude_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_exclude_node))) == -1)
+			{
+				show_error_message("Please select a Node to exclude.");
+				goto retry;
+			}
+		} else {
+			exclude_idx = -1;
+		}
+
 		opt->type = type_idx;
 		opt->cpu = mes->sets[cpu_idx].cpu;
 		opt->num_samples = gtk_range_get_value(GTK_RANGE(ctx.scale_samples));
@@ -569,6 +589,7 @@ retry:
 		opt->counter_idx = ctr_idx;
 		opt->divcounter_idx = divctr_idx;
 		opt->numa_node = numa_node_idx;
+		opt->exclude_node = exclude_idx;
 
 		if(!opt->name) {
 			show_error_message("Could not allocate space for counter name.");

@@ -74,6 +74,7 @@ struct derived_counter_options {
 	unsigned int divcounter_idx;
 	unsigned int num_samples;
 	unsigned int numa_node;
+	int exclude_node;
 	char* name;
 	enum worker_state state;
 	enum access_type contention_type;
