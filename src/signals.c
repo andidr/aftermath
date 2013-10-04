@@ -408,6 +408,38 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_matrix_set_data(g_matrix_widget, NULL);
 }
 
+void update_comm_matrix(void)
+{
+	int comm_mask = 0;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reads)))
+		comm_mask |= 1 << COMM_TYPE_DATA_READ;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_writes)))
+		comm_mask |= 1 << COMM_TYPE_DATA_WRITE;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_steals)))
+		comm_mask |= 1 << COMM_TYPE_STEAL;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_pushes)))
+		comm_mask |= 1 << COMM_TYPE_PUSH;
+
+	intensity_matrix_destroy(&g_comm_matrix);
+
+	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask)) {
+		show_error_message("Cannot gather communication matrix statistics.");
+		return;
+	}
+
+	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
+}
+
+G_MODULE_EXPORT gint comm_matrix_comm_type_toggled(gpointer data, GtkWidget* check)
+{
+	update_comm_matrix();
+	return 0;
+}
+
 void update_statistics(void)
 {
 	char buffer[128];
@@ -525,14 +557,7 @@ void update_statistics(void)
 
 	task_statistics_destroy(&ts);
 
-	intensity_matrix_destroy(&g_comm_matrix);
-
-	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix)) {
-		show_error_message("Cannot gather communication matrix statistics.");
-		return;
-	}
-
-	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
+	update_comm_matrix();
 }
 
 G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)

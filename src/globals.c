@@ -88,6 +88,11 @@ GtkWidget* g_heatmap_min_cycles;
 GtkWidget* g_heatmap_max_cycles;
 GtkWidget* g_heatmap_num_shades;
 
+GtkWidget* g_check_matrix_reads;
+GtkWidget* g_check_matrix_writes;
+GtkWidget* g_check_matrix_steals;
+GtkWidget* g_check_matrix_pushes;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

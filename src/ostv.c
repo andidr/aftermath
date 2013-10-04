@@ -256,6 +256,11 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, heatmap_max_cycles);
 	IMPORT_GLADE_WIDGET(xml, heatmap_num_shades);
 
+	IMPORT_GLADE_WIDGET(xml, check_matrix_reads);
+	IMPORT_GLADE_WIDGET(xml, check_matrix_writes);
+	IMPORT_GLADE_WIDGET(xml, check_matrix_steals);
+	IMPORT_GLADE_WIDGET(xml, check_matrix_pushes);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
@@ -332,6 +337,11 @@ int main(int argc, char** argv)
 	g_heatmap_min_cycles = heatmap_min_cycles;
 	g_heatmap_max_cycles = heatmap_max_cycles;
 	g_heatmap_num_shades = heatmap_num_shades;
+
+	g_check_matrix_reads = check_matrix_reads;
+	g_check_matrix_writes = check_matrix_writes;
+	g_check_matrix_steals = check_matrix_steals;
+	g_check_matrix_pushes = check_matrix_pushes;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);

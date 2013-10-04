@@ -98,6 +98,11 @@ extern GtkWidget* g_heatmap_min_cycles;
 extern GtkWidget* g_heatmap_max_cycles;
 extern GtkWidget* g_heatmap_num_shades;
 
+extern GtkWidget* g_check_matrix_reads;
+extern GtkWidget* g_check_matrix_writes;
+extern GtkWidget* g_check_matrix_steals;
+extern GtkWidget* g_check_matrix_pushes;
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
