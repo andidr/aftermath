@@ -92,6 +92,7 @@ GtkWidget* g_check_matrix_reads;
 GtkWidget* g_check_matrix_writes;
 GtkWidget* g_check_matrix_steals;
 GtkWidget* g_check_matrix_pushes;
+GtkWidget* g_check_matrix_reflexive;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,

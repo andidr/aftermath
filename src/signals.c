@@ -411,6 +411,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 void update_comm_matrix(void)
 {
 	int comm_mask = 0;
+	int exclude_reflexive = 0;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reads)))
 		comm_mask |= 1 << COMM_TYPE_DATA_READ;
@@ -424,14 +425,23 @@ void update_comm_matrix(void)
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_pushes)))
 		comm_mask |= 1 << COMM_TYPE_PUSH;
 
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reflexive)))
+		exclude_reflexive = 1;
+
 	intensity_matrix_destroy(&g_comm_matrix);
 
-	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask)) {
+	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask, exclude_reflexive)) {
 		show_error_message("Cannot gather communication matrix statistics.");
 		return;
 	}
 
 	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
+}
+
+G_MODULE_EXPORT gint comm_matrix_reflexive_toggled(gpointer data, GtkWidget* check)
+{
+	update_comm_matrix();
+	return 0;
 }
 
 G_MODULE_EXPORT void comm_matrix_min_threshold_changed(GtkRange* item, gpointer data)

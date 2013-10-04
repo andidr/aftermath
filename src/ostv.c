@@ -260,6 +260,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_matrix_writes);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_steals);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_pushes);
+	IMPORT_GLADE_WIDGET(xml, check_matrix_reflexive);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -342,6 +343,7 @@ int main(int argc, char** argv)
 	g_check_matrix_writes = check_matrix_writes;
 	g_check_matrix_steals = check_matrix_steals;
 	g_check_matrix_pushes = check_matrix_pushes;
+	g_check_matrix_reflexive = check_matrix_reflexive;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);

@@ -2307,6 +2307,19 @@
                                           </packing>
                                         </child>
                                         <child>
+                                          <widget class="GtkCheckButton" id="check_matrix_reflexive">
+                                            <property name="label" translatable="yes">Exclude reflexive transfers</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="comm_matrix_reflexive_toggled"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
                                           <widget class="GtkTable" id="table4">
                                             <property name="visible">True</property>
                                             <property name="n_rows">2</property>
@@ -2365,7 +2378,7 @@
                                             </child>
                                           </widget>
                                           <packing>
-                                            <property name="position">3</property>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                       </widget>
