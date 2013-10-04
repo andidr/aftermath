@@ -16,9 +16,11 @@
  */
 
 #include "matrix_widget.h"
+#include "marshal.h"
 #include <math.h>
 
 gint gtk_matrix_signals[GTK_MATRIX_MAX_SIGNALS];
+gint gtk_matrix_motion_event(GtkWidget* widget, GdkEventMotion* event);
 
 void gtk_matrix_destroy(GtkObject *object)
 {
@@ -41,6 +43,9 @@ GtkWidget* gtk_matrix_new(void)
 	g->matrix = NULL;
 	g->min_threshold = 0.0;
 	g->max_threshold = 1.0;
+
+	g->last_x = -1;
+	g->last_y = -1;
 
 	return GTK_WIDGET(g);
 }
@@ -73,6 +78,15 @@ void gtk_matrix_class_init(GtkMatrixClass *class)
 
 	widget_class = (GtkWidgetClass *) class;
 	object_class = (GtkObjectClass *) class;
+
+	gtk_matrix_signals[GTK_MATRIX_PAIR_UNDER_POINTER_CHANGED] =
+                g_signal_new("pair-under-pointer-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkMatrixClass, pair_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__INT_INT_INT64_DOUBLE,
+                             G_TYPE_NONE, 4,
+                             G_TYPE_INT, G_TYPE_INT, G_TYPE_INT64, G_TYPE_DOUBLE);
 
 	widget_class->realize = gtk_matrix_realize;
 	widget_class->size_request = gtk_matrix_size_request;
@@ -126,7 +140,8 @@ void gtk_matrix_realize(GtkWidget *widget)
 	attributes.height = widget->allocation.height;
 
 	attributes.wclass = GDK_INPUT_OUTPUT;
-	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
+	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK |
+		GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK;
 
 	attributes_mask = GDK_WA_X | GDK_WA_Y;
 
@@ -139,6 +154,33 @@ void gtk_matrix_realize(GtkWidget *widget)
 
 	widget->style = gtk_style_attach(widget->style, widget->window);
 	gtk_style_set_background(widget->style, widget->window, GTK_STATE_NORMAL);
+
+	g_signal_connect(G_OBJECT(widget), "motion-notify-event", G_CALLBACK(gtk_matrix_motion_event), NULL);
+}
+
+gint gtk_matrix_motion_event(GtkWidget* widget, GdkEventMotion* event)
+{
+	GtkMatrix* h = GTK_MATRIX(widget);
+	double width, height;
+
+	if(h->matrix) {
+		width = (double)widget->allocation.width / (double)h->matrix->width;
+		height = (double)widget->allocation.height / (double)h->matrix->height;
+
+		int node_x = event->x / width;
+		int node_y = event->y / height;
+
+		if(h->last_x != node_x || h->last_y != node_y)
+			g_signal_emit(widget, gtk_matrix_signals[GTK_MATRIX_PAIR_UNDER_POINTER_CHANGED], 0,
+				      node_x, node_y,
+				      (int64_t)intensity_matrix_absolute_value_at(h->matrix, node_x, node_y),
+				      (double)intensity_matrix_intensity_at(h->matrix, node_x, node_y));
+
+		h->last_x = node_x;
+		h->last_y = node_y;
+	}
+
+	return 0;
 }
 
 gboolean gtk_matrix_expose(GtkWidget *widget, GdkEventExpose *event)

@@ -404,6 +404,8 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), "MAX");
 
+	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), "\n");
+
 	gtk_histogram_set_data(g_histogram_widget, NULL);
 	gtk_matrix_set_data(g_matrix_widget, NULL);
 }
@@ -1242,4 +1244,15 @@ G_MODULE_EXPORT void define_counter_offset_clicked(GtkMenuItem *item, gpointer d
 	}
 
 	show_counter_offset_dialog(&g_mes, selection, g_trace_widget, &offset);
+}
+
+G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int node_x, int node_y, int64_t absolute, double relative)
+{
+	char buffer[128];
+	char pretty_bytes[32];
+
+	pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
+
+	snprintf(buffer, sizeof(buffer), "Node %d to %d:\n%s (%.3f%% max.)\n", node_x, node_y, pretty_bytes, 100.0*relative);
+	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
 }

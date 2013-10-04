@@ -31,6 +31,7 @@ typedef struct _GtkMatrix GtkMatrix;
 typedef struct _GtkMatrixClass GtkMatrixClass;
 
 enum gtk_matrix_signals {
+	GTK_MATRIX_PAIR_UNDER_POINTER_CHANGED,
 	GTK_MATRIX_MAX_SIGNALS
 };
 
@@ -39,10 +40,15 @@ struct _GtkMatrix {
 	double min_threshold;
 	double max_threshold;
 	struct intensity_matrix* matrix;
+
+	int last_x;
+	int last_y;
 };
 
 struct _GtkMatrixClass {
 	GtkWidgetClass parent_class;
+
+	void (* pair_changed) (GtkMatrix *t);
 };
 
 void gtk_matrix_destroy(GtkObject *object);

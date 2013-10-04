@@ -261,6 +261,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_matrix_steals);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_pushes);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_reflexive);
+	IMPORT_GLADE_WIDGET(xml, label_comm_matrix);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -344,6 +345,7 @@ int main(int argc, char** argv)
 	g_check_matrix_steals = check_matrix_steals;
 	g_check_matrix_pushes = check_matrix_pushes;
 	g_check_matrix_reflexive = check_matrix_reflexive;
+	g_label_comm_matrix = label_comm_matrix;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);
@@ -363,6 +365,8 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "create-annotation", G_CALLBACK(trace_create_annotation), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "edit-annotation", G_CALLBACK(trace_edit_annotation), g_trace_widget);
 	g_signal_connect(G_OBJECT(toplevel_window), "delete-event", G_CALLBACK(check_quit), NULL);
+
+	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
