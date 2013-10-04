@@ -179,3 +179,23 @@ void histogram_destroy(struct histogram* h)
 {
 	free(h->values);
 }
+
+int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m)
+{
+	if(intensity_matrix_init(m, mes->max_numa_node_id+1, mes->max_numa_node_id+1))
+		return 1;
+
+	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
+		for(struct comm_event* ce = es->comm_events; ce < &es->comm_events[es->num_comm_events]; ce++) {
+			if((ce->type != COMM_TYPE_DATA_READ && ce->type != COMM_TYPE_DATA_WRITE) ||
+			   !filter_has_comm_event(f, mes, ce))
+				continue;
+
+			intensity_matrix_add_absolute_value_at(m, es->numa_node, ce->what->numa_node, ce->size);
+		}
+	}
+
+	intensity_matrix_update_intensity(m);
+
+	return 0;
+}

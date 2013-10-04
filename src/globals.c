@@ -20,6 +20,7 @@
 
 GtkWidget* g_trace_widget;
 GtkWidget* g_histogram_widget;
+GtkWidget* g_matrix_widget;
 GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
 GtkWidget* g_task_treeview;
@@ -104,6 +105,7 @@ struct multi_event_set g_mes = { .sets = NULL,
 struct filter g_filter;
 struct settings g_settings;
 struct histogram g_task_histogram;
+struct intensity_matrix g_comm_matrix;
 struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 
 int g_visuals_modified;

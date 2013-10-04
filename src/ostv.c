@@ -26,6 +26,7 @@
 #include "glade_extras.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
+#include "matrix_widget.h"
 #include "globals.h"
 #include "signals.h"
 #include "dialogs.h"
@@ -188,6 +189,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, hist_box);
+	IMPORT_GLADE_WIDGET(xml, matrix_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
@@ -259,6 +261,9 @@ int main(int argc, char** argv)
 
 	g_histogram_widget = gtk_histogram_new();
 	gtk_container_add(GTK_CONTAINER(hist_box), g_histogram_widget);
+
+	g_matrix_widget = gtk_matrix_new();
+	gtk_container_add(GTK_CONTAINER(matrix_box), g_matrix_widget);
 
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
@@ -373,6 +378,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	if(intensity_matrix_init(&g_comm_matrix, 1, 1)) {
+		show_error_message("Cannot initialize communication matrix.");
+		return 1;
+	}
+
 	snprintf(title, sizeof(title), "OSTV - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
@@ -386,6 +396,7 @@ int main(int argc, char** argv)
 	filter_destroy(&g_filter);
 	settings_destroy(&g_settings);
 	histogram_destroy(&g_task_histogram);
+	intensity_matrix_destroy(&g_comm_matrix);
 	free(g_visuals_filename);
 
 	return 0;

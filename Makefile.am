@@ -13,6 +13,10 @@ ostv_SOURCES = src/ostv.c \
 		src/trace_widget.c \
 		src/histogram_widget.h \
 		src/histogram_widget.c \
+		src/matrix_widget.h \
+		src/matrix_widget.c \
+		src/intensity_matrix.h \
+		src/intensity_matrix.c \
 		src/buffer.h \
 		src/buffer.c \
 		src/events.h \

@@ -18,6 +18,7 @@
 #include "globals.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
+#include "matrix_widget.h"
 #include "util.h"
 #include "dialogs.h"
 #include "task_list.h"
@@ -404,6 +405,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), "MAX");
 
 	gtk_histogram_set_data(g_histogram_widget, NULL);
+	gtk_matrix_set_data(g_matrix_widget, NULL);
 }
 
 void update_statistics(void)
@@ -522,6 +524,15 @@ void update_statistics(void)
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), buffer);
 
 	task_statistics_destroy(&ts);
+
+	intensity_matrix_destroy(&g_comm_matrix);
+
+	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix)) {
+		show_error_message("Cannot gather communication matrix statistics.");
+		return;
+	}
+
+	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
 }
 
 G_MODULE_EXPORT void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data)

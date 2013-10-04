@@ -24,9 +24,11 @@
 #include "settings.h"
 #include "statistics.h"
 #include "trace_widget.h"
+#include "intensity_matrix.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
+extern GtkWidget* g_matrix_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_task_treeview;
@@ -100,6 +102,7 @@ extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
 extern struct histogram g_task_histogram;
+extern struct intensity_matrix g_comm_matrix;
 
 #define NUM_TRACE_MARKERS 3
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
