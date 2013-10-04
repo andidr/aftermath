@@ -261,6 +261,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_matrix_steals);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_pushes);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_reflexive);
+	IMPORT_GLADE_WIDGET(xml, check_matrix_direction);
 	IMPORT_GLADE_WIDGET(xml, label_comm_matrix);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
@@ -345,6 +346,7 @@ int main(int argc, char** argv)
 	g_check_matrix_steals = check_matrix_steals;
 	g_check_matrix_pushes = check_matrix_pushes;
 	g_check_matrix_reflexive = check_matrix_reflexive;
+	g_check_matrix_direction = check_matrix_direction;
 	g_label_comm_matrix = label_comm_matrix;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));

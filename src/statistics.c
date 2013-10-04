@@ -180,7 +180,7 @@ void histogram_destroy(struct histogram* h)
 	free(h->values);
 }
 
-int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int comm_type_mask, int exclude_reflexive)
+int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int comm_type_mask, int exclude_reflexive, int ignore_direction)
 {
 	if(intensity_matrix_init(m, mes->max_numa_node_id+1, mes->max_numa_node_id+1))
 		return 1;
@@ -193,7 +193,18 @@ int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter*
 			   (exclude_reflexive && es->numa_node == ce->what->numa_node))
 				continue;
 
-			intensity_matrix_add_absolute_value_at(m, es->numa_node, ce->what->numa_node, ce->size);
+			int src = es->numa_node;
+			int dst = ce->what->numa_node;
+
+			if(ignore_direction) {
+				if(src > dst) {
+					int tmp = src;
+					src = dst;
+					dst = tmp;
+				}
+			}
+
+			intensity_matrix_add_absolute_value_at(m, src, dst, ce->size);
 		}
 	}
 

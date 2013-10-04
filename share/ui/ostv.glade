@@ -2307,6 +2307,19 @@
                                           </packing>
                                         </child>
                                         <child>
+                                          <widget class="GtkCheckButton" id="check_matrix_direction">
+                                            <property name="label" translatable="yes">Ignore direction</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="comm_matrix_direction_toggled"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
                                           <widget class="GtkCheckButton" id="check_matrix_reflexive">
                                             <property name="label" translatable="yes">Exclude reflexive transfers</property>
                                             <property name="visible">True</property>
@@ -2316,7 +2329,7 @@
                                             <signal name="toggled" handler="comm_matrix_reflexive_toggled"/>
                                           </widget>
                                           <packing>
-                                            <property name="position">3</property>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -2378,7 +2391,7 @@
                                             </child>
                                           </widget>
                                           <packing>
-                                            <property name="position">4</property>
+                                            <property name="position">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -2389,7 +2402,7 @@
 </property>
                                           </widget>
                                           <packing>
-                                            <property name="position">5</property>
+                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                       </widget>
