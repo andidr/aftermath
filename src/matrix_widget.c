@@ -16,6 +16,7 @@
  */
 
 #include "matrix_widget.h"
+#include <math.h>
 
 gint gtk_matrix_signals[GTK_MATRIX_MAX_SIGNALS];
 
