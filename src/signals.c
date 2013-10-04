@@ -434,6 +434,16 @@ void update_comm_matrix(void)
 	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
 }
 
+G_MODULE_EXPORT void comm_matrix_min_threshold_changed(GtkRange* item, gpointer data)
+{
+	gtk_matrix_set_min_threshold(g_matrix_widget, gtk_range_get_value(item));
+}
+
+G_MODULE_EXPORT void comm_matrix_max_threshold_changed(GtkRange* item, gpointer data)
+{
+	gtk_matrix_set_max_threshold(g_matrix_widget, gtk_range_get_value(item));
+}
+
 G_MODULE_EXPORT gint comm_matrix_comm_type_toggled(gpointer data, GtkWidget* check)
 {
 	update_comm_matrix();

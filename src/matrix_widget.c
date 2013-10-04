@@ -39,6 +39,8 @@ GtkWidget* gtk_matrix_new(void)
 	GtkMatrix *g = gtk_type_new(gtk_matrix_get_type());
 
 	g->matrix = NULL;
+	g->min_threshold = 0.0;
+	g->max_threshold = 1.0;
 
 	return GTK_WIDGET(g);
 }
@@ -158,6 +160,7 @@ void gtk_matrix_paint(GtkWidget *widget)
 {
 	double width, height;
 	GtkMatrix* h = GTK_MATRIX(widget);
+	double threshold_range = h->max_threshold - h->min_threshold;
 
 	if(!gtk_widget_is_drawable(widget))
 		return;
@@ -178,6 +181,18 @@ void gtk_matrix_paint(GtkWidget *widget)
 		for(int x = 0; x < h->matrix->width; x++) {
 			for(int y = 0; y < h->matrix->height; y++) {
 				double intensity = intensity_matrix_intensity_at(h->matrix, x, y);
+				intensity -= h->min_threshold;
+
+				if(threshold_range != 0.0)
+					intensity /= threshold_range;
+				else
+					intensity = 0.0;
+
+				if(intensity > 1.0)
+					intensity = 1.0;
+				else if(intensity < 0.0)
+					intensity = 0.0;
+
 				cairo_rectangle(cr, x*width, y*height, width, height);
 				cairo_set_source_rgb(cr, 1.0, 1.0-intensity, 1.0-intensity);
 				cairo_fill(cr);
@@ -211,5 +226,20 @@ void gtk_matrix_set_data(GtkWidget *widget, struct intensity_matrix* m)
 	GtkMatrix* gm = GTK_MATRIX(widget);
 	gm->matrix = m;
 
+	gtk_widget_queue_draw(widget);
+}
+
+
+void gtk_matrix_set_min_threshold(GtkWidget *widget, double val)
+{
+	GtkMatrix* g = GTK_MATRIX(widget);
+	g->min_threshold = val;
+	gtk_widget_queue_draw(widget);
+}
+
+void gtk_matrix_set_max_threshold(GtkWidget *widget, double val)
+{
+	GtkMatrix* g = GTK_MATRIX(widget);
+	g->max_threshold = val;
 	gtk_widget_queue_draw(widget);
 }
