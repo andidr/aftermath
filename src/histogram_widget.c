@@ -156,8 +156,8 @@ void gtk_histogram_init(GtkHistogram *histogram)
 
 void gtk_histogram_paint(GtkWidget *widget)
 {
-	int init_x, init_y;
-	int x, y;
+	int init_x = 0, init_y = 0;
+	int x = 0, y = 0;
 	GtkHistogram* h = GTK_HISTOGRAM(widget);
 
 	if(!gtk_widget_is_drawable(widget))
