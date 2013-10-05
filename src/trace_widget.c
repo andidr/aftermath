@@ -118,13 +118,10 @@ GtkType gtk_trace_get_type(void)
 
 void gtk_trace_destroy(GtkObject *object)
 {
-	GtkTrace *trace;
 	GtkTraceClass *class;
 
 	g_return_if_fail(object != NULL);
 	g_return_if_fail(GTK_IS_TRACE(object));
-
-	trace = GTK_TRACE(object);
 
 	class = gtk_type_class(gtk_widget_get_type());
 
