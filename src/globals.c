@@ -94,6 +94,7 @@ GtkWidget* g_check_matrix_steals;
 GtkWidget* g_check_matrix_pushes;
 GtkWidget* g_check_matrix_reflexive;
 GtkWidget* g_check_matrix_direction;
+GtkWidget* g_check_matrix_numonly;
 GtkWidget* g_label_comm_matrix;
 
 struct multi_event_set g_mes = { .sets = NULL,

@@ -2333,6 +2333,19 @@
                                           </packing>
                                         </child>
                                         <child>
+                                          <widget class="GtkCheckButton" id="check_matrix_numonly">
+                                            <property name="label" translatable="yes"># events only</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="comm_matrix_numonly_toggled"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">5</property>
+                                          </packing>
+                                        </child>
+                                        <child>
                                           <widget class="GtkTable" id="table4">
                                             <property name="visible">True</property>
                                             <property name="n_rows">2</property>
@@ -2391,7 +2404,7 @@
                                             </child>
                                           </widget>
                                           <packing>
-                                            <property name="position">5</property>
+                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -2402,7 +2415,7 @@
 </property>
                                           </widget>
                                           <packing>
-                                            <property name="position">6</property>
+                                            <property name="position">7</property>
                                           </packing>
                                         </child>
                                       </widget>

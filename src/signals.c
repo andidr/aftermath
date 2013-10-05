@@ -415,6 +415,7 @@ void update_comm_matrix(void)
 	int comm_mask = 0;
 	int exclude_reflexive = 0;
 	int ignore_direction = 0;
+	int num_only = 0;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reads)))
 		comm_mask |= 1 << COMM_TYPE_DATA_READ;
@@ -434,9 +435,12 @@ void update_comm_matrix(void)
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_direction)))
 		ignore_direction = 1;
 
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
+		num_only = 1;
+
 	intensity_matrix_destroy(&g_comm_matrix);
 
-	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask, exclude_reflexive, ignore_direction)) {
+	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
 		show_error_message("Cannot gather communication matrix statistics.");
 		return;
 	}
@@ -467,6 +471,12 @@ G_MODULE_EXPORT gint comm_matrix_comm_type_toggled(gpointer data, GtkWidget* che
 }
 
 G_MODULE_EXPORT gint comm_matrix_direction_toggled(gpointer data, GtkWidget* check)
+{
+	update_comm_matrix();
+	return 0;
+}
+
+G_MODULE_EXPORT gint comm_matrix_numonly_toggled(gpointer data, GtkWidget* check)
 {
 	update_comm_matrix();
 	return 0;
@@ -1261,7 +1271,10 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 	char buffer[128];
 	char pretty_bytes[32];
 
-	pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
+		snprintf(pretty_bytes, sizeof(pretty_bytes), "%"PRId64, absolute);
+	else
+		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 
 	snprintf(buffer, sizeof(buffer), "Node %d to %d:\n%s (%.3f%% max.)\n", node_x, node_y, pretty_bytes, 100.0*relative);
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);

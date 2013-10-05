@@ -62,6 +62,6 @@ void task_statistics_destroy(struct task_statistics* s);
 void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* s, int64_t start, int64_t end);
 int task_statistics_to_task_length_histogram(struct task_statistics* s, struct histogram* h);
 
-int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int comm_type_mask, int exclude_reflexive, int ignore_direction);
+int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only);
 
 #endif
