@@ -21,13 +21,11 @@ gint gtk_histogram_signals[GTK_HISTOGRAM_MAX_SIGNALS];
 
 void gtk_histogram_destroy(GtkObject *object)
 {
-	GtkHistogram *histogram;
 	GtkHistogramClass *class;
 
 	g_return_if_fail(object != NULL);
 	g_return_if_fail(GTK_IS_HISTOGRAM(object));
 
-	histogram = GTK_HISTOGRAM(object);
 
 	class = gtk_type_class(gtk_widget_get_type());
 
