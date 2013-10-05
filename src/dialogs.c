@@ -53,7 +53,7 @@ enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...)
 {
 	char buff[1024];
 	va_list ap;
-	enum yes_no_cancel_dialog_response ret;
+	enum yes_no_cancel_dialog_response ret = DIALOG_RESPONSE_CANCEL;
 
 	va_start(ap, format);
 	vsnprintf(buff, sizeof(buff), format, ap);
@@ -372,13 +372,13 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int type_idx;
 	int cpu_idx;
 	int ctr_idx;
-	int divctr_idx;
-	int numa_node_idx;
+	int divctr_idx = 0;
+	int numa_node_idx = 0;
 	int numa_node;
 	int exclude_idx;
 	int ret = 0;
 	const char* name;
-	enum worker_state state;
+	enum worker_state state = WORKER_STATE_SEEKING;
 	struct derived_counter_dialog_context ctx;
 
 	glade_xml_signal_autoconnect(xml);
