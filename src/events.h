@@ -70,6 +70,9 @@ struct comm_event {
 	struct task* active_task;
 	struct frame* active_frame;
 
+	struct single_event* texec_start;
+	struct single_event* texec_end;
+
 	uint64_t prod_ts;
 };
 

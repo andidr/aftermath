@@ -264,6 +264,11 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	if(!filter_has_comm_numa_node(f, ce->what->numa_node))
 		return 0;
 
+	/* Duration of active task in filter? */
+	int64_t duration = ce->texec_end->time - ce->texec_start->time;
+	if(!filter_has_task_duration(f, duration))
+		return 0;
+
 	/* Active task *and* frame included in filter? */
 	if(filter_has_task(f, ce->active_task) &&
 	   filter_has_frame(f, ce->active_frame))

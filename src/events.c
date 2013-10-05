@@ -78,6 +78,12 @@ int trace_update_task_execution_bounds(struct event_set* es)
 			}
 		}
 
+		struct comm_event* ce;
+		for_each_comm_event_in_interval(es, ese->time, eee->time, ce) {
+			ce->texec_start = ese;
+			ce->texec_end = eee;
+		}
+
 		last_ese = ese;
 		last_eee = eee;
 	}
@@ -185,6 +191,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				ce.size = dsk_ce.size;
 				ce.type = dsk_ce.type;
+				ce.texec_start = NULL;
+				ce.texec_end = NULL;
 				ce.prod_ts = dsk_ce.prod_ts;
 
 				if(!last_what || last_what->addr != dsk_ce.what)
