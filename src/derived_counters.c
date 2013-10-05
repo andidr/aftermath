@@ -539,7 +539,6 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 	int set_divindexes[mes->num_sets];
 	int sets_having[mes->num_sets];
 	int num_sets_having;
-	int cpu_idx;
 
 	uint64_t id;
 	uint64_t min_time = multi_event_set_first_event_start(mes);
@@ -554,7 +553,6 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 	int64_t numerator;
 	int64_t denominator;
 
-	cpu_idx = multi_event_set_find_cpu_idx(mes, cpu);
 	id = multi_event_set_get_free_counter_id(mes);
 
 	if(!(cd = multi_event_set_counter_description_alloc_ptr(mes, id, strlen(counter_name))))
