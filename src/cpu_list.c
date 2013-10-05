@@ -78,7 +78,6 @@ void cpu_list_build_bitvector(GtkTreeView* cpu_treeview, struct bitvector* bv)
 	GtkTreeModel* model = gtk_tree_view_get_model(cpu_treeview);
 	GtkTreeIter iter;
 	gboolean current_state;
-	gboolean has_unchecked = FALSE;
 	int cpu = 0;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
@@ -91,8 +90,6 @@ void cpu_list_build_bitvector(GtkTreeView* cpu_treeview, struct bitvector* bv)
 
 		if(current_state)
 			bitvector_set_bit(bv, cpu);
-		else
-			has_unchecked = TRUE;
 
 		cpu++;
 	} while(gtk_tree_model_iter_next(model, &iter));
