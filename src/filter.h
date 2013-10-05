@@ -237,7 +237,7 @@ static inline int filter_has_comm_size(struct filter* f, uint64_t size)
 static inline int filter_has_state_event(struct filter* f, struct state_event* se)
 {
 	uint64_t duration = 0;
-	int valid;
+	int valid = 1;
 
 	if(f->filter_task_length) {
 		if(se->active_task->addr != 0)
