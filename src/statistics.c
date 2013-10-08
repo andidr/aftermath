@@ -180,13 +180,18 @@ void histogram_destroy(struct histogram* h)
 	free(h->values);
 }
 
-int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only)
+int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only)
 {
 	if(intensity_matrix_init(m, mes->max_numa_node_id+1, mes->max_numa_node_id+1))
 		return 1;
 
 	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
-		for(struct comm_event* ce = es->comm_events; ce < &es->comm_events[es->num_comm_events]; ce++) {
+		int first_comm_index = event_set_get_first_comm_in_interval(es, start, end);
+
+		if(first_comm_index == -1)
+			continue;
+
+		for(struct comm_event* ce = &es->comm_events[first_comm_index]; ce < &es->comm_events[es->num_comm_events]; ce++) {
 			int in_mask = (1 << ce->type) & comm_type_mask;
 
 			if(!in_mask || !filter_has_comm_event(f, mes, ce) ||

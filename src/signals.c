@@ -416,6 +416,10 @@ void update_comm_matrix(void)
 	int exclude_reflexive = 0;
 	int ignore_direction = 0;
 	int num_only = 0;
+	int64_t left, right;
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reads)))
 		comm_mask |= 1 << COMM_TYPE_DATA_READ;
@@ -440,7 +444,7 @@ void update_comm_matrix(void)
 
 	intensity_matrix_destroy(&g_comm_matrix);
 
-	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
+	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, left, right, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
 		show_error_message("Cannot gather communication matrix statistics.");
 		return;
 	}
