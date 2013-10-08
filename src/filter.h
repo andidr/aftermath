@@ -348,6 +348,14 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	if(!filter_has_comm_numa_node(f, ce->what->numa_node))
 		return 0;
 
+	if(ce->type == COMM_TYPE_DATA_WRITE) {
+		if(!filter_has_writes_to_numa_nodes_node(f, ce->what->numa_node))
+			return 0;
+
+		if(f->filter_writes_to_numa_nodes && ce->size < f->writes_to_numa_nodes_minsize)
+			return 0;
+	}
+
 	/* Duration of active task in filter? */
 	if(ce->texec_start) {
 		int64_t duration = ce->texec_end->time - ce->texec_start->time;
