@@ -112,6 +112,10 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 				if(!filter_has_task(f, mes->sets[cpu_idx].state_events[first_texec_idx].active_task))
 					goto next;
 
+				if(f->filter_writes_to_numa_nodes &&
+				   !event_set_has_write_to_numa_nodes_in_interval(&mes->sets[cpu_idx], &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
+					goto next;
+
 				if(histogram) {
 					if(s->max_cycles - s->min_cycles > 0)
 						hist_bin = ((uint64_t)(s->num_hist_bins-1) * (curr_length - s->min_cycles)) / (s->max_cycles - s->min_cycles);
