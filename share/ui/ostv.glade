@@ -580,6 +580,47 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="GtkHBox" id="hbox38">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkLabel" id="label84">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">At least </property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkEntry" id="writes_to_numa_nodes_min_size_entry">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="text" translatable="yes">0</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label85">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">B</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="GtkButton" id="button21">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -617,7 +658,7 @@
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="position">1</property>
+                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -657,7 +698,7 @@
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="position">2</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </widget>

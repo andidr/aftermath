@@ -45,6 +45,7 @@ GtkWidget* g_global_values_max_entry;
 GtkWidget* g_use_global_slopes_check;
 GtkWidget* g_global_slopes_min_entry;
 GtkWidget* g_global_slopes_max_entry;
+GtkWidget* g_writes_to_numa_nodes_min_size_entry;
 
 GtkWidget* g_label_perc_seeking;
 GtkWidget* g_label_perc_texec;

@@ -82,12 +82,12 @@ struct single_event* event_set_find_next_texec_start_for_frame(struct event_set*
 	    (ce >= &((es)->comm_events[0]) && ce < &((es)->comm_events[(es)->num_comm_events])) && ce->time < end; \
 	    ce++)
 
-static inline int event_set_has_write_to_numa_nodes_in_interval(struct event_set* es, struct bitvector* b, uint64_t start, uint64_t end)
+static inline int event_set_has_write_to_numa_nodes_in_interval(struct event_set* es, struct bitvector* b, uint64_t start, uint64_t end, int64_t minsize)
 {
 	struct comm_event* ce;
 
 	for_each_comm_event_in_interval(es, start, end, ce)
-		if(ce->type == COMM_TYPE_DATA_WRITE)
+		if(ce->type == COMM_TYPE_DATA_WRITE && ce->size >= minsize)
 			if(bitvector_test_bit(b, ce->what->numa_node))
 				return 1;
 

@@ -215,6 +215,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, use_global_slopes_check);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
+	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_min_size_entry);
 
 	IMPORT_GLADE_WIDGET(xml, label_perc_seeking);
 	IMPORT_GLADE_WIDGET(xml, label_perc_texec);
@@ -295,6 +296,7 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
 	g_toggle_tool_button_draw_data_writes = toggle_tool_button_draw_data_writes;
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
+	g_writes_to_numa_nodes_min_size_entry = writes_to_numa_nodes_min_size_entry;
 
 	g_use_global_values_check = use_global_values_check;
 	g_global_values_min_entry = global_values_min_entry;

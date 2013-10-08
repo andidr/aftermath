@@ -432,7 +432,7 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 		if(!f || (filter_has_task(f, texec_start->active_task) &&
 			  filter_has_frame(f, texec_start->active_frame) &&
 			  filter_has_task_duration(f, task_length) &&
-			  event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time)))
+			  event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
 		{
 
 			if(texec_start->time < start &&

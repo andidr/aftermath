@@ -894,12 +894,22 @@ G_MODULE_EXPORT void task_filter_update(void)
 	const char* txt;
 	int64_t min_task_length;
 	int64_t max_task_length;
+	int64_t min_write_to_node_size;
 
 	filter_clear_tasks(&g_filter);
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
 
 	filter_clear_writes_to_numa_nodes_nodes(&g_filter);
 	numa_node_list_build_writes_to_numa_nodes_filter(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview), &g_filter);
+
+	txt = gtk_entry_get_text(GTK_ENTRY(g_writes_to_numa_nodes_min_size_entry));
+	if(sscanf(txt, "%"PRId64, &min_write_to_node_size) != 1) {
+		show_error_message("\"%s\" is not a correct integer value.", txt);
+		return;
+	}
+	filter_set_writes_to_numa_nodes_minsize(&g_filter, min_write_to_node_size);
+	if(min_write_to_node_size > 0)
+		filter_set_writes_to_numa_nodes_filtering(&g_filter, 1);
 
 	use_task_length_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_task_length_check));
 

@@ -67,6 +67,7 @@ struct filter {
 
 	struct bitvector writes_to_numa_nodes;
 	int filter_writes_to_numa_nodes;
+	int64_t writes_to_numa_nodes_minsize;
 
 	struct bitvector cpus;
 	int filter_cpus;
@@ -102,6 +103,7 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->filter_comm_size = 0;
 	f->filter_cpus = 0;
 	f->filter_writes_to_numa_nodes = 0;
+	f->writes_to_numa_nodes_minsize = 0;
 
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;
@@ -242,6 +244,12 @@ static inline void filter_set_comm_numa_node_filtering(struct filter* f, int b)
 	f->filter_comm_numa_nodes = b;
 }
 
+static inline void filter_set_writes_to_numa_nodes_minsize(struct filter* f, int64_t minsize)
+{
+	f->writes_to_numa_nodes_minsize = minsize;
+}
+
+
 static inline void filter_clear_writes_to_numa_nodes_nodes(struct filter* f)
 {
 	f->filter_comm_numa_nodes = 0;
@@ -319,9 +327,9 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 		filter_has_task(f, se->active_task) &&
 		filter_has_frame(f, se->active_frame) &&
 		(!f->filter_writes_to_numa_nodes ||
-		 event_set_has_write_to_numa_nodes_in_interval(se->event_set, &f->writes_to_numa_nodes, se->start, se->end) ||
+		 event_set_has_write_to_numa_nodes_in_interval(se->event_set, &f->writes_to_numa_nodes, se->start, se->end, f->writes_to_numa_nodes_minsize) ||
 		 (se->texec_start && se->texec_end &&
-		  event_set_has_write_to_numa_nodes_in_interval(se->event_set, &f->writes_to_numa_nodes, se->texec_start->time, se->texec_end->time)));
+		  event_set_has_write_to_numa_nodes_in_interval(se->event_set, &f->writes_to_numa_nodes, se->texec_start->time, se->texec_end->time, f->writes_to_numa_nodes_minsize)));
 }
 
 static inline int filter_has_comm_event(struct filter* f, struct multi_event_set* mes, struct comm_event* ce)
