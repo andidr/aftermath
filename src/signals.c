@@ -491,7 +491,9 @@ void update_statistics(void)
 	int64_t left, right;
 	int64_t length;
 
-	gtk_trace_get_range_selection(g_trace_widget, &left, &right);
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
 	length = right - left;
 
 	gtk_widget_set_sensitive(g_button_clear_range, TRUE);
