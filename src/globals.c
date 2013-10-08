@@ -24,6 +24,7 @@ GtkWidget* g_matrix_widget;
 GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
 GtkWidget* g_task_treeview;
+GtkWidget* g_cpu_treeview;
 GtkWidget* g_frame_treeview;
 GtkWidget* g_frame_numa_node_treeview;
 GtkWidget* g_counter_treeview;

@@ -64,10 +64,14 @@ struct filter {
 
 	struct bitvector comm_numa_nodes;
 	int filter_comm_numa_nodes;
+
+	struct bitvector cpus;
+	int filter_cpus;
 };
 
 static inline int filter_init(struct filter* f, int64_t min, int64_t max,
-			      long double min_slope, long double max_slope)
+			      long double min_slope, long double max_slope,
+			      int max_cpu)
 {
 	f->tasks = NULL;
 	f->num_tasks = 0;
@@ -93,6 +97,7 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 
 	f->filter_task_length = 0;
 	f->filter_comm_size = 0;
+	f->filter_cpus = 0;
 
 	if(bitvector_init(&f->counters, FILTER_COUNTER_BITS))
 		return 1;
@@ -101,6 +106,9 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 		return 1;
 
 	if(bitvector_init(&f->comm_numa_nodes, FILTER_NUMA_NODE_BITS))
+		return 1;
+
+	if(bitvector_init(&f->cpus, max_cpu))
 		return 1;
 
 	return 0;
@@ -126,6 +134,23 @@ static inline int filter_add_task(struct filter* f, struct task* t)
 	return add_buffer_grow((void**)&f->tasks, &t, sizeof(t),
 			&f->num_tasks, &f->num_tasks_free,
 			FILTER_TASK_PREALLOC);
+}
+
+static inline void filter_set_cpu_filtering(struct filter* f, int b)
+{
+	f->filter_cpus = b;
+}
+
+static inline void filter_clear_cpus(struct filter* f)
+{
+	bitvector_clear(&f->cpus);
+	filter_set_cpu_filtering(f, 0);
+}
+
+static inline void filter_add_cpu(struct filter* f, int cpu)
+{
+	filter_set_cpu_filtering(f, 1);
+	bitvector_set_bit(&f->cpus, cpu);
 }
 
 static inline void filter_set_frame_filtering(struct filter* f, int b)
@@ -216,6 +241,14 @@ int filter_has_task(struct filter* f, struct task* t);
 void filter_sort_frames(struct filter* f);
 int filter_has_frame(struct filter* f, struct frame* fr);
 
+static inline int filter_has_cpu(struct filter* f, int cpu)
+{
+	if(!f->filter_cpus)
+		return 1;
+
+	return bitvector_test_bit(&f->cpus, cpu);
+}
+
 static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
 {
 	if(!f->filter_task_length)
@@ -247,7 +280,8 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 			return 0;
 	}
 
-	return filter_has_task(f, se->active_task) &&
+	return filter_has_cpu(f, se->event_set->cpu) &&
+		filter_has_task(f, se->active_task) &&
 		filter_has_frame(f, se->active_frame);
 }
 
@@ -259,6 +293,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	int src_cpu_idx;
 
 	if(!filter_has_comm_size(f, ce->size))
+		return 0;
+
+	if(!filter_has_cpu(f, ce->event_set->cpu))
 		return 0;
 
 	if(!filter_has_comm_numa_node(f, ce->what->numa_node))
@@ -296,6 +333,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 		dst_cpu_idx = -1;
 	}
 
+	if(!filter_has_cpu(f, dst_cpu_es->cpu))
+		return 0;
+
 	src_cpu_es = multi_event_set_find_cpu(mes, ce->src_cpu);
 	src_cpu_idx = event_set_get_enclosing_state(src_cpu_es, ce->time);
 
@@ -310,9 +350,10 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
-	if(filter_has_task(f, se->active_task) &&
-	   filter_has_frame(f, se->active_frame))
-		return 1;
+	if(!filter_has_task(f, se->active_task) ||
+	   !filter_has_frame(f, se->active_frame) ||
+	   !filter_has_cpu(f, se->event_set->cpu))
+		return 0;
 
 	switch(se->type) {
 		case SINGLE_TYPE_TCREATE:
@@ -331,6 +372,7 @@ static inline void filter_destroy(struct filter* f)
 	bitvector_destroy(&f->counters);
 	bitvector_destroy(&f->frame_numa_nodes);
 	bitvector_destroy(&f->comm_numa_nodes);
+	bitvector_destroy(&f->cpus);
 }
 
 static inline void filter_set_task_length_filtering(struct filter* f, int b)

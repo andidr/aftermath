@@ -417,6 +417,9 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 	struct single_event* texec_start;
 	int texec_start_idx;
 
+	if(f && !filter_has_cpu(f, es->cpu))
+		goto out;
+
 	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
 			goto out;

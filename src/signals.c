@@ -30,6 +30,7 @@
 #include "statistics.h"
 #include "page.h"
 #include "visuals_file.h"
+#include "cpu_list.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -226,7 +227,7 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 	struct counter_description* cd;
 	int err = 1;
 
-	filter_init(&opt.task_filter, 0, 0, 0, 0);
+	filter_init(&opt.task_filter, 0, 0, 0, 0, multi_event_get_max_cpu(&g_mes));
 	bitvector_init(&opt.cpus, multi_event_get_max_cpu(&g_mes));
 
 	if(show_derived_counter_dialog(&g_mes, &opt)) {
@@ -984,6 +985,16 @@ G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
 }
 
+G_MODULE_EXPORT void cpu_check_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	cpu_list_check_all(GTK_TREE_VIEW(g_cpu_treeview));
+}
+
+G_MODULE_EXPORT void cpu_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	cpu_list_uncheck_all(GTK_TREE_VIEW(g_cpu_treeview));
+}
+
 G_MODULE_EXPORT void frame_numa_node_check_all_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	numa_node_list_check_all(GTK_TREE_VIEW(g_frame_numa_node_treeview));
@@ -1284,4 +1295,18 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 
 	snprintf(buffer, sizeof(buffer), "Node %d to %d:\n%s (%.3f%% max.)\n", node_x, node_y, pretty_bytes, 100.0*relative);
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
+}
+
+void cpu_filter_update(void)
+{
+	filter_clear_cpus(&g_filter);
+	cpu_list_build_filter(GTK_TREE_VIEW(g_cpu_treeview), &g_filter);
+
+	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_statistics();
+}
+
+G_MODULE_EXPORT void cpu_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	cpu_filter_update();
 }

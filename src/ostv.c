@@ -39,6 +39,7 @@
 #include "util.h"
 #include "multi_event_set.h"
 #include "visuals_file.h"
+#include "cpu_list.h"
 
 struct load_thread_data {
 	char* tracefile;
@@ -193,6 +194,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
+	IMPORT_GLADE_WIDGET(xml, cpu_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, counter_treeview);
@@ -277,6 +279,7 @@ int main(int argc, char** argv)
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
 	g_task_treeview = task_treeview;
+	g_cpu_treeview = cpu_treeview;
 	g_frame_treeview = frame_treeview;
 	g_frame_numa_node_treeview = frame_numa_node_treeview;
 	g_counter_treeview = counter_treeview;
@@ -375,6 +378,10 @@ int main(int argc, char** argv)
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
 
+	cpu_list_init(GTK_TREE_VIEW(g_cpu_treeview));
+	cpu_list_fill(GTK_TREE_VIEW(g_cpu_treeview), multi_event_get_max_cpu(&g_mes));
+	cpu_list_check_all(GTK_TREE_VIEW(g_cpu_treeview));
+
 	frame_list_init(GTK_TREE_VIEW(g_frame_treeview));
 	frame_list_fill(GTK_TREE_VIEW(g_frame_treeview), g_mes.frames, g_mes.num_frames);
 
@@ -391,7 +398,9 @@ int main(int argc, char** argv)
 		    multi_event_get_min_counter_value(&g_mes),
 		    multi_event_get_max_counter_value(&g_mes),
 		    multi_event_get_min_counter_slope(&g_mes),
-		    multi_event_get_max_counter_slope(&g_mes));
+		    multi_event_get_max_counter_slope(&g_mes),
+		    multi_event_get_max_cpu(&g_mes)
+		);
 
 	if(histogram_init(&g_task_histogram, HISTOGRAM_DEFAULT_NUM_BINS, 0, 1)) {
 		show_error_message("Cannot initialize task length histogram structure.");
