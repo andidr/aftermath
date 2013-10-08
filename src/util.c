@@ -33,7 +33,7 @@ unsigned int pretty_print_get_power(long double v, unsigned int min_pow, unsigne
 	return min_pow;
 }
 
-void pretty_print_bytes(char* buffer, int buffer_size, unsigned int bytes, const char* add)
+void pretty_print_bytes(char* buffer, int buffer_size, uint64_t bytes, const char* add)
 {
 	const char* units[] = { "B", "KB", "MB", "GB", "TB", "PB" };
 
