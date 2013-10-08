@@ -86,6 +86,10 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 			if((start_idx = event_set_get_first_single_event_in_interval_type(&mes->sets[cpu_idx], start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 				continue;
 
+			if(!filter_has_cpu(f, mes->sets[cpu_idx].cpu))
+				continue;
+
+
 			struct single_event* se = &mes->sets[cpu_idx].single_events[start_idx];
 
 			while(se && se->next_texec_end && se->next_texec_end->time <= end) {
