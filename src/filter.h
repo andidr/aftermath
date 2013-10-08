@@ -380,7 +380,7 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 		dst_cpu_idx = -1;
 	}
 
-	if(!filter_has_cpu(f, dst_cpu_es->cpu))
+	if(dst_cpu_idx != -1 && !filter_has_cpu(f, dst_cpu_es->cpu))
 		return 0;
 
 	src_cpu_es = multi_event_set_find_cpu(mes, ce->src_cpu);
