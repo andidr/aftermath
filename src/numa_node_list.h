@@ -32,6 +32,7 @@ void numa_node_list_init(GtkTreeView* numa_node_treeview);
 void numa_node_list_fill(GtkTreeView* numa_node_treeview, int max_numa_node_id);
 void numa_node_list_build_frame_filter(GtkTreeView* numa_node_treeview, struct filter* filter);
 void numa_node_list_build_comm_filter(GtkTreeView* numa_node_treeview, struct filter* filter);
+void numa_node_list_build_writes_to_numa_nodes_filter(GtkTreeView* numa_node_treeview, struct filter* filter);
 
 void numa_node_list_check_all(GtkTreeView* numa_node_treeview);
 void numa_node_list_uncheck_all(GtkTreeView* numa_node_treeview);

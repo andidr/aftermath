@@ -198,6 +198,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, counter_treeview);
+	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_treeview);
 	IMPORT_GLADE_WIDGET(xml, code_view);
 	IMPORT_GLADE_WIDGET(xml, main_notebook);
 	IMPORT_GLADE_WIDGET(xml, statusbar);
@@ -281,6 +282,7 @@ int main(int argc, char** argv)
 	g_task_treeview = task_treeview;
 	g_cpu_treeview = cpu_treeview;
 	g_frame_treeview = frame_treeview;
+	g_writes_to_numa_nodes_treeview = writes_to_numa_nodes_treeview;
 	g_frame_numa_node_treeview = frame_numa_node_treeview;
 	g_counter_treeview = counter_treeview;
 	g_code_view = code_view;
@@ -387,6 +389,9 @@ int main(int argc, char** argv)
 
 	numa_node_list_init(GTK_TREE_VIEW(g_frame_numa_node_treeview));
 	numa_node_list_fill(GTK_TREE_VIEW(g_frame_numa_node_treeview), g_mes.max_numa_node_id);
+
+	numa_node_list_init(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview));
+	numa_node_list_fill(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview), g_mes.max_numa_node_id);
 
 	counter_list_init(GTK_TREE_VIEW(g_counter_treeview));
 	counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);

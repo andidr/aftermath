@@ -898,6 +898,9 @@ G_MODULE_EXPORT void task_filter_update(void)
 	filter_clear_tasks(&g_filter);
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
 
+	filter_clear_writes_to_numa_nodes_nodes(&g_filter);
+	numa_node_list_build_writes_to_numa_nodes_filter(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview), &g_filter);
+
 	use_task_length_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_use_task_length_check));
 
 	if(use_task_length_filter) {
@@ -983,6 +986,16 @@ G_MODULE_EXPORT void task_check_all_button_clicked(GtkMenuItem *item, gpointer d
 G_MODULE_EXPORT void task_uncheck_all_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	task_list_uncheck_all(GTK_TREE_VIEW(g_task_treeview));
+}
+
+G_MODULE_EXPORT void writes_to_node_uncheck_all_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_uncheck_all(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview));
+}
+
+G_MODULE_EXPORT void writes_to_node_check_all_clicked(GtkMenuItem *item, gpointer data)
+{
+	numa_node_list_check_all(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview));
 }
 
 G_MODULE_EXPORT void cpu_check_all_button_clicked(GtkMenuItem *item, gpointer data)

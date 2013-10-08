@@ -73,7 +73,8 @@ void numa_node_list_fill(GtkTreeView* numa_node_treeview, int max_numa_node_id)
 
 enum filter_mode {
 	FILTER_MODE_FRAME,
-	FILTER_MODE_COMM
+	FILTER_MODE_COMM,
+	FILTER_MODE_WRITES_TO_NODE
 };
 
 void __numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filter* filter, enum filter_mode mode)
@@ -97,6 +98,8 @@ void __numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filte
 				filter_add_frame_numa_node(filter, node_id);
 			else if(mode == FILTER_MODE_COMM)
 				filter_add_comm_numa_node(filter, node_id);
+			else if(mode == FILTER_MODE_WRITES_TO_NODE)
+				filter_add_writes_to_numa_nodes_node(filter, node_id);
 		} else {
 			has_unchecked = TRUE;
 		}
@@ -109,6 +112,8 @@ void __numa_node_list_build_filter(GtkTreeView* numa_node_treeview, struct filte
 			filter_set_frame_numa_node_filtering(filter, 0);
 		else if(mode == FILTER_MODE_COMM)
 			filter_set_comm_numa_node_filtering(filter, 0);
+		else if(mode == FILTER_MODE_WRITES_TO_NODE)
+			filter_set_writes_to_numa_nodes_filtering(filter, 0);
 	}
 }
 
@@ -120,6 +125,11 @@ void numa_node_list_build_frame_filter(GtkTreeView* numa_node_treeview, struct f
 void numa_node_list_build_comm_filter(GtkTreeView* numa_node_treeview, struct filter* filter)
 {
 	__numa_node_list_build_filter(numa_node_treeview, filter, FILTER_MODE_COMM);
+}
+
+void numa_node_list_build_writes_to_numa_nodes_filter(GtkTreeView* numa_node_treeview, struct filter* filter)
+{
+	__numa_node_list_build_filter(numa_node_treeview, filter, FILTER_MODE_WRITES_TO_NODE);
 }
 
 void numa_node_list_set_status_all(GtkTreeView* numa_node_treeview, gboolean status)
