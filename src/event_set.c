@@ -192,6 +192,7 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);
 	uint64_t state_durations[WORKER_STATE_MAX];
 	uint64_t max = 0;
+	uint64_t half = (end - start) / 2;
 
 	if(idx_start == -1)
 		return 0;
@@ -202,6 +203,11 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 		if(!f || filter_has_state_event(f, &es->state_events[i])) {
 			state_durations[es->state_events[i].state] +=
 				state_event_length_in_interval(&es->state_events[i], start, end);
+
+			if(state_durations[es->state_events[i].state] > half) {
+				*major_state = es->state_events[i].state;
+				return 1;
+			}
 		}
 	}
 
@@ -432,7 +438,7 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 		if(!f || (filter_has_task(f, texec_start->active_task) &&
 			  filter_has_frame(f, texec_start->active_frame) &&
 			  filter_has_task_duration(f, task_length) &&
-			  event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
+			  (!f-> filter_writes_to_numa_nodes || event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
 		{
 
 			if(texec_start->time < start &&
