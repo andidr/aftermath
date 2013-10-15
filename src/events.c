@@ -268,6 +268,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ci.header.cpu);
 				es->numa_node = dsk_ci.numa_node;
+
+				if(mes->max_numa_node_id < dsk_ci.numa_node)
+					mes->max_numa_node_id = dsk_ci.numa_node;
 			}
 		}
 	}
