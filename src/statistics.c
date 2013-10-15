@@ -210,6 +210,9 @@ int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter*
 			int dst = ce->what->numa_node;
 			int size = (num_only) ? 1 : ce->size;
 
+			if(src == -1 || dst == -1)
+				continue;
+
 			if(ignore_direction) {
 				if(src > dst) {
 					int tmp = src;
