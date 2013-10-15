@@ -703,6 +703,12 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 		int last_major_state = -1;
 		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
+		if(cpu_start + cpu_height < 0)
+			continue;
+
+		if(cpu_start > g->widget.allocation.height - g->axis_width)
+			break;
+
 		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
 			int major_state;
 			long double start = gtk_trace_screen_x_to_trace(g, px);
