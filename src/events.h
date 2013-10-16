@@ -118,11 +118,11 @@ static inline uint64_t state_event_length_in_interval(struct state_event* se, ui
 	if(se->start <= start && se->end <= end)
 		return se->end - start;
 
-	if(se->start <= end && se->end >= end)
-		return end - se->start;
-
 	if(se->start <= start && se->end >= end)
 		return end - start;
+
+	if(se->start <= end && se->end >= end)
+		return end - se->start;
 
 	/* Should never happen */
 	return 0;
