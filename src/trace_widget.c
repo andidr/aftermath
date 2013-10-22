@@ -319,6 +319,17 @@ static inline double gtk_trace_cpu_start(GtkTrace* g, int cpu_idx)
 	return cpu_idx*height - height*g->cpu_offset;
 }
 
+static inline double gtk_trace_first_visible_cpu_idx(GtkTrace* g)
+{
+	return floor(g->cpu_offset);
+}
+
+static inline double gtk_trace_last_visible_cpu_idx(GtkTrace* g)
+{
+	double height = gtk_trace_cpu_height(g);
+	return floor(g->cpu_offset + g->widget.allocation.height / height);
+}
+
 static inline long double optimal_step_size(long double lower, long double upper, long double* start_with)
 {
 	long double diff = upper - lower;
@@ -904,14 +915,37 @@ void gtk_trace_paint_heatmap(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void draw_triangle(cairo_t* cr, int x, int y, int width, int height)
+{
+	cairo_move_to(cr, x+0.5, y - height/2.0);
+	cairo_line_to(cr, x+0.5, y + height/2.0);
+	cairo_line_to(cr, x+0.5+width, y);
+	cairo_line_to(cr, x+0.5, y - height/2.0);
+}
+
 void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 {
 	char buffer[40];
 	double cpu_height = gtk_trace_cpu_height(g);
-	struct coord { int y1; int y2; } lines_painted[g->widget.allocation.width];
+	int num_cpu_gaps = g->event_sets->num_sets-1;
+	char dots[g->widget.allocation.width*g->event_sets->num_sets];
+	char triangles[g->widget.allocation.width*g->event_sets->num_sets];
+	struct type_size { uint64_t size; char type; } transfer_size[g->widget.allocation.width*g->event_sets->num_sets];
+	char lines[g->widget.allocation.width*num_cpu_gaps];
+	struct coord { int y1; int y2; } line_limits[g->widget.allocation.width];
+
+	int first_cpu_idx =  gtk_trace_first_visible_cpu_idx(g);
+	int last_cpu_idx =  gtk_trace_last_visible_cpu_idx(g);
+
 	cairo_text_extents_t extents;
 
-	memset(lines_painted, 0, sizeof(lines_painted[0])*g->widget.allocation.width);
+	memset(lines, -1, sizeof(lines[0])*g->widget.allocation.width*num_cpu_gaps);
+	memset(dots, -1, sizeof(dots[0])*g->widget.allocation.width*g->event_sets->num_sets);
+	memset(triangles, -1, sizeof(triangles[0])*g->widget.allocation.width*g->event_sets->num_sets);
+	memset(line_limits, 0, sizeof(line_limits[0])*g->widget.allocation.width);
+
+	for(int i = 0; i < g->widget.allocation.width*g->event_sets->num_sets; i++)
+		transfer_size[i].type = -1;
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
@@ -921,122 +955,191 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 	cairo_set_line_width (cr, 1);
 
-	int num_events_drawn = 0;
+	int num_lines_drawn = 0;
+	int num_dots_drawn = 0;
+	int num_triangles_drawn = 0;
+	int num_labels_drawn = 0;
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 		int comm_event = event_set_get_first_comm_in_interval(&g->event_sets->sets[cpu_idx], (g->left > 0) ? g->left : 0, g->right);
 
-		if(comm_event != -1) {
-			for(; comm_event < g->event_sets->sets[cpu_idx].num_comm_events; comm_event++) {
-				uint64_t time = g->event_sets->sets[cpu_idx].comm_events[comm_event].time;
+		/* No comm event found? */
+		if(comm_event == -1)
+			continue;
 
-				if(g->event_sets->sets[cpu_idx].comm_events[comm_event].time > g->right)
-					break;
+		for(; comm_event < g->event_sets->sets[cpu_idx].num_comm_events; comm_event++) {
+			uint64_t time = g->event_sets->sets[cpu_idx].comm_events[comm_event].time;
 
-				if((long double)time >= g->left && (long double)time <= g->right)
-				{
-					int dst_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].dst_cpu;
-					int src_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].src_cpu;
-					int comm_type = g->event_sets->sets[cpu_idx].comm_events[comm_event].type;
-					uint64_t comm_size = g->event_sets->sets[cpu_idx].comm_events[comm_event].size;
-					uint64_t prod_ts = g->event_sets->sets[cpu_idx].comm_events[comm_event].prod_ts;
-					uint32_t dst_node = g->event_sets->sets[cpu_idx].comm_events[comm_event].what->numa_node;
+			if(time > g->right)
+				break;
 
-					if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
-						continue;
-					else if(comm_type == COMM_TYPE_PUSH && !g->draw_pushes)
-						continue;
-					else if(comm_type == COMM_TYPE_DATA_READ && !g->draw_data_reads)
-						continue;
-					else if(comm_type == COMM_TYPE_DATA_WRITE && !g->draw_data_writes)
-						continue;
+			if(time < g->left)
+				continue;
 
-					if(g->filter && !filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event])) {
-						continue;
-					}
+			int dst_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].dst_cpu;
+			int src_cpu = g->event_sets->sets[cpu_idx].comm_events[comm_event].src_cpu;
+			int comm_type = g->event_sets->sets[cpu_idx].comm_events[comm_event].type;
+			uint64_t comm_size = g->event_sets->sets[cpu_idx].comm_events[comm_event].size;
 
-					long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
-					int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
-					int src_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, src_cpu);
+			if(comm_type == COMM_TYPE_STEAL && !g->draw_steals)
+				continue;
+			else if(comm_type == COMM_TYPE_PUSH && !g->draw_pushes)
+				continue;
+			else if(comm_type == COMM_TYPE_DATA_READ && !g->draw_data_reads)
+				continue;
+			else if(comm_type == COMM_TYPE_DATA_WRITE && !g->draw_data_writes)
+				continue;
 
-					if(comm_type == COMM_TYPE_DATA_WRITE) {
-						dst_cpu_idx = cpu_idx;
-						src_cpu_idx = cpu_idx;
-					}
+			if(g->filter && !filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event]))
+				continue;
 
-					double dst_cpu_start = gtk_trace_cpu_start(g, dst_cpu_idx);
-					double src_cpu_start = gtk_trace_cpu_start(g, src_cpu_idx);
+			long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
+			int dst_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, dst_cpu);
+			int src_cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, src_cpu);
 
-					int y1 = (src_cpu_idx < dst_cpu_idx) ? src_cpu_idx : dst_cpu_idx;
-					int y2 = (src_cpu_idx < dst_cpu_idx) ? dst_cpu_idx : src_cpu_idx;
+			if(comm_type == COMM_TYPE_DATA_WRITE) {
+				dst_cpu_idx = cpu_idx;
+				src_cpu_idx = cpu_idx;
+			}
 
-					cairo_set_source_rgb(cr, comm_colors[comm_type][0], comm_colors[comm_type][1], comm_colors[comm_type][2]);
-					if(src_cpu_idx != dst_cpu_idx) {
-						if(!(lines_painted[(int)screen_x].y1 <= y1 && lines_painted[(int)screen_x].y2 >= y2)) {
-							if(g->draw_comm_size) {
-								if(comm_type == COMM_TYPE_DATA_READ)
-									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
-								else if(comm_type == COMM_TYPE_DATA_WRITE)
-									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes to N%"PRIu32, comm_size, dst_node);
-								else
-									snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+			int y1 = (src_cpu_idx < dst_cpu_idx) ? src_cpu_idx : dst_cpu_idx;
+			int y2 = (src_cpu_idx < dst_cpu_idx) ? dst_cpu_idx : src_cpu_idx;
 
-								cairo_text_extents(cr, buffer, &extents);
+			int idx = ((int)screen_x)*g->event_sets->num_sets+src_cpu_idx;
 
-								cairo_save(cr);
-								cairo_translate(cr, 0, 0);
-								cairo_rotate(cr, 3*M_PI/2);
-								cairo_move_to(cr, -((src_cpu_start+dst_cpu_start)/2.0 + extents.width/2.0), screen_x-3);
-								cairo_show_text(cr, buffer);
-								cairo_restore(cr);
-							}
+			if(src_cpu_idx != dst_cpu_idx) {
+				if(!(line_limits[(int)screen_x].y1 <= y1 && line_limits[(int)screen_x].y2 >= y2)) {
+					if(line_limits[(int)screen_x].y1 < y1)
+						line_limits[(int)screen_x].y1 = y1;
 
-							cairo_move_to(cr, screen_x+0.5, src_cpu_start + cpu_height/2);
-							cairo_line_to(cr, screen_x+0.5, dst_cpu_start + cpu_height/2);
-							cairo_stroke(cr);
+					if(line_limits[(int)screen_x].y2 > y2)
+						line_limits[(int)screen_x].y2 = y2;
 
-							cairo_arc(cr, screen_x, src_cpu_start + cpu_height/2, satd(10, cpu_height/4), 0, 2*M_PI);
-							cairo_fill(cr);
+					for(int i = y1; i <= y2-1; i++)
+						lines[((int)screen_x)*num_cpu_gaps+i] = comm_type;
+				}
 
-							num_events_drawn++;
+				if(src_cpu_idx >= first_cpu_idx && src_cpu_idx <= last_cpu_idx)
+					dots[((int)screen_x)*g->event_sets->num_sets+src_cpu_idx] = comm_type;
+			} else {
+				if(triangles[idx] == -1 || (transfer_size[idx].type != -1 && comm_size > transfer_size[idx].size))
+					triangles[idx] = comm_type;
+			}
 
-							if(lines_painted[(int)screen_x].y1 < y1)
-								lines_painted[(int)screen_x].y1 = y1;
+			if(transfer_size[idx].type == -1 || comm_size >= transfer_size[idx].size) {
+				transfer_size[idx].type = comm_type;
+				transfer_size[idx].size = comm_size;
+			}
+		}
+	}
 
-							if(lines_painted[(int)screen_x].y2 > y2)
-								lines_painted[(int)screen_x].y2 = y2;
-						}
-					} else {
-						double triangle_height = cpu_height - 2;
-						double triangle_width = 8;
+	int triangle_width = 8;
 
-						cairo_move_to(cr, screen_x+0.5, src_cpu_start + cpu_height/2 - triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5, src_cpu_start + cpu_height/2 + triangle_height/2.0);
-						cairo_line_to(cr, screen_x+0.5+triangle_width, src_cpu_start + cpu_height/2);
-						cairo_move_to(cr, screen_x+0.5, src_cpu_start + cpu_height/2 - triangle_height/2.0);
-						cairo_fill(cr);
+	for(int px = 0; px < g->widget.allocation.width; px++) {
+		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+			int idx = px*g->event_sets->num_sets+cpu_idx;
 
-						if(g->draw_comm_size) {
-							if(comm_type == COMM_TYPE_DATA_READ)
-								snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes @ %"PRIu64" cycles", comm_size, prod_ts);
-							else if(comm_type == COMM_TYPE_DATA_WRITE)
-									snprintf(buffer, sizeof(buffer), "%"PRIu64" bytes to N%"PRIu32, comm_size, dst_node);
-							else
-								snprintf(buffer, sizeof(buffer), "%"PRIu64, comm_size);
+			int dot = dots[idx];
 
-							cairo_text_extents(cr, buffer, &extents);
-							cairo_move_to(cr, screen_x+0.5+triangle_width+3, src_cpu_start + cpu_height/2 + extents.height / 2.0);
-							cairo_show_text(cr, buffer);
-						}
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
 
-						num_events_drawn++;
-					}
+			if(dot != -1) {
+
+				cairo_set_source_rgb(cr, comm_colors[dot][0], comm_colors[dot][1], comm_colors[dot][2]);
+				cairo_arc(cr, px, cpu_start + cpu_height/2, satd(10, cpu_height/4), 0, 2*M_PI);
+				cairo_fill(cr);
+				num_dots_drawn++;
+			}
+
+			int triangle = triangles[idx];
+
+			if(triangle != -1) {
+				cairo_set_source_rgb(cr, comm_colors[triangle][0], comm_colors[triangle][1], comm_colors[triangle][2]);
+				draw_triangle(cr, px, cpu_start + cpu_height / 2, triangle_width, cpu_height - 2);
+				cairo_fill(cr);
+
+				num_triangles_drawn++;
+			}
+
+			if(g->draw_comm_size) {
+				int label_type = transfer_size[idx].type;
+
+				if(label_type != -1) {
+					cairo_set_source_rgb(cr, comm_colors[label_type][0], comm_colors[label_type][1], comm_colors[label_type][2]);
+					snprintf(buffer, sizeof(buffer), "%"PRIu64, transfer_size[idx].size);
+					cairo_text_extents(cr, buffer, &extents);
+
+					cairo_move_to(cr, px + triangle_width + 2, cpu_start + cpu_height / 2 + extents.height / 2);
+					cairo_show_text(cr, buffer);
+
+					num_labels_drawn++;
 				}
 			}
 		}
 	}
 
-	printf("Comm events drawn: %d\n", num_events_drawn);
+	for(int px = 0; px < g->widget.allocation.width; px++) {
+		int sametype_start = -1;
+		int sametype_end = -1;
+		int type = -1;
+
+		for(int cpu_idx = 0; cpu_idx < num_cpu_gaps; cpu_idx++) {
+			int curr_type = lines[px*num_cpu_gaps+cpu_idx];
+
+			if(curr_type != -1) {
+				if(type == -1) {
+					sametype_start = cpu_idx;
+					sametype_end = cpu_idx;
+					type = lines[px*num_cpu_gaps+cpu_idx];
+				} else if(type == curr_type) {
+					sametype_end = cpu_idx;
+				} else if(type != curr_type) {
+					/* sametype_start = cpu_idx; */
+					/* sametype_end = cpu_idx; */
+					/* type = lines[px*num_cpu_gaps+cpu_idx]; */
+					cairo_set_source_rgb(cr, comm_colors[type][0], comm_colors[type][1], comm_colors[type][2]);
+					double dst_cpu_start = gtk_trace_cpu_start(g, sametype_start);
+					double src_cpu_start = gtk_trace_cpu_start(g, sametype_end+1);
+
+
+					cairo_move_to(cr, px+0.5, src_cpu_start + cpu_height/2);
+					cairo_line_to(cr, px+0.5, dst_cpu_start + cpu_height/2);
+					cairo_stroke(cr);
+					num_lines_drawn++;
+
+					sametype_start = cpu_idx;
+					sametype_end = cpu_idx;
+					type = lines[px*num_cpu_gaps+cpu_idx];
+				}
+			} else {
+				if(type != -1) {
+					cairo_set_source_rgb(cr, comm_colors[type][0], comm_colors[type][1], comm_colors[type][2]);
+					double dst_cpu_start = gtk_trace_cpu_start(g, sametype_start);
+					double src_cpu_start = gtk_trace_cpu_start(g, sametype_end+1);
+
+					cairo_move_to(cr, px+0.5, src_cpu_start + cpu_height/2);
+					cairo_line_to(cr, px+0.5, dst_cpu_start + cpu_height/2);
+					cairo_stroke(cr);
+					num_lines_drawn++;
+
+					type = -1;
+				}
+			}
+		}
+
+		if(type != -1) {
+			cairo_set_source_rgb(cr, comm_colors[type][0], comm_colors[type][1], comm_colors[type][2]);
+			double dst_cpu_start = gtk_trace_cpu_start(g, sametype_start);
+			double src_cpu_start = gtk_trace_cpu_start(g, sametype_end+1);
+
+			cairo_move_to(cr, px+0.5, src_cpu_start + cpu_height/2);
+			cairo_line_to(cr, px+0.5, dst_cpu_start + cpu_height/2);
+			cairo_stroke(cr);
+			num_lines_drawn++;
+		}
+	}
+
+	printf("Comm events drawn: %d lines, %d dots, %d triangles, %d labels\n", num_lines_drawn, num_dots_drawn, num_triangles_drawn, num_labels_drawn);
 	cairo_reset_clip(cr);
 }
 
