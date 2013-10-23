@@ -199,7 +199,10 @@ int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter*
 		if(first_comm_index == -1)
 			continue;
 
-		for(struct comm_event* ce = &es->comm_events[first_comm_index]; ce < &es->comm_events[es->num_comm_events]; ce++) {
+		for(struct comm_event* ce = &es->comm_events[first_comm_index];
+		    ce < &es->comm_events[es->num_comm_events] && ce->time <= end;
+		    ce++)
+		{
 			int in_mask = (1 << ce->type) & comm_type_mask;
 
 			if(!in_mask || !filter_has_comm_event(f, mes, ce) ||
