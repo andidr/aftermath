@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 			show_error_message("Could not read visuals from %s", g_visuals_filename);
 	}
 
-	xml = glade_xml_new(DATA_PATH "/ostv.glade", NULL, NULL);
+	xml = glade_xml_new(DATA_PATH "/aftermath.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
@@ -419,7 +419,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	snprintf(title, sizeof(title), "OSTV - %s", tracefile);
+	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
 	gtk_widget_show_all(toplevel_window);

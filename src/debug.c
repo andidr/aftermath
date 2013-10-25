@@ -34,7 +34,7 @@ int debug_read_task_symbols(const char* filename, struct multi_event_set* mes)
 	struct task key;
 	struct task* t;
 
-	snprintf(command, sizeof(command), "ostv-debug-syms \"%s\"", filename);
+	snprintf(command, sizeof(command), "aftermath-debug-syms \"%s\"", filename);
 
 	if(!(fp = popen(command, "r")))
 		goto out;

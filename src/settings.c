@@ -73,7 +73,7 @@ int write_user_settings(struct settings* s)
 	if(!home_dir)
 		goto out;
 
-	snprintf(conf_filename, sizeof(conf_filename), "%s/.ostv-settings", home_dir);
+	snprintf(conf_filename, sizeof(conf_filename), "%s/.aftermath-settings", home_dir);
 
 	if(init_settings_if_not_exists(conf_filename) != 0)
 		goto out;
@@ -116,7 +116,7 @@ int read_user_settings(struct settings* s)
 	if(!home_dir)
 		goto out;
 
-	snprintf(conf_filename, sizeof(conf_filename), "%s/.ostv-settings", home_dir);
+	snprintf(conf_filename, sizeof(conf_filename), "%s/.aftermath-settings", home_dir);
 
 	if(init_settings_if_not_exists(conf_filename) != 0)
 		goto out;

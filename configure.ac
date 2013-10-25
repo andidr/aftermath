@@ -1,6 +1,6 @@
-AC_INIT(src/ostv.c)
+AC_INIT(src/aftermath.c)
 AC_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(ostv, unreleased)
+AM_INIT_AUTOMAKE(aftermath, unreleased)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 m4_include([m4/with_check.m4])
 

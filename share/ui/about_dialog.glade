@@ -7,11 +7,11 @@
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
-    <property name="program_name">OSTV</property>
+    <property name="program_name">Aftermath</property>
     <property name="copyright" translatable="yes">Copyright (c) 2013 by Andi Drebes</property>
-    <property name="comments" translatable="yes">The OpenStream trace viewer</property>
+    <property name="comments" translatable="yes">Trace analysis tool</property>
     <property name="website">http://www.openstream.info</property>
-    <property name="website_label" translatable="yes">Visuit the OpenStream website</property>
+    <property name="website_label" translatable="yes">Visit the OpenStream website</property>
     <property name="license" translatable="yes">		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 

@@ -11,8 +11,8 @@ configure
 depcomp
 install-sh
 missing
-ostv
-ostv-debug-syms
+aftermath
+aftermath-debug-syms
 *.o
 stamp-h1
 TAGS
