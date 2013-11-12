@@ -1333,3 +1333,22 @@ G_MODULE_EXPORT void cpu_filter_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	cpu_filter_update();
 }
+
+G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	filter_clear_single_event_types(&g_filter);
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_single_c)))
+		filter_add_single_event_type(&g_filter, SINGLE_TYPE_TCREATE);
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_single_es)))
+		filter_add_single_event_type(&g_filter, SINGLE_TYPE_TEXEC_START);
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_single_ee)))
+		filter_add_single_event_type(&g_filter, SINGLE_TYPE_TEXEC_END);
+
+	filter_set_single_event_type_filtering(&g_filter, 1);
+
+	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_statistics();
+}

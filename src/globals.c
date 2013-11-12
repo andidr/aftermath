@@ -100,6 +100,10 @@ GtkWidget* g_check_matrix_direction;
 GtkWidget* g_check_matrix_numonly;
 GtkWidget* g_label_comm_matrix;
 
+GtkWidget* g_check_single_c;
+GtkWidget* g_check_single_es;
+GtkWidget* g_check_single_ee;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

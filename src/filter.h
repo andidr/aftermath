@@ -59,6 +59,9 @@ struct filter {
 	int64_t min_comm_size;
 	int64_t max_comm_size;
 
+	int filter_single_event_types;
+	int64_t single_event_types;
+
 	struct bitvector frame_numa_nodes;
 	int filter_frame_numa_nodes;
 
@@ -90,6 +93,7 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->filter_counters = 0;
 	f->filter_frame_numa_nodes = 0;
 	f->filter_comm_numa_nodes = 0;
+	f->filter_single_event_types = 0;
 
 	f->filter_counter_values = 0;
 	f->min = min;
@@ -143,6 +147,29 @@ static inline int filter_add_task(struct filter* f, struct task* t)
 	return add_buffer_grow((void**)&f->tasks, &t, sizeof(t),
 			&f->num_tasks, &f->num_tasks_free,
 			FILTER_TASK_PREALLOC);
+}
+
+static inline void filter_set_single_event_type_filtering(struct filter* f, int b)
+{
+	f->filter_single_event_types = b;
+}
+
+static inline void filter_clear_single_event_types(struct filter* f)
+{
+	f->single_event_types = 0;
+}
+
+static inline void filter_add_single_event_type(struct filter* f, enum single_event_type t)
+{
+	f->single_event_types |= (1 << t);
+}
+
+static inline int filter_has_single_event_type(struct filter* f, enum single_event_type t)
+{
+	if(!f->filter_single_event_types)
+		return 1;
+
+	return (f->single_event_types & (1 << t));
 }
 
 static inline void filter_set_cpu_filtering(struct filter* f, int b)
@@ -405,7 +432,8 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
-	if(!filter_has_task(f, se->active_task) ||
+	if(!filter_has_single_event_type(f, se->type) ||
+	   !filter_has_task(f, se->active_task) ||
 	   !filter_has_frame(f, se->active_frame) ||
 	   !filter_has_cpu(f, se->event_set->cpu))
 		return 0;
