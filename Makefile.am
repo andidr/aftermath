@@ -81,6 +81,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/cpu_list.c \
 		src/task_graph.h \
 		src/task_graph.c \
+		src/texec_tree.h \
+		src/texec_tree.c \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -95,6 +97,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/ui/derived_counter_dialog.glade \
 		share/ui/annotation_dialog.glade \
 		share/ui/counter_offset_dialog.glade \
+		share/ui/task_graph_texec_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_comm.svg \
 		share/icons/draw_steals.svg \

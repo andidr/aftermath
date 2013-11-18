@@ -16,7 +16,38 @@
  */
 
 #include "task_graph.h"
+#include "texec_tree.h"
 #include <inttypes.h>
+
+void dump_tcreate_edge(FILE* fp, struct frame* fcreator, int64_t time_creator, struct frame* newframe, int64_t newtime)
+{
+	fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\" [style = dotted];\n",
+		fcreator->addr,
+		time_creator,
+		newframe->addr,
+		newtime);
+}
+
+void dump_write_edge(FILE* fp, struct frame* fwriter, int64_t time_writer, struct frame* freader, int64_t time_reader, int size)
+{
+	fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\";\n",
+		fwriter->addr,
+		time_writer,
+		freader->addr,
+		time_reader);
+}
+
+void dump_node(FILE* fp, struct single_event* texec_start)
+{
+	fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" [colorscheme = \"pastel18\", "
+		"shape=\"none\", label=<<table border=\"1\" cellspacing=\"0\">"
+		"<tr><td bgcolor=\"%d\">O=%d</td><td bgcolor=\"%d\">X=%d</td></tr>"
+		"<tr><td colspan=\"2\">S=%d</td></tr></table>>];\n",
+		texec_start->active_frame->addr, texec_start->time,
+		texec_start->active_frame->numa_node+1, texec_start->active_frame->numa_node+1,
+		texec_start->event_set->numa_node+1, texec_start->event_set->numa_node+1,
+		texec_start->active_frame->size);
+}
 
 int export_nodes_event_set(FILE* fp, struct multi_event_set* mes, struct event_set* es, struct filter* f, int64_t start, int64_t end)
 {
@@ -29,14 +60,7 @@ int export_nodes_event_set(FILE* fp, struct multi_event_set* mes, struct event_s
 			if(!filter_has_single_event(f, ts))
 				continue;
 
-			fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" [colorscheme = \"pastel18\", "
-				"shape=\"none\", label=<<table border=\"1\" cellspacing=\"0\">"
-				"<tr><td bgcolor=\"%d\">O=%d</td><td bgcolor=\"%d\">X=%d</td></tr>"
-				"<tr><td colspan=\"2\">S=%d</td></tr></table>>];\n",
-				ts->active_frame->addr, ts->time,
-				ts->active_frame->numa_node+1, ts->active_frame->numa_node+1,
-				es->numa_node+1, es->numa_node+1,
-				ts->active_frame->size);
+			dump_node(fp, ts);
 		}
 
 		ts = &es->single_events[texec_start];
@@ -61,15 +85,10 @@ int export_task_graph_event_set(FILE* fp, struct multi_event_set* mes, struct ev
 		if(ce->type == COMM_TYPE_DATA_WRITE && filter_has_comm_event(f, mes, ce)) {
 			struct single_event* fr_next_exec = multi_event_set_find_next_texec_start_for_frame(mes, ce->time, ce->what);
 
-			if(!fr_next_exec) {
+			if(!fr_next_exec)
 				fprintf(stderr, "Warning: Could not find next texec for frame %"PRIx64"\n", ce->what->addr);
-			} else {
-				fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\";\n",
-					ce->active_frame->addr,
-					ce->texec_start->time,
-					ce->what->addr,
-					fr_next_exec->time);
-			}
+			else
+				dump_write_edge(fp, ce->active_frame, ce->texec_start->time, ce->what, fr_next_exec->time, ce->size);
 		}
 	}
 
@@ -91,13 +110,8 @@ int export_task_graph_event_set(FILE* fp, struct multi_event_set* mes, struct ev
 				if(!fr_next_exec) {
 					fprintf(stderr, "Warning: Could not find next texec for frame %"PRIx64"\n", sge->what->addr);
 				} else {
-					if(sge->prev_texec_start) {
-						fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\" [style = dotted];\n",
-							sge->active_frame->addr,
-							sge->prev_texec_start->time,
-							sge->what->addr,
-							fr_next_exec->time);
-					}
+					if(sge->prev_texec_start)
+						dump_tcreate_edge(fp, sge->active_frame, sge->prev_texec_start->time, sge->what, fr_next_exec->time);
 				}
 			}
 		}
@@ -134,6 +148,107 @@ int export_task_graph(const char* outfile, struct multi_event_set* mes, struct f
 
 	ret = 0;
 
+out_fp:
+	fclose(fp);
+out:
+	return ret;
+}
+
+int add_texecs_downward(FILE* fp, struct texec_tree* tt, struct multi_event_set* mes, struct single_event* texec_start, struct single_event* parent_texec, struct comm_event* parent_write, unsigned int depth_down)
+{
+	if(depth_down == 0)
+		return 0;
+
+	if(parent_texec) {
+		dump_tcreate_edge(fp, parent_texec->active_frame,
+				  parent_texec->time,
+				  texec_start->what,
+				  texec_start->time);
+	}
+
+	if(parent_write) {
+		dump_write_edge(fp, parent_write->active_frame,
+				parent_write->texec_start->time,
+				texec_start->what,
+				texec_start->time,
+				parent_write->size);
+	}
+
+	if(texec_tree_find(tt, texec_start->active_frame, texec_start))
+		return 0;
+
+	texec_tree_add(tt, texec_start->active_frame, texec_start);
+
+	if(texec_start->next_texec_end) {
+		for(struct single_event* se = texec_start; se < se->next_texec_end; se++) {
+			if(se->type == SINGLE_TYPE_TCREATE) {
+				struct single_event* fr_next_exec = multi_event_set_find_next_texec_start_for_frame(mes, se->time, se->what);
+
+				if(fr_next_exec)
+					if(add_texecs_downward(fp, tt, mes, fr_next_exec, texec_start, NULL, depth_down-1))
+						return 1;
+			}
+		}
+	}
+
+	if(texec_start->next_texec_end) {
+			struct event_set* es = texec_start->event_set;
+			struct single_event* texec_end = texec_start->next_texec_end;
+
+			int comm_event = event_set_get_first_comm_in_interval(es, texec_start->time, texec_end->time);
+
+			for(; comm_event != -1 && comm_event < es->num_comm_events; comm_event++) {
+				struct comm_event* ce = &es->comm_events[comm_event];
+
+				if(ce->time > texec_end->time)
+					break;
+
+				if(ce->type == COMM_TYPE_DATA_WRITE) {
+					struct single_event* fr_next_exec = multi_event_set_find_next_texec_start_for_frame(mes, ce->time, ce->what);
+
+					if(!fr_next_exec) {
+						fprintf(stderr, "Warning: Could not find next texec for frame %"PRIx64"\n", ce->what->addr);
+					} else {
+						if(add_texecs_downward(fp, tt, mes, fr_next_exec, NULL, ce, depth_down-1))
+							return 1;
+					}
+				}
+			}
+	}
+
+	return 0;
+}
+
+void texec_tree_dump_element(struct texec_key* key, void* arg)
+{
+	FILE* fp = (FILE*)arg;
+	dump_node(fp, key->texec_start);
+}
+
+int export_task_graph_selected_texec(const char* outfile, struct multi_event_set* mes, struct single_event* texec_start, unsigned int depth_down)
+{
+	int ret = 1;
+	FILE* fp = fopen(outfile, "w+");
+
+	if(!fp)
+		goto out;
+
+	fprintf(fp, "digraph task_graph {\n");
+
+	struct texec_tree tt;
+	texec_tree_init(&tt);
+
+	if(add_texecs_downward(fp, &tt, mes, texec_start, NULL, NULL, depth_down))
+		goto out_tt;
+
+	texec_tree_walk_ascending(&tt, texec_tree_dump_element, fp);
+
+	fprintf(fp, "}\n");
+
+	ret = 0;
+
+out_tt:
+	texec_tree_destroy(&tt);
 out_fp:
 	fclose(fp);
 out:

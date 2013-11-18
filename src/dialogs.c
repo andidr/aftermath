@@ -149,6 +149,25 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	return ret;
 }
 
+int show_task_graph_texec_dialog(unsigned int* depth_down)
+{
+	int ret = 0;
+	GladeXML* xml = glade_xml_new(DATA_PATH "/task_graph_texec_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, spin_down);
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		*depth_down = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin_down));
+		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}
+
 enum annotation_dialog_response show_annotation_dialog(struct annotation* a, int edit)
 {
 	int ret = ANNOTATION_DIALOG_RESPONSE_CANCEL;

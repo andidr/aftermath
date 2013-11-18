@@ -22,5 +22,6 @@
 #include "filter.h"
 
 int export_task_graph(const char* outfile, struct multi_event_set* mes, struct filter* f, int64_t start, int64_t end);
+int export_task_graph_selected_texec(const char* outfile, struct multi_event_set* mes, struct single_event* texec_start, unsigned int depth_down);
 
 #endif

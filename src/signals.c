@@ -241,8 +241,40 @@ G_MODULE_EXPORT void menubar_export_task_graph(GtkCheckMenuItem *item, gpointer 
 		return;
 	}
 
-
 	if(export_task_graph(filename, &g_mes, &g_filter, start, end)) {
+		show_error_message("Could not save task graph to file %s.", filename);
+	}
+
+	free(filename);
+}
+
+G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckMenuItem *item, gpointer data)
+{
+	char* filename;
+	unsigned int depth_down;
+	struct state_event* se = gtk_trace_get_highlighted_state_event(g_trace_widget);
+
+	if(!se) {
+		show_error_message("No event selected.");
+		return;
+	} else if(se->texec_start == NULL) {
+		show_error_message("No task associated to selected event.");
+		return;
+	}
+
+	if(!show_task_graph_texec_dialog(&depth_down))
+		return;
+
+	if(!(filename = load_save_file_dialog("Save task graph",
+					      GTK_FILE_CHOOSER_ACTION_SAVE,
+					      "GraphViz files",
+					      "*.dot",
+					      NULL)))
+	{
+		return;
+	}
+
+	if(export_task_graph_selected_texec(filename, &g_mes, se->texec_start, depth_down)) {
 		show_error_message("Could not save task graph to file %s.", filename);
 	}
 

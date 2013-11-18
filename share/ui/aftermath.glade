@@ -93,6 +93,14 @@
                         <signal name="activate" handler="menubar_export_task_graph"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menuitem12">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Export task graph of selected task execution</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_export_task_graph_selected_task_execution"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
