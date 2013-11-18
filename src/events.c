@@ -66,6 +66,24 @@ int trace_update_task_execution_bounds(struct event_set* es)
 		if(last_ese)
 			last_ese->next_texec_start = ese;
 
+		/* Update single events */
+		for(int inbetween_idx = exec_start_idx+1; inbetween_idx < exec_end_idx && inbetween_idx < es->num_single_events; inbetween_idx++) {
+			es->single_events[inbetween_idx].next_texec_end = eee;
+			es->single_events[inbetween_idx].prev_texec_start = ese;
+		}
+
+		/* Update forward references for next_texec_start since last_ese */
+		if(last_ese) {
+			for(struct single_event* sge = last_ese+1; sge < ese; sge++)
+				sge->next_texec_start = ese;
+		}
+
+		/* Update forward references for next_texec_end since last_eee */
+		if(last_eee) {
+			for(struct single_event* sge = last_eee+1; sge < eee; sge++)
+				sge->next_texec_end = eee;
+		}
+
 		/* Update state events between start and end */
 		if((state_idx = event_set_get_first_state_starting_in_interval(es, ese->time, eee->time)) != -1) {
 			while(state_idx < es->num_state_events &&
