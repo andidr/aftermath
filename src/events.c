@@ -383,7 +383,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			ce->event_set = es;
 		}
 
-		/* Update communication events */
+		/* Update counter events */
 		for(struct counter_event_set* ces = &es->counter_event_sets[0];
 		    ces < &es->counter_event_sets[es->num_counter_event_sets];
 		    ces++)
