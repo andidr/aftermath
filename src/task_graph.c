@@ -28,13 +28,22 @@ void dump_tcreate_edge(FILE* fp, struct frame* fcreator, int64_t time_creator, s
 		newtime);
 }
 
-void dump_write_edge(FILE* fp, struct frame* fwriter, int64_t time_writer, struct frame* freader, int64_t time_reader, int size)
+void dump_write_edge(FILE* fp, struct frame* fwriter, int64_t time_writer, struct frame* freader, int64_t time_reader, int size, int max_size)
 {
-	fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\";\n",
+	double min_pen_width = 1.0;
+	double max_pen_width = 5.0;
+
+	double pen_width = min_pen_width;
+
+	if(max_size > 0)
+		pen_width = min_pen_width + (max_pen_width - min_pen_width)* ((double)size) / ((double)max_size);
+
+	fprintf(fp, "\t\"%"PRIx64"_%"PRId64"\" -> \"%"PRIx64"_%"PRId64"\" [penwidth = %f];\n",
 		fwriter->addr,
 		time_writer,
 		freader->addr,
-		time_reader);
+		time_reader,
+		pen_width);
 }
 
 void dump_node(FILE* fp, struct single_event* texec_start)
@@ -88,7 +97,7 @@ int export_task_graph_event_set(FILE* fp, struct multi_event_set* mes, struct ev
 			if(!fr_next_exec)
 				fprintf(stderr, "Warning: Could not find next texec for frame %"PRIx64"\n", ce->what->addr);
 			else
-				dump_write_edge(fp, ce->active_frame, ce->texec_start->time, ce->what, fr_next_exec->time, ce->size);
+				dump_write_edge(fp, ce->active_frame, ce->texec_start->time, ce->what, fr_next_exec->time, ce->size, mes->max_write_size);
 		}
 	}
 
@@ -171,7 +180,8 @@ int add_texecs_downward(FILE* fp, struct texec_tree* tt, struct multi_event_set*
 				parent_write->texec_start->time,
 				texec_start->what,
 				texec_start->time,
-				parent_write->size);
+				parent_write->size,
+				mes->max_write_size);
 	}
 
 	if(texec_tree_find(tt, texec_start->active_frame, texec_start))

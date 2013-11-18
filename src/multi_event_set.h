@@ -45,6 +45,9 @@ struct multi_event_set {
 	int num_counters_free;
 
 	int max_numa_node_id;
+
+	int max_write_size;
+	int max_read_size;
 };
 
 static inline void multi_event_event_set_add_counter_offset(struct multi_event_set* mes, int counter_id, int64_t offset)

@@ -213,6 +213,14 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				ce.texec_end = NULL;
 				ce.prod_ts = dsk_ce.prod_ts;
 
+				if(dsk_ce.type == COMM_TYPE_DATA_WRITE)
+					if(dsk_ce.size > mes->max_write_size)
+						mes->max_write_size = dsk_ce.size;
+
+				if(dsk_ce.type == COMM_TYPE_DATA_READ)
+					if(dsk_ce.size > mes->max_read_size)
+						mes->max_read_size = dsk_ce.size;
+
 				if(!last_what || last_what->addr != dsk_ce.what)
 					last_what = frame_tree_find_or_add(ft, dsk_ce.what);
 

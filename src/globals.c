@@ -116,7 +116,10 @@ struct multi_event_set g_mes = { .sets = NULL,
 				 .counters = NULL,
 				 .num_counters = 0,
 				 .num_counters_free = 0,
-				 .max_numa_node_id = 0};
+				 .max_numa_node_id = 0,
+				 .max_write_size = 0,
+				 .max_read_size = 0,
+};
 
 struct filter g_filter;
 struct settings g_settings;
