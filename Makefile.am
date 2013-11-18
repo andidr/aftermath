@@ -79,6 +79,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/convert.c \
 		src/cpu_list.h \
 		src/cpu_list.c \
+		src/task_graph.h \
+		src/task_graph.c \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
