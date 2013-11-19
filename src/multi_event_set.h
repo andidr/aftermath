@@ -306,15 +306,33 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 static inline struct single_event* multi_event_set_find_next_texec_start_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
 {
-	struct single_event* ret = NULL;
-	struct single_event* curr = NULL;
+	struct single_event* tips[mes->num_sets];
+	struct single_event* min = NULL;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if((curr = event_set_find_next_texec_start_for_frame(&mes->sets[i], start, f)))
-			if(!ret || curr->time < ret->time)
-				ret = curr;
+	int updates = 1;
 
-	return ret;
+	for(int i = 0; i < mes->num_sets; i++) {
+		int idx = event_set_get_first_single_event_in_interval_type(&mes->sets[i], start, mes->sets[i].last_end, SINGLE_TYPE_TEXEC_START);
+		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	}
+
+	while(updates != 0) {
+		updates = 0;
+
+		for(int i = 0; i < mes->num_sets; i++) {
+			if(tips[i] && tips[i]->active_frame->addr == f->addr)
+				if(!min || tips[i]->time < min->time)
+					min = tips[i];
+
+			if(tips[i] && (!min || tips[i]->time < min->time)) {
+				tips[i] = tips[i]->next_texec_start;
+				updates = 1;
+			}
+		}
+	}
+
+
+	return min;
 }
 
 #endif
