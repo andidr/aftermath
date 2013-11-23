@@ -104,11 +104,6 @@ G_MODULE_EXPORT void use_comm_size_check_toggle(GtkToggleButton *button, gpointe
 	widget_toggle(g_comm_size_max_entry, GTK_WIDGET(button));
 }
 
-G_MODULE_EXPORT void toolbar_draw_states_toggled(GtkToggleToolButton *button, gpointer data)
-{
-	gtk_trace_set_draw_states(g_trace_widget, gtk_toggle_tool_button_get_active(button));
-}
-
 G_MODULE_EXPORT void toolbar_draw_comm_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gboolean new_state = gtk_toggle_tool_button_get_active(button);
@@ -192,6 +187,14 @@ G_MODULE_EXPORT void task_length_heatmap_update_params_clicked(GtkButton *button
 	task_length_heatmap_update_params();
 }
 
+G_MODULE_EXPORT void tool_button_use_task_length_statemap_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	int active = gtk_toggle_tool_button_get_active(button);
+
+	if(active)
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_STATES);
+}
+
 G_MODULE_EXPORT void tool_button_use_task_length_heatmap_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	int active = gtk_toggle_tool_button_get_active(button);
@@ -201,7 +204,15 @@ G_MODULE_EXPORT void tool_button_use_task_length_heatmap_toggled(GtkToggleToolBu
 			gtk_toggle_tool_button_set_active(button, 0);
 	}
 
-	gtk_trace_set_heatmap_mode(g_trace_widget, active);
+	gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_HEAT);
+}
+
+G_MODULE_EXPORT void tool_button_use_task_length_numamap_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	int active = gtk_toggle_tool_button_get_active(button);
+
+	if(active)
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_NUMA);
 }
 
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)

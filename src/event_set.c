@@ -480,3 +480,41 @@ out:
 	*num_tasks = lnum_tasks;
 	return (uint64_t)(((long double)(length)) / lnum_tasks);
 }
+
+int event_set_get_major_numa_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
+{
+	int idx_start = event_set_get_first_state_in_interval(es, start, end);
+	int curr_node;
+	uint64_t node_durations[max_numa_node_id+1];
+	uint64_t max = 0;
+	uint64_t half = (end - start) / 2;
+
+	if(idx_start == -1)
+		return 0;
+
+	memset(node_durations, 0, (max_numa_node_id+1)*sizeof(node_durations[0]));
+
+	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
+		if(!f || filter_has_state_event(f, &es->state_events[i])) {
+			if(es->state_events[i].active_frame && es->state_events[i].active_frame->numa_node != -1)
+			{
+				curr_node = es->state_events[i].active_frame->numa_node;
+				node_durations[curr_node] += state_event_length_in_interval(&es->state_events[i], start, end);
+
+				if(node_durations[curr_node] > half) {
+					*major_node = curr_node;
+					return 1;
+				}
+			}
+		}
+	}
+
+	for(int node = 0; node < (max_numa_node_id+1); node++) {
+		if(node_durations[node] > max) {
+			max = node_durations[node];
+			*major_node = node;
+		}
+	}
+
+	return max > 0;
+}

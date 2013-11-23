@@ -108,7 +108,8 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/draw_events.svg \
 		share/icons/draw_counters.svg \
 		share/icons/draw_annotations.svg \
-		share/icons/heatmap.svg
+		share/icons/heatmap.svg \
+		share/icons/numamap.svg
 
 clean-local:
 	-find . -iname "*~" | xargs rm

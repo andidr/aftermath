@@ -234,14 +234,42 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkToggleToolButton" id="toggletoolbutton1">
+              <widget class="GtkRadioToolButton" id="toggle_statemap">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Draw worker states</property>
                 <property name="label" translatable="yes">S</property>
                 <property name="use_underline">True</property>
                 <property name="icon">draw_states.svg</property>
                 <property name="active">True</property>
-                <signal name="toggled" handler="toolbar_draw_states_toggled"/>
+                <signal name="toggled" handler="tool_button_use_task_length_statemap_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioToolButton" id="toggle_heatmap">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">HM</property>
+                <property name="use_underline">True</property>
+                <property name="icon">heatmap.svg</property>
+                <property name="group">toggle_statemap</property>
+                <signal name="toggled" handler="tool_button_use_task_length_heatmap_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioToolButton" id="toggle_numamap">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">toolbutton4</property>
+                <property name="use_underline">True</property>
+                <property name="icon">numamap.svg</property>
+                <property name="group">toggle_statemap</property>
+                <signal name="toggled" handler="tool_button_use_task_length_numamap_toggled"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -377,19 +405,6 @@
                 <property name="icon">draw_annotations.svg</property>
                 <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_annotations_toggled"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkToggleToolButton" id="Heatmap">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">HM</property>
-                <property name="use_underline">True</property>
-                <property name="icon">heatmap.svg</property>
-                <signal name="toggled" handler="tool_button_use_task_length_heatmap_toggled"/>
               </widget>
               <packing>
                 <property name="expand">False</property>

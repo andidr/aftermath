@@ -18,6 +18,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#define COL_NORM(x) ((x) / 255.0)
+#define COL_NORM(x) (((double)x) / 255.0)
 
 #endif

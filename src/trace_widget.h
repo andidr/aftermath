@@ -58,6 +58,12 @@ enum gtk_trace_modes {
 	GTK_TRACE_MODE_ZOOM
 };
 
+enum gtk_trace_map_mode {
+	GTK_TRACE_MAP_MODE_STATES = 0,
+	GTK_TRACE_MAP_MODE_HEAT,
+	GTK_TRACE_MAP_MODE_NUMA,
+};
+
 struct _GtkTrace {
 	GtkWidget widget;
 	long double left;
@@ -81,7 +87,7 @@ struct _GtkTrace {
 	int draw_single_events;
 	int draw_counters;
 	int draw_annotations;
-	int heatmap_mode;
+	enum gtk_trace_map_mode map_mode;
 	int heatmap_shades;
 	int moved_during_navigation;
 
@@ -144,7 +150,7 @@ void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
 void gtk_trace_set_draw_annotations(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length);
-void gtk_trace_set_heatmap_mode(GtkWidget *widget, int val);
+void gtk_trace_set_map_mode(GtkWidget *widget, enum gtk_trace_map_mode model);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
 void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se);
