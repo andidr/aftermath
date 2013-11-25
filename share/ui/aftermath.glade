@@ -263,13 +263,27 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkRadioToolButton" id="toggle_numamap">
+              <widget class="GtkRadioToolButton" id="toggle_numamap_reads">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">toolbutton4</property>
+                <property name="label" translatable="yes">NMR</property>
                 <property name="use_underline">True</property>
-                <property name="icon">numamap.svg</property>
+                <property name="icon">numamap_reads.svg</property>
                 <property name="group">toggle_statemap</property>
-                <signal name="toggled" handler="tool_button_use_task_length_numamap_toggled"/>
+                <signal name="toggled" handler="tool_button_numamap_reads_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioToolButton" id="toggle_numamap_writes">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">NMW</property>
+                <property name="use_underline">True</property>
+                <property name="icon">numamap_writes.svg</property>
+                <property name="group">toggle_statemap</property>
+                <signal name="toggled" handler="tool_button_numamap_writes_toggled"/>
               </widget>
               <packing>
                 <property name="expand">False</property>

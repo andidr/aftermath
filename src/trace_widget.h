@@ -61,7 +61,8 @@ enum gtk_trace_modes {
 enum gtk_trace_map_mode {
 	GTK_TRACE_MAP_MODE_STATES = 0,
 	GTK_TRACE_MAP_MODE_HEAT,
-	GTK_TRACE_MAP_MODE_NUMA,
+	GTK_TRACE_MAP_MODE_NUMA_READS,
+	GTK_TRACE_MAP_MODE_NUMA_WRITES,
 };
 
 struct _GtkTrace {

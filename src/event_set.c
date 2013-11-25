@@ -481,7 +481,7 @@ out:
 	return (uint64_t)(((long double)(length)) / lnum_tasks);
 }
 
-int event_set_get_major_numa_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
+int event_set_get_major_owner_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);
 	int curr_node;
@@ -512,6 +512,46 @@ int event_set_get_major_numa_node_in_interval(struct event_set* es, struct filte
 	for(int node = 0; node < (max_numa_node_id+1); node++) {
 		if(node_durations[node] > max) {
 			max = node_durations[node];
+			*major_node = node;
+		}
+	}
+
+	return max > 0;
+}
+
+int event_set_get_major_written_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
+{
+	int state_idx_start = event_set_get_first_state_in_interval(es, start, end);
+	uint64_t node_data[max_numa_node_id+1];
+	uint64_t max = 0;
+
+	if(state_idx_start == -1)
+		return 0;
+
+	struct single_event* texec_start = es->state_events[state_idx_start].texec_start;
+
+	if(!texec_start)
+		return 0;
+
+	memset(node_data, 0, (max_numa_node_id+1)*sizeof(node_data[0]));
+
+	for(; texec_start && texec_start->time < end; texec_start = texec_start->next_texec_start) {
+		if(!f || filter_has_single_event(f, texec_start)) {
+			struct comm_event* ce;
+			for_each_comm_event_in_interval(es,
+							texec_start->time,
+							texec_start->next_texec_end->time,
+							ce)
+			{
+				if(ce->type == COMM_TYPE_DATA_WRITE && ce->what->numa_node != -1)
+					node_data[ce->what->numa_node] += ce->size;
+			}
+		}
+	}
+
+	for(int node = 0; node < (max_numa_node_id+1); node++) {
+		if(node_data[node] > max) {
+			max = node_data[node];
 			*major_node = node;
 		}
 	}

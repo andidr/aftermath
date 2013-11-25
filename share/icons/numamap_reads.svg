@@ -13,7 +13,7 @@
    height="24"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="numamap.svg">
   <defs
      id="defs4">
@@ -277,14 +277,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="0.024334836"
-     inkscape:cy="10.771001"
+     inkscape:zoom="8"
+     inkscape:cx="-38.055945"
+     inkscape:cy="16.682379"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1027"
+     inkscape:window-width="1672"
+     inkscape:window-height="998"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -307,7 +307,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -551,5 +551,16 @@
          id="rect2837-2-79-9-0-9-7-4"
          style="fill:#decbe4;fill-opacity:1;fill-rule:nonzero;stroke:none" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:13.57601929px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:0.69999999;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="11.179636"
+       y="1049.2849"
+       id="text2883"><tspan
+         sodipodi:role="line"
+         id="tspan2885"
+         x="11.179636"
+         y="1049.2849"
+         style="font-weight:bold;fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:0.69999999;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;-inkscape-font-specification:Bitstream Vera Sans Bold">R</tspan></text>
   </g>
 </svg>

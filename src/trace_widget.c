@@ -958,7 +958,10 @@ void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
 			if(start < 0)
 				continue;
 
-			valid = event_set_get_major_numa_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
+			if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS)
+				valid = event_set_get_major_owner_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
+			else
+				valid = event_set_get_major_written_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
 
 			if(last_node != -1) {
 				if((valid && last_node != curr_node) || !valid) {
@@ -1824,7 +1827,8 @@ void gtk_trace_paint(GtkWidget *widget)
 	if(g->map_mode == GTK_TRACE_MAP_MODE_HEAT)
 		gtk_trace_paint_heatmap(g, cr);
 
-	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA)
+	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS ||
+	   g->map_mode == GTK_TRACE_MAP_MODE_NUMA_WRITES)
 		gtk_trace_paint_numa_map(g, cr);
 
 	if(g->draw_counters)
