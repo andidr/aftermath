@@ -335,4 +335,120 @@ static inline struct single_event* multi_event_set_find_next_texec_start_for_fra
 	return min;
 }
 
+static inline struct single_event* multi_event_set_find_prev_texec_start_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
+{
+	struct single_event* tips[mes->num_sets];
+	struct single_event* max = NULL;
+
+	int updates = 1;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		int idx = event_set_get_last_single_event_in_interval_type(&mes->sets[i], 0, start, SINGLE_TYPE_TEXEC_START);
+		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	}
+
+	while(updates != 0) {
+		updates = 0;
+
+		for(int i = 0; i < mes->num_sets; i++) {
+			if(tips[i] && tips[i]->active_frame->addr == f->addr)
+				if(!max || tips[i]->time > max->time)
+					max = tips[i];
+
+			if(tips[i] && (!max || tips[i]->time > max->time)) {
+				tips[i] = tips[i]->prev_texec_start;
+				updates = 1;
+			}
+		}
+	}
+
+
+	return max;
+}
+
+static inline struct single_event* multi_event_set_find_prev_tcreate_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
+{
+	struct single_event* tips[mes->num_sets];
+	struct single_event* max = NULL;
+
+	int updates = 1;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		int idx = event_set_get_last_single_event_in_interval_type(&mes->sets[i], 0, start, SINGLE_TYPE_TCREATE);
+		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	}
+
+	while(updates != 0) {
+		updates = 0;
+
+		for(int i = 0; i < mes->num_sets; i++) {
+			if(tips[i] && tips[i]->type == SINGLE_TYPE_TCREATE && tips[i]->what->addr == f->addr)
+				if(!max || tips[i]->time > max->time)
+					max = tips[i];
+
+			if(tips[i] && (!max || tips[i]->time > max->time)) {
+				if(tips[i] > tips[i]->event_set->single_events) {
+					tips[i]--;
+					updates = 1;
+				}
+			}
+		}
+	}
+
+
+	return max;
+}
+
+static inline struct comm_event* multi_event_set_find_prev_write_to_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
+{
+	struct comm_event* tips[mes->num_sets];
+	struct comm_event* max = NULL;
+
+	int updates = 1;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		int idx = event_set_get_last_comm_event_in_interval_type(&mes->sets[i], 0, start, COMM_TYPE_DATA_WRITE);
+		tips[i] = (idx == -1) ? NULL : &mes->sets[i].comm_events[idx];
+	}
+
+	while(updates != 0) {
+		updates = 0;
+
+		for(int i = 0; i < mes->num_sets; i++) {
+			if(tips[i] && tips[i]->what->addr == f->addr)
+				if(!max || tips[i]->time > max->time)
+					max = tips[i];
+
+			if(tips[i] && (!max || tips[i]->time > max->time)) {
+				tips[i] = tips[i] > &mes->sets[i].comm_events[0] ? tips[i]-1 : NULL;
+				updates = 1;
+			}
+		}
+	}
+
+
+	return max;
+}
+
+static inline int multi_event_set_get_prev_ready_time(struct multi_event_set* mes, uint64_t start, struct frame* f, int64_t* time_out, int* cpu_out)
+{
+	struct comm_event* prev_write = multi_event_set_find_prev_write_to_frame(mes, start, f);
+
+	if(prev_write) {
+		*time_out = prev_write->time;
+		*cpu_out = prev_write->event_set->cpu;
+	} else {
+		struct single_event* prev_tcreate = multi_event_set_find_prev_tcreate_for_frame(mes, start, f);
+
+		if(prev_tcreate) {
+			*time_out = prev_tcreate->time;
+			*cpu_out = prev_tcreate->event_set->cpu;
+		} else {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 #endif

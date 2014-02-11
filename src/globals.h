@@ -120,7 +120,7 @@ extern struct settings g_settings;
 extern struct histogram g_task_histogram;
 extern struct intensity_matrix g_comm_matrix;
 
-#define NUM_TRACE_MARKERS 3
+#define NUM_TRACE_MARKERS 5
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 
 #define TCREATE_TRACE_MARKER_COLOR_R 0.0
@@ -134,6 +134,14 @@ extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 #define FIRSTMAXWRITE_TRACE_MARKER_COLOR_R 1.0
 #define FIRSTMAXWRITE_TRACE_MARKER_COLOR_G 0.0
 #define FIRSTMAXWRITE_TRACE_MARKER_COLOR_B 0.0
+
+#define PREV_TCREATE_TRACE_MARKER_COLOR_R 1.0
+#define PREV_TCREATE_TRACE_MARKER_COLOR_G 1.0
+#define PREV_TCREATE_TRACE_MARKER_COLOR_B 0.0
+
+#define READY_TRACE_MARKER_COLOR_R 1.0
+#define READY_TRACE_MARKER_COLOR_G 0.5
+#define READY_TRACE_MARKER_COLOR_B 0.0
 
 extern int g_visuals_modified;
 extern char* g_visuals_filename;

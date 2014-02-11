@@ -401,6 +401,51 @@ int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint6
 	return idx;
 }
 
+int event_set_get_last_comm_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
+{
+	int start_idx = 0;
+	int end_idx = es->num_comm_events-1;
+	int center_idx = 0;
+
+	if(es->num_comm_events == 0)
+		return -1;
+
+	while(end_idx - start_idx >= 0) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(es->comm_events[center_idx].time > interval_end)
+			end_idx = center_idx-1;
+		else if(es->comm_events[center_idx].time < interval_start)
+			start_idx = center_idx+1;
+		else
+			break;
+	}
+
+	while(center_idx < es->num_comm_events-1 && es->comm_events[center_idx+1].time < interval_end && es->comm_events[center_idx+1].time > interval_start)
+		center_idx++;
+
+	if(es->comm_events[center_idx].time > interval_end || es->comm_events[center_idx].time < interval_start)
+		return -1;
+
+	return center_idx;
+}
+
+int event_set_get_last_comm_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum comm_event_type type)
+{
+	int idx = event_set_get_last_comm_event_in_interval(es, start, end);
+
+	if(idx == -1)
+		return -1;
+
+	while(es->comm_events[idx].type != type && idx-1 > 0)
+		idx--;
+
+	if(es->comm_events[idx].type != type)
+		return -1;
+
+	return idx;
+}
+
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f)
 {
 	int se_idx = event_set_get_first_single_event_in_interval_type(es, start, es->last_end, SINGLE_TYPE_TEXEC_START);
