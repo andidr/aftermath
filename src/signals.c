@@ -501,6 +501,11 @@ void update_comm_matrix(void)
 	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
 		return;
 
+	if(left < 0)
+		left = 0;
+	if(right < 0)
+		right = 0;
+
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_reads)))
 		comm_mask |= 1 << COMM_TYPE_DATA_READ;
 
