@@ -351,7 +351,7 @@ static inline struct single_event* multi_event_set_find_next_tdestroy_for_frame(
 		updates = 0;
 
 		for(int i = 0; i < mes->num_sets; i++) {
-			if(tips[i] && tips[i]->what->addr == f->addr)
+			if(tips[i] && tips[i]->type == SINGLE_TYPE_TDESTROY && tips[i]->what->addr == f->addr)
 				if(!min || tips[i]->time < min->time)
 					min = tips[i];
 
