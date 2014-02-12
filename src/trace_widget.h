@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 #include "multi_event_set.h"
 #include "filter.h"
+#include "export.h"
 
 G_BEGIN_DECLS
 
@@ -165,6 +166,7 @@ struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x,
 void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_markers);
 int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
 struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
+int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

@@ -32,6 +32,7 @@
 #include "visuals_file.h"
 #include "cpu_list.h"
 #include "task_graph.h"
+#include "export.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -1566,4 +1567,55 @@ G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpoin
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+}
+
+void export_to_file_with_dialog(enum export_file_format format)
+{
+	char* filename;
+	const char* file_type_filter = NULL;
+	const char* file_type_name = NULL;
+
+	switch(format) {
+		case EXPORT_FORMAT_PDF:
+			file_type_filter = "*.pdf";
+			file_type_name = "PDF files";
+			break;
+		case EXPORT_FORMAT_PNG:
+			file_type_filter = "*.png";
+			file_type_name = "PNG files";
+		case EXPORT_FORMAT_SVG:
+			file_type_filter = "*.svg";
+			file_type_name = "SVG files";
+			break;
+	}
+
+	if(!(filename = load_save_file_dialog("Save task graph",
+					      GTK_FILE_CHOOSER_ACTION_SAVE,
+					      file_type_name,
+					      file_type_filter,
+					      NULL)))
+	{
+		return;
+	}
+
+	if(gtk_trace_save_to_file(g_trace_widget, format, filename)) {
+		show_error_message("Could not export to file \"%s\".", filename);
+	}
+
+	free(filename);
+}
+
+G_MODULE_EXPORT void menubar_export_pdf(GtkMenuItem *item, gpointer data)
+{
+	export_to_file_with_dialog(EXPORT_FORMAT_PDF);
+}
+
+G_MODULE_EXPORT void menubar_export_png(GtkMenuItem *item, gpointer data)
+{
+	export_to_file_with_dialog(EXPORT_FORMAT_PNG);
+}
+
+G_MODULE_EXPORT void menubar_export_svg(GtkMenuItem *item, gpointer data)
+{
+	export_to_file_with_dialog(EXPORT_FORMAT_SVG);
 }

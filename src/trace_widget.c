@@ -21,6 +21,18 @@
 #include <math.h>
 #include <inttypes.h>
 
+#if CAIRO_HAS_PDF_SURFACE
+#include <cairo/cairo-pdf.h>
+#endif
+
+#if CAIRO_HAS_PNG_SURFACE
+#include <cairo/cairo-png.h>
+#endif
+
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo/cairo-svg.h>
+#endif
+
 #ifndef M_PI
 #define M_PI 3.141592654
 #endif
@@ -1849,19 +1861,8 @@ void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
-void gtk_trace_paint(GtkWidget *widget)
+void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 {
-	if(!gtk_widget_is_drawable(widget))
-		return;
-
-	cairo_t* cr;
-
-	GtkTrace* g = GTK_TRACE(widget);
-	if(g->double_buffering)
-		cr = cairo_create(g->back_buffer);
-	else
-		cr = gdk_cairo_create(widget->window);
-
 	/* Clear background */
 	gtk_trace_paint_background(g, cr);
 
@@ -1899,6 +1900,22 @@ void gtk_trace_paint(GtkWidget *widget)
 
 	/* Draw axes */
 	gtk_trace_paint_axes(g, cr);
+}
+
+void gtk_trace_paint(GtkWidget *widget)
+{
+	if(!gtk_widget_is_drawable(widget))
+		return;
+
+	cairo_t* cr;
+
+	GtkTrace* g = GTK_TRACE(widget);
+	if(g->double_buffering)
+		cr = cairo_create(g->back_buffer);
+	else
+		cr = gdk_cairo_create(widget->window);
+
+	gtk_trace_paint_context(g, cr);
 
 	if(g-> double_buffering) {
 		cairo_t* crw = gdk_cairo_create(widget->window);
@@ -2032,4 +2049,64 @@ struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y
 	}
 
 	return NULL;
+}
+
+int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	cairo_surface_t* surf = NULL;
+	int err = 1;
+
+	switch(format) {
+		case EXPORT_FORMAT_PDF:
+			#if CAIRO_HAS_PDF_SURFACE
+			surf = cairo_pdf_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_SVG:
+			#if CAIRO_HAS_SVG_SURFACE
+			surf = cairo_svg_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_PNG:
+			surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+							  widget->allocation.width,
+							  widget->allocation.height);
+			break;
+	}
+
+	if(cairo_surface_status(surf) == CAIRO_STATUS_NULL_POINTER)
+		goto out_surf;
+
+	cairo_t* cr = cairo_create(surf);
+	gtk_trace_paint_context(g, cr);
+	cairo_destroy(cr);
+
+	switch(format) {
+		case EXPORT_FORMAT_PNG:
+			if(cairo_surface_write_to_png(surf, filename) != CAIRO_STATUS_SUCCESS)
+				goto out_surf;
+			break;
+		case EXPORT_FORMAT_PDF:
+		case EXPORT_FORMAT_SVG:
+			break;
+	}
+
+	err = 0;
+
+out_surf:
+	cairo_surface_destroy(surf);
+
+	/* Suppresses warning about unused label */
+	goto out_err;
+out_err:
+	return err;
 }
