@@ -798,6 +798,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 		task_length = task_length_of_active_frame(se, &valid);
 		if(valid) {
+			gtk_trace_set_highlighted_task(g_trace_widget, se->texec_start);
+
 			pretty_print_cycles(buf_duration, sizeof(buf_duration), task_length);
 
 			snprintf(buf_first_tcreate, sizeof(buf_first_tcreate),
@@ -950,6 +952,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				snprintf(consumer_info+consumer_info_offs,
 					 sizeof(consumer_info)-consumer_info_offs-1,
 					 "No consumers found");
+		} else {
+			gtk_trace_set_highlighted_task(g_trace_widget, NULL);
 		}
 
 		snprintf(buffer, sizeof(buffer),

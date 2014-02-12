@@ -54,6 +54,7 @@ static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  
 				  {COL_NORM( 47.0), COL_NORM(102.0), COL_NORM(255.0)}};
 
 static double highlight_color[3] = {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)};
+static double highlight_task_color[3] = {COL_NORM(255.0), COL_NORM(0.0), COL_NORM(0.0)};
 
 /* pastel18 color scheme from Graphviz */
 #define NUM_NODE_COLORS 8
@@ -99,6 +100,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->double_buffering = 0;
 	g->filter = NULL;
 	g->highlight_state_event = NULL;
+	g->highlight_task_texec_start = NULL;
 	g->highlight_annotation = NULL;
 
 	g->markers = NULL;
@@ -1513,6 +1515,37 @@ void gtk_trace_paint_markers(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_highlighted_task(GtkTrace* g, cairo_t* cr)
+{
+	struct single_event* texec_start = g->highlight_task_texec_start;
+	struct single_event* texec_end = g->highlight_task_texec_start->next_texec_end;
+
+	if(texec_end->time < g->left || texec_start->time > g->right)
+		return;
+
+	double dash[] = {5.0, 5.0};
+
+	double cpu_height = gtk_trace_cpu_height(g);
+	long double left = gtk_trace_x_to_screen(g, texec_start->time);
+	long double right = gtk_trace_x_to_screen(g, texec_end->time);
+	long double width = right - left;
+	double y_top = gtk_trace_cpu_start(g, texec_start->event_set->cpu);
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	cairo_set_source_rgb(cr, highlight_task_color[0],
+			     highlight_task_color[1],
+			     highlight_task_color[2]);
+	cairo_set_dash(cr, dash, 2, 0);
+	cairo_set_line_width(cr, 2);
+	cairo_rectangle(cr, left, y_top, width, cpu_height);
+	cairo_stroke(cr);
+	cairo_set_dash(cr, NULL, 0, 0);
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
@@ -1623,6 +1656,18 @@ struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	return g->highlight_state_event;
+}
+
+void gtk_trace_set_highlighted_task(GtkWidget *widget, struct single_event* texec_start)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->highlight_task_texec_start = texec_start;
+}
+
+struct single_event* gtk_trace_get_highlighted_task(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	return g->highlight_task_texec_start;
 }
 
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right)
@@ -1836,6 +1881,9 @@ void gtk_trace_paint(GtkWidget *widget)
 
 	if(g->draw_single_events)
 		gtk_trace_paint_single_events(g, cr);
+
+	if(g->highlight_task_texec_start)
+		gtk_trace_paint_highlighted_task(g, cr);
 
 	if(g->draw_comm)
 		gtk_trace_paint_comm(g, cr);

@@ -109,6 +109,7 @@ struct _GtkTrace {
 
 	struct filter* filter;
 	struct state_event* highlight_state_event;
+	struct single_event* highlight_task_texec_start;
 	struct annotation* highlight_annotation;
 	struct trace_marker* markers;
 	int num_markers;
@@ -156,6 +157,8 @@ void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
 void gtk_trace_set_highlighted_state_event(GtkWidget *widget, struct state_event* se);
 struct state_event* gtk_trace_get_highlighted_state_event(GtkWidget *widget);
+void gtk_trace_set_highlighted_task(GtkWidget *widget, struct single_event* texec_start);
+struct single_event* gtk_trace_get_highlighted_task(GtkWidget *widget);
 double gtk_trace_get_time_at(GtkWidget *widget, int x);
 struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
 struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x, int y);
