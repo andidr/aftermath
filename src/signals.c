@@ -758,6 +758,45 @@ G_MODULE_EXPORT gint link_activated(GtkLabel *label, gchar *uri, gpointer user_d
 	return 1;
 }
 
+#define DEFINE_MARKER_MARKUP_FUNCTION(name, r, g, b) \
+	const char* name(void) \
+	{								\
+		static char buf[128] = { '\0' };			\
+									\
+		if(buf[0] == '\0')					\
+			snprintf(buf, sizeof(buf), "<span background=\"#%02X%02X%02X\">     </span>", \
+				 (int)(r*255.0), \
+				 (int)(g*255.0), \
+				 (int)(b*255.0)); \
+									\
+		return buf;						\
+	}
+
+DEFINE_MARKER_MARKUP_FUNCTION(markup_prev_tcreate_marker,
+			      PREV_TCREATE_TRACE_MARKER_COLOR_R,
+			      PREV_TCREATE_TRACE_MARKER_COLOR_G,
+			      PREV_TCREATE_TRACE_MARKER_COLOR_B)
+
+DEFINE_MARKER_MARKUP_FUNCTION(markup_ready_marker,
+			      READY_TRACE_MARKER_COLOR_R,
+			      READY_TRACE_MARKER_COLOR_G,
+			      READY_TRACE_MARKER_COLOR_B);
+
+DEFINE_MARKER_MARKUP_FUNCTION(markup_first_write_marker,
+			      FIRSTWRITE_TRACE_MARKER_COLOR_R,
+			      FIRSTWRITE_TRACE_MARKER_COLOR_G,
+			      FIRSTWRITE_TRACE_MARKER_COLOR_B)
+
+DEFINE_MARKER_MARKUP_FUNCTION(markup_first_max_write_marker,
+			      FIRSTMAXWRITE_TRACE_MARKER_COLOR_R,
+			      FIRSTMAXWRITE_TRACE_MARKER_COLOR_G,
+			      FIRSTMAXWRITE_TRACE_MARKER_COLOR_B)
+
+DEFINE_MARKER_MARKUP_FUNCTION(markup_first_tcreate_marker,
+			 TCREATE_TRACE_MARKER_COLOR_R,
+			 TCREATE_TRACE_MARKER_COLOR_G,
+			 TCREATE_TRACE_MARKER_COLOR_B)
+
 G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
 {
 	struct state_event* se = pstate_event;
@@ -976,17 +1015,17 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		snprintf(buffer, sizeof(buffer),
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Task duration:\t%s\n"
-			 "Task creation: %s\n"
-			 "Ready:\t\t%s\n"
+			 "%s Task creation: %s\n"
+			 "%s Ready:\t\t%s\n"
 			 "Task destruction: %s\n\n"
 
 			 "Active frame: 0x%"PRIx64"\n"
 			 "4K page:\t\t0x%"PRIx64"\n"
 			 "2M page:\t0x%"PRIx64"\n"
 			 "Owner:\t\t%s\n\n"
-			 "1st allocation: %s\n"
-			 "1st writer:\t %s\n"
-			 "1st max writer: %s\n\n"
+			 "%s 1st allocation: %s\n"
+			 "%s 1st writer:\t %s\n"
+			 "%s 1st max writer: %s\n\n"
 
 			 "Reads:\n"
 			 "%s\n"
@@ -998,15 +1037,20 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 se->active_task->addr,
 			 se->active_task->symbol_name,
 			 (valid) ? buf_duration : "Invalid active task",
+			 markup_prev_tcreate_marker(),
 			 (valid) ? buf_prev_tcreate : "Invalid active task",
+			 markup_ready_marker(),
 			 (valid) ? buf_ready : "Invalid active task",
 			 (valid) ? buf_next_tdestroy : "Invalid active task",
 			 se->active_frame->addr,
 			 get_base_address(se->active_frame->addr, 1 << 12),
 			 get_base_address(se->active_frame->addr, 1 << 21),
 			 (valid) ? buf_first_texec_start : "Invalid active task",
+			 markup_first_tcreate_marker(),
 			 (valid) ? buf_first_tcreate : "Invalid active task",
+			 markup_first_write_marker(),
 			 (valid) ? buf_first_writer : "Invalid active task",
+			 markup_first_max_write_marker(),
 			 (valid) ? buf_first_max_writer : "Invalid active task",
 			 (valid) ? consumption_info : "No consumer information available",
 			 (valid) ? production_info : "No consumer information available",
