@@ -829,12 +829,15 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 			int err = multi_event_set_get_prev_ready_time(&g_mes, se->texec_start->time, se->active_frame, &rdy_time, &rdy_cpu);
 			if(!err) {
+				char ppbuf[20];
+				pretty_print_cycles(ppbuf, sizeof(ppbuf), rdy_time - prev_tcreate->time);
+
 				snprintf(buf_ready, sizeof(buf_ready),
-					 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a> (%"PRIu64" cycles to become ready)",
+					 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a> (%scycles to become ready)",
 					 rdy_cpu,
 					 rdy_time,
 					 rdy_time,
-					 rdy_time - prev_tcreate->time);
+					 ppbuf);
 
 				g_trace_markers[num_markers].time = rdy_time;
 				g_trace_markers[num_markers].cpu = rdy_cpu;
