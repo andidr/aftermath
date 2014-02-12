@@ -449,7 +449,7 @@ static inline struct comm_event* multi_event_set_find_prev_write_to_frame(struct
 		updates = 0;
 
 		for(int i = 0; i < mes->num_sets; i++) {
-			if(tips[i] && tips[i]->what->addr == f->addr)
+			if(tips[i] && tips[i]->type == COMM_TYPE_DATA_WRITE && tips[i]->what->addr == f->addr)
 				if(!max || tips[i]->time > max->time)
 					max = tips[i];
 
