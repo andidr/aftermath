@@ -442,6 +442,7 @@ static inline int filter_has_single_event(struct filter* f, struct single_event*
 		case SINGLE_TYPE_TCREATE:
 		case SINGLE_TYPE_TEXEC_START:
 		case SINGLE_TYPE_TEXEC_END:
+		case SINGLE_TYPE_TDESTROY:
 			return filter_has_frame(f, se->what);
 	}
 

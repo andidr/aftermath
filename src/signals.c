@@ -1479,6 +1479,9 @@ G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpoin
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_single_ee)))
 		filter_add_single_event_type(&g_filter, SINGLE_TYPE_TEXEC_END);
 
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_single_d)))
+		filter_add_single_event_type(&g_filter, SINGLE_TYPE_TDESTROY);
+
 	filter_set_single_event_type_filtering(&g_filter, 1);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);

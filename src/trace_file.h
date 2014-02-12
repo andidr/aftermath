@@ -45,7 +45,12 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 13
+#define TRACE_VERSION 14
+
+static inline int trace_version_compatible(int version)
+{
+	return (version == 13 || version == 14);
+}
 
 enum event_type {
 	EVENT_TYPE_STATE = 0,
@@ -83,7 +88,8 @@ enum comm_event_type {
 enum single_event_type {
 	SINGLE_TYPE_TCREATE = 0,
 	SINGLE_TYPE_TEXEC_START = 1,
-	SINGLE_TYPE_TEXEC_END = 2
+	SINGLE_TYPE_TEXEC_END = 2,
+	SINGLE_TYPE_TDESTROY = 3
 };
 
 /* File header */

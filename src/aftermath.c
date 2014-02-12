@@ -272,6 +272,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_single_c);
 	IMPORT_GLADE_WIDGET(xml, check_single_es);
 	IMPORT_GLADE_WIDGET(xml, check_single_ee);
+	IMPORT_GLADE_WIDGET(xml, check_single_d);
 
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
@@ -365,6 +366,7 @@ int main(int argc, char** argv)
 	g_check_single_c = check_single_c;
 	g_check_single_es = check_single_es;
 	g_check_single_ee = check_single_ee;
+	g_check_single_d = check_single_d;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);

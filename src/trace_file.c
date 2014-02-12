@@ -111,7 +111,7 @@ int trace_cpu_info_conversion_table[] = {
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
-		header->version == TRACE_VERSION &&
+		trace_version_compatible(header->version) &&
 		header->day > 0 && header->day <= 31 &&
 		header->month > 0 && header->month <= 12 &&
 		header->hour < 24 && header->minute < 60);

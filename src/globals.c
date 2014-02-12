@@ -103,6 +103,7 @@ GtkWidget* g_label_comm_matrix;
 GtkWidget* g_check_single_c;
 GtkWidget* g_check_single_es;
 GtkWidget* g_check_single_ee;
+GtkWidget* g_check_single_d;
 
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,

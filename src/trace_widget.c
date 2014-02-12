@@ -1421,7 +1421,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
-	const char* event_chars[] = { "C", "ES", "EE" };
+	const char* event_chars[] = { "C", "ES", "EE", "D" };
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);

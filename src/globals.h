@@ -113,6 +113,7 @@ extern GtkWidget* g_label_comm_matrix;
 extern GtkWidget* g_check_single_c;
 extern GtkWidget* g_check_single_es;
 extern GtkWidget* g_check_single_ee;
+extern GtkWidget* g_check_single_d;
 
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
