@@ -121,12 +121,16 @@ extern struct settings g_settings;
 extern struct histogram g_task_histogram;
 extern struct intensity_matrix g_comm_matrix;
 
-#define NUM_TRACE_MARKERS 5
+#define NUM_TRACE_MARKERS 6
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 
 #define TCREATE_TRACE_MARKER_COLOR_R 0.0
 #define TCREATE_TRACE_MARKER_COLOR_G 1.0
 #define TCREATE_TRACE_MARKER_COLOR_B 0.0
+
+#define TDESTROY_TRACE_MARKER_COLOR_R 1.0
+#define TDESTROY_TRACE_MARKER_COLOR_G 1.0
+#define TDESTROY_TRACE_MARKER_COLOR_B 1.0
 
 #define FIRSTWRITE_TRACE_MARKER_COLOR_R 1.0
 #define FIRSTWRITE_TRACE_MARKER_COLOR_G 0.0

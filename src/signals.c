@@ -797,6 +797,11 @@ DEFINE_MARKER_MARKUP_FUNCTION(markup_first_tcreate_marker,
 			 TCREATE_TRACE_MARKER_COLOR_G,
 			 TCREATE_TRACE_MARKER_COLOR_B)
 
+DEFINE_MARKER_MARKUP_FUNCTION(markup_tdestroy_marker,
+			 TDESTROY_TRACE_MARKER_COLOR_R,
+			 TDESTROY_TRACE_MARKER_COLOR_G,
+			 TDESTROY_TRACE_MARKER_COLOR_B)
+
 G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data)
 {
 	struct state_event* se = pstate_event;
@@ -904,6 +909,13 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 					 next_tdestroy->event_set->cpu,
 					 next_tdestroy->time,
 					 next_tdestroy->time);
+
+				g_trace_markers[num_markers].time = next_tdestroy->time;
+				g_trace_markers[num_markers].cpu = next_tdestroy->event_set->cpu;
+				g_trace_markers[num_markers].color_r = TDESTROY_TRACE_MARKER_COLOR_R;
+				g_trace_markers[num_markers].color_g = TDESTROY_TRACE_MARKER_COLOR_G;
+				g_trace_markers[num_markers].color_b = TDESTROY_TRACE_MARKER_COLOR_B;
+				num_markers++;
 			} else {
 				snprintf(buf_next_tdestroy, sizeof(buf_next_tdestroy),
 					 "Could not find destruction event\n");
@@ -1017,7 +1029,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "Task duration:\t%s\n"
 			 "%s Task creation: %s\n"
 			 "%s Ready:\t\t%s\n"
-			 "Task destruction: %s\n\n"
+			 "%s Task destruction: %s\n\n"
 
 			 "Active frame: 0x%"PRIx64"\n"
 			 "4K page:\t\t0x%"PRIx64"\n"
@@ -1041,6 +1053,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_prev_tcreate : "Invalid active task",
 			 markup_ready_marker(),
 			 (valid) ? buf_ready : "Invalid active task",
+			 markup_tdestroy_marker(),
 			 (valid) ? buf_next_tdestroy : "Invalid active task",
 			 se->active_frame->addr,
 			 get_base_address(se->active_frame->addr, 1 << 12),
