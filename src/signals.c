@@ -765,6 +765,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_duration[40];
 	char buf_first_tcreate[128];
 	char buf_prev_tcreate[128];
+	char buf_next_tdestroy[128];
 	char buf_ready[128];
 	char buf_first_writer[128];
 	char buf_first_max_writer[128];
@@ -852,6 +853,19 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			g_trace_markers[num_markers].color_g = TCREATE_TRACE_MARKER_COLOR_G;
 			g_trace_markers[num_markers].color_b = TCREATE_TRACE_MARKER_COLOR_B;
 			num_markers++;
+
+			struct single_event* next_tdestroy = multi_event_set_find_next_tdestroy_for_frame(&g_mes, se->texec_start->time, se->active_frame);
+
+			if(next_tdestroy) {
+				snprintf(buf_next_tdestroy, sizeof(buf_next_tdestroy),
+					 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a>",
+					 next_tdestroy->event_set->cpu,
+					 next_tdestroy->time,
+					 next_tdestroy->time);
+			} else {
+				snprintf(buf_next_tdestroy, sizeof(buf_next_tdestroy),
+					 "Could not find destruction event\n");
+			}
 
 			if(se->active_frame->first_write) {
 				snprintf(buf_first_writer, sizeof(buf_first_writer),
@@ -960,7 +974,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "Active task:\t0x%"PRIx64" <a href=\"task://0x%"PRIx64"\">%s</a>\n"
 			 "Task duration:\t%s\n"
 			 "Task creation: %s\n"
-			 "Ready:\t\t%s\n\n"
+			 "Ready:\t\t%s\n"
+			 "Task destruction: %s\n\n"
 
 			 "Active frame: 0x%"PRIx64"\n"
 			 "4K page:\t\t0x%"PRIx64"\n"
@@ -982,6 +997,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_duration : "Invalid active task",
 			 (valid) ? buf_prev_tcreate : "Invalid active task",
 			 (valid) ? buf_ready : "Invalid active task",
+			 (valid) ? buf_next_tdestroy : "Invalid active task",
 			 se->active_frame->addr,
 			 get_base_address(se->active_frame->addr, 1 << 12),
 			 get_base_address(se->active_frame->addr, 1 << 21),

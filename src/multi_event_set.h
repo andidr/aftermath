@@ -335,6 +335,40 @@ static inline struct single_event* multi_event_set_find_next_texec_start_for_fra
 	return min;
 }
 
+static inline struct single_event* multi_event_set_find_next_tdestroy_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
+{
+	struct single_event* tips[mes->num_sets];
+	struct single_event* min = NULL;
+
+	int updates = 1;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		int idx = event_set_get_first_single_event_in_interval_type(&mes->sets[i], start, mes->sets[i].last_end, SINGLE_TYPE_TDESTROY);
+		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	}
+
+	while(updates != 0) {
+		updates = 0;
+
+		for(int i = 0; i < mes->num_sets; i++) {
+			if(tips[i] && tips[i]->what->addr == f->addr)
+				if(!min || tips[i]->time < min->time)
+					min = tips[i];
+
+			if(tips[i] && (!min || tips[i]->time < min->time)) {
+				if(tips[i] < &mes->sets[i].single_events[mes->sets[i].num_single_events-1])
+					tips[i] = tips[i]++;
+				else
+					tips[i] = NULL;
+
+				updates = 1;
+			}
+		}
+	}
+
+	return min;
+}
+
 static inline struct single_event* multi_event_set_find_prev_texec_start_for_frame(struct multi_event_set* mes, uint64_t start, struct frame* f)
 {
 	struct single_event* tips[mes->num_sets];
