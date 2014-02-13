@@ -906,14 +906,18 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 
 			if(next_tdestroy) {
 				char ppbuf[20];
-				pretty_print_cycles(ppbuf, sizeof(ppbuf), next_tdestroy->time - se->texec_end->time);
+				int64_t diff = next_tdestroy->time - se->texec_end->time;
+
+				if(diff > 0)
+					pretty_print_cycles(ppbuf, sizeof(ppbuf), diff);
 
 				snprintf(buf_next_tdestroy, sizeof(buf_next_tdestroy),
-					 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a> (%scycles after termination)",
+					 "CPU %d at  <a href=\"time://%"PRIu64"\">%"PRIu64" cycles</a> (%s%s)",
 					 next_tdestroy->event_set->cpu,
 					 next_tdestroy->time,
 					 next_tdestroy->time,
-					 ppbuf);
+					 (diff > 0) ? ppbuf : "",
+					 (diff > 0) ? "cycles after termination" : "at task termination");
 
 				g_trace_markers[num_markers].time = next_tdestroy->time;
 				g_trace_markers[num_markers].cpu = next_tdestroy->event_set->cpu;
