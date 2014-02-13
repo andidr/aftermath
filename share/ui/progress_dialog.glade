@@ -3,6 +3,7 @@
   <!-- interface-requires gtk+ 2.16 -->
   <!-- interface-naming-policy project-wide -->
   <widget class="GtkWindow" id="window">
+    <property name="title" translatable="yes">Aftermath</property>
     <child>
       <widget class="GtkAlignment" id="alignment1">
         <property name="visible">True</property>
