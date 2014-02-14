@@ -327,13 +327,8 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkToggleToolButton" id="toggletoolbutton2">
+              <widget class="GtkSeparatorToolItem" id="toolbutton4">
                 <property name="visible">True</property>
-                <property name="tooltip" translatable="yes">Draw communication lines</property>
-                <property name="label" translatable="yes">C</property>
-                <property name="use_underline">True</property>
-                <property name="icon">draw_comm.svg</property>
-                <signal name="toggled" handler="toolbar_draw_comm_toggled"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -343,12 +338,10 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_steals">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for steals</property>
                 <property name="label" translatable="yes">St</property>
                 <property name="use_underline">True</property>
                 <property name="icon">draw_steals.svg</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_steals_toggled"/>
               </widget>
               <packing>
@@ -359,12 +352,10 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_pushes">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for pushes</property>
                 <property name="label" translatable="yes">Pu</property>
                 <property name="use_underline">True</property>
                 <property name="icon">draw_pushes.svg</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_pushes_toggled"/>
               </widget>
               <packing>
@@ -375,12 +366,10 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_data_reads">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for data reads</property>
                 <property name="label" translatable="yes">DR</property>
                 <property name="use_underline">True</property>
                 <property name="icon">draw_reads.svg</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_data_reads_toggled"/>
               </widget>
               <packing>
@@ -391,12 +380,10 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_data_writes">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw lines for data writes</property>
                 <property name="label" translatable="yes">DW</property>
                 <property name="use_underline">True</property>
                 <property name="icon">draw_writes.svg</property>
-                <property name="active">True</property>
                 <signal name="toggled" handler="toolbar_draw_data_writes_toggled"/>
               </widget>
               <packing>
@@ -407,7 +394,6 @@
             <child>
               <widget class="GtkToggleToolButton" id="toggle_tool_button_draw_size">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="tooltip" translatable="yes">Draw size of communication events</property>
                 <property name="label" translatable="yes">Sz</property>
                 <property name="use_underline">True</property>

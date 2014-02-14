@@ -96,12 +96,11 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->cpu_offset = 0;
 	g->mode = GTK_TRACE_MODE_NORMAL;
 	g->draw_states = 1;
-	g->draw_comm = 0;
 	g->draw_comm_size = 0;
-	g->draw_steals = 1;
-	g->draw_pushes = 1;
-	g->draw_data_reads = 1;
-	g->draw_data_writes = 1;
+	g->draw_steals = 0;
+	g->draw_pushes = 0;
+	g->draw_data_reads = 0;
+	g->draw_data_writes = 0;
 	g->draw_counters = 0;
 	g->draw_annotations = 1;
 	g->range_selection = 0;
@@ -1728,16 +1727,6 @@ void gtk_trace_set_draw_states(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
-void gtk_trace_set_draw_comm(GtkWidget *widget, int val)
-{
-	GtkTrace* g = GTK_TRACE(widget);
-	int needs_redraw = (val != g->draw_comm);
-	g->draw_comm = val;
-
-	if(needs_redraw)
-		gtk_widget_queue_draw(widget);
-}
-
 void gtk_trace_set_draw_comm_size(GtkWidget *widget, int val)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1886,8 +1875,11 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	if(g->highlight_task_texec_start)
 		gtk_trace_paint_highlighted_task(g, cr);
 
-	if(g->draw_comm)
+	if(g->draw_steals || g->draw_pushes ||
+	   g->draw_data_reads || g->draw_data_writes)
+	{
 		gtk_trace_paint_comm(g, cr);
+	}
 
 	if(g->num_markers)
 		gtk_trace_paint_markers(g, cr);

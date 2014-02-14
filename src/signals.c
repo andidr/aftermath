@@ -105,19 +105,6 @@ G_MODULE_EXPORT void use_comm_size_check_toggle(GtkToggleButton *button, gpointe
 	widget_toggle(g_comm_size_max_entry, GTK_WIDGET(button));
 }
 
-G_MODULE_EXPORT void toolbar_draw_comm_toggled(GtkToggleToolButton *button, gpointer data)
-{
-	gboolean new_state = gtk_toggle_tool_button_get_active(button);
-
-	gtk_trace_set_draw_comm(g_trace_widget, new_state);
-
-	gtk_widget_set_sensitive(g_toggle_tool_button_draw_steals, new_state);
-	gtk_widget_set_sensitive(g_toggle_tool_button_draw_pushes, new_state);
-	gtk_widget_set_sensitive(g_toggle_tool_button_draw_data_reads, new_state);
-	gtk_widget_set_sensitive(g_toggle_tool_button_draw_data_writes, new_state);
-	gtk_widget_set_sensitive(g_toggle_tool_button_draw_size, new_state);
-}
-
 G_MODULE_EXPORT void toolbar_draw_comm_size_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	gtk_trace_set_draw_comm_size(g_trace_widget, gtk_toggle_tool_button_get_active(button));
