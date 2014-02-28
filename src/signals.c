@@ -799,6 +799,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	char buf_prev_tcreate[128];
 	char buf_next_tdestroy[128];
 	char buf_ready[128];
+	char buf_exec[128];
 	char buf_first_writer[128];
 	char buf_first_max_writer[128];
 	char buf_first_texec_start[128];
@@ -871,6 +872,12 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 					 rdy_time,
 					 ppbuf);
 
+				pretty_print_cycles(ppbuf, sizeof(ppbuf), se->texec_start->time - rdy_time);
+
+				snprintf(buf_exec, sizeof(buf_exec),
+					 "%scycles from readiness to execution",
+					 ppbuf);
+
 				g_trace_markers[num_markers].time = rdy_time;
 				g_trace_markers[num_markers].cpu = rdy_cpu;
 				g_trace_markers[num_markers].color_r = READY_TRACE_MARKER_COLOR_R;
@@ -879,6 +886,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 				num_markers++;
 			} else {
 				snprintf(buf_ready, sizeof(buf_ready),
+					 "Could not find ready time stamp\n");
+				snprintf(buf_exec, sizeof(buf_exec),
 					 "Could not find ready time stamp\n");
 			}
 
@@ -1025,7 +1034,8 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 "Task duration:\t%s\n"
 			 "%s Task creation: %s\n"
 			 "%s Ready:\t\t%s\n"
-			 "%s Task destruction: %s\n\n"
+			 "%s Task destruction: %s\n"
+			 "Execution:\t\t%s\n\n"
 
 			 "Active frame: 0x%"PRIx64"\n"
 			 "4K page:\t\t0x%"PRIx64"\n"
@@ -1051,6 +1061,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 (valid) ? buf_ready : "Invalid active task",
 			 markup_tdestroy_marker(),
 			 (valid) ? buf_next_tdestroy : "Invalid active task",
+			 (valid) ? buf_exec : "Invalid active task",
 			 se->active_frame->addr,
 			 get_base_address(se->active_frame->addr, 1 << 12),
 			 get_base_address(se->active_frame->addr, 1 << 21),
