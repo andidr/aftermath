@@ -64,6 +64,11 @@ G_MODULE_EXPORT gint widget_toggle(gpointer data, GtkWidget* check)
 	return 0;
 }
 
+G_MODULE_EXPORT void toolbar_fit_all_cpus_clicked(GtkButton *button, gpointer data)
+{
+	gtk_trace_fit_all_cpus(g_trace_widget);
+}
+
 G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 {
 	reset_zoom();

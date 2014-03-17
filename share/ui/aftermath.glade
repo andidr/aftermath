@@ -222,6 +222,19 @@
           <widget class="GtkToolbar" id="toolbar1">
             <property name="visible">True</property>
             <child>
+              <widget class="GtkToolButton" id="fit_all_cpus">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">ACPU</property>
+                <property name="use_underline">True</property>
+                <property name="icon">fit_all_cpus.svg</property>
+                <signal name="clicked" handler="toolbar_fit_all_cpus_clicked"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkToolButton" id="rewind">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Go to first event</property>

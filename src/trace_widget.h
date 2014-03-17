@@ -165,6 +165,7 @@ void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_ma
 int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
 struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
 int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
+void gtk_trace_fit_all_cpus(GtkWidget *widget);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

@@ -2102,3 +2102,17 @@ out_surf:
 out_err:
 	return err;
 }
+
+void gtk_trace_fit_all_cpus(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	float new_height = (float)(widget->allocation.height - g->axis_width) / (float)g->event_sets->num_sets;
+
+	if(new_height <= 0)
+		new_height = 1.0f;
+
+	g->cpu_height = new_height;
+	g->cpu_offset = 0;
+
+	gtk_widget_queue_draw(widget);
+}
