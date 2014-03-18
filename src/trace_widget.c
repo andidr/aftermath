@@ -1540,7 +1540,9 @@ void gtk_trace_paint_highlighted_task(GtkTrace* g, cairo_t* cr)
 	long double left = gtk_trace_x_to_screen(g, texec_start->time);
 	long double right = gtk_trace_x_to_screen(g, texec_end->time);
 	long double width = right - left;
-	double y_top = gtk_trace_cpu_start(g, texec_start->event_set->cpu);
+
+	int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, texec_start->event_set->cpu);
+	double y_top = gtk_trace_cpu_start(g, cpu_idx);
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
