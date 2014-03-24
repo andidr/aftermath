@@ -40,12 +40,15 @@
 #include "multi_event_set.h"
 #include "visuals_file.h"
 #include "cpu_list.h"
+#include "uncompress.h"
 
 struct load_thread_data {
 	char* tracefile;
 	off_t bytes_read;
 	off_t trace_size;
 	int error;
+	int done;
+	int ignore_progress;
 	uint64_t start_timestamp;
 	struct progress_window_widgets* progress_widgets;
 };
@@ -58,6 +61,8 @@ void* load_thread(void* pdata)
 		data->error = 1;
 		return NULL;
 	}
+
+	data->done = 1;
 
 	return NULL;
 }
@@ -77,9 +82,6 @@ gboolean update_progress(gpointer pdata)
 	gettimeofday(&tv, NULL);
 	timestamp = ((uint64_t)tv.tv_sec)*1000000+tv.tv_usec;
 
-	pretty_print_bytes(buffer, sizeof(buffer), ltd->trace_size, "");
-	gtk_label_set_text(ltd->progress_widgets->label_trace_bytes, buffer);
-
 	pretty_print_bytes(buffer, sizeof(buffer), ltd->bytes_read, "");
 	gtk_label_set_text(ltd->progress_widgets->label_bytes_loaded, buffer);
 
@@ -93,13 +95,22 @@ gboolean update_progress(gpointer pdata)
 	pretty_print_bytes(buffer, sizeof(buffer), throughput, "/s");
 	gtk_label_set_text(ltd->progress_widgets->label_throughput, buffer);
 
-	snprintf(buffer, sizeof(buffer), "%.0fs", round(seconds_remaining));
-	gtk_label_set_text(ltd->progress_widgets->label_seconds_remaining, buffer);
+	if(!ltd->ignore_progress) {
+		pretty_print_bytes(buffer, sizeof(buffer), ltd->trace_size, "");
+		gtk_label_set_text(ltd->progress_widgets->label_trace_bytes, buffer);
 
-	gtk_progress_bar_set_fraction(ltd->progress_widgets->progressbar,
-					(double)ltd->bytes_read / (double)ltd->trace_size);
+		snprintf(buffer, sizeof(buffer), "%.0fs", round(seconds_remaining));
+		gtk_label_set_text(ltd->progress_widgets->label_seconds_remaining, buffer);
 
-	if(ltd->bytes_read == ltd->trace_size || ltd->error) {
+		gtk_progress_bar_set_fraction(ltd->progress_widgets->progressbar,
+					      (double)ltd->bytes_read / (double)ltd->trace_size);
+	} else {
+		gtk_label_set_text(ltd->progress_widgets->label_trace_bytes, "?? [compressed]");
+		gtk_label_set_text(ltd->progress_widgets->label_seconds_remaining, "?? [compressed]");
+		gtk_progress_bar_set_fraction(ltd->progress_widgets->progressbar, 0.0);
+	}
+
+	if(ltd->bytes_read == ltd->trace_size || ltd->error || ltd->done) {
 		gtk_widget_hide(GTK_WIDGET(ltd->progress_widgets->window));
 		gtk_main_quit();
 		return FALSE;
@@ -115,6 +126,7 @@ int main(int argc, char** argv)
 	char* executable = NULL;
 	char buffer[30];
 	char title[PATH_MAX+10];
+	enum compression_type compression_type;
 
 	g_visuals_filename = NULL;
 
@@ -148,6 +160,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	if(uncompress_detect_type(tracefile, &compression_type)) {
+		show_error_message("Cannot detect compression type of file %s", tracefile);
+		return 1;
+	}
+
 	struct progress_window_widgets progress_widgets;
 	pthread_t tid;
 	struct timeval tv;
@@ -158,11 +175,18 @@ int main(int argc, char** argv)
 	struct load_thread_data load_thread_data = {
 		.tracefile = tracefile,
 		.bytes_read = 0,
+		.ignore_progress = 0,
 		.error = 0,
+		.done = 0,
 		.trace_size = trace_size,
 		.start_timestamp = ((uint64_t)tv.tv_sec)*1000000+tv.tv_usec,
 		.progress_widgets = &progress_widgets,
 	};
+
+	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED)
+		load_thread_data.ignore_progress = 0;
+	else
+		load_thread_data.ignore_progress = 1;
 
 	pthread_create(&tid, NULL, load_thread, &load_thread_data);
 

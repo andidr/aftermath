@@ -20,6 +20,7 @@
 #include "task.h"
 #include "multi_event_set.h"
 #include "convert.h"
+#include "uncompress.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -132,9 +133,6 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct frame* last_what = NULL;
 
 	while(!feof(fp)) {
-		if(bytes_read)
-			*bytes_read = ftell(fp);
-
 		if(read_uint32_convert(fp, &dsk_eh.type) != 0) {
 			if(feof(fp))
 				return 0;
@@ -142,11 +140,15 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				return 1;
 		}
 
+		(*bytes_read) += sizeof(uint32_t);
+
 		if(dsk_eh.type == EVENT_TYPE_COUNTER_DESCRIPTION) {
 			dsk_cd.type = dsk_eh.type;
 
 			if(read_struct_convert(fp, &dsk_cd, sizeof(dsk_cd), trace_counter_description_conversion_table, sizeof(dsk_eh.type)) != 0)
 				return 1;
+
+			(*bytes_read) += sizeof(dsk_cd) - sizeof(dsk_eh.type);
 
 			/* Counter description already read? */
 			if(multi_event_set_find_counter_description(mes, dsk_cd.counter_id) != NULL)
@@ -161,7 +163,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			cd->name[dsk_cd.name_len] = '\0';
 		} else {
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
-					return 1;
+				return 1;
+
+			(*bytes_read) += sizeof(dsk_eh) - sizeof(dsk_eh.type);
 
 			if(!last_task || last_task->addr != dsk_eh.active_task)
 				last_task = task_tree_find_or_add(tt, dsk_eh.active_task);
@@ -173,6 +177,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				memcpy(&dsk_se, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_se, sizeof(dsk_se), trace_state_event_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
+
+				(*bytes_read) += sizeof(dsk_se) - sizeof(dsk_eh);
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_se.header.cpu);
 				se.start = dsk_se.header.time;
@@ -187,6 +193,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				memcpy(&dsk_ce, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_ce, sizeof(dsk_ce), trace_comm_event_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
+
+				(*bytes_read) += sizeof(dsk_ce) - sizeof(dsk_eh);
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu);
 				ce.time = dsk_ce.header.time;
@@ -237,6 +245,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_sge, sizeof(dsk_sge), trace_single_event_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
+				(*bytes_read) += sizeof(dsk_sge) - sizeof(dsk_eh);
+
 				if(!last_what || last_what->addr != dsk_sge.what)
 					last_what = frame_tree_find_or_add(ft, dsk_sge.what);
 
@@ -256,6 +266,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				memcpy(&dsk_cre, &dsk_eh, sizeof(dsk_eh));
 				if(read_struct_convert(fp, &dsk_cre, sizeof(dsk_cre), trace_counter_event_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
+
+				(*bytes_read) += sizeof(dsk_cre) - sizeof(dsk_eh);
 
 				if(!(cd = multi_event_set_find_counter_description(mes, dsk_cre.counter_id)))
 					return 1;
@@ -278,6 +290,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_fi, sizeof(dsk_fi), trace_frame_info_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
+				(*bytes_read) += sizeof(dsk_fi) - sizeof(dsk_eh);
+
 				if(!last_frame || last_frame->addr != dsk_fi.addr)
 					last_frame = frame_tree_find_or_add(ft, dsk_fi.addr);
 
@@ -292,6 +306,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(read_struct_convert(fp, &dsk_ci, sizeof(dsk_ci), trace_cpu_info_conversion_table, sizeof(dsk_eh)) != 0)
 					return 1;
 
+				(*bytes_read) += sizeof(dsk_ci) - sizeof(dsk_eh);
+
 				es = multi_event_set_find_alloc_cpu(mes, dsk_ci.header.cpu);
 				es->numa_node = dsk_ci.numa_node;
 
@@ -301,9 +317,6 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 		}
 	}
 
-	if(bytes_read)
-		*bytes_read = lseek(fileno(fp), 0, SEEK_CUR);
-
 	return 0;
 }
 
@@ -312,15 +325,35 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	struct trace_header header;
 	struct task_tree tt;
 	struct frame_tree ft;
+	enum compression_type compression_type;
+	struct uncompress_pipe pipe;
+	int status;
 
 	int res = 1;
 	FILE* fp;
 
-	if(!(fp = fopen(file, "r")))
-	   goto out;
+	(*bytes_read) = 0;
+
+	if(uncompress_detect_type(file, &compression_type))
+		goto out;
+
+	if(compression_type == COMPRESSION_TYPE_UNKNOWN)
+		goto out;
+
+	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED) {
+		if(!(fp = fopen(file, "r")))
+			goto out;
+	} else {
+		if(uncompress_pipe_open(&pipe, compression_type, file))
+			goto out;
+
+		fp = pipe.stdout;
+	}
 
 	if(read_struct_convert(fp, &header, sizeof(header), trace_header_conversion_table, 0) != 0)
 		goto out_fp;
+
+	(*bytes_read) += sizeof(header);
 
 	if(!trace_verify_header(&header))
 		goto out_fp;
@@ -463,10 +496,17 @@ out_trees:
 	task_tree_destroy(&tt);
 	frame_tree_destroy(&ft);
 out_fp:
-	if(bytes_read)
-		*bytes_read = ftell(fp);
+	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED) {
+		fclose(fp);
+	} else {
+		uncompress_pipe_close(&pipe, &status);
 
-	fclose(fp);
+		if(status != 0) {
+			task_tree_destroy(&tt);
+			frame_tree_destroy(&ft);
+			res = 1;
+		}
+	}
 out:
 	return res;
 }

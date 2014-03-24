@@ -83,6 +83,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/task_graph.c \
 		src/texec_tree.h \
 		src/texec_tree.c \
+		src/uncompress.h \
+		src/uncompress.c \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
