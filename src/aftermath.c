@@ -45,6 +45,7 @@
 struct load_thread_data {
 	char* tracefile;
 	off_t bytes_read;
+	off_t last_bytes_read;
 	off_t trace_size;
 	int error;
 	int done;
@@ -85,15 +86,19 @@ gboolean update_progress(gpointer pdata)
 	pretty_print_bytes(buffer, sizeof(buffer), ltd->bytes_read, "");
 	gtk_label_set_text(ltd->progress_widgets->label_bytes_loaded, buffer);
 
-	seconds_elapsed = (double)(timestamp - ltd->start_timestamp) / 1000000.0;
+	if(ltd->bytes_read == ltd->last_bytes_read) {
+		gtk_label_set_text(ltd->progress_widgets->label_throughput, "--");
+	} else {
+		seconds_elapsed = (double)(timestamp - ltd->start_timestamp) / 1000000.0;
 
-	if(seconds_elapsed > 0) {
-		throughput = (double)ltd->bytes_read / seconds_elapsed;
-		seconds_remaining = (ltd->trace_size - ltd->bytes_read) / throughput;
+		if(seconds_elapsed > 0) {
+			throughput = (double)ltd->bytes_read / seconds_elapsed;
+			seconds_remaining = (ltd->trace_size - ltd->bytes_read) / throughput;
+		}
+
+		pretty_print_bytes(buffer, sizeof(buffer), throughput, "/s");
+		gtk_label_set_text(ltd->progress_widgets->label_throughput, buffer);
 	}
-
-	pretty_print_bytes(buffer, sizeof(buffer), throughput, "/s");
-	gtk_label_set_text(ltd->progress_widgets->label_throughput, buffer);
 
 	if(!ltd->ignore_progress) {
 		pretty_print_bytes(buffer, sizeof(buffer), ltd->trace_size, "");
@@ -115,6 +120,8 @@ gboolean update_progress(gpointer pdata)
 		gtk_main_quit();
 		return FALSE;
 	}
+
+	ltd->last_bytes_read = ltd->bytes_read;
 
 	return TRUE;
 }
@@ -175,6 +182,7 @@ int main(int argc, char** argv)
 	struct load_thread_data load_thread_data = {
 		.tracefile = tracefile,
 		.bytes_read = 0,
+		.last_bytes_read = 0,
 		.ignore_progress = 0,
 		.error = 0,
 		.done = 0,
