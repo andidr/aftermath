@@ -120,6 +120,9 @@ struct multi_event_set g_mes = { .sets = NULL,
 				 .max_numa_node_id = 0,
 				 .max_write_size = 0,
 				 .max_read_size = 0,
+				 .min_cpu = -1,
+				 .max_cpu = -1,
+				 .cpu_idx_map = NULL
 };
 
 struct filter g_filter;

@@ -48,6 +48,11 @@ struct multi_event_set {
 
 	int max_write_size;
 	int max_read_size;
+
+	int min_cpu;
+	int max_cpu;
+
+	int* cpu_idx_map;
 };
 
 static inline void multi_event_event_set_add_counter_offset(struct multi_event_set* mes, int counter_id, int64_t offset)
@@ -132,9 +137,14 @@ void multi_event_set_sort_by_cpu(struct multi_event_set* mes);
 
 static inline struct event_set* multi_event_set_find_cpu(struct multi_event_set* mes, int cpu)
 {
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].cpu == cpu)
-			return &mes->sets[i];
+	if(cpu < mes->min_cpu || cpu > mes->max_cpu)
+		return NULL;
+
+	int mapidx = cpu - mes->min_cpu;
+	int idx = mes->cpu_idx_map[mapidx];
+
+	if(idx != -1)
+		return &mes->sets[idx];
 
 	return NULL;
 }
@@ -148,6 +158,25 @@ static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int 
 	return -1;
 }
 
+static inline int multi_event_set_rebuild_cpu_idx_map(struct multi_event_set* mes)
+{
+	int num_cpus = mes->max_cpu - mes->min_cpu + 1;
+	void* tmp = realloc(mes->cpu_idx_map, num_cpus*sizeof(mes->cpu_idx_map[0]));
+
+	if(!tmp)
+		return 1;
+
+	mes->cpu_idx_map = tmp;
+
+	for(int i = 0; i < num_cpus; i++)
+		mes->cpu_idx_map[i] = -1;
+
+	for(int i = 0; i < mes->num_sets; i++)
+		mes->cpu_idx_map[mes->sets[i].cpu] = i;
+
+	return 0;
+}
+
 static inline int multi_event_set_alloc(struct multi_event_set* mes, int cpu)
 {
 	if(check_buffer_grow((void**)&mes->sets, sizeof(struct event_set),
@@ -157,8 +186,25 @@ static inline int multi_event_set_alloc(struct multi_event_set* mes, int cpu)
 		return 1;
 	}
 
+	int update_map = 0;
+
+	if(cpu < mes->min_cpu || mes->min_cpu == -1) {
+		mes->min_cpu = cpu;
+		update_map = 1;
+	}
+
+	if(cpu > mes->max_cpu || mes->max_cpu == -1) {
+		mes->max_cpu = cpu;
+		update_map = 1;
+	}
+
 	mes->num_sets_free--;
 	event_set_init(&mes->sets[mes->num_sets++], cpu);
+
+	if(update_map)
+		if(multi_event_set_rebuild_cpu_idx_map(mes))
+			return 1;
+
 	return 0;
 }
 
@@ -231,6 +277,7 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	free(mes->sets);
 	free(mes->tasks);
 	free(mes->frames);
+	free(mes->cpu_idx_map);
 }
 
 static inline int multi_event_set_counter_description_alloc(struct multi_event_set* mes, uint64_t counter_id, int name_len)

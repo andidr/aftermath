@@ -20,5 +20,6 @@
 void multi_event_set_sort_by_cpu(struct multi_event_set* mes)
 {
 	qsort(mes->sets, mes->num_sets, sizeof(struct event_set), event_set_compare_cpus);
+	multi_event_set_rebuild_cpu_idx_map(mes);
 }
 
