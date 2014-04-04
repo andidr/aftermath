@@ -1073,21 +1073,21 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	char buffer[40];
 	double cpu_height = gtk_trace_cpu_height(g);
 	int num_cpu_gaps = g->event_sets->num_sets-1;
-	char dots[g->widget.allocation.width*g->event_sets->num_sets];
-	char triangles[g->widget.allocation.width*g->event_sets->num_sets];
-	struct type_size { uint64_t size; char type; } transfer_size[g->widget.allocation.width*g->event_sets->num_sets];
-	char lines[g->widget.allocation.width*num_cpu_gaps];
-	struct coord { int y1; int y2; } line_limits[g->widget.allocation.width];
+	char dots[(g->widget.allocation.width+1)*g->event_sets->num_sets];
+	char triangles[(g->widget.allocation.width+1)*g->event_sets->num_sets];
+	struct type_size { uint64_t size; char type; } transfer_size[(g->widget.allocation.width+1)*g->event_sets->num_sets];
+	char lines[(g->widget.allocation.width+1)*num_cpu_gaps];
+	struct coord { int y1; int y2; } line_limits[(g->widget.allocation.width+1)];
 
 	int first_cpu_idx =  gtk_trace_first_visible_cpu_idx(g);
 	int last_cpu_idx =  gtk_trace_last_visible_cpu_idx(g);
 
 	cairo_text_extents_t extents;
 
-	memset(lines, -1, sizeof(lines[0])*g->widget.allocation.width*num_cpu_gaps);
-	memset(dots, -1, sizeof(dots[0])*g->widget.allocation.width*g->event_sets->num_sets);
-	memset(triangles, -1, sizeof(triangles[0])*g->widget.allocation.width*g->event_sets->num_sets);
-	memset(line_limits, 0, sizeof(line_limits[0])*g->widget.allocation.width);
+	memset(lines, -1, sizeof(lines[0])*(g->widget.allocation.width+1)*num_cpu_gaps);
+	memset(dots, -1, sizeof(dots[0])*(g->widget.allocation.width+1)*g->event_sets->num_sets);
+	memset(triangles, -1, sizeof(triangles[0])*(g->widget.allocation.width+1)*g->event_sets->num_sets);
+	memset(line_limits, 0, sizeof(line_limits[0])*(g->widget.allocation.width+1));
 
 	for(int i = 0; i < g->widget.allocation.width*g->event_sets->num_sets; i++)
 		transfer_size[i].type = -1;
