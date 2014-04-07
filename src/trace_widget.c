@@ -80,6 +80,9 @@ static double node_colors[NUM_NODE_COLORS][3] = {{COL_NORM(0xFB), COL_NORM(0xB4)
 				  {COL_NORM(0xE5), COL_NORM(0xD8), COL_NORM(0xBD)},
 				  {COL_NORM(0xFD), COL_NORM(0xDA), COL_NORM(0xEC)}};
 
+static double measurement_start_color[3] = { COL_NORM(0x00), COL_NORM(0xFF), COL_NORM(0x00) };
+static double measurement_end_color[3] = { COL_NORM(0xFF), COL_NORM(0x00), COL_NORM(0x00) };
+
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
@@ -116,6 +119,8 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 
 	g->markers = NULL;
 	g->num_markers = 0;
+
+	g->draw_measurement_intervals = 1;
 
 	return GTK_WIDGET(g);
 }
@@ -1645,6 +1650,43 @@ void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_measurement_intervals(GtkTrace* g, cairo_t* cr)
+{
+	double triangle_height = 15;
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	for(int i = 0; i < g->event_sets->num_global_single_events; i++) {
+		struct global_single_event* gse = &g->event_sets->global_single_events[i];
+
+		if((gse->time >= g->left && gse->time <= g->right) &&
+		   (gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START ||
+		    gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END))
+		{
+			if(gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START)
+				cairo_set_source_rgb(cr, measurement_start_color[0], measurement_start_color[1], measurement_start_color[2]);
+			else
+				cairo_set_source_rgb(cr, measurement_end_color[0], measurement_end_color[1], measurement_end_color[2]);
+
+			long double screen_x = gtk_trace_x_to_screen(g, gse->time);
+
+			cairo_move_to(cr, screen_x, 0);
+			cairo_line_to(cr, screen_x, g->widget.allocation.height - g->axis_width);
+			cairo_set_line_width(cr, 2.0);
+			cairo_stroke(cr);
+
+			if(gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START)
+				draw_triangle(cr, screen_x, triangle_height / 2.0, triangle_height, triangle_height);
+			else
+				draw_triangle(cr, screen_x, triangle_height / 2.0, -triangle_height, triangle_height);
+			cairo_fill(cr);
+		}
+	}
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1809,6 +1851,16 @@ void gtk_trace_set_draw_annotations(GtkWidget *widget, int val)
 		gtk_widget_queue_draw(widget);
 }
 
+void gtk_trace_set_draw_measurement_intervals(GtkWidget *widget, int val)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int needs_redraw = (val != g->draw_measurement_intervals);
+	g->draw_measurement_intervals = val;
+
+	if(needs_redraw)
+		gtk_widget_queue_draw(widget);
+}
+
 void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -1882,6 +1934,9 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	{
 		gtk_trace_paint_comm(g, cr);
 	}
+
+	if(g->draw_measurement_intervals)
+		gtk_trace_paint_measurement_intervals(g, cr);
 
 	if(g->num_markers)
 		gtk_trace_paint_markers(g, cr);

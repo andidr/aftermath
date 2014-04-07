@@ -460,6 +460,20 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkToggleToolButton" id="toolbutton5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Meas</property>
+                <property name="use_underline">True</property>
+                <property name="icon">draw_measurement_intervals.svg</property>
+                <property name="active">True</property>
+                <signal name="toggled" handler="toolbar_draw_measurement_intervals_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>

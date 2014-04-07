@@ -25,6 +25,7 @@
 #include "frame.h"
 #include <stdlib.h>
 
+#define GLOBAL_EVENT_PREALLOC 32
 #define SET_PREALLOC 5
 
 struct multi_event_set {
@@ -43,6 +44,10 @@ struct multi_event_set {
 	struct counter_description* counters;
 	int num_counters;
 	int num_counters_free;
+
+	struct global_single_event* global_single_events;
+	int num_global_single_events;
+	int num_global_single_events_free;
 
 	int max_numa_node_id;
 
@@ -278,6 +283,7 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	free(mes->tasks);
 	free(mes->frames);
 	free(mes->cpu_idx_map);
+	free(mes->global_single_events);
 }
 
 static inline int multi_event_set_counter_description_alloc(struct multi_event_set* mes, uint64_t counter_id, int name_len)
@@ -530,6 +536,13 @@ static inline int multi_event_set_get_prev_ready_time(struct multi_event_set* me
 	}
 
 	return 0;
+}
+
+static inline int multi_event_set_add_global_single_event(struct multi_event_set* mes, struct global_single_event* gse)
+{
+	return add_buffer_grow((void**)&mes->global_single_events, gse, sizeof(*gse),
+			       &mes->num_global_single_events, &mes->num_global_single_events_free,
+			       GLOBAL_EVENT_PREALLOC);
 }
 
 #endif

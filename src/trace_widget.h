@@ -88,6 +88,7 @@ struct _GtkTrace {
 	int draw_single_events;
 	int draw_counters;
 	int draw_annotations;
+	int draw_measurement_intervals;
 	enum gtk_trace_map_mode map_mode;
 	int heatmap_shades;
 	int moved_during_navigation;
@@ -149,6 +150,7 @@ void gtk_trace_set_draw_data_writes(GtkWidget *widget, int val);
 void gtk_trace_set_draw_single_events(GtkWidget *widget, int val);
 void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
 void gtk_trace_set_draw_annotations(GtkWidget *widget, int val);
+void gtk_trace_set_draw_measurement_intervals(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
 void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length);
 void gtk_trace_set_map_mode(GtkWidget *widget, enum gtk_trace_map_mode model);

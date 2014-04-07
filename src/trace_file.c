@@ -108,6 +108,13 @@ int trace_cpu_info_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_global_single_event_conversion_table[] = {
+	FIELD_SIZE(struct trace_global_single_event, type),
+	FIELD_SIZE(struct trace_global_single_event, time),
+	FIELD_SIZE(struct trace_global_single_event, single_type),
+	CONVERSION_TABLE_END
+};
+
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&

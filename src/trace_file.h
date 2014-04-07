@@ -45,11 +45,11 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 14
+#define TRACE_VERSION 15
 
 static inline int trace_version_compatible(int version)
 {
-	return (version == 13 || version == 14);
+	return (version == 13 || version == 14 || version == 15);
 }
 
 enum event_type {
@@ -59,7 +59,8 @@ enum event_type {
 	EVENT_TYPE_COUNTER = 3,
 	EVENT_TYPE_COUNTER_DESCRIPTION = 4,
 	EVENT_TYPE_FRAME_INFO = 5,
-	EVENT_TYPE_CPU_INFO = 6
+	EVENT_TYPE_CPU_INFO = 6,
+	EVENT_TYPE_GLOBAL_SINGLE_EVENT = 7
 };
 
 enum worker_state {
@@ -90,6 +91,11 @@ enum single_event_type {
 	SINGLE_TYPE_TEXEC_START = 1,
 	SINGLE_TYPE_TEXEC_END = 2,
 	SINGLE_TYPE_TDESTROY = 3
+};
+
+enum global_single_event_type {
+	GLOBAL_SINGLE_TYPE_MEASURE_START = 0,
+	GLOBAL_SINGLE_TYPE_MEASURE_END = 1
 };
 
 /* File header */
@@ -269,6 +275,19 @@ struct trace_cpu_info {
 } __attribute__((packed));
 
 extern int trace_cpu_info_conversion_table[];
+
+struct trace_global_single_event {
+	/* Short header field */
+	uint32_t type;
+
+	/* Timestamp of the event */
+	uint64_t time;
+
+	/* Sub-type */
+	int32_t single_type;
+} __attribute__((packed));
+
+extern int trace_global_single_event_conversion_table[];
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);

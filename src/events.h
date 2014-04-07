@@ -43,6 +43,11 @@ struct single_event {
 	struct single_event* prev_texec_end;
 };
 
+struct global_single_event {
+	uint64_t time;
+	enum global_single_event_type type;
+};
+
 struct state_event {
 	struct event_set* event_set;
 	uint64_t start;

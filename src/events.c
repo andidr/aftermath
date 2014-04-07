@@ -120,6 +120,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct trace_counter_event dsk_cre;
 	struct trace_frame_info dsk_fi;
 	struct trace_cpu_info dsk_ci;
+	struct trace_global_single_event dsk_gse;
 
 	struct event_set* es;
 	struct state_event se;
@@ -127,6 +128,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct single_event sge;
 	struct counter_description* cd;
 	struct counter_event cre;
+	struct global_single_event gse;
 
 	struct task* last_task = NULL;
 	struct frame* last_frame = NULL;
@@ -161,6 +163,19 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				return 1;
 
 			cd->name[dsk_cd.name_len] = '\0';
+		} else if(dsk_eh.type == EVENT_TYPE_GLOBAL_SINGLE_EVENT) {
+			dsk_gse.type = dsk_eh.type;
+
+			if(read_struct_convert(fp, &dsk_gse, sizeof(dsk_gse), trace_global_single_event_conversion_table, sizeof(dsk_eh.type)) != 0)
+				return 1;
+
+			gse.time = dsk_gse.time;
+			gse.type = dsk_gse.single_type;
+
+			(*bytes_read) += sizeof(dsk_gse) - sizeof(dsk_eh.type);
+
+			if(multi_event_set_add_global_single_event(mes, &gse))
+				return 1;
 		} else {
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
 				return 1;

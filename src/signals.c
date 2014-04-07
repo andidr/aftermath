@@ -150,6 +150,11 @@ G_MODULE_EXPORT void toolbar_draw_annotations_toggled(GtkToggleToolButton *butto
 	gtk_trace_set_draw_annotations(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
+G_MODULE_EXPORT void toolbar_draw_measurement_intervals_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	gtk_trace_set_draw_measurement_intervals(g_trace_widget, gtk_toggle_tool_button_get_active(button));
+}
+
 int task_length_heatmap_update_params(void)
 {
 	const char* txt;
