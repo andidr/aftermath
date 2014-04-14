@@ -70,6 +70,7 @@ GtkWidget* g_label_par_reorder;
 GtkWidget* g_label_hist_num_tasks;
 GtkWidget* g_label_hist_selection_length;
 GtkWidget* g_label_hist_avg_task_length;
+GtkWidget* g_label_hist_num_tcreate;
 GtkWidget* g_label_hist_min_cycles;
 GtkWidget* g_label_hist_max_cycles;
 GtkWidget* g_label_hist_min_perc;

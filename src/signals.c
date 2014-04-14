@@ -477,6 +477,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), "0 tasks considered");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length), "0 cycles");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_avg_task_length), "0 cycles / task (avg)");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tcreate), "0 task creation events");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), "MAX");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
@@ -655,6 +656,13 @@ void update_statistics(void)
 
 	snprintf(buffer, sizeof(buffer), "%.2f", (double)sts.state_cycles[WORKER_STATE_RT_REORDER] / (double)length);
 	gtk_label_set_text(GTK_LABEL(g_label_par_reorder), buffer);
+
+	struct single_event_statistics single_stats;
+	single_event_statistics_init(&single_stats);
+	single_event_statistics_gather(&g_mes, &g_filter, &single_stats, left, right);
+
+	snprintf(buffer, sizeof(buffer), "%"PRId64" task creation events", single_stats.num_tcreate_events);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tcreate), buffer);
 
 	if(task_statistics_init(&ts, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
 		show_error_message("Cannot allocate task statistics structure.");

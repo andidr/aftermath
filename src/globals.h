@@ -80,6 +80,7 @@ extern GtkWidget* g_label_par_reorder;
 extern GtkWidget* g_label_hist_num_tasks;
 extern GtkWidget* g_label_hist_selection_length;
 extern GtkWidget* g_label_hist_avg_task_length;
+extern GtkWidget* g_label_hist_num_tcreate;
 extern GtkWidget* g_label_hist_min_cycles;
 extern GtkWidget* g_label_hist_max_cycles;
 extern GtkWidget* g_label_hist_min_perc;

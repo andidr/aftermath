@@ -272,6 +272,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_avg_task_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_num_tasks);
+	IMPORT_GLADE_WIDGET(xml, label_hist_num_tcreate);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc);
@@ -365,6 +366,7 @@ int main(int argc, char** argv)
 	g_label_hist_selection_length = label_hist_selection_length;
 	g_label_hist_avg_task_length = label_hist_avg_task_length;
 	g_label_hist_num_tasks = label_hist_num_tasks;
+	g_label_hist_num_tcreate = label_hist_num_tcreate;
 	g_label_hist_min_cycles = label_hist_min_cycles;
 	g_label_hist_max_cycles = label_hist_max_cycles;
 	g_label_hist_min_perc = label_hist_min_perc;

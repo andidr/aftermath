@@ -46,6 +46,13 @@ struct state_statistics {
 void state_statistics_init(struct state_statistics* s);
 void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
 
+struct single_event_statistics {
+	uint64_t num_tcreate_events;
+};
+
+void single_event_statistics_init(struct single_event_statistics* s);
+void single_event_statistics_gather(struct multi_event_set* mes, struct filter* f, struct single_event_statistics* s, int64_t start, int64_t end);
+
 struct task_statistics {
 	unsigned int num_tasks;
 	uint64_t cycles;

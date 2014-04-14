@@ -46,6 +46,34 @@ void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* 
 	}
 }
 
+void single_event_statistics_init(struct single_event_statistics* s)
+{
+	s->num_tcreate_events = 0;
+}
+
+void single_event_statistics_gather(struct multi_event_set* mes, struct filter* f, struct single_event_statistics* s, int64_t start, int64_t end)
+{
+	int evt_idx;
+	struct single_event* sge;
+
+	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
+		if((evt_idx = event_set_get_first_single_event_in_interval(&mes->sets[cpu_idx], start, end)) == -1)
+			continue;
+
+		sge = &mes->sets[cpu_idx].single_events[evt_idx];
+
+		while(evt_idx < mes->sets[cpu_idx].num_single_events &&
+		      sge->time < end)
+		{
+			if(sge->type == SINGLE_TYPE_TCREATE && filter_has_single_event(f, sge))
+				s->num_tcreate_events++;
+
+			evt_idx++;
+			sge++;
+		}
+	}
+}
+
 void task_statistics_reset(struct task_statistics* s)
 {
 	s->num_tasks = 0;
