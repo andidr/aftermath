@@ -1107,7 +1107,7 @@ void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
 				continue;
 
 			if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS)
-				valid = event_set_get_major_owner_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
+				valid = event_set_get_major_read_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
 			else
 				valid = event_set_get_major_written_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
 
