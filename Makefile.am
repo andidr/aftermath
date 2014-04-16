@@ -98,6 +98,12 @@ aftermath_SOURCES = src/aftermath.c \
 		src/contrib/linux-kernel/stddef.h \
 		src/contrib/linux-kernel/types.h \
 		src/contrib/linux-kernel/userspace.h \
+		src/address_range_tree.h \
+		src/address_range_tree.c \
+		src/task_instance.h \
+		src/task_instance.c \
+		src/task_instance_rw_tree.h \
+		src/task_instance_rw_tree.c \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
