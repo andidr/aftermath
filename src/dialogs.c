@@ -19,6 +19,7 @@
 #include "glade_extras.h"
 #include "cpu_list.h"
 #include "task_list.h"
+#include "histogram_widget.h"
 #include <glade/glade.h>
 #include <math.h>
 #include <inttypes.h>
@@ -803,4 +804,33 @@ int show_counter_offset_dialog(struct multi_event_set* mes, struct counter_descr
 	g_object_unref(G_OBJECT(xml));
 
 	return ret;
+}
+
+void show_parallelism_dialog(struct histogram* hist)
+{
+	char buffer[128];
+
+	GladeXML* xml = glade_xml_new(DATA_PATH "/parallelism_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, hist_box);
+	IMPORT_GLADE_WIDGET(xml, label_top);
+	IMPORT_GLADE_WIDGET(xml, label_right);
+
+	snprintf(buffer, sizeof(buffer), "%d", hist->max_hist);
+	gtk_label_set_text(GTK_LABEL(label_top), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%Lf", hist->right);
+	gtk_label_set_text(GTK_LABEL(label_right), buffer);
+
+	GtkWidget* histogram_widget = gtk_histogram_new();
+	gtk_histogram_set_data(histogram_widget, hist);
+	gtk_container_add(GTK_CONTAINER(hist_box), histogram_widget);
+
+	gtk_widget_show_all(dialog);
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
 }

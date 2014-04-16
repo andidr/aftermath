@@ -114,6 +114,14 @@
                   <widget class="GtkMenu" id="menu5">
                     <property name="visible">True</property>
                     <child>
+                      <widget class="GtkMenuItem" id="menuitem17">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Show available _parallelism</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_show_parallelism_histogram"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="menuitem7">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Add de_rived counter</property>

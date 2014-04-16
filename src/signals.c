@@ -35,6 +35,7 @@
 #include "cpu_list.h"
 #include "task_graph.h"
 #include "export.h"
+#include "address_range_tree.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -1878,4 +1879,29 @@ G_MODULE_EXPORT void menubar_export_png(GtkMenuItem *item, gpointer data)
 G_MODULE_EXPORT void menubar_export_svg(GtkMenuItem *item, gpointer data)
 {
 	export_to_file_with_dialog(EXPORT_FORMAT_SVG);
+}
+
+G_MODULE_EXPORT void menubar_show_parallelism_histogram(GtkMenuItem* item, gpointer data)
+{
+	struct address_range_tree art;
+	struct histogram hist;
+
+	address_range_tree_init(&art);
+
+	if(address_range_tree_from_multi_event_set(&art, &g_mes)) {
+		show_error_message("Could not build address range tree.");
+		goto out_art;
+	}
+
+	if(address_range_tree_build_parallelism_histogram(&art, &hist)) {
+		show_error_message("Could not build parallelism histogram.");
+		goto out_hist;
+	}
+
+	show_parallelism_dialog(&hist);
+
+out_hist:
+	histogram_destroy(&hist);
+out_art:
+	address_range_tree_destroy(&art);
 }

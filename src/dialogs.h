@@ -25,6 +25,7 @@
 #include "annotation.h"
 #include "bitvector.h"
 #include "filter.h"
+#include "statistics.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -89,5 +90,6 @@ struct derived_counter_options {
 
 int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_counter_options* opt);
 int show_counter_offset_dialog(struct multi_event_set* mes, struct counter_description* cd, GtkWidget* trace_widget, int64_t* offset);
+void show_parallelism_dialog(struct histogram* hist);
 
 #endif
