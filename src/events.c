@@ -67,6 +67,12 @@ int trace_update_task_execution_bounds(struct event_set* es)
 		if(last_ese)
 			last_ese->next_texec_start = ese;
 
+		/* Update all single events before first task execution */
+		if(!last_ese) {
+			for(int i = 0; i < exec_start_idx; i++)
+				es->single_events[i].next_texec_start = ese;
+		}
+
 		/* Update single events */
 		for(int inbetween_idx = exec_start_idx+1; inbetween_idx < exec_end_idx && inbetween_idx < es->num_single_events; inbetween_idx++) {
 			es->single_events[inbetween_idx].next_texec_end = eee;
