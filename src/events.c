@@ -113,6 +113,13 @@ int trace_update_task_execution_bounds(struct event_set* es)
 		last_eee = eee;
 	}
 
+	if(exec_end_idx != -1) {
+		for(int i = exec_end_idx+1; i < es->num_single_events; i++) {
+			es->single_events[i].prev_texec_start = last_ese;
+			es->single_events[i].prev_texec_end = last_eee;
+		}
+	}
+
 	return 0;
 }
 
