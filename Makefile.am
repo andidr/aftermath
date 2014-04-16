@@ -88,6 +88,16 @@ aftermath_SOURCES = src/aftermath.c \
 		src/texec_tree.c \
 		src/uncompress.h \
 		src/uncompress.c \
+		src/contrib/linux-kernel/interval_tree_generic.h \
+		src/contrib/linux-kernel/kernel.h \
+		src/contrib/linux-kernel/list.h \
+		src/contrib/linux-kernel/poison.h \
+		src/contrib/linux-kernel/rbtree_augmented.h \
+		src/contrib/linux-kernel/rbtree.h \
+		src/contrib/linux-kernel/rbtree.c \
+		src/contrib/linux-kernel/stddef.h \
+		src/contrib/linux-kernel/types.h \
+		src/contrib/linux-kernel/userspace.h \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
