@@ -823,6 +823,83 @@ int event_set_has_counter(struct event_set* es, struct counter_description* cd)
 	return 0;
 }
 
+int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
+						      struct filter* f, uint64_t start, uint64_t end,
+						      int max_numa_node_id, uint32_t local_node,
+						      uint64_t* local_bytes, uint64_t* remote_bytes)
+{
+	uint64_t length_in_interval;
+	uint64_t length = 0;
+	struct single_event* texec_start;
+	int texec_start_idx;
+
+	*local_bytes = 0;
+	*remote_bytes = 0;
+
+	if(f && !filter_has_cpu(f, es->cpu))
+		goto out;
+
+	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
+			goto out;
+
+	texec_start = &es->single_events[texec_start_idx];
+
+	while(texec_start && texec_start->time < end) {
+		uint64_t task_length = texec_start->next_texec_end->time - texec_start->time;
+
+		if(!f || (filter_has_task(f, texec_start->active_task) &&
+			  filter_has_frame(f, texec_start->active_frame) &&
+			  filter_has_task_duration(f, task_length) &&
+			  (!f-> filter_writes_to_numa_nodes || event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
+		{
+			uint64_t task_length = texec_start->next_texec_end->time - texec_start->time;
+
+			if(texec_start->time < start &&
+			   texec_start->next_texec_end->time > start &&
+			   texec_start->next_texec_end->time < end)
+			{
+				length_in_interval = texec_start->next_texec_end->time - start;
+				length += length_in_interval;
+			} else if(texec_start->time < start &&
+				  texec_start->next_texec_end->time > end)
+			{
+				length_in_interval = end - start;
+				length += length_in_interval;
+			} else if(texec_start->time > start &&
+				  texec_start->next_texec_end->time < end)
+			{
+				length_in_interval = texec_start->next_texec_end->time - texec_start->time;
+				length += length_in_interval;
+			} else if(texec_start->time > start &&
+				  texec_start->next_texec_end->time > end)
+			{
+				length_in_interval = end - texec_start->time;
+				length += length_in_interval;
+			}
+
+			struct comm_event* ce;
+			for_each_comm_event_in_interval(es,
+							texec_start->time,
+							texec_start->next_texec_end->time,
+							ce)
+			{
+				if(ce->what->numa_node != -1) {
+					if(ce->what->numa_node == local_node)
+						*local_bytes += (length_in_interval * ce->size) / task_length;
+					else
+						*remote_bytes += (length_in_interval * ce->size) / task_length;
+				}
+			}
+		}
+
+		texec_start = texec_start->next_texec_start;
+	}
+
+out:
+	return (length > 0);
+}
+
 int event_set_get_major_written_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	return event_set_get_major_accessed_node_in_interval(es, COMM_TYPE_DATA_WRITE, f, start, end, max_numa_node_id, major_node);

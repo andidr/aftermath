@@ -157,12 +157,18 @@ G_MODULE_EXPORT void toolbar_draw_measurement_intervals_toggled(GtkToggleToolBut
 	gtk_trace_set_draw_measurement_intervals(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
+void heatmap_update_params(void)
+{
+	int num_shades;
+	num_shades = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_heatmap_num_shades));
+	gtk_trace_set_heatmap_num_shades(g_trace_widget, num_shades);
+}
+
 int task_length_heatmap_update_params(void)
 {
 	const char* txt;
 	int64_t min_length;
 	int64_t max_length;
-	int num_shades;
 
 	txt = gtk_entry_get_text(GTK_ENTRY(g_heatmap_min_cycles));
 	if(sscanf(txt, "%"PRId64, &min_length) != 1) {
@@ -176,8 +182,9 @@ int task_length_heatmap_update_params(void)
 		return 1;
 	}
 
-	num_shades = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_heatmap_num_shades));
-	gtk_trace_set_heatmap_params(g_trace_widget, num_shades, min_length, max_length);
+	gtk_trace_set_heatmap_task_length_bounds(g_trace_widget, min_length, max_length);
+
+	heatmap_update_params();
 
 	return 0;
 }
@@ -235,7 +242,7 @@ G_MODULE_EXPORT void tool_button_use_task_length_heatmap_toggled(GtkToggleToolBu
 			gtk_toggle_tool_button_set_active(button, 0);
 	}
 
-	gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_HEAT);
+	gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_HEAT_TASKLEN);
 }
 
 G_MODULE_EXPORT void tool_button_numamap_reads_toggled(GtkToggleToolButton *button, gpointer data)
@@ -252,6 +259,16 @@ G_MODULE_EXPORT void tool_button_numamap_writes_toggled(GtkToggleToolButton *but
 
 	if(active)
 		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_NUMA_WRITES);
+}
+
+G_MODULE_EXPORT void tool_button_heatmap_numa_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	int active = gtk_toggle_tool_button_get_active(button);
+
+	heatmap_update_params();
+
+	if(active)
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_HEAT_NUMA);
 }
 
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)

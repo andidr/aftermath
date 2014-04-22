@@ -362,6 +362,20 @@
               </packing>
             </child>
             <child>
+              <widget class="GtkRadioToolButton" id="toggle_heatmap_numa">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">HMN</property>
+                <property name="use_underline">True</property>
+                <property name="icon">heatmap_numa.svg</property>
+                <property name="group">toggle_statemap</property>
+                <signal name="toggled" handler="tool_button_heatmap_numa_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkSeparatorToolItem" id="toolbutton4">
                 <property name="visible">True</property>
               </widget>

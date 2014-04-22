@@ -61,10 +61,11 @@ enum gtk_trace_modes {
 
 enum gtk_trace_map_mode {
 	GTK_TRACE_MAP_MODE_STATES = 0,
-	GTK_TRACE_MAP_MODE_HEAT,
+	GTK_TRACE_MAP_MODE_HEAT_TASKLEN,
 	GTK_TRACE_MAP_MODE_NUMA_READS,
 	GTK_TRACE_MAP_MODE_NUMA_WRITES,
-	GTK_TRACE_MAP_MODE_TASK_TYPE
+	GTK_TRACE_MAP_MODE_TASK_TYPE,
+	GTK_TRACE_MAP_MODE_HEAT_NUMA,
 };
 
 struct _GtkTrace {
@@ -153,7 +154,8 @@ void gtk_trace_set_draw_counters(GtkWidget *widget, int val);
 void gtk_trace_set_draw_annotations(GtkWidget *widget, int val);
 void gtk_trace_set_draw_measurement_intervals(GtkWidget *widget, int val);
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val);
-void gtk_trace_set_heatmap_params(GtkWidget *widget, int num_shades, uint64_t min_length, uint64_t max_length);
+void gtk_trace_set_heatmap_num_shades(GtkWidget *widget, int num_shades);
+void gtk_trace_set_heatmap_task_length_bounds(GtkWidget *widget, uint64_t min_length, uint64_t max_length);
 void gtk_trace_set_map_mode(GtkWidget *widget, enum gtk_trace_map_mode model);
 void gtk_trace_set_filter(GtkWidget *widget, struct filter* f);
 struct filter* gtk_trace_get_filter(GtkWidget *widget);
