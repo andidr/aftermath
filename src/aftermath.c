@@ -498,7 +498,6 @@ int main(int argc, char** argv)
 	}
 
 	g_address_range_tree_built = 0;
-	address_range_tree_init(&g_address_range_tree);
 
 	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);

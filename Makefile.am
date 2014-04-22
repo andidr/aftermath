@@ -120,6 +120,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/ui/counter_offset_dialog.glade \
 		share/ui/task_graph_texec_dialog.glade \
 		share/ui/parallelism_dialog.glade \
+		share/ui/message_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_steals.svg \
 		share/icons/draw_pushes.svg \

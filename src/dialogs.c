@@ -23,6 +23,7 @@
 #include <glade/glade.h>
 #include <math.h>
 #include <inttypes.h>
+#include <pthread.h>
 
 /**
  * A simple message dialog. Format is a printf-style format string.
@@ -833,4 +834,60 @@ void show_parallelism_dialog(struct histogram* hist)
 
 	gtk_widget_destroy(dialog);
 	g_object_unref(G_OBJECT(xml));
+}
+
+struct background_task_data {
+	int status;
+	int finished;
+	void* data;
+	int (*fun)(void* data);
+};
+
+void* background_task_run_thread(void* pdata)
+{
+	struct background_task_data* dlgst = pdata;
+	dlgst->status = dlgst->fun(dlgst->data);
+	dlgst->finished = 1;
+
+	return NULL;
+}
+
+int background_task_with_modal_dialog(const char* message, const char* title, int (*fun)(void* data), void* data)
+{
+	struct background_task_data dlgst;
+	pthread_t tid;
+	int ret;
+	GladeXML* xml = glade_xml_new(DATA_PATH "/message_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, label_message);
+
+	dlgst.status = 0;
+	dlgst.finished = 0;
+	dlgst.fun = fun;
+	dlgst.data = data;
+
+	gtk_window_set_title(GTK_WINDOW(dialog), title);
+	gtk_label_set_text(GTK_LABEL(label_message), message);
+
+	if(pthread_create(&tid, NULL, background_task_run_thread, &dlgst)) {
+		ret = 1;
+		goto out;
+	}
+
+	gtk_widget_show_all(dialog);
+
+	while(!dlgst.finished) {
+		while(gtk_events_pending())
+			gtk_main_iteration();
+	}
+
+	pthread_join(tid, NULL);
+
+	ret = dlgst.status;
+out:
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
 }
