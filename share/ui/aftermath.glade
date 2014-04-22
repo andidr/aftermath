@@ -3023,6 +3023,47 @@
                                                   </packing>
                                                 </child>
                                                 <child>
+                                                  <widget class="GtkTable" id="table5">
+                                                    <property name="visible">True</property>
+                                                    <property name="n_rows">2</property>
+                                                    <property name="n_columns">2</property>
+                                                    <child>
+                                                      <widget class="GtkLabel" id="label_matrix_local_bytes">
+                                                        <property name="visible">True</property>
+                                                        <property name="xalign">0</property>
+                                                        <property name="label" translatable="yes">0B local</property>
+                                                      </widget>
+                                                    </child>
+                                                    <child>
+                                                      <widget class="GtkLabel" id="label_matrix_remote_bytes">
+                                                        <property name="visible">True</property>
+                                                        <property name="xalign">0</property>
+                                                        <property name="label" translatable="yes">0B remote</property>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <widget class="GtkLabel" id="label_matrix_local_perc">
+                                                        <property name="visible">True</property>
+                                                        <property name="label" translatable="yes">0%
+local</property>
+                                                        <property name="justify">center</property>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="left_attach">1</property>
+                                                        <property name="right_attach">2</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
                                                   <widget class="GtkHBox" id="hbox32">
                                                     <property name="visible">True</property>
                                                     <child>
@@ -3089,7 +3130,7 @@
                                                     </child>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">2</property>
+                                                    <property name="position">3</property>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3102,7 +3143,7 @@
                                                     <signal name="toggled" handler="comm_matrix_direction_toggled"/>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">3</property>
+                                                    <property name="position">4</property>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3115,7 +3156,7 @@
                                                     <signal name="toggled" handler="comm_matrix_reflexive_toggled"/>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">4</property>
+                                                    <property name="position">5</property>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3128,7 +3169,7 @@
                                                     <signal name="toggled" handler="comm_matrix_numonly_toggled"/>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">5</property>
+                                                    <property name="position">6</property>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3188,7 +3229,7 @@
                                                     </child>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">6</property>
+                                                    <property name="position">7</property>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3199,7 +3240,7 @@
 </property>
                                                   </widget>
                                                   <packing>
-                                                    <property name="position">7</property>
+                                                    <property name="position">8</property>
                                                   </packing>
                                                 </child>
                                               </widget>

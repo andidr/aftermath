@@ -101,6 +101,9 @@ GtkWidget* g_check_matrix_pushes;
 GtkWidget* g_check_matrix_reflexive;
 GtkWidget* g_check_matrix_direction;
 GtkWidget* g_check_matrix_numonly;
+GtkWidget* g_label_matrix_local_bytes;
+GtkWidget* g_label_matrix_remote_bytes;
+GtkWidget* g_label_matrix_local_perc;
 GtkWidget* g_label_comm_matrix;
 
 GtkWidget* g_check_single_c;

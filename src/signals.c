@@ -579,6 +579,10 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), "\n");
 
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_bytes), "OB local");
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_remote_bytes), "OB remote");
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_perc), "0%\nlocal");
+
 	gtk_histogram_set_data(g_histogram_widget, NULL);
 	gtk_multi_histogram_set_data(g_multi_histogram_widget, NULL, NULL);
 
@@ -592,6 +596,10 @@ void update_comm_matrix(void)
 	int ignore_direction = 0;
 	int num_only = 0;
 	int64_t left, right;
+	uint64_t local_bytes = 0;
+	uint64_t remote_bytes = 0;
+	char buffer[128];
+	long double local_ratio;
 
 	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
 		return;
@@ -628,6 +636,29 @@ void update_comm_matrix(void)
 		show_error_message("Cannot gather communication matrix statistics.");
 		return;
 	}
+
+	for(int x = 0; x < g_comm_matrix.width; x++) {
+		for(int y = 0; y < g_comm_matrix.height; y++) {
+			if(x == y)
+				local_bytes += intensity_matrix_absolute_value_at(&g_comm_matrix, x, y);
+			else
+				remote_bytes += intensity_matrix_absolute_value_at(&g_comm_matrix, x, y);
+		}
+	}
+
+	pretty_print_bytes(buffer, sizeof(buffer), local_bytes, " local");
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_bytes), buffer);
+
+	pretty_print_bytes(buffer, sizeof(buffer), remote_bytes, " remote");
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_remote_bytes), buffer);
+
+	if(local_bytes + remote_bytes != 0)
+		local_ratio = ((long double)local_bytes) / (((long double)local_bytes) + ((long double)remote_bytes));
+	else
+		local_ratio = 0;
+
+	snprintf(buffer, sizeof(buffer), "%.2Lf%%\nlocal", local_ratio*100.0);
+	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_perc), buffer);
 
 	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
 }

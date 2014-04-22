@@ -302,6 +302,9 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_matrix_reflexive);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_direction);
 	IMPORT_GLADE_WIDGET(xml, check_matrix_numonly);
+	IMPORT_GLADE_WIDGET(xml, label_matrix_local_bytes);
+	IMPORT_GLADE_WIDGET(xml, label_matrix_remote_bytes);
+	IMPORT_GLADE_WIDGET(xml, label_matrix_local_perc);
 	IMPORT_GLADE_WIDGET(xml, label_comm_matrix);
 
 	IMPORT_GLADE_WIDGET(xml, check_single_c);
@@ -418,6 +421,9 @@ int main(int argc, char** argv)
 	g_check_matrix_reflexive = check_matrix_reflexive;
 	g_check_matrix_direction = check_matrix_direction;
 	g_check_matrix_numonly = check_matrix_numonly;
+	g_label_matrix_local_bytes = label_matrix_local_bytes;
+	g_label_matrix_remote_bytes = label_matrix_remote_bytes;
+	g_label_matrix_local_perc = label_matrix_local_perc;
 	g_label_comm_matrix = label_comm_matrix;
 
 	g_check_single_c = check_single_c;
