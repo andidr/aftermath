@@ -25,6 +25,7 @@
 #include "statistics.h"
 #include "trace_widget.h"
 #include "intensity_matrix.h"
+#include "address_range_tree.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
@@ -134,6 +135,8 @@ extern struct histogram g_task_histogram;
 extern struct histogram g_counter_histogram;
 extern struct multi_histogram g_task_multi_histogram;
 extern struct intensity_matrix g_comm_matrix;
+extern struct address_range_tree g_address_range_tree;
+extern int g_address_range_tree_built;
 
 #define NUM_TRACE_MARKERS 6
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];

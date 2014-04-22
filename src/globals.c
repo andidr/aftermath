@@ -146,6 +146,8 @@ struct multi_histogram g_task_multi_histogram;
 struct histogram g_counter_histogram;
 struct intensity_matrix g_comm_matrix;
 struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
+struct address_range_tree g_address_range_tree;
+int g_address_range_tree_built;
 
 int g_visuals_modified;
 char* g_visuals_filename;

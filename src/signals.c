@@ -1912,19 +1912,38 @@ G_MODULE_EXPORT void menubar_export_svg(GtkMenuItem *item, gpointer data)
 	export_to_file_with_dialog(EXPORT_FORMAT_SVG);
 }
 
-G_MODULE_EXPORT void menubar_show_parallelism_histogram(GtkMenuItem* item, gpointer data)
+int __build_address_range_tree(void* data)
 {
-	struct address_range_tree art;
-	struct histogram hist;
+	address_range_tree_init(&g_address_range_tree);
 
-	address_range_tree_init(&art);
-
-	if(address_range_tree_from_multi_event_set(&art, &g_mes)) {
-		show_error_message("Could not build address range tree.");
-		goto out_art;
+	if(address_range_tree_from_multi_event_set(&g_address_range_tree, &g_mes)) {
+		address_range_tree_destroy(&g_address_range_tree);
+		return 1;
 	}
 
-	if(address_range_tree_build_parallelism_histogram(&art, &hist)) {
+	return 0;
+}
+
+int build_address_range_tree(void)
+{
+	if(background_task_with_modal_dialog("Analyzing dependences...", "Operation in progress", __build_address_range_tree, NULL)) {
+		show_error_message("Could not build address range tree.");
+		return 1;
+	}
+
+	g_address_range_tree_built = 1;
+	return 0;
+}
+
+G_MODULE_EXPORT void menubar_show_parallelism_histogram(GtkMenuItem* item, gpointer data)
+{
+	struct histogram hist;
+
+	if(!g_address_range_tree_built)
+		if(build_address_range_tree())
+			return;
+
+	if(address_range_tree_build_parallelism_histogram(&g_address_range_tree, &hist)) {
 		show_error_message("Could not build parallelism histogram.");
 		goto out_hist;
 	}
@@ -1933,6 +1952,4 @@ G_MODULE_EXPORT void menubar_show_parallelism_histogram(GtkMenuItem* item, gpoin
 
 out_hist:
 	histogram_destroy(&hist);
-out_art:
-	address_range_tree_destroy(&art);
 }

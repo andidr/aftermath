@@ -497,6 +497,9 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	g_address_range_tree_built = 0;
+	address_range_tree_init(&g_address_range_tree);
+
 	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
@@ -517,6 +520,9 @@ int main(int argc, char** argv)
 	multi_histogram_destroy(&g_task_multi_histogram);
 	intensity_matrix_destroy(&g_comm_matrix);
 	free(g_visuals_filename);
+
+	if(g_address_range_tree_built)
+		address_range_tree_destroy(&g_address_range_tree);
 
 	return 0;
 }
