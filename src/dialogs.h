@@ -52,7 +52,7 @@ void show_about_dialog(void);
 int show_settings_dialog(struct settings* s);
 void show_progress_window_persistent(struct progress_window_widgets* widgets);
 int show_color_dialog(GdkColor* color);
-int show_task_graph_texec_dialog(unsigned int* depth_down);
+int show_task_graph_texec_dialog(unsigned int* depth_down, unsigned int* depth_up);
 
 enum annotation_dialog_response {
 	ANNOTATION_DIALOG_RESPONSE_OK,

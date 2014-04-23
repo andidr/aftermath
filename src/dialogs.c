@@ -188,16 +188,18 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 	return ret;
 }
 
-int show_task_graph_texec_dialog(unsigned int* depth_down)
+int show_task_graph_texec_dialog(unsigned int* depth_down, unsigned int* depth_up)
 {
 	int ret = 0;
 	GladeXML* xml = glade_xml_new(DATA_PATH "/task_graph_texec_dialog.glade", NULL, NULL);
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET(xml, dialog);
 	IMPORT_GLADE_WIDGET(xml, spin_down);
+	IMPORT_GLADE_WIDGET(xml, spin_up);
 
 	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		*depth_down = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin_down));
+		*depth_up = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin_up));
 		ret = 1;
 	}
 

@@ -84,8 +84,6 @@ aftermath_SOURCES = src/aftermath.c \
 		src/cpu_list.c \
 		src/task_graph.h \
 		src/task_graph.c \
-		src/texec_tree.h \
-		src/texec_tree.c \
 		src/uncompress.h \
 		src/uncompress.c \
 		src/contrib/linux-kernel/interval_tree_generic.h \

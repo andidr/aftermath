@@ -40,6 +40,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+int build_address_range_tree(void);
+
 void reset_zoom(void)
 {
 	uint64_t start = multi_event_set_first_event_start(&g_mes);
@@ -309,7 +311,11 @@ G_MODULE_EXPORT void menubar_export_task_graph(GtkCheckMenuItem *item, gpointer 
 		return;
 	}
 
-	if(export_task_graph(filename, &g_mes, &g_filter, start, end)) {
+	if(!g_address_range_tree_built)
+		if(build_address_range_tree())
+			return;
+
+	if(export_task_graph(filename, &g_mes, &g_address_range_tree, &g_filter, start, end)) {
 		show_error_message("Could not save task graph to file %s.", filename);
 	}
 
@@ -320,6 +326,8 @@ G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckM
 {
 	char* filename;
 	unsigned int depth_down;
+	unsigned int depth_up;
+
 	struct state_event* se = gtk_trace_get_highlighted_state_event(g_trace_widget);
 
 	if(!se) {
@@ -330,7 +338,7 @@ G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckM
 		return;
 	}
 
-	if(!show_task_graph_texec_dialog(&depth_down))
+	if(!show_task_graph_texec_dialog(&depth_down, &depth_up))
 		return;
 
 	if(!(filename = load_save_file_dialog("Save task graph",
@@ -342,7 +350,11 @@ G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckM
 		return;
 	}
 
-	if(export_task_graph_selected_texec(filename, &g_mes, se->texec_start, depth_down)) {
+	if(!g_address_range_tree_built)
+		if(build_address_range_tree())
+			return;
+
+	if(export_task_graph_selected_texec(filename, &g_mes, &g_address_range_tree, &g_filter, se->texec_start, depth_down, depth_up)) {
 		show_error_message("Could not save task graph to file %s.", filename);
 	}
 
