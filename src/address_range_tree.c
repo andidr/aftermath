@@ -90,9 +90,11 @@ struct address_range_tree_node* address_range_tree_create_insert_node(struct add
 
 void address_range_tree_node_add_inst(struct address_range_tree_node* node,
 				      struct task_instance_rw_tree_node* tin,
-				      enum comm_event_type type)
+				      struct comm_event* ce)
 {
-	if(type == COMM_TYPE_DATA_READ) {
+	tin->comm_event = ce;
+
+	if(ce->type == COMM_TYPE_DATA_READ) {
 		task_instance_rw_tree_insert(&node->reader_tree, tin);
 		list_add_tail(&tin->list_in_deps, &tin->instance->list_in_deps);
 	} else {
@@ -184,10 +186,10 @@ int address_range_tree_split_node(struct address_range_tree* t,
 }
 
 int address_range_tree_add_address_range(struct address_range_tree* t,
-					      struct task_instance* inst,
-					      uint64_t range_start,
-					      uint64_t range_end,
-					      enum comm_event_type type)
+					 struct task_instance* inst,
+					 uint64_t range_start,
+					 uint64_t range_end,
+					 struct comm_event* ce)
 {
 	struct task_instance_rw_tree_node* tin;
 	struct address_range_tree_node* split_left;
@@ -203,12 +205,12 @@ int address_range_tree_add_address_range(struct address_range_tree* t,
 	uint64_t node_start = node->start;
 	uint64_t node_end = node->end;
 
-	if(!(tin = task_instance_rw_tree_node_alloc_init(inst)))
+	if(!(tin = task_instance_rw_tree_node_alloc_init(inst, ce)))
 		goto out_err;
 
 	if(range_start == node_start && range_end == node_end) {
 		/* Identical ranges */
-		address_range_tree_node_add_inst(node, tin, type);
+		address_range_tree_node_add_inst(node, tin, ce);
 	} else if(range_start < node_start && range_end <= node_end) {
 		/* Right part of range overlaps into node */
 		if(range_end < node_end) {
@@ -218,10 +220,10 @@ int address_range_tree_add_address_range(struct address_range_tree* t,
 			node = split_left;
 		}
 
-		address_range_tree_node_add_inst(node, tin, type);
+		address_range_tree_node_add_inst(node, tin, ce);
 
 		/* Handle remaining part not included neither in split_left nor in split_right */
-		return address_range_tree_add_address_range(t, inst, range_start, node_start - 1, type);
+		return address_range_tree_add_address_range(t, inst, range_start, node_start - 1, ce);
 	} else if(range_start >= node_start && range_end > node_end) {
 		/* Left part of range overlaps into node */
 		if(range_start > node_start) {
@@ -231,16 +233,16 @@ int address_range_tree_add_address_range(struct address_range_tree* t,
 			node = split_right;
 		}
 
-		address_range_tree_node_add_inst(node, tin, type);
+		address_range_tree_node_add_inst(node, tin, ce);
 
 		/* Handle remaining part not included neither in split_left nor in split_right */
-		return address_range_tree_add_address_range(t, inst, node_end + 1, range_end, type);
+		return address_range_tree_add_address_range(t, inst, node_end + 1, range_end, ce);
 	} else if(range_start < node_start && range_end > node_end) {
 		/* Node fully included in range */
-		address_range_tree_node_add_inst(node, tin, type);
+		address_range_tree_node_add_inst(node, tin, ce);
 
-		if(address_range_tree_add_address_range(t, inst, range_start, node_start - 1, type) ||
-		   address_range_tree_add_address_range(t, inst, node_end + 1, range_end, type))
+		if(address_range_tree_add_address_range(t, inst, range_start, node_start - 1, ce) ||
+		   address_range_tree_add_address_range(t, inst, node_end + 1, range_end, ce))
 			goto out_err;
 	} else if(range_start >= node_start && range_end <= node_end) {
 		/* Range fully included in node */
@@ -259,7 +261,7 @@ int address_range_tree_add_address_range(struct address_range_tree* t,
 			node = split_left;
 		}
 
-		address_range_tree_node_add_inst(node, tin, type);
+		address_range_tree_node_add_inst(node, tin, ce);
 	} else {
 		/* Cannot happen */
 		assert(0);
@@ -274,15 +276,15 @@ out_err:
 }
 
 int address_range_tree_add_task_instance(struct address_range_tree* t,
-					      struct single_event* texec_start,
-					      struct single_event* texec_end)
+					 struct single_event* texec_start,
+					 struct single_event* texec_end)
 {
 	struct task_instance* inst;
 
 	if(!(inst = malloc(sizeof(struct task_instance))))
 		return 1;
 
-	task_instance_init(inst, texec_start->time, texec_end->time, texec_start->active_task);
+	task_instance_init(inst, texec_start->time, texec_end->time, texec_start->active_task, texec_start->event_set->cpu);
 	task_instance_tree_insert(&t->all_instances, inst);
 
 	struct event_set* es = texec_start->event_set;
@@ -292,7 +294,7 @@ int address_range_tree_add_task_instance(struct address_range_tree* t,
 		if(ce->type == COMM_TYPE_DATA_READ || ce->type == COMM_TYPE_DATA_WRITE) {
 			if(address_range_tree_add_address_range(t, inst, ce->what->addr,
 								     ce->what->addr + ce->size - 1,
-								     ce->type))
+								     ce))
 			{
 				return 1;
 			}

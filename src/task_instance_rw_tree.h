@@ -22,6 +22,7 @@
 #include "./contrib/linux-kernel/rbtree.h"
 #include "./contrib/linux-kernel/list.h"
 #include "task_instance.h"
+#include "events.h"
 
 struct task_instance_rw_tree {
 	struct rb_root root;
@@ -34,6 +35,7 @@ struct task_instance_rw_tree_node {
 	struct list_head list_in_deps;
 	struct address_range_tree_node* address_range_node;
 	struct task_instance_rw_tree_node* prodcons_counterpart;
+	struct comm_event* comm_event;
 
 	int reached;
 };
@@ -44,8 +46,8 @@ int task_instance_rw_tree_insert(struct task_instance_rw_tree* t, struct task_in
 void task_instance_rw_tree_remove(struct task_instance_rw_tree* t, struct task_instance_rw_tree_node* n);
 int task_instance_rw_tree_clone(struct task_instance_rw_tree* t, struct task_instance_rw_tree* clone);
 void task_instance_rw_tree_destroy(struct task_instance_rw_tree* t);
-void task_instance_rw_tree_node_init(struct task_instance_rw_tree_node* n, struct task_instance* inst);
-struct task_instance_rw_tree_node* task_instance_rw_tree_node_alloc_init(struct task_instance* inst);
+void task_instance_rw_tree_node_init(struct task_instance_rw_tree_node* n, struct task_instance* inst, struct comm_event* ce);
+struct task_instance_rw_tree_node* task_instance_rw_tree_node_alloc_init(struct task_instance* inst, struct comm_event* ce);
 struct task_instance_rw_tree_node* task_instance_rw_tree_iter_first(struct task_instance_rw_tree* t);
 struct task_instance_rw_tree_node* task_instance_rw_tree_iter_next(struct task_instance_rw_tree_node* n);
 #endif

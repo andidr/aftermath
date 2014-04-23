@@ -58,7 +58,7 @@ int task_instance_rw_tree_clone(struct task_instance_rw_tree* t, struct task_ins
 
 	for(struct rb_node* node = rb_first(&t->root); node; node = rb_next(node)) {
 		struct task_instance_rw_tree_node* this_node = rb_entry(node, struct task_instance_rw_tree_node, node);
-		struct task_instance_rw_tree_node* cloned_node = task_instance_rw_tree_node_alloc_init(this_node->instance);
+		struct task_instance_rw_tree_node* cloned_node = task_instance_rw_tree_node_alloc_init(this_node->instance, this_node->comm_event);
 
 		if(!cloned_node) {
 			task_instance_rw_tree_destroy(cloned_tree);
@@ -123,23 +123,25 @@ void task_instance_rw_tree_destroy(struct task_instance_rw_tree* t)
 	__task_instance_rw_tree_destroy(t, t->root.rb_node);
 }
 
-void task_instance_rw_tree_node_init(struct task_instance_rw_tree_node* n, struct task_instance* inst)
+void task_instance_rw_tree_node_init(struct task_instance_rw_tree_node* n, struct task_instance* inst, struct comm_event* ce)
 {
 	n->instance = inst;
 	n->address_range_node = NULL;
 	n->prodcons_counterpart = NULL;
+	n->comm_event = ce;
+
 	INIT_LIST_HEAD(&n->list_out_deps);
 	INIT_LIST_HEAD(&n->list_in_deps);
 }
 
-struct task_instance_rw_tree_node* task_instance_rw_tree_node_alloc_init(struct task_instance* inst)
+struct task_instance_rw_tree_node* task_instance_rw_tree_node_alloc_init(struct task_instance* inst, struct comm_event* ce)
 {
 	struct task_instance_rw_tree_node* node;
 
 	if(!(node = malloc(sizeof(struct task_instance_rw_tree_node))))
 		return NULL;
 
-	task_instance_rw_tree_node_init(node, inst);
+	task_instance_rw_tree_node_init(node, inst, ce);
 
 	return node;
 }
