@@ -130,3 +130,13 @@ struct task_instance* task_instance_tree_iter_next_postorder(struct task_instanc
 	struct task_instance* this_node = rb_entry(node, struct task_instance, rb_all_instances);
 	return this_node;
 }
+
+void task_instance_tree_reset_reached(struct task_instance_tree* t)
+{
+	for(struct task_instance* inst = task_instance_tree_iter_first(t);
+	    inst;
+	    inst = task_instance_tree_iter_next(inst))
+	{
+		inst->reached = 0;
+	}
+}
