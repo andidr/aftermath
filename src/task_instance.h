@@ -19,6 +19,7 @@
 #define TASK_INSTANCE_H
 
 #include "./contrib/linux-kernel/list.h"
+#include "./contrib/linux-kernel/rbtree.h"
 #include "task.h"
 #include "events.h"
 
@@ -35,7 +36,7 @@ struct task_instance {
 	struct list_head list_nodeps;
 	struct list_head list_out_deps;
 	struct list_head list_in_deps;
-	struct list_head list_all_instances;
+	struct rb_node rb_all_instances;
 };
 
 void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task);

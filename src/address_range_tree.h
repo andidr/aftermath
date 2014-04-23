@@ -22,13 +22,14 @@
 #include "./contrib/linux-kernel/rbtree.h"
 #include "./contrib/linux-kernel/list.h"
 #include "task_instance_rw_tree.h"
+#include "task_instance_tree.h"
 #include "multi_event_set.h"
 #include "statistics.h"
 
 struct address_range_tree {
 	struct rb_root root;
 	struct list_head list_nodeps;
-	struct list_head list_all_instances;
+	struct task_instance_tree all_instances;
 };
 
 struct address_range_tree_node {

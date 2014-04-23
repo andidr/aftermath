@@ -29,5 +29,4 @@ void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end
 	INIT_LIST_HEAD(&inst->list_nodeps);
 	INIT_LIST_HEAD(&inst->list_out_deps);
 	INIT_LIST_HEAD(&inst->list_in_deps);
-	INIT_LIST_HEAD(&inst->list_all_instances);
 }

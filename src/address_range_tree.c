@@ -33,7 +33,7 @@ void address_range_tree_init(struct address_range_tree* t)
 {
 	t->root = RB_ROOT;
 	INIT_LIST_HEAD(&t->list_nodeps);
-	INIT_LIST_HEAD(&t->list_all_instances);
+	task_instance_tree_init(&t->all_instances);
 }
 
 void address_range_tree_insert(struct address_range_tree* t,
@@ -283,7 +283,7 @@ int address_range_tree_add_task_instance(struct address_range_tree* t,
 		return 1;
 
 	task_instance_init(inst, texec_start->time, texec_end->time, texec_start->active_task);
-	list_add_tail(&inst->list_all_instances, &t->list_all_instances);
+	task_instance_tree_insert(&t->all_instances, inst);
 
 	struct event_set* es = texec_start->event_set;
 	struct comm_event* ce;
@@ -396,9 +396,10 @@ void address_range_tree_reset_deps(struct address_range_tree* t)
 
 void address_range_tree_reset_depths(struct address_range_tree* t)
 {
-	struct list_head* iter;
-	list_for_each(iter, &t->list_all_instances) {
-		struct task_instance* inst = list_entry(iter, struct task_instance, list_all_instances);
+	for(struct task_instance* inst = task_instance_tree_iter_first(&t->all_instances);
+	    inst;
+	    inst = task_instance_tree_iter_next(inst))
+	{
 		inst->depth = 0;
 		inst->reached = 0;
 	}
@@ -459,11 +460,10 @@ int address_range_tree_build_parallelism_histogram(struct address_range_tree* t,
 	if(histogram_init(h, max_depth+1, 0, max_depth))
 		return 1;
 
-	struct list_head* iter;
-	list_for_each(iter, &t->list_all_instances) {
-		struct task_instance* inst =
-			list_entry(iter, struct task_instance, list_all_instances);
-
+	for(struct task_instance* inst = task_instance_tree_iter_first(&t->all_instances);
+	    inst;
+	    inst = task_instance_tree_iter_next(inst))
+	{
 		h->values[inst->depth] += 1;
 		h->num_hist++;
 
@@ -502,12 +502,10 @@ void address_range_tree_destroy(struct address_range_tree* t)
 {
 	__address_range_tree_destroy(t, t->root.rb_node);
 
-	struct list_head* iter;
-	struct list_head* n;
-
-	list_for_each_safe(iter, n, &t->list_all_instances) {
-		struct task_instance* inst =
-			list_entry(iter, struct task_instance, list_all_instances);
+	for(struct task_instance* inst = task_instance_tree_iter_first_postorder(&t->all_instances);
+	    inst;
+	    inst = task_instance_tree_iter_next_postorder(inst))
+	{
 		free(inst);
 	}
 }
@@ -548,11 +546,11 @@ void address_range_tree_dump(struct address_range_tree* t)
 	}
 
 	printf("Task instances:\n");
-	struct list_head* iter;
-	list_for_each(iter, &t->list_all_instances) {
-		struct task_instance* inst =
-			list_entry(iter, struct task_instance, list_all_instances);
 
+	for(struct task_instance* inst = task_instance_tree_iter_first(&t->all_instances);
+	    inst;
+	    inst = task_instance_tree_iter_next(inst))
+	{
 		printf("\t%s @ %"PRIu64" (reached = %d, depth %d, rem = %"PRIu64")\n",
 		       inst->task->symbol_name,
 		       inst->start,
