@@ -67,19 +67,6 @@ static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  
 
 static double highlight_color[3] = {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)};
 static double highlight_task_color[3] = {COL_NORM(255.0), COL_NORM(0.0), COL_NORM(0.0)};
-
-/* pastel18 color scheme from Graphviz */
-#define NUM_NODE_COLORS 8
-
-static double node_colors[NUM_NODE_COLORS][3] = {{COL_NORM(0xFB), COL_NORM(0xB4), COL_NORM(0xAB)},
-				  {COL_NORM(0xB3), COL_NORM(0xCD), COL_NORM(0xE3)},
-				  {COL_NORM(0xCC), COL_NORM(0xEB), COL_NORM(0xC5)},
-				  {COL_NORM(0xDE), COL_NORM(0xCB), COL_NORM(0xE4)},
-				  {COL_NORM(0xFE), COL_NORM(0xD9), COL_NORM(0xA6)},
-				  {COL_NORM(0xFF), COL_NORM(0xFF), COL_NORM(0xCC)},
-				  {COL_NORM(0xE5), COL_NORM(0xD8), COL_NORM(0xBD)},
-				  {COL_NORM(0xFD), COL_NORM(0xDA), COL_NORM(0xEC)}};
-
 static double measurement_start_color[3] = { COL_NORM(0x00), COL_NORM(0xFF), COL_NORM(0x00) };
 static double measurement_end_color[3] = { COL_NORM(0xFF), COL_NORM(0x00), COL_NORM(0x00) };
 
@@ -1172,10 +1159,7 @@ void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
 	int curr_node;
 	double cpu_height = gtk_trace_cpu_height(g);
 	int valid;
-	int node_wrapped;
-	int node_wraps;
-	int max_node_wraps = g->event_sets->max_numa_node_id / NUM_NODE_COLORS;
-	double wrap_intensity;
+	double col_r, col_g, col_b;
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
@@ -1204,13 +1188,8 @@ void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
 
 			if(last_node != -1) {
 				if((valid && last_node != curr_node) || !valid) {
-					node_wrapped = last_node % NUM_NODE_COLORS;
-					node_wraps = last_node / NUM_NODE_COLORS;
-					wrap_intensity = (max_node_wraps > 0) ? 0.5+(0.5*(((double)node_wraps) / ((double)max_node_wraps))) : 1.0;
-
-					cairo_set_source_rgb(cr, wrap_intensity*node_colors[node_wrapped][0],
-							     wrap_intensity*node_colors[node_wrapped][1],
-							     wrap_intensity*node_colors[node_wrapped][2]);
+					get_node_color_dbl(last_node, g->event_sets->max_numa_node_id, &col_r, &col_g, &col_b);
+					cairo_set_source_rgb(cr, col_r, col_g, col_b);
 					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
 					cairo_fill(cr);
 					num_parts_drawn++;
@@ -1229,14 +1208,8 @@ void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
 		}
 
 		if(last_node != -1) {
-			node_wrapped = last_node % NUM_NODE_COLORS;
-			node_wraps = last_node / NUM_NODE_COLORS;
-			wrap_intensity = (max_node_wraps > 0) ? 0.5+(0.5*(((double)node_wraps) / ((double)max_node_wraps))) : 1.0;
-
-			cairo_set_source_rgb(cr, wrap_intensity*node_colors[node_wrapped][0],
-					     wrap_intensity*node_colors[node_wrapped][1],
-					     wrap_intensity*node_colors[node_wrapped][2]);
-
+			get_node_color_dbl(last_node, g->event_sets->max_numa_node_id, &col_r, &col_g, &col_b);
+			cairo_set_source_rgb(cr, col_r, col_g, col_b);
 			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
 			cairo_fill(cr);
 			num_parts_drawn++;

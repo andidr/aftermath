@@ -19,6 +19,25 @@
 #define COLOR_H
 
 #define COL_NORM(x) (((double)x) / 255.0)
+#define COL_EXP(x) (((double)x) * 255.0)
+
+/* pastel18 color scheme from Graphviz */
+#define NUM_NODE_COLORS 8
+
+extern double node_colors_dbl[NUM_NODE_COLORS][3];
+
+static inline void get_node_color_dbl(unsigned int node, unsigned int max_node, double* r, double* g, double* b)
+{
+	int max_node_wraps = max_node / NUM_NODE_COLORS;
+	int colidx = node % NUM_NODE_COLORS;
+	int node_wraps = node / NUM_NODE_COLORS;
+	double wrap_intensity = (max_node_wraps > 0) ? 0.5+(0.5*(((double)node_wraps) / ((double)max_node_wraps))) : 1.0;
+
+
+	*r = node_colors_dbl[colidx][0] * wrap_intensity;
+	*g = node_colors_dbl[colidx][1] * wrap_intensity;
+	*b = node_colors_dbl[colidx][2] * wrap_intensity;
+}
 
 #define NUM_TASK_TYPE_COLORS 10
 extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];

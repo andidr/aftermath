@@ -27,3 +27,12 @@ double task_type_colors[NUM_TASK_TYPE_COLORS][3] = {{COL_NORM(102.0), COL_NORM( 
 					       {COL_NORM(  9.0), COL_NORM(106.0), COL_NORM(  9.0)},
 					       {COL_NORM(103.0), COL_NORM(113.0), COL_NORM(121.0)},
 					       {COL_NORM( 37.0), COL_NORM(253.0), COL_NORM(233.0)}};
+
+double node_colors_dbl[NUM_NODE_COLORS][3] = {{COL_NORM(0xFB), COL_NORM(0xB4), COL_NORM(0xAB)},
+					      {COL_NORM(0xB3), COL_NORM(0xCD), COL_NORM(0xE3)},
+					      {COL_NORM(0xCC), COL_NORM(0xEB), COL_NORM(0xC5)},
+					      {COL_NORM(0xDE), COL_NORM(0xCB), COL_NORM(0xE4)},
+					      {COL_NORM(0xFE), COL_NORM(0xD9), COL_NORM(0xA6)},
+					      {COL_NORM(0xFF), COL_NORM(0xFF), COL_NORM(0xCC)},
+					      {COL_NORM(0xE5), COL_NORM(0xD8), COL_NORM(0xBD)},
+					      {COL_NORM(0xFD), COL_NORM(0xDA), COL_NORM(0xEC)}};
