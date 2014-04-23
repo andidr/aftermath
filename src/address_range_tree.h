@@ -49,6 +49,11 @@ void address_range_tree_node_init(struct address_range_tree_node* n,
 				  uint64_t start,
 				  uint64_t end);
 
+static inline uint64_t address_range_tree_node_size(struct address_range_tree_node* n)
+{
+	return n->end - n->start + 1;
+}
+
 void address_range_tree_insert(struct address_range_tree* t, struct address_range_tree_node* node);
 
 void address_range_tree_remove(struct address_range_tree* t, struct address_range_tree_node* node);

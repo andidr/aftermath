@@ -420,7 +420,7 @@ void address_range_tree_sim_texec_rec(struct task_instance* inst, int* max_depth
 
 		struct task_instance_rw_tree_node* tin_reader = tin->prodcons_counterpart;
 		struct task_instance* reader_inst = tin_reader->instance;
-		uint64_t write_size = tin->address_range_node->end - tin->address_range_node->start + 1;
+		uint64_t write_size = address_range_tree_node_size(tin->address_range_node);
 
 		tin->reached = 1;
 		tin_reader->reached = 1;
@@ -518,7 +518,7 @@ void address_range_tree_dump(struct address_range_tree* t)
 	    node = address_range_tree_iter_next(node, 0, UINT64_MAX))
 	{
 		printf("Found %"PRIx64"-%"PRIx64" (%"PRId64" bytes)\n",
-		       node->start, node->end, node->end - node->start + 1);
+		       node->start, node->end, address_range_tree_node_size(node));
 		printf("\tReaders:\n");
 
 		for(struct task_instance_rw_tree_node* inst_node =
@@ -564,7 +564,7 @@ void address_range_tree_dump(struct address_range_tree* t)
 				list_entry(iter2, struct task_instance_rw_tree_node, list_out_deps);
 
 			printf("\t\tWrites %"PRId64" bytes to 0x%"PRIx64" (reached = %d)\n",
-			       tin->address_range_node->end - tin->address_range_node->start + 1,
+			       address_range_tree_node_size(tin->address_range_node),
 			       tin->address_range_node->start,
 			       tin->reached);
 		}
@@ -574,7 +574,7 @@ void address_range_tree_dump(struct address_range_tree* t)
 				list_entry(iter2, struct task_instance_rw_tree_node, list_in_deps);
 
 			printf("\t\tReads %"PRId64" bytes from 0x%"PRIx64" - 0x%"PRIx64" (reached = %d)\n",
-			       tin->address_range_node->end - tin->address_range_node->start + 1,
+			       address_range_tree_node_size(tin->address_range_node),
 			       tin->address_range_node->start,
 			       tin->address_range_node->end,
 			       tin->reached);
