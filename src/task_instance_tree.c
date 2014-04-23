@@ -33,13 +33,13 @@ int task_instance_tree_insert(struct task_instance_tree* t, struct task_instance
 		parent = *new;
 
 		if (n->start < this->start ||
-		    (n->start == this->start &&
-		     n->task->addr < this->task->addr))
+		    (n->start == this->start && n->task->addr < this->task->addr) ||
+		    (n->start == this->start && n->task->addr == this->task->addr && n->cpu < this->cpu))
 		{
 			new = &((*new)->rb_left);
 		} else if (n->start > this->start ||
-			   (n->start == this->start &&
-			    n->task->addr > this->task->addr))
+			   (n->start == this->start && n->task->addr > this->task->addr) ||
+			   (n->start == this->start && n->task->addr == this->task->addr && n->cpu > this->cpu))
 		{
 			new = &((*new)->rb_right);
 		} else {

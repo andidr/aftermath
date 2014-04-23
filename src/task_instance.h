@@ -29,6 +29,7 @@ struct task_instance {
 	uint64_t end;
 	uint64_t num_read_deps;
 	uint64_t remaining_read_deps;
+	int cpu;
 
 	int depth;
 	int reached;
@@ -39,6 +40,6 @@ struct task_instance {
 	struct rb_node rb_all_instances;
 };
 
-void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task);
+void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task, int cpu);
 
 #endif

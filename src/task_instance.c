@@ -17,7 +17,7 @@
 
 #include "task_instance.h"
 
-void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task)
+void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task, int cpu)
 {
 	inst->start = start;
 	inst->end = end;
@@ -25,6 +25,7 @@ void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end
 	inst->num_read_deps = 0;
 	inst->remaining_read_deps = 0;
 	inst->depth = 0;
+	inst->cpu = cpu;
 
 	INIT_LIST_HEAD(&inst->list_nodeps);
 	INIT_LIST_HEAD(&inst->list_out_deps);
