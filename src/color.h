@@ -18,13 +18,18 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <stdio.h>
+
 #define COL_NORM(x) (((double)x) / 255.0)
 #define COL_EXP(x) (((double)x) * 255.0)
 
 /* pastel18 color scheme from Graphviz */
 #define NUM_NODE_COLORS 8
-
 extern double node_colors_dbl[NUM_NODE_COLORS][3];
+
+#define NUM_TASK_TYPE_COLORS 10
+extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];
+
 
 static inline void get_node_color_dbl(unsigned int node, unsigned int max_node, double* r, double* g, double* b)
 {
@@ -39,7 +44,21 @@ static inline void get_node_color_dbl(unsigned int node, unsigned int max_node, 
 	*b = node_colors_dbl[colidx][2] * wrap_intensity;
 }
 
-#define NUM_TASK_TYPE_COLORS 10
-extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];
+
+static inline void get_node_color_uchar(unsigned int node, unsigned int max_node, unsigned char* r, unsigned char* g, unsigned char* b)
+{
+	double dr, dg, db;
+	get_node_color_dbl(node, max_node, &dr, &dg, &db);
+	*r = COL_EXP(dr);
+	*g = COL_EXP(dg);
+	*b = COL_EXP(db);
+}
+
+static inline void get_node_color_htmlrgb(unsigned int node, unsigned int max_node, char* buff)
+{
+	unsigned char r, g, b;
+	get_node_color_uchar(node, max_node, &r, &g, &b);
+	snprintf(buff, 8, "#%02X%02X%02X", (int)r, (int)g, (int)b);
+}
 
 #endif
