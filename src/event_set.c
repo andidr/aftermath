@@ -565,7 +565,7 @@ int event_set_get_major_owner_node_in_interval(struct event_set* es, struct filt
 	return max > 0;
 }
 
-int event_set_get_major_accessed_node_in_interval(struct event_set* es, enum comm_event_type type, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
+int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum comm_event_type* types, unsigned int num_types, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	int state_idx_start = event_set_get_first_state_in_interval(es, start, end);
 	uint64_t node_data[max_numa_node_id+1];
@@ -575,9 +575,6 @@ int event_set_get_major_accessed_node_in_interval(struct event_set* es, enum com
 		return 0;
 
 	struct single_event* texec_start = es->state_events[state_idx_start].texec_start;
-
-	if(!texec_start)
-		return 0;
 
 	memset(node_data, 0, (max_numa_node_id+1)*sizeof(node_data[0]));
 
@@ -589,8 +586,12 @@ int event_set_get_major_accessed_node_in_interval(struct event_set* es, enum com
 							texec_start->next_texec_end->time,
 							ce)
 			{
-				if(ce->type == type && ce->what->numa_node != -1)
-					node_data[ce->what->numa_node] += ce->size;
+				for(unsigned int i = 0; i < num_types; i++) {
+					if(ce->type == types[i] && ce->what->numa_node != -1) {
+						node_data[ce->what->numa_node] += ce->size;
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -902,10 +903,18 @@ out:
 
 int event_set_get_major_written_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
-	return event_set_get_major_accessed_node_in_interval(es, COMM_TYPE_DATA_WRITE, f, start, end, max_numa_node_id, major_node);
+	enum comm_event_type t = COMM_TYPE_DATA_WRITE;
+	return __event_set_get_major_accessed_node_in_interval(es, &t, 1, f, start, end, max_numa_node_id, major_node);
 }
 
 int event_set_get_major_read_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
-	return event_set_get_major_accessed_node_in_interval(es, COMM_TYPE_DATA_READ, f, start, end, max_numa_node_id, major_node);
+	enum comm_event_type t = COMM_TYPE_DATA_READ;
+	return __event_set_get_major_accessed_node_in_interval(es, &t, 1, f, start, end, max_numa_node_id, major_node);
+}
+
+int event_set_get_major_accessed_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
+{
+	enum comm_event_type t[2] = { COMM_TYPE_DATA_READ, COMM_TYPE_DATA_WRITE };
+	return __event_set_get_major_accessed_node_in_interval(es, t, 2, f, start, end, max_numa_node_id, major_node);
 }
