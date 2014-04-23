@@ -31,6 +31,7 @@ void task_instance_tree_init(struct task_instance_tree* t);
 int task_instance_tree_insert(struct task_instance_tree* t, struct task_instance* n);
 void task_instance_tree_remove(struct task_instance_tree* t, struct task_instance* n);
 struct task_instance* task_instance_tree_iter_first(struct task_instance_tree* t);
+struct task_instance* task_instance_tree_find(struct task_instance_tree* t, uint64_t task_addr, int cpu, uint64_t start);
 struct task_instance* task_instance_tree_iter_next(struct task_instance* n);
 struct task_instance* task_instance_tree_iter_first_postorder(struct task_instance_tree* t);
 struct task_instance* task_instance_tree_iter_next_postorder(struct task_instance* n);
