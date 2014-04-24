@@ -73,5 +73,7 @@ void address_range_tree_reset_depths(struct address_range_tree* t);
 void address_range_tree_calculate_depths(struct address_range_tree* t, int* max_depth);
 int address_range_tree_build_parallelism_histogram(struct address_range_tree* t, struct histogram* h);
 void address_range_tree_dump(struct address_range_tree* t);
+void address_range_tree_get_predecessors(struct address_range_tree* t, struct task_instance* inst, int max_depth, struct list_head* heads, int* num_found, int* total);
+void address_range_tree_get_successors(struct address_range_tree* t, struct task_instance* inst, int max_depth, struct list_head* heads, int* num_found, int* total);
 
 #endif

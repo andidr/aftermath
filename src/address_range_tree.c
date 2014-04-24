@@ -583,3 +583,90 @@ void address_range_tree_dump(struct address_range_tree* t)
 		}
 	}
 }
+
+enum address_range_tree_direction {
+	ADDRESS_RANGE_TREE_DIRECTION_UP,
+	ADDRESS_RANGE_TREE_DIRECTION_DOWN
+};
+
+void address_range_tree_instances_updown(struct address_range_tree* t,
+					 struct task_instance* inst,
+					 int max_depth,
+					 struct list_head* heads,
+					 int* num_found,
+					 int* total,
+					 int curr_depth,
+					 enum address_range_tree_direction dir)
+{
+	struct list_head* iter;
+
+	if(curr_depth >= max_depth ||
+	   (inst->reached && curr_depth >= inst->depth))
+	{
+		return;
+	}
+
+	if(inst->reached && curr_depth != 0 && curr_depth < inst->depth) {
+		num_found[inst->depth-1]--;
+		num_found[curr_depth-1]++;
+		inst->depth = curr_depth;
+		list_del(&inst->list_selection);
+		list_add(&inst->list_selection, &heads[curr_depth-1]);
+	}
+
+	if(!inst->reached && curr_depth != 0) {
+		(*total)++;
+		inst->reached = 1;
+		num_found[curr_depth-1]++;
+		inst->depth = curr_depth;
+		list_add(&inst->list_selection, &heads[curr_depth-1]);
+	}
+
+	if(dir == ADDRESS_RANGE_TREE_DIRECTION_UP) {
+		list_for_each(iter, &inst->list_in_deps) {
+			struct task_instance_rw_tree_node* tin =
+				list_entry(iter, struct task_instance_rw_tree_node, list_in_deps);
+
+			address_range_tree_instances_updown(t, tin->prodcons_counterpart->instance, max_depth, heads, num_found, total, curr_depth+1, dir);
+		}
+	} else {
+		list_for_each(iter, &inst->list_out_deps) {
+			struct task_instance_rw_tree_node* tin =
+				list_entry(iter, struct task_instance_rw_tree_node, list_in_deps);
+
+			address_range_tree_instances_updown(t, tin->prodcons_counterpart->instance, max_depth, heads, num_found, total, curr_depth+1, dir);
+		}
+	}
+}
+
+void address_range_tree_get_predecessors(struct address_range_tree* t, struct task_instance* inst, int max_depth, struct list_head* heads, int* num_found, int* total)
+{
+	address_range_tree_reset_depths(t);
+	task_instance_tree_reset_reached(&t->all_instances);
+	task_instance_tree_reset_selection(&t->all_instances);
+
+	*total = 0;
+
+	for(int i = 0; i < max_depth; i++) {
+		num_found[i] = 0;
+		INIT_LIST_HEAD(&heads[i]);
+	}
+
+	address_range_tree_instances_updown(t, inst, max_depth, heads, num_found, total, 0, ADDRESS_RANGE_TREE_DIRECTION_UP);
+}
+
+void address_range_tree_get_successors(struct address_range_tree* t, struct task_instance* inst, int max_depth, struct list_head* heads, int* num_found, int* total)
+{
+	address_range_tree_reset_depths(t);
+	task_instance_tree_reset_reached(&t->all_instances);
+	task_instance_tree_reset_selection(&t->all_instances);
+
+	*total = 0;
+
+	for(int i = 0; i < max_depth; i++) {
+		num_found[i] = 0;
+		INIT_LIST_HEAD(&heads[i]);
+	}
+
+	address_range_tree_instances_updown(t, inst, max_depth, heads, num_found, total, 0, ADDRESS_RANGE_TREE_DIRECTION_DOWN);
+}
