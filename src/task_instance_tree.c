@@ -140,3 +140,13 @@ void task_instance_tree_reset_reached(struct task_instance_tree* t)
 		inst->reached = 0;
 	}
 }
+
+void task_instance_tree_reset_selection(struct task_instance_tree* t)
+{
+	for(struct task_instance* inst = task_instance_tree_iter_first(t);
+	    inst;
+	    inst = task_instance_tree_iter_next(inst))
+	{
+		INIT_LIST_HEAD(&inst->list_selection);
+	}
+}

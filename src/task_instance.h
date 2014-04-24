@@ -38,6 +38,8 @@ struct task_instance {
 	struct list_head list_out_deps;
 	struct list_head list_in_deps;
 	struct rb_node rb_all_instances;
+
+	struct list_head list_selection;
 };
 
 void task_instance_init(struct task_instance* inst, uint64_t start, uint64_t end, struct task* task, int cpu);
