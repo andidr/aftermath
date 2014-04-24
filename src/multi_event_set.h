@@ -441,7 +441,7 @@ static inline struct single_event* multi_event_set_find_next_tdestroy_for_frame(
 
 			if(tips[i] && (!min || tips[i]->time < min->time)) {
 				if(tips[i] < &mes->sets[i].single_events[mes->sets[i].num_single_events-1])
-					tips[i] = tips[i]++;
+					tips[i] = tips[i] + 1;
 				else
 					tips[i] = NULL;
 
