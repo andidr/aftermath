@@ -104,6 +104,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/task_instance_rw_tree.c \
 		src/task_instance_tree.h \
 		src/task_instance_tree.c \
+		src/cairo_extras.h \
+		src/cairo_extras.c \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
