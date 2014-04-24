@@ -518,6 +518,19 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkToggleToolButton" id="toolbutton6">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">SHP</property>
+                <property name="use_underline">True</property>
+                <property name="icon">draw_predecessors.svg</property>
+                <signal name="toggled" handler="toolbar_draw_draw_predecessors_toggled"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>

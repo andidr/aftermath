@@ -22,6 +22,7 @@
 #include "multi_event_set.h"
 #include "filter.h"
 #include "export.h"
+#include "./contrib/linux-kernel/list.h"
 
 G_BEGIN_DECLS
 
@@ -115,6 +116,11 @@ struct _GtkTrace {
 	struct single_event* highlight_task_texec_start;
 	struct annotation* highlight_annotation;
 	struct trace_marker* markers;
+
+	struct list_head* highlight_predecessor_inst;
+	int* num_predecessor_inst;
+	int predecessor_inst_max_depth;
+
 	int num_markers;
 };
 
@@ -171,6 +177,9 @@ int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
 struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
 int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 void gtk_trace_fit_all_cpus(GtkWidget *widget);
+
+void gtk_trace_set_highlighted_predecessors(GtkWidget *widget, struct list_head* predecessors, int* num_predecessors, int max_depth);
+void gtk_trace_reset_highlighted_predecessors(GtkWidget *widget);
 
 extern gint gtk_trace_signals[GTK_TRACE_MAX_SIGNALS];
 

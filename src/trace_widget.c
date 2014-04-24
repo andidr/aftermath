@@ -18,6 +18,8 @@
 #include "trace_widget.h"
 #include "marshal.h"
 #include "color.h"
+#include "task_instance.h"
+#include "cairo_extras.h"
 #include <math.h>
 #include <inttypes.h>
 
@@ -70,6 +72,12 @@ static double highlight_task_color[3] = {COL_NORM(255.0), COL_NORM(0.0), COL_NOR
 static double measurement_start_color[3] = { COL_NORM(0x00), COL_NORM(0xFF), COL_NORM(0x00) };
 static double measurement_end_color[3] = { COL_NORM(0xFF), COL_NORM(0x00), COL_NORM(0x00) };
 
+#define NUM_PREDECESSOR_COLORS 3
+static double predecessor_colors[NUM_PREDECESSOR_COLORS][3] = {
+	{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
+	{COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)},
+	{COL_NORM(  0.0), COL_NORM(255.0), COL_NORM(  0.0)}};
+
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
@@ -108,6 +116,10 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->num_markers = 0;
 
 	g->draw_measurement_intervals = 1;
+
+	g->highlight_predecessor_inst = NULL;
+	g->num_predecessor_inst = NULL;
+	g->predecessor_inst_max_depth = 0;
 
 	return GTK_WIDGET(g);
 }
@@ -1881,6 +1893,74 @@ void gtk_trace_paint_measurement_intervals(GtkTrace* g, cairo_t* cr)
 			cairo_fill(cr);
 		}
 	}
+}
+
+void gtk_trace_paint_highlighted_predecessor_instances(GtkTrace* g, cairo_t* cr)
+{
+	double cpu_height = gtk_trace_cpu_height(g);
+	struct list_head* iter;
+	double dash[] = {1.0, 5.0};
+	int num_dash = 2;
+	char buf[20];
+	cairo_text_extents_t extents;
+	int colidx;
+
+	int first_cpu_idx = gtk_trace_first_visible_cpu_idx(g);
+	int last_cpu_idx = gtk_trace_last_visible_cpu_idx(g);
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size(cr, satd(10, cpu_height-2));
+
+	for(int text_round = 0; text_round <= 1; text_round++) {
+		for(int i = 0; i < g->predecessor_inst_max_depth; i++) {
+			snprintf(buf, sizeof(buf), "%d", i+1);
+			cairo_text_extents(cr, buf, &extents);
+			colidx = i % NUM_PREDECESSOR_COLORS;
+
+			list_for_each(iter, &g->highlight_predecessor_inst[i]) {
+				struct task_instance* inst = list_entry(iter, struct task_instance, list_selection);
+
+				if(!(inst->end < g->left || inst->start > g->right) &&
+				   (inst->cpu >= first_cpu_idx && inst->cpu <= last_cpu_idx))
+				{
+					long double start = gtk_trace_x_to_screen(g, inst->start);
+					long double end = gtk_trace_x_to_screen(g, inst->end);
+
+					int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, inst->cpu);
+					double y_top = gtk_trace_cpu_start(g, cpu_idx);
+
+					if(!text_round) {
+						cairo_set_source_rgb(cr, predecessor_colors[colidx][0],
+								     predecessor_colors[colidx][1],
+								     predecessor_colors[colidx][2]);
+						cairo_extra_striped_rectangle(cr, start, y_top, end - start, cpu_height, dash, num_dash);
+						cairo_stroke(cr);
+
+						cairo_set_line_width(cr, 2.0);
+
+						cairo_rectangle(cr, start, y_top, end - start, cpu_height);
+						cairo_stroke(cr);
+					} else {
+						cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
+
+						cairo_arc(cr, start, y_top + cpu_height/2, satd(8, cpu_height-2), 0, 2*M_PI);
+						cairo_fill(cr);
+
+						cairo_set_line_width(cr, 2.0);
+						cairo_set_source_rgb(cr, 0, 0, 0);
+						cairo_arc(cr, start, y_top + cpu_height / 2.0, satd(8, cpu_height-2), 0, 2*M_PI);
+						cairo_stroke(cr);
+
+						cairo_move_to(cr, start - extents.width / 2.0, y_top + (cpu_height + extents.height) / 2.0);
+						cairo_show_text(cr, buf);
+					}
+				}
+			}
+		}
+	}
 
 	cairo_reset_clip(cr);
 }
@@ -2088,6 +2168,26 @@ void gtk_trace_set_map_mode(GtkWidget *widget, enum gtk_trace_map_mode mode)
 		gtk_widget_queue_draw(widget);
 }
 
+void gtk_trace_set_highlighted_predecessors(GtkWidget *widget, struct list_head* predecessors, int* num_predecessors, int max_depth)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+
+	g->highlight_predecessor_inst = predecessors;
+	g->num_predecessor_inst = num_predecessors;
+	g->predecessor_inst_max_depth = max_depth;
+
+	gtk_widget_queue_draw(widget);
+}
+
+void gtk_trace_reset_highlighted_predecessors(GtkWidget *widget)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	g->highlight_predecessor_inst = NULL;
+	g->num_predecessor_inst = NULL;
+
+	gtk_widget_queue_draw(widget);
+}
+
 void gtk_trace_set_double_buffering(GtkWidget *widget, int val)
 {
 	GtkTrace* g = GTK_TRACE(widget);
@@ -2137,6 +2237,9 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 
 	if(g->draw_single_events)
 		gtk_trace_paint_single_events(g, cr);
+
+	if(g->highlight_predecessor_inst)
+		gtk_trace_paint_highlighted_predecessor_instances(g, cr);
 
 	if(g->highlight_task_texec_start)
 		gtk_trace_paint_highlighted_task(g, cr);

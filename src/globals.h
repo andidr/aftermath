@@ -26,6 +26,7 @@
 #include "trace_widget.h"
 #include "intensity_matrix.h"
 #include "address_range_tree.h"
+#include "contrib/linux-kernel/list.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
@@ -167,5 +168,10 @@ extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 
 extern int g_visuals_modified;
 extern char* g_visuals_filename;
+
+extern int g_draw_predecessors;
+extern int g_predecessor_max_depth;
+extern struct list_head* g_predecessors;
+extern int* g_num_predecessors;
 
 #endif

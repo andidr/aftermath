@@ -132,6 +132,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/draw_events.svg \
 		share/icons/draw_counters.svg \
 		share/icons/draw_annotations.svg \
+		share/icons/draw_predecessors.svg \
 		share/icons/heatmap.svg \
 		share/icons/typemap.svg \
 		share/icons/numamap_reads.svg \

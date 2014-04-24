@@ -160,6 +160,48 @@ G_MODULE_EXPORT void toolbar_draw_measurement_intervals_toggled(GtkToggleToolBut
 	gtk_trace_set_draw_measurement_intervals(g_trace_widget, gtk_toggle_tool_button_get_active(button));
 }
 
+void update_predecessors(void)
+{
+	int num_total;
+
+	gtk_trace_reset_highlighted_predecessors(g_trace_widget);
+
+	if(!g_address_range_tree_built)
+		if(build_address_range_tree())
+			return;
+
+	g_predecessors = realloc(g_predecessors, g_predecessor_max_depth * sizeof(struct list_head));
+	g_num_predecessors = realloc(g_num_predecessors, g_predecessor_max_depth * sizeof(int));
+
+	struct state_event* se = gtk_trace_get_highlighted_state_event(g_trace_widget);
+
+	if(se && se->texec_start) {
+		struct task_instance* inst = task_instance_tree_find(&g_address_range_tree.all_instances,
+								     se->texec_start->active_task->addr,
+								     se->event_set->cpu,
+								     se->texec_start->time);
+
+		if(!inst) {
+			fprintf(stderr, "Warning: Could not find task instance for task %s @ %"PRIu64", cpu %d\n",
+				se->texec_start->active_task->symbol_name,
+				se->texec_start->time, se->event_set->cpu);
+		} else {
+			address_range_tree_get_predecessors(&g_address_range_tree, inst, g_predecessor_max_depth, g_predecessors, g_num_predecessors, &num_total);
+			gtk_trace_set_highlighted_predecessors(g_trace_widget, g_predecessors, g_num_predecessors, g_predecessor_max_depth);
+		}
+	}
+}
+
+G_MODULE_EXPORT void toolbar_draw_draw_predecessors_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	g_draw_predecessors = gtk_toggle_tool_button_get_active(button);
+
+	if(g_draw_predecessors)
+		update_predecessors();
+	else
+		gtk_trace_reset_highlighted_predecessors(g_trace_widget);
+}
+
 void heatmap_update_params(void)
 {
 	int num_shades;
@@ -1383,6 +1425,9 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 	} else {
 		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), "");
 	}
+
+	if(g_draw_predecessors)
+		update_predecessors();
 }
 
 G_MODULE_EXPORT void hscrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)

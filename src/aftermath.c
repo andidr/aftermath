@@ -431,6 +431,11 @@ int main(int argc, char** argv)
 	g_check_single_ee = check_single_ee;
 	g_check_single_d = check_single_d;
 
+	g_draw_predecessors = 0;
+	g_predecessor_max_depth = 3;
+	g_predecessors = NULL;
+	g_num_predecessors = NULL;
+
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_max_counter_value(&g_mes));
@@ -519,6 +524,9 @@ int main(int argc, char** argv)
 	multi_histogram_destroy(&g_task_multi_histogram);
 	intensity_matrix_destroy(&g_comm_matrix);
 	free(g_visuals_filename);
+
+	free(g_predecessors);
+	free(g_num_predecessors);
 
 	if(g_address_range_tree_built)
 		address_range_tree_destroy(&g_address_range_tree);

@@ -151,3 +151,8 @@ int g_address_range_tree_built;
 
 int g_visuals_modified;
 char* g_visuals_filename;
+
+int g_draw_predecessors;
+int g_predecessor_max_depth;
+struct list_head* g_predecessors;
+int* g_num_predecessors;
