@@ -102,8 +102,8 @@ void gtk_matrix_size_request(GtkWidget *widget, GtkRequisition *requisition)
 	g_return_if_fail(GTK_IS_MATRIX(widget));
 	g_return_if_fail(requisition != NULL);
 
-	requisition->height = 50;
-	requisition->height = 50;
+	requisition->height = 10;
+	requisition->height = 10;
 }
 
 void gtk_matrix_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
