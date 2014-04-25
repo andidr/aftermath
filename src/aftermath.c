@@ -225,6 +225,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, hist_box);
 	IMPORT_GLADE_WIDGET(xml, matrix_box);
+	IMPORT_GLADE_WIDGET(xml, matrix_summary_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
@@ -342,6 +343,9 @@ int main(int argc, char** argv)
 	g_matrix_widget = gtk_matrix_new();
 	gtk_container_add(GTK_CONTAINER(matrix_box), g_matrix_widget);
 
+	g_matrix_summary_widget = gtk_matrix_new();
+	gtk_container_add(GTK_CONTAINER(matrix_summary_box), g_matrix_summary_widget);
+
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
 	g_task_treeview = task_treeview;
@@ -456,6 +460,7 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(toplevel_window), "delete-event", G_CALLBACK(check_quit), NULL);
 
 	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);
+	g_signal_connect(G_OBJECT(g_matrix_summary_widget), "pair-under-pointer-changed", G_CALLBACK(comm_summary_matrix_pair_under_pointer_changed), g_matrix_summary_widget);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
@@ -502,6 +507,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	if(intensity_matrix_init(&g_comm_summary_matrix, 1, 1)) {
+		show_error_message("Cannot initialize communication summary matrix.");
+		return 1;
+	}
+
 	g_address_range_tree_built = 0;
 
 	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
@@ -523,6 +533,7 @@ int main(int argc, char** argv)
 	histogram_destroy(&g_counter_histogram);
 	multi_histogram_destroy(&g_task_multi_histogram);
 	intensity_matrix_destroy(&g_comm_matrix);
+	intensity_matrix_destroy(&g_comm_summary_matrix);
 	free(g_visuals_filename);
 
 	free(g_predecessors);

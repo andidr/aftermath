@@ -38,5 +38,6 @@ void trace_edit_annotation(GtkTrace *item, struct annotation* a);
 void show_task_code(struct task* t);
 gint check_quit(GtkWidget *widget, GdkEvent *event, gpointer data);
 void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int node_x, int node_y, int64_t absolute, double relative);
+void comm_summary_matrix_pair_under_pointer_changed(GtkMatrix *item, int node_x, int node_y, int64_t absolute, double relative);
 
 #endif

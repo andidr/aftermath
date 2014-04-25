@@ -3022,13 +3022,36 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkVBox" id="matrix_box">
-                                                    <property name="height_request">100</property>
+                                                  <widget class="GtkVBox" id="vbox35">
                                                     <property name="visible">True</property>
                                                     <property name="orientation">vertical</property>
-                                                    <property name="spacing">5</property>
                                                     <child>
-                                                      <placeholder/>
+                                                      <widget class="GtkVBox" id="matrix_box">
+                                                        <property name="height_request">100</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <property name="spacing">5</property>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <widget class="GtkVBox" id="matrix_summary_box">
+                                                        <property name="visible">True</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="padding">5</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
                                                     </child>
                                                   </widget>
                                                   <packing>

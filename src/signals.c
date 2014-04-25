@@ -691,12 +691,19 @@ void update_comm_matrix(void)
 		return;
 	}
 
+	intensity_matrix_destroy(&g_comm_summary_matrix);
+	intensity_matrix_init(&g_comm_summary_matrix, g_comm_matrix.height, 1);
+
 	for(int x = 0; x < g_comm_matrix.width; x++) {
 		for(int y = 0; y < g_comm_matrix.height; y++) {
+			double val = intensity_matrix_absolute_value_at(&g_comm_matrix, x, y);
+
 			if(x == y)
-				local_bytes += intensity_matrix_absolute_value_at(&g_comm_matrix, x, y);
+				local_bytes += val;
 			else
-				remote_bytes += intensity_matrix_absolute_value_at(&g_comm_matrix, x, y);
+				remote_bytes += val;
+
+			intensity_matrix_add_absolute_value_at(&g_comm_summary_matrix, y, 0, val);
 		}
 	}
 
@@ -715,6 +722,9 @@ void update_comm_matrix(void)
 	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_perc), buffer);
 
 	gtk_matrix_set_data(g_matrix_widget, &g_comm_matrix);
+
+	intensity_matrix_update_intensity(&g_comm_summary_matrix);
+	gtk_matrix_set_data(g_matrix_summary_widget, &g_comm_summary_matrix);
 }
 
 G_MODULE_EXPORT gint comm_matrix_reflexive_toggled(gpointer data, GtkWidget* check)
@@ -726,11 +736,13 @@ G_MODULE_EXPORT gint comm_matrix_reflexive_toggled(gpointer data, GtkWidget* che
 G_MODULE_EXPORT void comm_matrix_min_threshold_changed(GtkRange* item, gpointer data)
 {
 	gtk_matrix_set_min_threshold(g_matrix_widget, gtk_range_get_value(item));
+	gtk_matrix_set_min_threshold(g_matrix_summary_widget, gtk_range_get_value(item));
 }
 
 G_MODULE_EXPORT void comm_matrix_max_threshold_changed(GtkRange* item, gpointer data)
 {
 	gtk_matrix_set_max_threshold(g_matrix_widget, gtk_range_get_value(item));
+	gtk_matrix_set_max_threshold(g_matrix_summary_widget, gtk_range_get_value(item));
 }
 
 G_MODULE_EXPORT gint comm_matrix_comm_type_toggled(gpointer data, GtkWidget* check)
@@ -1879,6 +1891,20 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 
 	snprintf(buffer, sizeof(buffer), "Node %d to %d:\n%s (%.3f%% max.)\n", node_x, node_y, pretty_bytes, 100.0*relative);
+	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
+}
+
+G_MODULE_EXPORT void comm_summary_matrix_pair_under_pointer_changed(GtkMatrix *item, int node_x, int node_y, int64_t absolute, double relative)
+{
+	char buffer[128];
+	char pretty_bytes[32];
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
+		snprintf(pretty_bytes, sizeof(pretty_bytes), "%"PRId64, absolute);
+	else
+		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
+
+	snprintf(buffer, sizeof(buffer), "Node %d:\n%s (%.3f%% max.)\n", node_x, pretty_bytes, 100.0*relative);
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
 }
 

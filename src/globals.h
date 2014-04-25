@@ -33,6 +33,7 @@ extern GtkWidget* g_histogram_widget;
 extern GtkWidget* g_multi_histogram_widget;
 extern GtkWidget* g_counter_list_widget;
 extern GtkWidget* g_matrix_widget;
+extern GtkWidget* g_matrix_summary_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_task_treeview;
@@ -136,6 +137,7 @@ extern struct histogram g_task_histogram;
 extern struct histogram g_counter_histogram;
 extern struct multi_histogram g_task_multi_histogram;
 extern struct intensity_matrix g_comm_matrix;
+extern struct intensity_matrix g_comm_summary_matrix;
 extern struct address_range_tree g_address_range_tree;
 extern int g_address_range_tree_built;
 
