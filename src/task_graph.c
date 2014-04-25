@@ -52,30 +52,55 @@ void dump_write_edge(FILE* fp, struct task_instance_rw_tree_node* nwriter, int m
 
 void dump_node(FILE* fp, struct single_event* texec_start, struct filter* f, int max_numa_node_id, uint64_t size, int highlight)
 {
-	char buff_col_major[8];
+	char buff_col_major_read[8];
+	char buff_col_major_write[8];
+	char buff_col_major_both[8];
 	char buff_col_exec[8];
-	int major_node;
+	int major_node_both;
+	int major_node_read;
+	int major_node_write;
 
-	int valid = event_set_get_major_accessed_node_in_interval(texec_start->event_set, f,
-								  texec_start->time-1,
-								  texec_start->next_texec_end->time,
-								  max_numa_node_id, &major_node);
+	if(!event_set_get_major_accessed_node_in_interval(texec_start->event_set, f,
+							 texec_start->time-1,
+							 texec_start->next_texec_end->time,
+							 max_numa_node_id, &major_node_both))
+	{
+		major_node_both = texec_start->event_set->numa_node;
+	}
 
-	if(!valid)
-		major_node = texec_start->event_set->numa_node;
+	if(!event_set_get_major_read_node_in_interval(texec_start->event_set, f,
+						      texec_start->time-1,
+						      texec_start->next_texec_end->time,
+						      max_numa_node_id, &major_node_read))
+	{
+		major_node_read = texec_start->event_set->numa_node;
+	}
 
-	get_node_color_htmlrgb(major_node, max_numa_node_id, buff_col_major);
+	if(!event_set_get_major_read_node_in_interval(texec_start->event_set, f,
+						      texec_start->time-1,
+						      texec_start->next_texec_end->time,
+						      max_numa_node_id, &major_node_write))
+	{
+		major_node_write = texec_start->event_set->numa_node;
+	}
+
+	get_node_color_htmlrgb(major_node_both, max_numa_node_id, buff_col_major_both);
+	get_node_color_htmlrgb(major_node_read, max_numa_node_id, buff_col_major_read);
+	get_node_color_htmlrgb(major_node_write, max_numa_node_id, buff_col_major_write);
 	get_node_color_htmlrgb(texec_start->event_set->numa_node, max_numa_node_id, buff_col_exec);
 
 	fprintf(fp, "\t\"%"PRIx64"_%d_%"PRId64"\""
 		"[shape=\"none\", label=<<table border=\"1\" cellspacing=\"0\">"
-		"<tr><td bgcolor=\"%s\">O=%d</td><td bgcolor=\"%s\">X=%d</td></tr>"
+		"<tr><td bgcolor=\"%s\">A=%d</td><td bgcolor=\"%s\">X=%d</td></tr>"
+		"<tr><td bgcolor=\"%s\">R=%d</td><td bgcolor=\"%s\">W=%d</td></tr>"
 		"<tr><td colspan=\"2\" bgcolor=\"%s\">S=%"PRIu64"</td></tr></table>>];\n",
 		texec_start->active_task->addr,
 		texec_start->event_set->cpu,
 		texec_start->time,
-		buff_col_major, major_node,
+		buff_col_major_both, major_node_both,
 		buff_col_exec, texec_start->event_set->numa_node,
+		buff_col_major_read, major_node_read,
+		buff_col_major_write, major_node_write,
 		(highlight) ? "#ffff00" : "#ffffff",
 		size);
 }
