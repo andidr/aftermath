@@ -202,8 +202,10 @@ static inline int multi_event_set_rebuild_cpu_idx_map(struct multi_event_set* me
 	for(int i = 0; i < num_cpus; i++)
 		mes->cpu_idx_map[i] = -1;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		mes->cpu_idx_map[mes->sets[i].cpu] = i;
+	for(int i = 0; i < mes->num_sets; i++) {
+		int mapidx = mes->sets[i].cpu - mes->min_cpu;
+		mes->cpu_idx_map[mapidx] = i;
+	}
 
 	return 0;
 }
