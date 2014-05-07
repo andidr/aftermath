@@ -174,11 +174,13 @@ static inline struct event_set* multi_event_set_find_cpu(struct multi_event_set*
 
 static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int cpu)
 {
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].cpu == cpu)
-			return i;
+	if(cpu < mes->min_cpu || cpu > mes->max_cpu)
+		return -1;
 
-	return -1;
+	int mapidx = cpu - mes->min_cpu;
+	int idx = mes->cpu_idx_map[mapidx];
+
+	return idx;
 }
 
 static inline void multi_event_set_update_cpu_idx_map(struct multi_event_set* mes)
