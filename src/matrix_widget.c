@@ -102,7 +102,7 @@ void gtk_matrix_size_request(GtkWidget *widget, GtkRequisition *requisition)
 	g_return_if_fail(GTK_IS_MATRIX(widget));
 	g_return_if_fail(requisition != NULL);
 
-	requisition->height = 10;
+	requisition->width = 10;
 	requisition->height = 10;
 }
 
