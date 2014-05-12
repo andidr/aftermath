@@ -3332,14 +3332,6 @@ local</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <widget class="GtkLabel" id="label46">
-                                                <property name="visible">True</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="position">6</property>
-                                              </packing>
-                                            </child>
-                                            <child>
                                               <widget class="GtkTable" id="table1">
                                                 <property name="visible">True</property>
                                                 <property name="n_rows">10</property>
@@ -3961,7 +3953,7 @@ local</property>
                                                 </child>
                                               </widget>
                                               <packing>
-                                                <property name="position">7</property>
+                                                <property name="position">5</property>
                                               </packing>
                                             </child>
                                           </widget>
