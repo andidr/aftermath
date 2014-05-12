@@ -117,6 +117,9 @@ GtkWidget* g_global_hist_radio_button;
 GtkWidget* g_per_task_hist_radio_button;
 GtkWidget* g_counter_hist_radio_button;
 
+GtkWidget* g_radio_matrix_mode_node;
+GtkWidget* g_radio_matrix_mode_cpu;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

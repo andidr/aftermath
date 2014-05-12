@@ -129,6 +129,8 @@ extern GtkWidget* g_global_hist_radio_button;
 extern GtkWidget* g_per_task_hist_radio_button;
 extern GtkWidget* g_counter_hist_radio_button;
 
+extern GtkWidget* g_radio_matrix_mode_node;
+extern GtkWidget* g_radio_matrix_mode_cpu;
 
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;

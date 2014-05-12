@@ -624,3 +624,55 @@ int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter*
 
 	return 0;
 }
+
+int cpu_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only)
+{
+	int src, dst;
+
+	if(intensity_matrix_init(m, mes->max_cpu+1, mes->max_cpu+1))
+		return 1;
+
+	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
+		int first_comm_index = event_set_get_first_comm_in_interval(es, start, end);
+
+		if(first_comm_index == -1)
+			continue;
+
+		for(struct comm_event* ce = &es->comm_events[first_comm_index];
+		    ce < &es->comm_events[es->num_comm_events] && ce->time <= end;
+		    ce++)
+		{
+			int in_mask = (1 << ce->type) & comm_type_mask;
+
+			if(!in_mask || !filter_has_comm_event(f, mes, ce) ||
+			   (exclude_reflexive &&
+			    ((ce->type == COMM_TYPE_DATA_READ && es->cpu == ce->src_cpu) ||
+			     (ce->type == COMM_TYPE_DATA_WRITE && es->cpu == ce->dst_cpu) ||
+			     (ce->type == COMM_TYPE_PUSH && es->cpu == ce->dst_cpu) ||
+			     (ce->type == COMM_TYPE_STEAL && es->cpu == ce->src_cpu))))
+				continue;
+
+			src = ce->src_cpu;
+			dst = ce->dst_cpu;
+
+			int size = (num_only) ? 1 : ce->size;
+
+			if(src == -1 || dst == -1)
+				continue;
+
+			if(ignore_direction) {
+				if(src > dst) {
+					int tmp = src;
+					src = dst;
+					dst = tmp;
+				}
+			}
+
+			intensity_matrix_add_absolute_value_at(m, src, dst, size);
+		}
+	}
+
+	intensity_matrix_update_intensity(m);
+
+	return 0;
+}

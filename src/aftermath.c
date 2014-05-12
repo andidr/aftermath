@@ -319,6 +319,9 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, per_task_hist_radio_button);
 	IMPORT_GLADE_WIDGET(xml, counter_hist_radio_button);
 
+	IMPORT_GLADE_WIDGET(xml, radio_matrix_mode_node);
+	IMPORT_GLADE_WIDGET(xml, radio_matrix_mode_cpu);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
@@ -434,6 +437,9 @@ int main(int argc, char** argv)
 	g_check_single_es = check_single_es;
 	g_check_single_ee = check_single_ee;
 	g_check_single_d = check_single_d;
+
+	g_radio_matrix_mode_node = radio_matrix_mode_node;
+	g_radio_matrix_mode_cpu = radio_matrix_mode_cpu;
 
 	g_draw_predecessors = 0;
 	g_predecessor_max_depth = 3;

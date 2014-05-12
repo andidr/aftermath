@@ -100,5 +100,6 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 int counter_statistics_to_counter_histogram(struct task_statistics* cs, struct histogram* h);
 
 int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only);
+int cpu_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only);
 
 #endif

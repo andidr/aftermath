@@ -2878,7 +2878,7 @@
                                                       <packing>
                                                         <property name="left_attach">2</property>
                                                         <property name="right_attach">3</property>
-                                                        <property name="x_options"></property>
+                                                        <property name="x_options"/>
                                                       </packing>
                                                     </child>
                                                     <child>
@@ -2893,7 +2893,7 @@
                                                         <property name="right_attach">3</property>
                                                         <property name="top_attach">1</property>
                                                         <property name="bottom_attach">2</property>
-                                                        <property name="x_options"></property>
+                                                        <property name="x_options"/>
                                                       </packing>
                                                     </child>
                                                   </widget>
@@ -3040,6 +3040,53 @@
                                                       </packing>
                                                     </child>
                                                     <child>
+                                                      <widget class="GtkHBox" id="hbox40">
+                                                        <property name="visible">True</property>
+                                                        <child>
+                                                          <widget class="GtkRadioButton" id="radio_matrix_mode_node">
+                                                            <property name="label" translatable="yes">Nodes</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">False</property>
+                                                            <property name="active">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <signal name="toggled" handler="comm_matrix_mode_changed"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <widget class="GtkRadioButton" id="radio_matrix_mode_cpu">
+                                                            <property name="label" translatable="yes">CPUs</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">False</property>
+                                                            <property name="active">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <property name="group">radio_matrix_mode_node</property>
+                                                            <signal name="toggled" handler="comm_matrix_mode_changed"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <widget class="GtkLabel" id="label90">
+                                                            <property name="visible">True</property>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="position">2</property>
+                                                          </packing>
+                                                        </child>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
                                                       <widget class="GtkVBox" id="matrix_summary_box">
                                                         <property name="visible">True</property>
                                                         <property name="orientation">vertical</property>
@@ -3050,7 +3097,7 @@
                                                       <packing>
                                                         <property name="expand">False</property>
                                                         <property name="padding">5</property>
-                                                        <property name="position">1</property>
+                                                        <property name="position">2</property>
                                                       </packing>
                                                     </child>
                                                   </widget>
@@ -3310,7 +3357,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">1</property>
                                                     <property name="bottom_attach">2</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3349,7 +3396,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">1</property>
                                                     <property name="bottom_attach">2</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3388,7 +3435,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">2</property>
                                                     <property name="bottom_attach">3</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3427,7 +3474,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">3</property>
                                                     <property name="bottom_attach">4</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3466,7 +3513,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">4</property>
                                                     <property name="bottom_attach">5</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3505,7 +3552,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">5</property>
                                                     <property name="bottom_attach">6</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3544,7 +3591,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">7</property>
                                                     <property name="bottom_attach">8</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3583,7 +3630,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">6</property>
                                                     <property name="bottom_attach">7</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3622,7 +3669,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">8</property>
                                                     <property name="bottom_attach">9</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3661,7 +3708,7 @@ local</property>
                                                   <packing>
                                                     <property name="top_attach">9</property>
                                                     <property name="bottom_attach">10</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3675,7 +3722,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">2</property>
                                                     <property name="bottom_attach">3</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3689,7 +3736,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">3</property>
                                                     <property name="bottom_attach">4</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3703,7 +3750,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">4</property>
                                                     <property name="bottom_attach">5</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3717,7 +3764,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">5</property>
                                                     <property name="bottom_attach">6</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3731,7 +3778,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">6</property>
                                                     <property name="bottom_attach">7</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3745,7 +3792,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">7</property>
                                                     <property name="bottom_attach">8</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3759,7 +3806,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">8</property>
                                                     <property name="bottom_attach">9</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -3773,7 +3820,7 @@ local</property>
                                                     <property name="right_attach">2</property>
                                                     <property name="top_attach">9</property>
                                                     <property name="bottom_attach">10</property>
-                                                    <property name="y_options"></property>
+                                                    <property name="y_options"/>
                                                   </packing>
                                                 </child>
                                                 <child>
@@ -4010,7 +4057,7 @@ local</property>
                                 <property name="label" translatable="yes">Min. cycles:</property>
                               </widget>
                               <packing>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
@@ -4022,7 +4069,7 @@ local</property>
                               <packing>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
@@ -4035,7 +4082,7 @@ local</property>
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
@@ -4050,7 +4097,7 @@ local</property>
                                 <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
@@ -4061,7 +4108,7 @@ local</property>
                               <packing>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
@@ -4076,7 +4123,7 @@ local</property>
                                 <property name="right_attach">2</property>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
-                                <property name="y_options"></property>
+                                <property name="y_options"/>
                               </packing>
                             </child>
                           </widget>

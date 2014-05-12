@@ -42,6 +42,11 @@
 
 int build_address_range_tree(void);
 
+enum comm_matrix_mode {
+	COMM_MATRIX_MODE_NODE = 0,
+	COMM_MATRIX_MODE_CPU
+};
+
 void reset_zoom(void)
 {
 	uint64_t start = multi_event_set_first_event_start(&g_mes);
@@ -649,11 +654,17 @@ void update_comm_matrix(void)
 	int exclude_reflexive = 0;
 	int ignore_direction = 0;
 	int num_only = 0;
+	enum comm_matrix_mode mode = COMM_MATRIX_MODE_NODE;
 	int64_t left, right;
 	uint64_t local_bytes = 0;
 	uint64_t remote_bytes = 0;
 	char buffer[128];
 	long double local_ratio;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_cpu)))
+		mode = COMM_MATRIX_MODE_CPU;
+	else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_node)))
+		mode = COMM_MATRIX_MODE_NODE;
 
 	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
 		return;
@@ -686,9 +697,20 @@ void update_comm_matrix(void)
 
 	intensity_matrix_destroy(&g_comm_matrix);
 
-	if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, left, right, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
-		show_error_message("Cannot gather communication matrix statistics.");
-		return;
+	switch(mode) {
+		case COMM_MATRIX_MODE_NODE:
+			if(numa_node_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, left, right, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
+				show_error_message("Cannot gather communication matrix statistics.");
+				return;
+			}
+			break;
+
+		case COMM_MATRIX_MODE_CPU:
+			if(cpu_exchange_matrix_gather(&g_mes, &g_filter, &g_comm_matrix, left, right, comm_mask, exclude_reflexive, ignore_direction, num_only)) {
+				show_error_message("Cannot gather communication matrix statistics.");
+				return;
+			}
+			break;
 	}
 
 	intensity_matrix_destroy(&g_comm_summary_matrix);
@@ -733,6 +755,12 @@ void update_comm_matrix(void)
 
 	intensity_matrix_update_intensity(&g_comm_summary_matrix);
 	gtk_matrix_set_data(g_matrix_summary_widget, &g_comm_summary_matrix);
+}
+
+G_MODULE_EXPORT gint comm_matrix_mode_changed(gpointer data, GtkWidget* radio)
+{
+	update_comm_matrix();
+	return 0;
 }
 
 G_MODULE_EXPORT gint comm_matrix_reflexive_toggled(gpointer data, GtkWidget* check)
@@ -1892,13 +1920,19 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 {
 	char buffer[128];
 	char pretty_bytes[32];
+	const char* entity;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
 		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 	else
 		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 
-	snprintf(buffer, sizeof(buffer), "Node %d to %d:\n%s (%.3f%% max.)\n", node_x, node_y, pretty_bytes, 100.0*relative);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_cpu)))
+		entity = "CPU";
+	else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_node)))
+		entity = "Node";
+
+	snprintf(buffer, sizeof(buffer), "%s %d to %d:\n%s (%.3f%% max.)\n", entity, node_x, node_y, pretty_bytes, 100.0*relative);
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
 }
 
@@ -1906,13 +1940,19 @@ G_MODULE_EXPORT void comm_summary_matrix_pair_under_pointer_changed(GtkMatrix *i
 {
 	char buffer[128];
 	char pretty_bytes[32];
+	const char* entity;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
 		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 	else
 		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 
-	snprintf(buffer, sizeof(buffer), "Node %d:\n%s (%.3f%% max.)\n", node_x, pretty_bytes, 100.0*relative);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_cpu)))
+		entity = "CPU";
+	else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_radio_matrix_mode_node)))
+		entity = "Node";
+
+	snprintf(buffer, sizeof(buffer), "%s %d:\n%s (%.3f%% max.)\n", entity, node_x, pretty_bytes, 100.0*relative);
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), buffer);
 }
 
