@@ -437,7 +437,7 @@ int event_set_get_last_comm_event_in_interval_type(struct event_set* es, uint64_
 	if(idx == -1)
 		return -1;
 
-	while(es->comm_events[idx].type != type && idx-1 > 0)
+	while(es->comm_events[idx].type != type && idx-1 >= 0)
 		idx--;
 
 	if(es->comm_events[idx].type != type)
