@@ -19,12 +19,12 @@
 #include <math.h>
 #include <stdio.h>
 
-unsigned int pretty_print_get_power(long double v, unsigned int min_pow, unsigned int max_pow)
+unsigned int pretty_print_get_powern(long double v, long double base, int step, unsigned int min_pow, unsigned int max_pow)
 {
 	long double multiplier = 1;
 
 	for(int i = max_pow; i > min_pow ; i--) {
-		multiplier = powl(10.0, 3*i);
+		multiplier = powl(base, step*i);
 
 		if(v > multiplier)
 			return i;
@@ -33,12 +33,22 @@ unsigned int pretty_print_get_power(long double v, unsigned int min_pow, unsigne
 	return min_pow;
 }
 
+unsigned int pretty_print_get_power10(long double v, unsigned int min_pow, unsigned int max_pow)
+{
+	return pretty_print_get_powern(v, 10.0, 3, min_pow, max_pow);
+}
+
+unsigned int pretty_print_get_power2(long double v, unsigned int min_pow, unsigned int max_pow)
+{
+	return pretty_print_get_powern(v, 2.0, 10, min_pow, max_pow);
+}
+
 void pretty_print_number(char* buffer, int buffer_size, uint64_t bytes, const char* add)
 {
 	const char* units[] = { "", "K", "M", "G", "T", "P" };
 
-	unsigned int unit_idx = pretty_print_get_power(bytes, 0, (sizeof(units) / sizeof(char*))-1);
-	long double multiplier = powl(2, 10*unit_idx);
+	unsigned int unit_idx = pretty_print_get_power10(bytes, 0, (sizeof(units) / sizeof(char*))-1);
+	long double multiplier = powl(10, 3*unit_idx);
 
 	snprintf(buffer, buffer_size, "%.2Lf %s%s", (long double)bytes / multiplier, units[unit_idx], add);
 }
@@ -47,7 +57,7 @@ void pretty_print_bytes(char* buffer, int buffer_size, uint64_t bytes, const cha
 {
 	const char* units[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
 
-	unsigned int unit_idx = pretty_print_get_power(bytes, 0, (sizeof(units) / sizeof(char*))-1);
+	unsigned int unit_idx = pretty_print_get_power2(bytes, 0, (sizeof(units) / sizeof(char*))-1);
 	long double multiplier = powl(2, 10*unit_idx);
 
 	snprintf(buffer, buffer_size, "%.2Lf %s%s", (long double)bytes / multiplier, units[unit_idx], add);
@@ -57,7 +67,7 @@ void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles)
 {
 	const char* units[] = { " ", " K", " M", " G", " T", " P" };
 
-	unsigned int unit_idx = pretty_print_get_power(cycles, 0, (sizeof(units) / sizeof(char*))-1);
+	unsigned int unit_idx = pretty_print_get_power10(cycles, 0, (sizeof(units) / sizeof(char*))-1);
 	long double multiplier = powl(10.0, 3*unit_idx);
 
 	snprintf(buffer, buffer_size, "%.2Lf%s", (long double)cycles / multiplier, units[unit_idx]);
