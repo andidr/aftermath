@@ -2084,3 +2084,19 @@ G_MODULE_EXPORT void menubar_show_parallelism_histogram(GtkMenuItem* item, gpoin
 out_hist:
 	histogram_destroy(&hist);
 }
+
+G_MODULE_EXPORT gint comm_matrix_detach_toggled(GtkWidget* button, gpointer data)
+{
+	int detached = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+	static GtkWidget* dlg;
+
+	if(detached) {
+		dlg = detach_dialog_create("Aftermath: Communication", g_vbox_comm);
+		gtk_widget_set_size_request(g_matrix_widget, -1, -1);
+	} else {
+		gtk_widget_set_size_request(g_matrix_widget, -1, 100);
+		detach_dialog_destroy(dlg, g_vbox_comm, g_vbox_comm_pos);
+	}
+
+	return 0;
+}

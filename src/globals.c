@@ -120,6 +120,10 @@ GtkWidget* g_counter_hist_radio_button;
 GtkWidget* g_radio_matrix_mode_node;
 GtkWidget* g_radio_matrix_mode_cpu;
 
+GtkWidget* g_vbox_stats_all;
+GtkWidget* g_vbox_comm;
+GtkWidget* g_vbox_comm_pos;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,

@@ -893,3 +893,29 @@ out:
 
 	return ret;
 }
+
+gint delete_event_return_true(GtkWidget *widget, GdkEvent  *event, gpointer data)
+{
+	return TRUE;
+}
+
+GtkWidget* detach_dialog_create(const char* title, GtkWidget* child)
+{
+	GtkWidget* dlg = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(dlg), title);
+
+	gtk_signal_connect(GTK_OBJECT(dlg), "delete_event", GTK_SIGNAL_FUNC(delete_event_return_true), NULL);
+
+	gtk_widget_reparent(child, dlg);
+
+	gtk_widget_show(child);
+	gtk_widget_show(dlg);
+
+	return dlg;
+}
+
+void detach_dialog_destroy(GtkWidget* dlg, GtkWidget* child, GtkWidget* new_parent)
+{
+	gtk_widget_reparent(child, new_parent);
+	gtk_widget_destroy(dlg);
+}

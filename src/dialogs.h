@@ -93,4 +93,7 @@ int show_counter_offset_dialog(struct multi_event_set* mes, struct counter_descr
 void show_parallelism_dialog(struct histogram* hist);
 int background_task_with_modal_dialog(const char* message, const char* title, int (*fun)(void* data), void* data);
 
+GtkWidget* detach_dialog_create(const char* title, GtkWidget* child);
+void detach_dialog_destroy(GtkWidget* dlg, GtkWidget* child, GtkWidget* new_parent);
+
 #endif

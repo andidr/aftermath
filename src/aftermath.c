@@ -322,6 +322,10 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, radio_matrix_mode_node);
 	IMPORT_GLADE_WIDGET(xml, radio_matrix_mode_cpu);
 
+	IMPORT_GLADE_WIDGET(xml, vbox_stats_all);
+	IMPORT_GLADE_WIDGET(xml, vbox_comm);
+	IMPORT_GLADE_WIDGET(xml, vbox_comm_pos);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
@@ -445,6 +449,10 @@ int main(int argc, char** argv)
 	g_predecessor_max_depth = 3;
 	g_predecessors = NULL;
 	g_num_predecessors = NULL;
+
+	g_vbox_stats_all = vbox_stats_all;
+	g_vbox_comm = vbox_comm;
+	g_vbox_comm_pos = vbox_comm_pos;
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64, multi_event_get_min_counter_value(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_values_min_entry), buffer);
