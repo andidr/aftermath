@@ -707,11 +707,19 @@ void update_comm_matrix(void)
 		}
 	}
 
-	pretty_print_bytes(buffer, sizeof(buffer), local_bytes, " local");
-	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_bytes), buffer);
+	if(num_only) {
+		pretty_print_bytes(buffer, sizeof(buffer), local_bytes, " local");
+		gtk_label_set_text(GTK_LABEL(g_label_matrix_local_bytes), buffer);
 
-	pretty_print_bytes(buffer, sizeof(buffer), remote_bytes, " remote");
-	gtk_label_set_text(GTK_LABEL(g_label_matrix_remote_bytes), buffer);
+		pretty_print_bytes(buffer, sizeof(buffer), remote_bytes, " remote");
+		gtk_label_set_text(GTK_LABEL(g_label_matrix_remote_bytes), buffer);
+	} else {
+		pretty_print_number(buffer, sizeof(buffer), local_bytes, " local");
+		gtk_label_set_text(GTK_LABEL(g_label_matrix_local_bytes), buffer);
+
+		pretty_print_number(buffer, sizeof(buffer), remote_bytes, " remote");
+		gtk_label_set_text(GTK_LABEL(g_label_matrix_remote_bytes), buffer);
+	}
 
 	if(local_bytes + remote_bytes != 0)
 		local_ratio = ((long double)local_bytes) / (((long double)local_bytes) + ((long double)remote_bytes));
@@ -1886,7 +1894,7 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 	char pretty_bytes[32];
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
-		snprintf(pretty_bytes, sizeof(pretty_bytes), "%"PRId64, absolute);
+		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 	else
 		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 
@@ -1900,7 +1908,7 @@ G_MODULE_EXPORT void comm_summary_matrix_pair_under_pointer_changed(GtkMatrix *i
 	char pretty_bytes[32];
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
-		snprintf(pretty_bytes, sizeof(pretty_bytes), "%"PRId64, absolute);
+		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 	else
 		pretty_print_bytes(pretty_bytes, sizeof(pretty_bytes), absolute, "");
 

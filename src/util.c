@@ -33,6 +33,16 @@ unsigned int pretty_print_get_power(long double v, unsigned int min_pow, unsigne
 	return min_pow;
 }
 
+void pretty_print_number(char* buffer, int buffer_size, uint64_t bytes, const char* add)
+{
+	const char* units[] = { "", "K", "M", "G", "T", "P" };
+
+	unsigned int unit_idx = pretty_print_get_power(bytes, 0, (sizeof(units) / sizeof(char*))-1);
+	long double multiplier = powl(2, 10*unit_idx);
+
+	snprintf(buffer, buffer_size, "%.2Lf %s%s", (long double)bytes / multiplier, units[unit_idx], add);
+}
+
 void pretty_print_bytes(char* buffer, int buffer_size, uint64_t bytes, const char* add)
 {
 	const char* units[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };

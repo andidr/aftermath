@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 
+void pretty_print_number(char* buffer, int buffer_size, uint64_t bytes, const char* add);
 void pretty_print_bytes(char* buffer, int buffer_size, uint64_t bytes, const char* add);
 void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles);
 
