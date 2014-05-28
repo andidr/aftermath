@@ -1,6 +1,7 @@
-AC_INIT(src/aftermath.c)
-AC_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(aftermath, unreleased)
+AC_INIT([aftermath], [unreleased])
+AC_CONFIG_SRCDIR([src/aftermath.c])
+AM_INIT_AUTOMAKE([subdir-objects])
+
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 m4_include([m4/with_check.m4])
 
