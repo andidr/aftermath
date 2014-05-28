@@ -16,7 +16,7 @@
  */
 
 #include "convert.h"
-#include <ansi_extras.h>
+#include "ansi_extras.h"
 
 /* Convert struct from disk format to host format */
 void convert_struct(void* ptr, int* conversion_table, int offset, enum conversion_direction dir)
