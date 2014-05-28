@@ -37,7 +37,7 @@
  *
  * Each of these structs contains a header that specifies its type and
  * that contains common fields used in every trace sample. An exception to this
- * ruel are counter descriptions, which only contain a field for the type in the
+ * rule are counter descriptions, which only contain a field for the type in the
  * header.
  *
  * The on-disk byte order for every integer field is little endian
