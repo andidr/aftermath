@@ -31,6 +31,7 @@ struct task {
 	char* source_filename;
 	char* symbol_name;
 	int source_line;
+	int id;
 };
 
 struct task_tree {

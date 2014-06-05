@@ -16,6 +16,7 @@
  */
 
 #include "multi_event_set.h"
+#include "filter.h"
 
 void multi_event_set_sort_by_cpu(struct multi_event_set* mes)
 {
@@ -23,3 +24,34 @@ void multi_event_set_sort_by_cpu(struct multi_event_set* mes)
 	multi_event_set_rebuild_cpu_idx_map(mes);
 }
 
+int multi_event_set_get_max_task_duration_in_interval(struct multi_event_set* mes, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration)
+{
+	uint64_t max = 0;
+	uint64_t curr;
+
+	for(int i = 0 ; i < mes->num_sets; i++)
+		if(filter_has_cpu(f, mes->sets[i].cpu))
+			if(event_set_get_max_task_duration_in_interval(&mes->sets[i], f, start, end, &curr))
+				if(curr > max)
+					max = curr;
+
+	*duration = max;
+
+	return (max > 0);
+}
+
+int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* mes, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration)
+{
+	uint64_t min = UINT64_MAX;
+	uint64_t curr;
+
+	for(int i = 0 ; i < mes->num_sets; i++)
+		if(filter_has_cpu(f, mes->sets[i].cpu))
+			if(event_set_get_min_task_duration_in_interval(&mes->sets[i], f, start, end, &curr))
+				if(curr < min)
+					min = curr;
+
+	*duration = min;
+
+	return (min < UINT64_MAX);
+}

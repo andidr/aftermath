@@ -52,6 +52,7 @@ void task_tree_walk(const void* p, const VISIT which, const int depth)
 {
 	if(which == leaf || which == postorder) {
 		struct task* t = *((struct task**)p);
+		t->id = curr_tt_array_index;
 		memcpy(&curr_tt_array[curr_tt_array_index++], t, sizeof(struct task));
 	}
 }

@@ -60,6 +60,32 @@ struct multi_event_set {
 	int* cpu_idx_map;
 };
 
+static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes, int64_t* time)
+{
+	int64_t min = INT64_MAX;
+
+	for(int i = 0; i < mes->num_sets; i++)
+		if(mes->sets[i].first_start < min)
+			min = mes->sets[i].first_start;
+
+	*time = min;
+
+	return (min < UINT64_MAX);
+}
+
+static inline int multi_event_event_set_get_max_time(struct multi_event_set* mes, int64_t* time)
+{
+	int64_t max = 0;
+
+	for(int i = 0; i < mes->num_sets; i++)
+		if(mes->sets[i].last_end > max)
+			max = mes->sets[i].last_end;
+
+	*time = max;
+
+	return (max > 0);
+}
+
 static inline void multi_event_event_set_add_counter_offset(struct multi_event_set* mes, int counter_id, int64_t offset)
 {
 	for(int i = 0; i < mes->num_sets; i++)
@@ -544,5 +570,10 @@ static inline int multi_event_set_add_global_single_event(struct multi_event_set
 			       &mes->num_global_single_events, &mes->num_global_single_events_free,
 			       GLOBAL_EVENT_PREALLOC);
 }
+
+struct filter;
+
+int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* mes, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration);
+int multi_event_set_get_max_task_duration_in_interval(struct multi_event_set* mes, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration);
 
 #endif

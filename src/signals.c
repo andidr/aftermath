@@ -185,6 +185,29 @@ G_MODULE_EXPORT void task_length_heatmap_update_params_clicked(GtkButton *button
 	task_length_heatmap_update_params();
 }
 
+G_MODULE_EXPORT void determine_automatically_button_clicked(GtkButton *button, gpointer data)
+{
+	GtkWidget *widget = GTK_WIDGET(g_trace_widget);
+	char buffer[30];
+	uint64_t max;
+	uint64_t min;
+	int64_t left, right;
+
+	if(!gtk_trace_get_range_selection(widget, &left, &right)) {
+		multi_event_event_set_get_min_time(&g_mes, &left);
+		multi_event_event_set_get_max_time(&g_mes, &right);
+	}
+
+	multi_event_set_get_max_task_duration_in_interval(&g_mes, &g_filter, left, right, &max);
+	multi_event_set_get_min_task_duration_in_interval(&g_mes, &g_filter, left, right, &min);
+
+	snprintf(buffer, sizeof(buffer), "%"PRIu64, min);
+	gtk_entry_set_text(GTK_ENTRY(g_heatmap_min_cycles), buffer);
+
+	snprintf(buffer, sizeof(buffer), "%"PRIu64, max);
+	gtk_entry_set_text(GTK_ENTRY(g_heatmap_max_cycles), buffer);
+}
+
 G_MODULE_EXPORT void tool_button_use_task_length_statemap_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	int active = gtk_toggle_tool_button_get_active(button);
