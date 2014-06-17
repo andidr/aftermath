@@ -16,7 +16,9 @@
  */
 
 #include "task_list.h"
+#include "color.h"
 #include <inttypes.h>
+#include "cell_renderer_color_button.h"
 
 void task_list_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer user_data)
 {
@@ -43,6 +45,10 @@ void task_list_init(GtkTreeView* task_treeview)
 	gtk_tree_view_append_column(task_treeview, column);
 	g_signal_connect(G_OBJECT(renderer), "toggled", G_CALLBACK(task_list_toggle), task_treeview);
 
+	renderer = custom_cell_renderer_color_button_new();
+	column = gtk_tree_view_column_new_with_attributes("Color", renderer, "color", TASK_LIST_COL_COLOR, NULL);
+	gtk_tree_view_append_column(task_treeview, column);
+
 	renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes("Address", renderer, "text", TASK_LIST_COL_ADDR, NULL);
 	gtk_tree_view_append_column(task_treeview, column);
@@ -56,7 +62,7 @@ void task_list_init(GtkTreeView* task_treeview)
 	column = gtk_tree_view_column_new_with_attributes("Line", renderer, "text", TASK_LIST_COL_SOURCE_LINE, NULL);
 	gtk_tree_view_append_column(task_treeview, column);
 
-	store = gtk_list_store_new(TASK_LIST_COL_NUM, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+	store = gtk_list_store_new(TASK_LIST_COL_NUM, G_TYPE_BOOLEAN, GDK_TYPE_COLOR, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 
 	gtk_tree_view_set_model(task_treeview, GTK_TREE_MODEL(store));
 
@@ -85,10 +91,18 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 			source_file = "";
 		}
 
+		GdkColor color;
+		int col_idx = tasks[i].id % NUM_TASK_TYPE_COLORS;
+
+		color.red = task_type_colors[col_idx][0] * 65535;
+		color.green = task_type_colors[col_idx][1] * 65535;
+		color.blue = task_type_colors[col_idx][2] * 65535;
+
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
 				   TASK_LIST_COL_FILTER, TRUE,
 				   TASK_LIST_COL_ADDR, buff_addr,
+				   TASK_LIST_COL_COLOR, &color,
 				   TASK_LIST_COL_SYMBOL, symbol,
 				   TASK_LIST_COL_SOURCE_FILE, source_file,
 				   TASK_LIST_COL_SOURCE_LINE, buff_line,

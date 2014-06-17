@@ -20,4 +20,7 @@
 
 #define COL_NORM(x) (((double)x) / 255.0)
 
+#define NUM_TASK_TYPE_COLORS 10
+extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];
+
 #endif

@@ -216,6 +216,14 @@ G_MODULE_EXPORT void tool_button_use_task_length_statemap_toggled(GtkToggleToolB
 		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_STATES);
 }
 
+G_MODULE_EXPORT void tool_button_use_typemap_toggled(GtkToggleToolButton *button, gpointer data)
+{
+	int active = gtk_toggle_tool_button_get_active(button);
+
+	if(active)
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_TASK_TYPE);
+}
+
 G_MODULE_EXPORT void tool_button_use_task_length_heatmap_toggled(GtkToggleToolButton *button, gpointer data)
 {
 	int active = gtk_toggle_tool_button_get_active(button);

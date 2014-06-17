@@ -63,6 +63,7 @@ aftermath_SOURCES = src/aftermath.c \
 		src/derived_counters.h \
 		src/derived_counters.c \
 		src/color.h \
+		src/color.c \
 		src/page.h \
 		src/page.c \
 		src/cell_renderer_color_button.h \
@@ -110,6 +111,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/draw_counters.svg \
 		share/icons/draw_annotations.svg \
 		share/icons/heatmap.svg \
+		share/icons/typemap.svg \
 		share/icons/numamap_reads.svg \
 		share/icons/numamap_writes.svg \
 		share/icons/fit_all_cpus.svg \

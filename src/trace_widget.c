@@ -831,6 +831,136 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+static int get_max_index_uint64(uint64_t* vals, int n)
+{
+	uint64_t max = vals[0];
+	int idx_max = 0;
+
+	for(int i = 1; i < n; i++) {
+		if (vals[i] > max) {
+			max = vals[i];
+			idx_max = i;
+		}
+	}
+
+	return idx_max;
+}
+
+void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
+{
+	int64_t last_id;
+	int64_t curr_id;
+	double cpu_height = gtk_trace_cpu_height(g);
+	int valid;
+	double red, green, blue;
+	uint64_t durations[g->event_sets->num_tasks];
+	int idx;
+
+	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	cairo_set_source_rgb(cr, 1.0, 0, 0);
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		long double last_start = 0;
+		long double last_end = 0;
+		last_id = -1;
+
+		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
+			long double start = gtk_trace_screen_x_to_trace(g, px);
+			long double end = gtk_trace_screen_x_to_trace(g, px+1);
+
+			if(start < 0)
+				continue;
+
+			memset(durations, 0, g->event_sets->num_tasks * sizeof(uint64_t));
+			if (!g->filter || filter_has_cpu(g->filter, g->event_sets->sets[cpu_idx].cpu))
+				valid = event_set_get_task_duration_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, durations);
+			else
+				valid = 0;
+
+			if(valid) {
+				idx = get_max_index_uint64(durations, g->event_sets->num_tasks);
+				curr_id = idx;
+			}
+
+			if(last_id != -1) {
+				if((valid && last_id != curr_id) || !valid) {
+					red = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][0];
+					green = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][1];
+					blue = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][2];
+
+					cairo_set_source_rgb(cr, red, green, blue);
+					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
+					cairo_fill(cr);
+				}
+			}
+
+			if(valid && last_id != curr_id) {
+				last_id = curr_id;
+				last_start = px;
+			}
+
+			if(!valid)
+				last_id = -1;
+			else
+				last_end = px;
+		}
+
+		if(last_id != -1) {
+			red = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][0];
+			green = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][1];
+			blue = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][2];
+
+			cairo_set_source_rgb(cr, red, green, blue);
+			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
+			cairo_fill(cr);
+		}
+	}
+
+	if(g->highlight_state_event &&
+	   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
+	{
+		if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
+			double cpu_start = gtk_trace_cpu_start(g, multi_event_set_find_cpu_idx(g->event_sets, g->highlight_state_event->event_set->cpu));
+			double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
+			double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
+
+			if(x_start < g->axis_width)
+				x_start = 0;
+
+			if(x_end > g->widget.allocation.width)
+				x_end = g->widget.allocation.width;
+
+			double width = x_end - x_start;
+
+			if(width < 1)
+				width = 1;
+
+			cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
+			cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+			cairo_fill(cr);
+		}
+	}
+
+	if(cpu_height > 3) {
+		cairo_set_line_width (cr, 1);
+		cairo_set_source_rgb(cr, 0, 0, 0);
+
+		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
+			cairo_stroke(cr);
+		}
+	}
+
+	cairo_reset_clip(cr);
+}
+
 void gtk_trace_paint_heatmap(GtkTrace* g, cairo_t* cr)
 {
 	uint64_t curr_length;
@@ -1919,6 +2049,9 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS ||
 	   g->map_mode == GTK_TRACE_MAP_MODE_NUMA_WRITES)
 		gtk_trace_paint_numa_map(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_TASK_TYPE)
+		gtk_trace_paint_task_type_map(g, cr);
 
 	if(g->draw_counters)
 		gtk_trace_paint_counters(g, cr);
