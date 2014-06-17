@@ -1423,7 +1423,7 @@ void show_task_code_in_internal_editor(struct task* t)
 
 	if(!(fp = fopen(t->source_filename, "r"))) {
 		show_error_message("Could not open file %s\n", t->source_filename);
-		goto out;
+		return;
 	}
 
 	fseek(fp, 0, SEEK_END);
