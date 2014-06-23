@@ -189,6 +189,21 @@ static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int 
 	return -1;
 }
 
+static inline void multi_event_set_update_cpu_idx_map(struct multi_event_set* mes)
+{
+	int num_cpus = mes->max_cpu - mes->min_cpu + 1;
+	int mapidx;
+
+	for(int i = 0; i < num_cpus; i++)
+		mes->cpu_idx_map[i] = -1;
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		mapidx = mes->sets[i].cpu - mes->min_cpu;
+		mes->cpu_idx_map[mapidx] = i;
+	}
+}
+
+
 static inline int multi_event_set_rebuild_cpu_idx_map(struct multi_event_set* mes)
 {
 	int num_cpus = mes->max_cpu - mes->min_cpu + 1;
@@ -198,14 +213,7 @@ static inline int multi_event_set_rebuild_cpu_idx_map(struct multi_event_set* me
 		return 1;
 
 	mes->cpu_idx_map = tmp;
-
-	for(int i = 0; i < num_cpus; i++)
-		mes->cpu_idx_map[i] = -1;
-
-	for(int i = 0; i < mes->num_sets; i++) {
-		int mapidx = mes->sets[i].cpu - mes->min_cpu;
-		mes->cpu_idx_map[mapidx] = i;
-	}
+	multi_event_set_update_cpu_idx_map(mes);
 
 	return 0;
 }
@@ -219,24 +227,27 @@ static inline int multi_event_set_alloc(struct multi_event_set* mes, int cpu)
 		return 1;
 	}
 
-	int update_map = 0;
+	int rebuild_map = 0;
 
 	if(cpu < mes->min_cpu || mes->min_cpu == -1) {
 		mes->min_cpu = cpu;
-		update_map = 1;
+		rebuild_map = 1;
 	}
 
 	if(cpu > mes->max_cpu || mes->max_cpu == -1) {
 		mes->max_cpu = cpu;
-		update_map = 1;
+		rebuild_map = 1;
 	}
 
 	mes->num_sets_free--;
 	event_set_init(&mes->sets[mes->num_sets++], cpu);
 
-	if(update_map)
+	if(rebuild_map) {
 		if(multi_event_set_rebuild_cpu_idx_map(mes))
 			return 1;
+	} else {
+		multi_event_set_update_cpu_idx_map(mes);
+	}
 
 	return 0;
 }
