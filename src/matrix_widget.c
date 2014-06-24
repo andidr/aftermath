@@ -244,16 +244,22 @@ void gtk_matrix_paint(GtkWidget *widget)
 		cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
 		cairo_set_line_width(cr, 1.0);
 
-		for(int x = 0; x < h->matrix->width; x++) {
-			cairo_move_to(cr, floor(x*width)+0.5, 0);
-			cairo_line_to(cr, floor(x*width)+0.5, widget->allocation.height);
-			cairo_stroke(cr);
-		}
+		int draw_grid = (widget->allocation.width > 3*h->matrix->width) &&
+			(widget->allocation.height > 3*h->matrix->height);
 
-		for(int y = 0; y < h->matrix->height; y++) {
-			cairo_move_to(cr, 0, floor(y*height)+0.5);
-			cairo_line_to(cr, widget->allocation.width, floor(y*height)+0.5);
-			cairo_stroke(cr);
+
+		if(draw_grid) {
+			for(int x = 0; x < h->matrix->width; x++) {
+				cairo_move_to(cr, floor(x*width)+0.5, 0);
+				cairo_line_to(cr, floor(x*width)+0.5, widget->allocation.height);
+				cairo_stroke(cr);
+			}
+
+			for(int y = 0; y < h->matrix->height; y++) {
+				cairo_move_to(cr, 0, floor(y*height)+0.5);
+				cairo_line_to(cr, widget->allocation.width, floor(y*height)+0.5);
+				cairo_stroke(cr);
+			}
 		}
 
 		cairo_rectangle(cr, 0, 0, widget->allocation.width-0.5, widget->allocation.height-0.5);
