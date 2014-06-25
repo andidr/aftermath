@@ -19,6 +19,7 @@
 #define EVENT_SET_H
 
 #include "counter_event_set.h"
+#include "counter_description.h"
 #include "buffer.h"
 #include "events.h"
 #include "annotation.h"
@@ -103,7 +104,7 @@ static inline int event_set_has_write_to_numa_nodes_in_interval(struct event_set
 static inline void event_set_add_counter_offset(struct event_set* es, int counter_id, int64_t offset)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++) {
-		if(es->counter_event_sets[i].counter_id == counter_id) {
+		if(es->counter_event_sets[i].desc->counter_id == counter_id) {
 			counter_event_set_add_offset(&es->counter_event_sets[i], offset);
 			return;
 		}
@@ -113,7 +114,7 @@ static inline void event_set_add_counter_offset(struct event_set* es, int counte
 static inline int event_set_counter_event_set_index(struct event_set* es, int counter_index)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)
-		if(es->counter_event_sets[i].counter_index == counter_index)
+		if(es->counter_event_sets[i].desc->index == counter_index)
 			return i;
 
 	return -1;
@@ -186,7 +187,7 @@ static inline int event_set_add_single_event(struct event_set* es, struct single
 	return 0;
 }
 
-static inline int event_set_alloc_counter_event_set(struct event_set* es, uint64_t counter_id, int counter_index)
+static inline int event_set_alloc_counter_event_set(struct event_set* es, struct counter_description* cd)
 {
 	if(check_buffer_grow((void**)&es->counter_event_sets, sizeof(struct counter_event_set),
 			     es->num_counter_event_sets, &es->num_counter_event_sets_free,
@@ -196,37 +197,37 @@ static inline int event_set_alloc_counter_event_set(struct event_set* es, uint64
 	}
 
 	es->num_counter_event_sets_free--;
-	counter_event_set_init(&es->counter_event_sets[es->num_counter_event_sets++], counter_id, counter_index);
+	counter_event_set_init(&es->counter_event_sets[es->num_counter_event_sets++], cd);
 	return 0;
 }
 
-static inline struct counter_event_set* event_set_find_counter_event_set(struct event_set* es, uint64_t counter_id)
+static inline struct counter_event_set* event_set_find_counter_event_set(struct event_set* es, struct counter_description* cd)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)
-		if(es->counter_event_sets[i].counter_id == counter_id)
+		if(es->counter_event_sets[i].desc->counter_id == cd->counter_id)
 			return &es->counter_event_sets[i];
 
 	return NULL;
 }
 
-static inline struct counter_event_set* event_set_find_alloc_counter_event_set(struct event_set* es, uint64_t counter_id, int counter_index)
+static inline struct counter_event_set* event_set_find_alloc_counter_event_set(struct event_set* es, struct counter_description* cd)
 {
 	struct counter_event_set* res;
 
-	if(!(res = event_set_find_counter_event_set(es, counter_id)))
-		if(event_set_alloc_counter_event_set(es, counter_id, counter_index) != 0)
+	if(!(res = event_set_find_counter_event_set(es, cd)))
+		if(event_set_alloc_counter_event_set(es, cd) != 0)
 			return NULL;
 
-	res = event_set_find_counter_event_set(es, counter_id);
+	res = event_set_find_counter_event_set(es, cd);
 
 	return res;
 }
 
-static inline int event_set_add_counter_event(struct event_set* es, struct counter_event* ce, int calc_slope)
+static inline int event_set_add_counter_event(struct event_set* es, struct counter_event* ce, struct counter_description* cd, int calc_slope)
 {
 	struct counter_event_set* ces;
 
-	if(!(ces = event_set_find_alloc_counter_event_set(es, ce->counter_id, ce->counter_index)))
+	if(!(ces = event_set_find_alloc_counter_event_set(es, cd)))
 		return 1;
 
 	if(add_buffer_grow((void**)&ces->events, ce, sizeof(*ce),

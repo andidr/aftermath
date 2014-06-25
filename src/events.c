@@ -292,10 +292,10 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				cre.active_frame = frame_tree_find(ft, dsk_cre.header.active_frame);
 				cre.time = dsk_cre.header.time;
 				cre.counter_id = dsk_cre.counter_id;
-				cre.counter_index = cd->index;
+				cre.desc = cd;
 				cre.value = dsk_cre.value;
 
-				if(event_set_add_counter_event(es, &cre, 1) != 0)
+				if(event_set_add_counter_event(es, &cre, cd, 1) != 0)
 					return 1;
 
 				multi_event_set_check_update_counter_bounds(mes, &cre);

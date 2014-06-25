@@ -1453,7 +1453,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 
 		for(int ctr = 0; ctr < g->event_sets->sets[cpu_idx].num_counter_event_sets; ctr++) {
 			ces = &g->event_sets->sets[cpu_idx].counter_event_sets[ctr];
-			cd = multi_event_set_find_counter_description_by_index(g->event_sets, ces->counter_index);
+			cd = ces->desc;
 
 			if(g->filter && !filter_has_counter(g->filter, cd))
 				continue;

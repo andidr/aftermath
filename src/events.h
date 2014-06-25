@@ -87,11 +87,11 @@ struct counter_event {
 
 	struct task* active_task;
 	struct frame* active_frame;
+	struct counter_description* desc;
 
 	uint64_t counter_id;
 	int64_t value;
 	long double slope;
-	int counter_index;
 };
 
 static inline uint64_t task_length_of_active_frame(struct state_event* se, int* valid)

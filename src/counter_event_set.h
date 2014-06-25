@@ -24,10 +24,9 @@
 
 struct counter_event_set {
 	struct counter_event* events;
+	struct counter_description* desc;
 	int num_events;
 	int num_events_free;
-	uint64_t counter_id;
-	int counter_index;
 };
 
 int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end);
@@ -38,13 +37,12 @@ static inline void counter_event_set_destroy(struct counter_event_set* ces)
 	free(ces->events);
 }
 
-static inline void counter_event_set_init(struct counter_event_set* ces, uint64_t counter_id, int counter_index)
+static inline void counter_event_set_init(struct counter_event_set* ces, struct counter_description* cd)
 {
 	ces->events = NULL;
 	ces->num_events = 0;
 	ces->num_events_free = 0;
-	ces->counter_id = counter_id;
-	ces->counter_index = counter_index;
+	ces->desc = cd;
 }
 
 static inline void counter_event_set_add_offset(struct counter_event_set* ces, int64_t offset)

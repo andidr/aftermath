@@ -156,14 +156,6 @@ static inline long double multi_event_get_max_counter_slope(struct multi_event_s
 	return max_slope;
 }
 
-static inline struct counter_description* multi_event_set_find_counter_description_by_index(struct multi_event_set* mes, int counter_index)
-{
-	if(counter_index >= 0 && counter_index < mes->num_counters)
-		return &mes->counters[counter_index];
-
-	return NULL;
-}
-
 void multi_event_set_sort_by_cpu(struct multi_event_set* mes);
 
 static inline struct event_set* multi_event_set_find_cpu(struct multi_event_set* mes, int cpu)
@@ -378,7 +370,7 @@ static inline uint64_t multi_event_set_get_free_counter_id(struct multi_event_se
 
 static inline void multi_event_set_check_update_counter_bounds(struct multi_event_set* mes, struct counter_event* ce)
 {
-	struct counter_description* cd = multi_event_set_find_counter_description_by_index(mes, ce->counter_index);
+	struct counter_description* cd = ce->desc;
 
 	if(ce->value < cd->min)
 		cd->min = ce->value;

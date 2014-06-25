@@ -138,7 +138,7 @@ int event_set_get_first_state_starting_in_interval_type(struct event_set* es, ui
 int event_set_get_counter_event_set(struct event_set* es, int counter_idx)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)
-		if(es->counter_event_sets[i].counter_index == counter_idx)
+		if(es->counter_event_sets[i].desc->index == counter_idx)
 			return i;
 
 	return -1;
