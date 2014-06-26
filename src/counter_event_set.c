@@ -17,7 +17,7 @@
 
 #include "counter_event_set.h"
 
-int counter_event_set_get_event_outside_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end)
+int counter_event_set_get_last_event_in_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
 	int end_idx = es->num_events-1;
@@ -30,15 +30,18 @@ int counter_event_set_get_event_outside_interval(struct counter_event_set* es, u
 		center_idx = (start_idx + end_idx) / 2;
 
 		if(es->events[center_idx].time > interval_end)
-			end_idx = center_idx - 1;
+			end_idx = center_idx-1;
 		else if(es->events[center_idx].time < interval_start)
-			start_idx = center_idx + 1;
+			start_idx = center_idx+1;
 		else
 			break;
 	}
 
-	while(center_idx > 0 && es->events[center_idx].time >= interval_start)
-		center_idx--;
+	while(center_idx < es->num_events-1 && es->events[center_idx+1].time < interval_end && es->events[center_idx+1].time > interval_start)
+		center_idx++;
+
+	if(es->events[center_idx].time > interval_end || es->events[center_idx].time < interval_start)
+		return -1;
 
 	return center_idx;
 }

@@ -1476,8 +1476,12 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 
 			cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
 
-			event_idx = counter_event_set_get_event_outside_interval(ces, (g->left > 0) ? g->left : 0, g->right);
+			event_idx = counter_event_set_get_last_event_in_interval(ces, 0, (g->left > 0) ? g->left : 0);
 
+			if(event_idx == -1)
+				event_idx = 0;
+
+			/* TODO: use counter_event_set_get_extrapolated_value */
 			if(event_idx != -1 && event_idx < ces->num_events-1) {
 				if(ces->events[event_idx].time >= g->left) {
 					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
