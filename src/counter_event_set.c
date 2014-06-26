@@ -87,3 +87,23 @@ uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t tim
 	/* Should never happen */
 	return 0;
 }
+
+int counter_event_set_get_extrapolated_value(struct counter_event_set* ces, uint64_t time, int64_t* val_out)
+{
+	int ctr_idx, next_ctr_idx;
+	long double m;
+
+	ctr_idx = counter_event_set_get_last_event_in_interval(ces, 0, time);
+
+	// no counter before time or last counter of the trace
+	if (ctr_idx == -1 || ctr_idx == ces->num_events - 1)
+		return 1;
+
+	next_ctr_idx = ctr_idx+1;
+
+	m = (long double) (ces->events[next_ctr_idx].value - ces->events[ctr_idx].value)
+		/ (long double) (ces->events[next_ctr_idx].time - ces->events[ctr_idx].time);
+
+	*val_out = (int64_t) (ces->events[ctr_idx].value + (time - ces->events[ctr_idx].time) * m);
+	return 0;
+}
