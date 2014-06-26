@@ -137,6 +137,14 @@
                         <signal name="activate" handler="menubar_export_task_graph_selected_task_execution"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menuitem17">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Export per-task counter values</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_generate_counter_file"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

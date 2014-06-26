@@ -369,6 +369,30 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 	bitvector_destroy(&opt.cpus);
 }
 
+G_MODULE_EXPORT void menubar_generate_counter_file(GtkMenuItem *item, gpointer data)
+{
+	FILE *file;
+	char* filename;
+	int nb_errors;
+
+	filename = load_save_file_dialog("Save counters values", GTK_FILE_CHOOSER_ACTION_SAVE, "TEXT files", "*.txt", NULL);
+
+	if(!filename)
+		return;
+
+	if(!(file = fopen(filename, "w+"))) {
+		show_error_message("Can't open file : %s\n", filename);
+		return;
+	}
+
+	multi_event_set_dump_per_task_counter_values(&g_mes, &g_filter, file, &nb_errors);
+
+	if(nb_errors)
+		show_error_message("Could not determine counter values for %d tasks.", nb_errors);
+
+	fclose(file);
+}
+
 void goto_time(double time)
 {
 	long double left, right, new_left, new_right, range;

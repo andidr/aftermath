@@ -336,4 +336,6 @@ int event_set_get_min_task_duration_in_interval (struct event_set* es, struct fi
 
 int event_set_get_task_duration_in_interval (struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* durations);
 
+void event_set_dump_per_task_counter_values(struct event_set* es, struct filter* f, FILE* file, int* nb_errors_out);
+
 #endif

@@ -18,6 +18,7 @@
 #include "event_set.h"
 #include "filter.h"
 #include <stdlib.h>
+#include <inttypes.h>
 
 static int comm_event_compare_time(const void* p1, const void* p2)
 {
@@ -704,4 +705,61 @@ int event_set_get_task_duration_in_interval(struct event_set* es, struct filter*
 	}
 
 	return valid;
+}
+
+void event_set_dump_per_task_counter_values(struct event_set* es, struct filter* f, FILE* file, int* nb_errors_out)
+{
+	struct counter_event_set* ces;
+	struct single_event* first_texec_start;
+	int64_t value_start, value_end;
+	int64_t nb_events;
+	int nb_errors = 0;
+
+	int idx = event_set_get_first_single_event_in_interval_type(es, es->first_start, es->last_end, SINGLE_TYPE_TEXEC_START);
+
+	if(idx == -1)
+		return;
+
+	first_texec_start = &es->single_events[idx];
+
+	for(int ctr_ev_idx = 0; ctr_ev_idx < es->num_counter_event_sets; ctr_ev_idx++) {
+		ces = &es->counter_event_sets[ctr_ev_idx];
+
+		if(f && !filter_has_counter(f, ces->desc))
+			continue;
+
+		for(struct single_event* se = first_texec_start;
+		    se;
+		    se = se->next_texec_start)
+		{
+			if(!f ||
+			   (filter_has_task(f, se->active_task) &&
+			    filter_has_frame(f, se->active_frame) &&
+			    filter_has_cpu(f, es->cpu) &&
+			    filter_has_task_duration(f, se->next_texec_end->time - se->time) &&
+			    (!f->filter_writes_to_numa_nodes ||
+			     event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
+			{
+				
+				if(counter_event_set_get_extrapolated_value(ces, se->time, &value_start)) {
+					nb_errors++;
+					continue;
+				}
+				
+				if(counter_event_set_get_extrapolated_value(ces, se->next_texec_end->time, &value_end)) {
+					nb_errors++;
+					continue;
+				}
+				
+				nb_events = value_end - value_start;
+				
+				if (se->active_task->symbol_name != NULL)
+					fprintf(file, "%s %s %d %"PRIu64" %"PRId64"\n", se->active_task->symbol_name, ces->desc->name, es->cpu, (se->next_texec_end->time - se->time), nb_events);
+				else
+					fprintf(file, "(no-symbol-found) %s %d %"PRIu64" %"PRId64"\n", ces->desc->name, es->cpu, (se->next_texec_end->time - se->time), nb_events);
+			}
+		}
+	}
+
+	*nb_errors_out = nb_errors;
 }

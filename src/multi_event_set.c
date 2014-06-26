@@ -55,3 +55,9 @@ int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* me
 
 	return (min < UINT64_MAX);
 }
+
+void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, struct filter* f, FILE* file, int* nb_errors_out)
+{
+	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++)
+		event_set_dump_per_task_counter_values(&mes->sets[cpu_idx], f, file, nb_errors_out);
+}
