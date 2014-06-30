@@ -376,10 +376,18 @@ G_MODULE_EXPORT void menubar_generate_counter_file(GtkMenuItem *item, gpointer d
 	int nb_errors;
 	struct counter_description* cd;
 	int cpu;
+	enum yes_no_cancel_dialog_response response;
 
 	if(!multi_event_set_counters_monotonously_increasing(&g_mes, &g_filter, &cd, &cpu)) {
 		show_error_message("Counter \"%s\" is not monotonously increasing on CPU %d\n", cd->name, cpu);
 		return;
+	}
+
+	if (!multi_event_set_cpus_have_counters(&g_mes, &g_filter)) {
+		response = show_yes_no_dialog("Some counters are not available on all CPUs. Continue anyway ?\n");
+
+		if (response == DIALOG_RESPONSE_NO)
+			return;
 	}
 
 	filename = load_save_file_dialog("Save counters values", GTK_FILE_CHOOSER_ACTION_SAVE, "TEXT files", "*.txt", NULL);

@@ -70,3 +70,22 @@ int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes
 
 	return 1;
 }
+
+int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filter* f)
+{
+	for (int counter_idx = 0; counter_idx < mes->num_counters; counter_idx++) {
+		struct counter_description* cd = &mes->counters[counter_idx];
+
+		for (int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
+			struct event_set* es = &mes->sets[cpu_idx];
+
+			if(f && !filter_has_cpu(f, es->cpu))
+				continue;
+
+			if(!event_set_has_counter(es, cd))
+				return 0;
+		}
+	}
+
+	return 1;
+}

@@ -340,4 +340,6 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 
 int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd, int* cpu);
 
+int event_set_has_counter(struct event_set* es, struct counter_description* cd);
+
 #endif

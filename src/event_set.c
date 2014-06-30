@@ -777,3 +777,12 @@ int event_set_counters_monotonously_increasing(struct event_set* es, struct filt
 
 	return 1;
 }
+
+int event_set_has_counter(struct event_set* es, struct counter_description* cd)
+{
+	for (int ctr_idx = 0; ctr_idx < es->num_counter_event_sets; ctr_idx++)
+		if (es->counter_event_sets[ctr_idx].desc->counter_id == cd->counter_id)
+			return 1;
+
+	return 0;
+}
