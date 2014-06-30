@@ -89,6 +89,43 @@ enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...)
 }
 
 /**
+ * Displays a simple dialog with two buttons: yes and no.
+ * @param format A printf-style format string
+ * @return 0 if the answer was no, 1 if yes.
+ */
+enum yes_no_cancel_dialog_response show_yes_no_dialog(char* format, ...)
+{
+	char buff[1024];
+	va_list ap;
+	enum yes_no_cancel_dialog_response ret = DIALOG_RESPONSE_NO;
+
+	va_start(ap, format);
+	vsnprintf(buff, sizeof(buff), format, ap);
+	va_end(ap);
+
+	GtkWidget* dialog = gtk_message_dialog_new (NULL,
+						    GTK_DIALOG_DESTROY_WITH_PARENT,
+						    GTK_MESSAGE_QUESTION,
+						    GTK_BUTTONS_YES_NO,
+						    buff);
+
+	gint resp = gtk_dialog_run(GTK_DIALOG (dialog));
+
+	switch(resp) {
+		case GTK_RESPONSE_NO:
+			ret = DIALOG_RESPONSE_NO;
+			break;
+		case GTK_RESPONSE_YES:
+			ret = DIALOG_RESPONSE_YES;
+			break;
+	}
+
+	gtk_widget_destroy (dialog);
+
+	return ret;
+}
+
+/**
  * Runs a simple file selection dialog.
  * @param title The string shown in the title bar of the dialog
  * @param mode GTK_FILE_CHOOSER_ACTION_OPEN or GTK_FILE_CHOOSER_ACTION_SAVE
