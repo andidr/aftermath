@@ -740,19 +740,18 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 			    (!f->filter_writes_to_numa_nodes ||
 			     event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
 			{
-				
 				if(counter_event_set_get_extrapolated_value(ces, se->time, &value_start)) {
 					nb_errors++;
 					continue;
 				}
-				
+
 				if(counter_event_set_get_extrapolated_value(ces, se->next_texec_end->time, &value_end)) {
 					nb_errors++;
 					continue;
 				}
-				
+
 				nb_events = value_end - value_start;
-				
+
 				if (se->active_task->symbol_name != NULL)
 					fprintf(file, "%s %s %d %"PRIu64" %"PRId64"\n", se->active_task->symbol_name, ces->desc->name, es->cpu, (se->next_texec_end->time - se->time), nb_events);
 				else
@@ -762,4 +761,19 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 	}
 
 	*nb_errors_out = nb_errors;
+}
+
+int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd, int* cpu)
+{
+	for(int idx = 0; idx < es->num_counter_event_sets; idx++) {
+		if(!f ||
+		   (filter_has_counter(f, es->counter_event_sets[idx].desc) &&
+		    filter_has_cpu(f, es->cpu)))
+		{
+			if(!counter_event_set_is_monotonously_increasing(&es->counter_event_sets[idx], cd, cpu))
+				return 0;
+		}
+	}
+
+	return 1;
 }

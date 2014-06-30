@@ -34,6 +34,8 @@ uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t tim
 
 int counter_event_set_get_extrapolated_value(struct counter_event_set* ces, uint64_t time, int64_t* val_out);
 
+int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu);
+
 static inline void counter_event_set_destroy(struct counter_event_set* ces)
 {
 	free(ces->events);

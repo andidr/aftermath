@@ -374,6 +374,13 @@ G_MODULE_EXPORT void menubar_generate_counter_file(GtkMenuItem *item, gpointer d
 	FILE *file;
 	char* filename;
 	int nb_errors;
+	struct counter_description* cd;
+	int cpu;
+
+	if(!multi_event_set_counters_monotonously_increasing(&g_mes, &g_filter, &cd, &cpu)) {
+		show_error_message("Counter \"%s\" is not monotonously increasing on CPU %d\n", cd->name, cpu);
+		return;
+	}
 
 	filename = load_save_file_dialog("Save counters values", GTK_FILE_CHOOSER_ACTION_SAVE, "TEXT files", "*.txt", NULL);
 

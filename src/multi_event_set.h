@@ -583,4 +583,6 @@ int multi_event_set_get_max_task_duration_in_interval(struct multi_event_set* me
 
 void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, struct filter* f, FILE* file, int* nb_errors_out);
 
+int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes, struct filter*f, struct counter_description** cd, int* cpu);
+
 #endif

@@ -16,6 +16,7 @@
  */
 
 #include "counter_event_set.h"
+#include "event_set.h"
 
 int counter_event_set_get_last_event_in_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
@@ -106,4 +107,20 @@ int counter_event_set_get_extrapolated_value(struct counter_event_set* ces, uint
 
 	*val_out = (int64_t) (ces->events[ctr_idx].value + (time - ces->events[ctr_idx].time) * m);
 	return 0;
+}
+
+int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu)
+{
+	int64_t value = INT64_MIN;
+
+	for(int idx = 0; idx < ces->num_events; idx++) {
+		if (ces->events[idx].value < value) {
+			*cd = ces->events[idx].desc;
+			*cpu = ces->events[idx].event_set->cpu;
+			return 0;
+		}
+		value = ces->events[idx].value;
+	}
+
+	return 1;
 }
