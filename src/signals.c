@@ -18,6 +18,8 @@
 #include "globals.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
+#include "multi_histogram_widget.h"
+#include "color.h"
 #include "matrix_widget.h"
 #include "util.h"
 #include "dialogs.h"
@@ -331,6 +333,7 @@ G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckM
 
 G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer data)
 {
+	char buffer[128];
 	struct derived_counter_options opt;
 	struct counter_description* cd;
 	int err = 1;
@@ -359,8 +362,11 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 
 		if(err)
 			show_error_message("Could not create derived counter.");
-		else
+		else {
 			counter_list_append(GTK_TREE_VIEW(g_counter_treeview), cd, FALSE);
+			strncpy(buffer, cd->name, sizeof(buffer));
+			gtk_combo_box_append_text(GTK_COMBO_BOX(g_counter_list_widget), buffer);
+		}
 
 		free(opt.name);
 	}
@@ -556,6 +562,8 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), "\n");
 
 	gtk_histogram_set_data(g_histogram_widget, NULL);
+	gtk_multi_histogram_set_data(g_multi_histogram_widget, NULL, NULL);
+
 	gtk_matrix_set_data(g_matrix_widget, NULL);
 }
 
@@ -640,12 +648,183 @@ G_MODULE_EXPORT gint comm_matrix_numonly_toggled(gpointer data, GtkWidget* check
 	return 0;
 }
 
+void update_statistics_labels(uint64_t cycles, uint64_t min_cycles, uint64_t max_cycles, unsigned int max_hist, unsigned int num_tasks)
+{
+	char buffer[128];
+	char buffer2[128];
+
+	if(num_tasks > 0) {
+		pretty_print_cycles(buffer, sizeof(buffer), cycles / num_tasks);
+		snprintf(buffer2, sizeof(buffer2), "%scycles / task (avg)", buffer);
+		gtk_label_set_text(GTK_LABEL(g_label_hist_avg_task_length), buffer2);
+	}
+
+	snprintf(buffer, sizeof(buffer), "%d tasks considered", num_tasks);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), min_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), max_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), buffer);
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0%");
+	snprintf(buffer, sizeof(buffer), "%.2f%%", 100.0*((double)max_hist / (double)num_tasks));
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), buffer);
+}
+
+void update_task_statistics(void)
+{
+	int64_t left, right;
+	struct task_statistics ts;
+
+	gtk_widget_hide(g_multi_histogram_widget);
+	gtk_widget_show(g_histogram_widget);
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
+	if(task_statistics_init(&ts, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
+		show_error_message("Cannot allocate task statistics structure.");
+		return;
+	}
+
+	task_statistics_gather(&g_mes, &g_filter, &ts, left, right);
+
+	task_statistics_to_task_length_histogram(&ts, &g_task_histogram);
+	gtk_histogram_set_data(g_histogram_widget, &g_task_histogram);
+
+	update_statistics_labels(ts.cycles, ts.min_cycles, ts.max_cycles, ts.max_hist, ts.num_tasks);
+
+	task_statistics_destroy(&ts);
+}
+
+void get_max_hist_and_num_tasks(struct multi_task_statistics* mts, unsigned int* max_hist_out, unsigned int* num_tasks_out, uint64_t* cycles_out)
+{
+	unsigned int max_hist = 0;
+	unsigned int num_tasks = 0;
+	uint64_t cycles = 0;
+
+	for(int idx = 0; idx < mts->num_tasks_stats; idx++) {
+		if(mts->stats[idx]->max_hist > max_hist)
+			max_hist = mts->stats[idx]->max_hist;
+		num_tasks += mts->stats[idx]->num_tasks;
+		cycles += mts->stats[idx]->cycles;
+	}
+
+	*max_hist_out = max_hist;
+	*num_tasks_out = num_tasks;
+	*cycles_out = cycles;
+}
+
+void update_multi_task_statistics(void)
+{
+	int64_t left, right;
+	unsigned int max_hist, num_tasks;
+	uint64_t cycles;
+	struct multi_task_statistics mts;
+
+	gtk_widget_hide(g_histogram_widget);
+	gtk_widget_show(g_multi_histogram_widget);
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
+	if(multi_task_statistics_init(&mts, g_mes.num_tasks, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
+		show_error_message("Cannot allocate task statistics structure.");
+		return;
+	}
+
+	multi_task_statistics_gather(&g_mes, &g_filter, &mts, left, right);
+
+	multi_histogram_destroy(&g_task_multi_histogram);
+	if(multi_histogram_init(&g_task_multi_histogram, mts.num_tasks_stats, HISTOGRAM_DEFAULT_NUM_BINS, 0, 1)) {
+		show_error_message("Cannot initialize task length multi histogram structure.");
+		return;
+	}
+
+	multi_task_statistics_to_task_length_multi_histogram(&mts, &g_task_multi_histogram);
+	gtk_multi_histogram_set_data(g_multi_histogram_widget, &g_task_multi_histogram, (double*)task_type_colors);
+
+	get_max_hist_and_num_tasks(&mts, &max_hist, &num_tasks, &cycles);
+
+	update_statistics_labels(cycles, mts.min_all, mts.max_all, max_hist, num_tasks);
+
+	multi_task_statistics_destroy(&mts);
+}
+
+void update_counter_statistics()
+{
+	int64_t left, right;
+	struct task_statistics counter_stats;
+	int counter_idx;
+
+	gtk_widget_hide(g_multi_histogram_widget);
+	gtk_widget_show(g_histogram_widget);
+
+	counter_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(g_counter_list_widget));
+
+	if(counter_idx == -1)
+		return;
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
+	if(task_statistics_init(&counter_stats, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
+		show_error_message("Cannot allocate task statistics structure (for counters)");
+		return;
+	}
+
+	counter_statistics_gather(&g_mes, &g_filter, &counter_stats, &g_mes.counters[counter_idx], left, right);
+	counter_statistics_to_counter_histogram(&counter_stats, &g_counter_histogram);
+
+	gtk_histogram_set_data(g_histogram_widget, &g_counter_histogram);
+	update_statistics_labels(counter_stats.cycles, counter_stats.min_cycles, counter_stats.max_cycles, counter_stats.max_hist, counter_stats.num_tasks);
+
+	task_statistics_destroy(&counter_stats);
+}
+
+G_MODULE_EXPORT void global_hist_view_activated(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+
+	if(active) {
+		gtk_widget_set_sensitive(g_counter_list_widget, 0);
+		update_task_statistics();
+	}
+}
+
+G_MODULE_EXPORT void per_task_hist_view_activated(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+
+	if(active) {
+		gtk_widget_set_sensitive(g_counter_list_widget, 0);
+		update_multi_task_statistics();
+	}
+}
+
+G_MODULE_EXPORT void counter_hist_view_activated(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+
+	if(active) {
+		gtk_widget_set_sensitive(g_counter_list_widget, 1);
+		update_counter_statistics();
+	}
+}
+
+G_MODULE_EXPORT void counter_changed(GtkComboBox *combo, gpointer data)
+{
+	update_counter_statistics();
+}
+
 void update_statistics(void)
 {
 	char buffer[128];
 	char buffer2[128];
 	struct state_statistics sts;
-	struct task_statistics ts;
+
 	int64_t left, right;
 	int64_t length;
 
@@ -733,38 +912,12 @@ void update_statistics(void)
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64" task creation events", single_stats.num_tcreate_events);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tcreate), buffer);
-
-	if(task_statistics_init(&ts, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
-		show_error_message("Cannot allocate task statistics structure.");
-		return;
-	}
-
-	task_statistics_gather(&g_mes, &g_filter, &ts, left, right);
-
-	if(ts.num_tasks > 0) {
-		pretty_print_cycles(buffer, sizeof(buffer), ts.cycles / ts.num_tasks);
-		snprintf(buffer2, sizeof(buffer2), "%scycles / task (avg)", buffer);
-		gtk_label_set_text(GTK_LABEL(g_label_hist_avg_task_length), buffer2);
-	}
-
-	task_statistics_to_task_length_histogram(&ts, &g_task_histogram);
-	gtk_histogram_set_data(g_histogram_widget, &g_task_histogram);
-
-	snprintf(buffer, sizeof(buffer), "%d tasks considered", ts.num_tasks);
-	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tasks), buffer);
-
-	pretty_print_cycles(buffer, sizeof(buffer), ts.min_cycles);
-	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles), buffer);
-
-	pretty_print_cycles(buffer, sizeof(buffer), ts.max_cycles);
-	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), buffer);
-
-	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0%");
-
-	snprintf(buffer, sizeof(buffer), "%.2f%%", 100.0*((double)ts.max_hist / (double)ts.num_tasks));
-	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), buffer);
-
-	task_statistics_destroy(&ts);
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_global_hist_radio_button)))
+		update_task_statistics();
+	else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_per_task_hist_radio_button)))
+		update_multi_task_statistics();
+	else
+		update_counter_statistics();
 
 	update_comm_matrix();
 }

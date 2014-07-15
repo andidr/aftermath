@@ -56,6 +56,30 @@ int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* me
 	return (min < UINT64_MAX);
 }
 
+int multi_event_set_get_min_max_task_duration_in_interval(struct multi_event_set* mes, struct filter* f, uint64_t start, uint64_t end, uint64_t* min, uint64_t* max)
+{
+	uint64_t lmin = UINT64_MAX;
+	uint64_t lmax = 0;
+	uint64_t curr_min;
+	uint64_t curr_max;
+
+	for(int i = 0 ; i < mes->num_sets; i++) {
+		if(filter_has_cpu(f, mes->sets[i].cpu)) {
+			if(event_set_get_min_max_task_duration_in_interval(&mes->sets[i], f, start, end, &curr_min, &curr_max)) {
+				if(curr_min < lmin)
+					lmin = curr_min;
+				if(curr_max > lmax)
+					lmax = curr_max;
+			}
+		}
+	}
+
+	*min = lmin;
+	*max = lmax;
+
+	return (lmin < UINT64_MAX);
+}
+
 void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, struct filter* f, FILE* file, int* nb_errors_out)
 {
 	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++)

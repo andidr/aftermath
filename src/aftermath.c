@@ -26,6 +26,7 @@
 #include "glade_extras.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
+#include "multi_histogram_widget.h"
 #include "matrix_widget.h"
 #include "globals.h"
 #include "signals.h"
@@ -132,6 +133,7 @@ int main(int argc, char** argv)
 	char* tracefile = NULL;
 	char* executable = NULL;
 	char buffer[30];
+	char buffer2[128];
 	char title[PATH_MAX+10];
 	enum compression_type compression_type;
 
@@ -307,11 +309,32 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, check_single_ee);
 	IMPORT_GLADE_WIDGET(xml, check_single_d);
 
+	IMPORT_GLADE_WIDGET(xml, counter_combo_box);
+	IMPORT_GLADE_WIDGET(xml, label_info_counter);
+	IMPORT_GLADE_WIDGET(xml, global_hist_radio_button);
+	IMPORT_GLADE_WIDGET(xml, per_task_hist_radio_button);
+	IMPORT_GLADE_WIDGET(xml, counter_hist_radio_button);
+
 	g_trace_widget = gtk_trace_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(graph_box), g_trace_widget);
 
 	g_histogram_widget = gtk_histogram_new();
 	gtk_container_add(GTK_CONTAINER(hist_box), g_histogram_widget);
+
+	g_multi_histogram_widget = gtk_multi_histogram_new();
+	gtk_container_add(GTK_CONTAINER(hist_box), g_multi_histogram_widget);
+
+	g_counter_list_widget = counter_combo_box;
+
+	for(int i = 0; i < g_mes.num_counters; i++) {
+		strncpy(buffer2, g_mes.counters[i].name, sizeof(buffer2));
+		gtk_combo_box_append_text(GTK_COMBO_BOX(g_counter_list_widget), buffer2);
+	}
+
+	g_label_info_counter = label_info_counter;
+	g_global_hist_radio_button = global_hist_radio_button;
+	g_per_task_hist_radio_button =  per_task_hist_radio_button;
+	g_counter_hist_radio_button = counter_hist_radio_button;
 
 	g_matrix_widget = gtk_matrix_new();
 	gtk_container_add(GTK_CONTAINER(matrix_box), g_matrix_widget);
@@ -458,6 +481,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	if(histogram_init(&g_counter_histogram, HISTOGRAM_DEFAULT_NUM_BINS, 0, 1)) {
+		show_error_message("Cannot initialize counter histogram structure.");
+		return 1;
+	}
+
 	if(intensity_matrix_init(&g_comm_matrix, 1, 1)) {
 		show_error_message("Cannot initialize communication matrix.");
 		return 1;
@@ -468,6 +496,9 @@ int main(int argc, char** argv)
 
 	gtk_widget_show_all(toplevel_window);
 
+	gtk_widget_hide(g_multi_histogram_widget);
+	gtk_widget_set_sensitive(g_counter_list_widget, 0);
+
 	reset_zoom();
 
 	gtk_main();
@@ -476,6 +507,8 @@ int main(int argc, char** argv)
 	filter_destroy(&g_filter);
 	settings_destroy(&g_settings);
 	histogram_destroy(&g_task_histogram);
+	histogram_destroy(&g_counter_histogram);
+	multi_histogram_destroy(&g_task_multi_histogram);
 	intensity_matrix_destroy(&g_comm_matrix);
 	free(g_visuals_filename);
 

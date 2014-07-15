@@ -333,6 +333,7 @@ static inline void event_set_delete_annotation(struct event_set* es, struct anno
 
 int event_set_get_max_task_duration_in_interval (struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration);
 int event_set_get_min_task_duration_in_interval (struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration);
+int event_set_get_min_max_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* min, uint64_t* max);
 
 int event_set_get_task_duration_in_interval (struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* durations);
 

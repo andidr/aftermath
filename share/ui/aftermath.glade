@@ -2866,17 +2866,109 @@
                                                     <property name="position">1</property>
                                                   </packing>
                                                 </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_info_counter">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkVBox" id="vbox35">
+                                                    <property name="visible">True</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <widget class="GtkHBox" id="hbox40">
+                                                        <property name="visible">True</property>
+                                                        <child>
+                                                          <widget class="GtkRadioButton" id="global_hist_radio_button">
+                                                            <property name="label" translatable="yes">All selected types</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="has_default">True</property>
+                                                            <property name="receives_default">False</property>
+                                                            <property name="active">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <signal name="toggled" handler="global_hist_view_activated"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <widget class="GtkRadioButton" id="per_task_hist_radio_button">
+                                                            <property name="label" translatable="yes">Per-task type</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">False</property>
+                                                            <property name="active">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <property name="group">global_hist_radio_button</property>
+                                                            <signal name="toggled" handler="per_task_hist_view_activated"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <widget class="GtkHBox" id="hbox41">
+                                                        <property name="visible">True</property>
+                                                        <child>
+                                                          <widget class="GtkRadioButton" id="counter_hist_radio_button">
+                                                            <property name="label" translatable="yes">Counter</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">False</property>
+                                                            <property name="active">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <property name="group">per_task_hist_radio_button</property>
+                                                            <signal name="toggled" handler="counter_hist_view_activated"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <widget class="GtkComboBox" id="counter_combo_box">
+                                                            <property name="visible">True</property>
+                                                            <property name="items" translatable="yes"></property>
+                                                            <signal name="changed" handler="counter_changed"/>
+                                                          </widget>
+                                                          <packing>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="position">3</property>
+                                                  </packing>
+                                                </child>
                                               </widget>
                                               <packing>
                                                 <property name="position">2</property>
                                               </packing>
                                             </child>
                                             <child>
+                                              <placeholder/>
+                                            </child>
+                                            <child>
                                               <widget class="GtkLabel" id="label72">
                                                 <property name="visible">True</property>
                                               </widget>
                                               <packing>
-                                                <property name="position">3</property>
+                                                <property name="position">4</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3061,7 +3153,7 @@
                                                       <widget class="GtkHScale" id="hscale2">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">1 0 1 1 0.10000000000000001 0</property>
+                                                        <property name="adjustment">0 0 1 1 0.10000000000000001 0</property>
                                                         <property name="draw_value">False</property>
                                                         <signal name="value_changed" handler="comm_matrix_max_threshold_changed"/>
                                                       </widget>
@@ -3090,7 +3182,7 @@
                                                 </child>
                                               </widget>
                                               <packing>
-                                                <property name="position">4</property>
+                                                <property name="position">5</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3098,7 +3190,7 @@
                                                 <property name="visible">True</property>
                                               </widget>
                                               <packing>
-                                                <property name="position">5</property>
+                                                <property name="position">6</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3723,7 +3815,7 @@
                                                 </child>
                                               </widget>
                                               <packing>
-                                                <property name="position">6</property>
+                                                <property name="position">7</property>
                                               </packing>
                                             </child>
                                           </widget>

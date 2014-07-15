@@ -634,6 +634,42 @@ int event_set_get_min_task_duration_in_interval(struct event_set* es, struct fil
 	return (min < UINT64_MAX);
 }
 
+int event_set_get_min_max_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* min, uint64_t* max)
+{
+	int idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START);
+
+	if (idx == -1)
+		return 0;
+
+	uint64_t lmin = UINT64_MAX;
+	uint64_t lmax = 0;
+	uint64_t curr;
+
+	for(struct single_event* se = &es->single_events[idx];
+	    se && se->next_texec_end->time <= end;
+	    se = se->next_texec_start)
+	{
+		curr = se->next_texec_end->time - se->time;
+
+		if(filter_has_task(f, se->active_task) &&
+		   filter_has_frame(f, se->active_frame) &&
+		   filter_has_task_duration(f, curr) &&
+		   (!f-> filter_writes_to_numa_nodes ||
+		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
+		{
+			if(curr < lmin)
+				lmin = curr;
+			if(curr > lmax)
+				lmax = curr;
+		}
+	}
+
+	*min = lmin;
+	*max = lmax;
+
+	return (lmin < UINT64_MAX);
+}
+
 int event_set_get_max_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration)
 {
 	int idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START);

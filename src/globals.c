@@ -20,6 +20,8 @@
 
 GtkWidget* g_trace_widget;
 GtkWidget* g_histogram_widget;
+GtkWidget* g_multi_histogram_widget;
+GtkWidget* g_counter_list_widget;
 GtkWidget* g_matrix_widget;
 GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
@@ -106,6 +108,11 @@ GtkWidget* g_check_single_es;
 GtkWidget* g_check_single_ee;
 GtkWidget* g_check_single_d;
 
+GtkWidget* g_label_info_counter;
+GtkWidget* g_global_hist_radio_button;
+GtkWidget* g_per_task_hist_radio_button;
+GtkWidget* g_counter_hist_radio_button;
+
 struct multi_event_set g_mes = { .sets = NULL,
 				 .num_sets = 0,
 				 .num_sets_free = 0,
@@ -132,6 +139,8 @@ struct multi_event_set g_mes = { .sets = NULL,
 struct filter g_filter;
 struct settings g_settings;
 struct histogram g_task_histogram;
+struct multi_histogram g_task_multi_histogram;
+struct histogram g_counter_histogram;
 struct intensity_matrix g_comm_matrix;
 struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 

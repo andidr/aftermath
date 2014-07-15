@@ -13,6 +13,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/trace_widget.c \
 		src/histogram_widget.h \
 		src/histogram_widget.c \
+		src/multi_histogram_widget.h \
+		src/multi_histogram_widget.c \
 		src/matrix_widget.h \
 		src/matrix_widget.c \
 		src/intensity_matrix.h \

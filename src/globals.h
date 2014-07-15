@@ -28,6 +28,8 @@
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
+extern GtkWidget* g_multi_histogram_widget;
+extern GtkWidget* g_counter_list_widget;
 extern GtkWidget* g_matrix_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
@@ -116,10 +118,18 @@ extern GtkWidget* g_check_single_es;
 extern GtkWidget* g_check_single_ee;
 extern GtkWidget* g_check_single_d;
 
+extern GtkWidget* g_label_info_counter;
+extern GtkWidget* g_global_hist_radio_button;
+extern GtkWidget* g_per_task_hist_radio_button;
+extern GtkWidget* g_counter_hist_radio_button;
+
+
 extern struct multi_event_set g_mes;
 extern struct filter g_filter;
 extern struct settings g_settings;
 extern struct histogram g_task_histogram;
+extern struct histogram g_counter_histogram;
+extern struct multi_histogram g_task_multi_histogram;
 extern struct intensity_matrix g_comm_matrix;
 
 #define NUM_TRACE_MARKERS 6

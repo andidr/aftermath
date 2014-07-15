@@ -36,8 +36,20 @@ struct histogram {
 	unsigned int num_hist;
 };
 
+struct multi_histogram {
+	int num_hists;
+	int* task_ids;  // array of num_hists int
+	struct histogram** histograms;
+
+	unsigned int num_hist_bins;
+	long double* max_values;  // array of num_hist_bins long double
+};
+
 int histogram_init(struct histogram* h, unsigned int num_bins, long double left, long double right);
 void histogram_destroy(struct histogram* h);
+
+int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int num_bins, long double left, long double right);
+void multi_histogram_destroy(struct multi_histogram* mh);
 
 struct state_statistics {
 	uint64_t state_cycles[WORKER_STATE_MAX];
@@ -63,11 +75,29 @@ struct task_statistics {
 	unsigned int max_hist;
 };
 
+struct multi_task_statistics {
+	int num_tasks_stats;
+	uint64_t min_all;
+	uint64_t max_all;
+	int* task_ids;
+	struct task_statistics** stats;
+};
+
 int task_statistics_init(struct task_statistics* s, unsigned int num_hist_bins);
 void task_statistics_reset(struct task_statistics* s);
 void task_statistics_destroy(struct task_statistics* s);
 void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* s, int64_t start, int64_t end);
 int task_statistics_to_task_length_histogram(struct task_statistics* s, struct histogram* h);
+
+int multi_task_statistics_init(struct multi_task_statistics* ms, int num_tasks_stats, unsigned int num_hist_bins);
+void multi_task_statistics_destroy(struct multi_task_statistics* ms);
+int multi_task_statistics_shrink(struct multi_task_statistics* ms, int num_tasks_stats);
+void task_statistics_gather_with_min_max_cycles(struct multi_event_set* mes, struct filter* f, struct task_statistics* s, int64_t start, int64_t end, uint64_t min_cycles, uint64_t max_cycles);
+int multi_task_statistics_gather(struct multi_event_set* mes, struct filter* f, struct multi_task_statistics* ms, int64_t start, int64_t end);
+int multi_task_statistics_to_task_length_multi_histogram(struct multi_task_statistics* ms, struct multi_histogram* mh);
+
+void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* cs, struct counter_description* cd, int64_t start, int64_t end);
+int counter_statistics_to_counter_histogram(struct task_statistics* cs, struct histogram* h);
 
 int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only);
 
