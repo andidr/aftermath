@@ -112,4 +112,23 @@ static inline char* strdup(const char* s)
 }
 #endif
 
+static inline void print_short(char* buf, int max_len, const char* src)
+{
+	int rem_len = max_len - 3 - 1;
+	int suff_len = rem_len/2;
+	int pref_len = rem_len-suff_len;
+
+	if(max_len < 4 || strlen(src) < max_len) {
+		strncpy(buf, src, max_len);
+		return;
+	}
+
+	if(max_len < 6) {
+		snprintf(buf, max_len, "%.*s...", max_len-3, src);
+		return;
+	}
+
+	snprintf(buf, max_len, "%.*s...%.*s", pref_len, src, suff_len, &src[strlen(src)-suff_len]);
+}
+
 #endif

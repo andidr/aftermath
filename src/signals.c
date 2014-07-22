@@ -411,6 +411,8 @@ G_MODULE_EXPORT void menubar_export_task_graph_selected_task_execution(GtkCheckM
 G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer data)
 {
 	char buffer[128];
+	char buffer_short[20];
+
 	struct derived_counter_options opt;
 	struct counter_description* cd;
 	int err = 1;
@@ -442,7 +444,9 @@ G_MODULE_EXPORT void menubar_add_derived_counter(GtkMenuItem *item, gpointer dat
 		else {
 			counter_list_append(GTK_TREE_VIEW(g_counter_treeview), cd, FALSE);
 			strncpy(buffer, cd->name, sizeof(buffer));
-			gtk_combo_box_append_text(GTK_COMBO_BOX(g_counter_list_widget), buffer);
+
+			print_short(buffer_short, sizeof(buffer_short), cd->name);
+			gtk_combo_box_append_text(GTK_COMBO_BOX(g_counter_list_widget), buffer_short);
 		}
 
 		free(opt.name);
