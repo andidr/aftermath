@@ -149,7 +149,6 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 	int start_idx;
 	uint64_t curr_length;
 	int hist_bin;
-	int first_texec_idx;
 
 	for(int histogram = 0; histogram < 2; histogram++) {
 		for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
@@ -171,19 +170,7 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 				if(!filter_has_task_duration(f, curr_length))
 					goto next;
 
-				first_texec_idx = event_set_get_first_state_starting_in_interval_type(&mes->sets[cpu_idx],
-												      se->time,
-												      se->next_texec_end->time,
-												      WORKER_STATE_TASKEXEC);
-
-				if(first_texec_idx == -1) {
-					fprintf(stderr, "Oops: no texec state found between texec start "
-						"and texec end (CPU %d, [%"PRIu64" ; %"PRIu64"])!\n",
-						cpu_idx, se->time, se->next_texec_end->time);
-					goto next;
-				}
-
-				if(!filter_has_task(f, mes->sets[cpu_idx].state_events[first_texec_idx].active_task))
+				if(!filter_has_task(f, se->active_task))
 					goto next;
 
 				if(f->filter_writes_to_numa_nodes &&
