@@ -217,18 +217,20 @@ void heatmap_update_params(void)
 int task_length_heatmap_update_params(void)
 {
 	const char* txt;
-	int64_t min_length;
-	int64_t max_length;
+	uint64_t min_length;
+	uint64_t max_length;
 
 	txt = gtk_entry_get_text(GTK_ENTRY(g_heatmap_min_cycles));
-	if(sscanf(txt, "%"PRId64, &min_length) != 1) {
-		show_error_message("\"%s\" is not a correct integer value.", txt);
+
+	if(pretty_read_cycles(txt, &min_length)) {
+		show_error_message("\"%s\" is not a correct number of cycles.", txt);
 		return 1;
 	}
 
 	txt = gtk_entry_get_text(GTK_ENTRY(g_heatmap_max_cycles));
-	if(sscanf(txt, "%"PRId64, &max_length) != 1) {
-		show_error_message("\"%s\" is not a correct integer value.", txt);
+
+	if(pretty_read_cycles(txt, &max_length)) {
+		show_error_message("\"%s\" is not a correct number of cycles.", txt);
 		return 1;
 	}
 
@@ -1506,8 +1508,8 @@ G_MODULE_EXPORT void task_filter_update(void)
 {
 	int use_task_length_filter;
 	const char* txt;
-	int64_t min_task_length;
-	int64_t max_task_length;
+	uint64_t min_task_length;
+	uint64_t max_task_length;
 	int64_t min_write_to_node_size;
 
 	filter_clear_tasks(&g_filter);
@@ -1529,14 +1531,14 @@ G_MODULE_EXPORT void task_filter_update(void)
 
 	if(use_task_length_filter) {
 		txt = gtk_entry_get_text(GTK_ENTRY(g_task_length_min_entry));
-		if(sscanf(txt, "%"PRId64, &min_task_length) != 1) {
-			show_error_message("\"%s\" is not a correct integer value.", txt);
+		if(pretty_read_cycles(txt, &min_task_length)) {
+			show_error_message("\"%s\" is not a correct number of cycles.", txt);
 			return;
 		}
 
 		txt = gtk_entry_get_text(GTK_ENTRY(g_task_length_max_entry));
-		if(sscanf(txt, "%"PRId64, &max_task_length) != 1) {
-			show_error_message("\"%s\" is not a correct integer value.", txt);
+		if(pretty_read_cycles(txt, &max_task_length)) {
+			show_error_message("\"%s\" is not a correct number of cycles.", txt);
 			return;
 		}
 
