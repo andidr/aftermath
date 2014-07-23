@@ -608,6 +608,53 @@ G_MODULE_EXPORT void select_range_from_graph_button_clicked(GtkMenuItem *item, g
 	gtk_trace_enter_range_selection_mode(g_trace_widget);
 }
 
+G_MODULE_EXPORT void select_measurement_interval_button_clicked(GtkMenuItem *item, gpointer data)
+{
+	int start_found = 0;
+	int end_found = 0;
+
+	uint64_t start;
+	uint64_t end;
+
+	for(int i = 0; i < g_mes.num_global_single_events; i++) {
+		struct global_single_event* gse = &g_mes.global_single_events[i];
+
+		if(!start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START) {
+			start = gse->time;
+			start_found = 1;
+			continue;
+		}
+
+		if(start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END) {
+			end = gse->time;
+			end_found = 1;
+			break;
+		}
+
+		if(!start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END) {
+			show_error_message("Error: found measurement end before measurement start event.\n");
+			return;
+		}
+
+		if(start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START) {
+			show_error_message("Error: found two consecutive measurement start events.\n");
+			return;
+		}
+	}
+
+	if(!start_found) {
+		show_error_message("Error: could not find measurement start event.\n");
+		return;
+	}
+
+	if(start_found && !end_found) {
+		show_error_message("Error: could not find measurement end event.\n");
+		return;
+	}
+
+	gtk_trace_set_range_selection(g_trace_widget, start, end);
+}
+
 G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data)
 {
 	gtk_widget_set_sensitive(g_button_clear_range, FALSE);

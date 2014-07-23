@@ -543,20 +543,12 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 	struct state_event* se;
 	int worker, cpu;
 	GtkTrace* g = GTK_TRACE(widget);
-	uint64_t tmp;
 
 	if(event->button != 1)
 		return TRUE;
 
 	if(g->mode == GTK_TRACE_MODE_SELECT_RANGE) {
-		if(g->range_selection_start > g->range_selection_end) {
-			tmp = g->range_selection_start;
-			g->range_selection_start = g->range_selection_end;
-			g->range_selection_end = tmp;
-		}
-
-		g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_RANGE_SELECTION_CHANGED], 0,
-			      (double)g->range_selection_start, (double)g->range_selection_end);
+		gtk_trace_set_range_selection(widget, g->range_selection_start, g->range_selection_end);
 	} else {
 		/* Normal click? */
 		if(!g->moved_during_navigation) {
@@ -2295,6 +2287,26 @@ void gtk_trace_enter_range_selection_mode(GtkWidget *widget)
 {
 	GtkTrace* g = GTK_TRACE(widget);
 	g->mode = GTK_TRACE_MODE_SELECT_RANGE_START;
+}
+
+void gtk_trace_set_range_selection(GtkWidget *widget, int64_t start, int64_t end)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+
+	if(start > end) {
+		g->range_selection_start = end;
+		g->range_selection_end = start;
+	} else {
+		g->range_selection_start = start;
+		g->range_selection_end = end;
+	}
+
+	g->range_selection = 1;
+
+	g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_RANGE_SELECTION_CHANGED], 0,
+		      (double)g->range_selection_start, (double)g->range_selection_end);
+
+	gtk_widget_queue_draw(widget);
 }
 
 void gtk_trace_clear_range_selection(GtkWidget *widget)

@@ -142,6 +142,7 @@ void gtk_trace_init(GtkTrace *trace);
 void gtk_trace_paint(GtkWidget *widget);
 void gtk_trace_enter_range_selection_mode(GtkWidget *widget);
 void gtk_trace_clear_range_selection(GtkWidget *widget);
+void gtk_trace_set_range_selection(GtkWidget *widget, int64_t start, int64_t end);
 int gtk_trace_has_range_selection(GtkWidget *widget);
 int gtk_trace_get_range_selection(GtkWidget *widget, int64_t* left, int64_t* right);
 void gtk_trace_set_bounds(GtkWidget *widget, long double left, long double right);
