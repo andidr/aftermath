@@ -652,15 +652,22 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 
 	/* Y labels */
 	double cpu_height = gtk_trace_cpu_height(g);
+	double last_cpu_start = -10000;
 
-	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+	double min_cpu_height = 10;
+	int skip_cpus = ceil(min_cpu_height / cpu_height);
+
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx += skip_cpus) {
 		cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
 		snprintf(buf, sizeof(buf), "CPU %d", g->event_sets->sets[cpu_idx].cpu);
+
+		cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 		cairo_text_extents(cr, buf, &extents);
-		cairo_set_source_rgb(cr, .5, .5, 0.0);
+		cairo_set_source_rgb(cr, 0.8, 0.8, 0.0);
 		cairo_move_to(cr, 5, cpu_start + (cpu_height + extents.height) / 2);
 		cairo_show_text(cr, buf);
+
+		last_cpu_start = cpu_start;
 	}
 
 	cairo_reset_clip(cr);
