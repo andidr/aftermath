@@ -95,6 +95,42 @@
                                 </child>
                               </widget>
                             </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="menuitem20">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Histogram</property>
+                                <property name="use_underline">True</property>
+                                <child>
+                                  <widget class="GtkMenu" id="menu8">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem21">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export _PDF</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_histogram_pdf"/>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem22">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export S_VG</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_histogram_svg"/>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem23">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export P_NG</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_histogram_png"/>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                </child>
+                              </widget>
+                            </child>
                           </widget>
                         </child>
                       </widget>

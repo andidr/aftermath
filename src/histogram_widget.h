@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include "statistics.h"
+#include "export.h"
 
 G_BEGIN_DECLS
 
@@ -54,6 +55,7 @@ gboolean gtk_histogram_expose(GtkWidget *widget, GdkEventExpose *event);
 void gtk_histogram_init(GtkHistogram *histogram);
 void gtk_histogram_paint(GtkWidget *widget);
 void gtk_histogram_set_data(GtkWidget *widget, struct histogram* d);
+int gtk_histogram_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 
 extern gint gtk_histogram_signals[GTK_HISTOGRAM_MAX_SIGNALS];
 

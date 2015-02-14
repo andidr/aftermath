@@ -17,6 +17,19 @@
 
 #include "histogram_widget.h"
 
+#if CAIRO_HAS_PDF_SURFACE
+#include <cairo/cairo-pdf.h>
+#endif
+
+#if CAIRO_HAS_PNG_SURFACE
+#include <cairo/cairo-png.h>
+#endif
+
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo/cairo-svg.h>
+#endif
+
+
 gint gtk_histogram_signals[GTK_HISTOGRAM_MAX_SIGNALS];
 
 void gtk_histogram_destroy(GtkObject *object)
@@ -154,19 +167,13 @@ void gtk_histogram_init(GtkHistogram *histogram)
 {
 }
 
-void gtk_histogram_paint(GtkWidget *widget)
+void gtk_histogram_paint_context(GtkHistogram* h, cairo_t* cr)
 {
 	int init_x = 0, init_y = 0;
 	int x = 0, y = 0;
-	GtkHistogram* h = GTK_HISTOGRAM(widget);
-
-	if(!gtk_widget_is_drawable(widget))
-		return;
-
-	cairo_t* cr = gdk_cairo_create(widget->window);
 
 	cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-	cairo_rectangle(cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_rectangle(cr, 0, 0, h->widget.allocation.width, h->widget.allocation.height);
 	cairo_fill(cr);
 
 	cairo_set_source_rgb(cr, 1.0, 1.0, 0.0);
@@ -174,9 +181,9 @@ void gtk_histogram_paint(GtkWidget *widget)
 
 	if(h->histogram) {
 		for(int i = 0; i < h->histogram->num_bins; i++) {
-			x = (i * widget->allocation.width) / h->histogram->num_bins;
-			y = widget->allocation.height -
-				(h->histogram->values[i] * widget->allocation.height);
+			x = (i * h->widget.allocation.width) / h->histogram->num_bins;
+			y = h->widget.allocation.height -
+				(h->histogram->values[i] * h->widget.allocation.height);
 
 			if(i == 0) {
 				cairo_move_to(cr, x, y);
@@ -187,12 +194,22 @@ void gtk_histogram_paint(GtkWidget *widget)
 			}
 		}
 
-		cairo_line_to(cr, x, widget->allocation.height);
-		cairo_line_to(cr, init_x, widget->allocation.height);
+		cairo_line_to(cr, x, h->widget.allocation.height);
+		cairo_line_to(cr, init_x, h->widget.allocation.height);
 		cairo_line_to(cr, init_x, init_y);
 		cairo_fill(cr);
 	}
+}
 
+void gtk_histogram_paint(GtkWidget *widget)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+
+	if(!gtk_widget_is_drawable(widget))
+		return;
+
+	cairo_t* cr = gdk_cairo_create(widget->window);
+	gtk_histogram_paint_context(h, cr);
 	cairo_destroy(cr);
 }
 
@@ -204,4 +221,64 @@ void gtk_histogram_set_data(GtkWidget *widget, struct histogram* d)
 	printf("Setting histogram to %p\n", h->histogram);
 
 	gtk_widget_queue_draw(widget);
+}
+
+int gtk_histogram_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+	cairo_surface_t* surf = NULL;
+	int err = 1;
+
+	switch(format) {
+		case EXPORT_FORMAT_PDF:
+			#if CAIRO_HAS_PDF_SURFACE
+			surf = cairo_pdf_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_SVG:
+			#if CAIRO_HAS_SVG_SURFACE
+			surf = cairo_svg_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_PNG:
+			surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+							  widget->allocation.width,
+							  widget->allocation.height);
+			break;
+	}
+
+	if(cairo_surface_status(surf) == CAIRO_STATUS_NULL_POINTER)
+		goto out_surf;
+
+	cairo_t* cr = cairo_create(surf);
+	gtk_histogram_paint_context(h, cr);
+	cairo_destroy(cr);
+
+	switch(format) {
+		case EXPORT_FORMAT_PNG:
+			if(cairo_surface_write_to_png(surf, filename) != CAIRO_STATUS_SUCCESS)
+				goto out_surf;
+			break;
+		case EXPORT_FORMAT_PDF:
+		case EXPORT_FORMAT_SVG:
+			break;
+	}
+
+	err = 0;
+
+out_surf:
+	cairo_surface_destroy(surf);
+
+	/* Suppresses warning about unused label */
+	goto out_err;
+out_err:
+	return err;
 }

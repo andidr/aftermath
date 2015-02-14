@@ -2152,6 +2152,40 @@ G_MODULE_EXPORT void menubar_export_timeline_svg(GtkMenuItem *item, gpointer dat
 	export_timeline(EXPORT_FORMAT_SVG);
 }
 
+void export_histogram(enum export_file_format format)
+{
+	char* filename = export_to_file_with_dialog(format);
+
+	if(filename) {
+		/* Do we need to export the multi histogram widget? */
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_per_task_hist_radio_button))) {
+			if(gtk_multi_histogram_save_to_file(g_multi_histogram_widget, format, filename))
+				show_error_message("Could not export to file \"%s\".", filename);
+		} else {
+			if(gtk_histogram_save_to_file(g_histogram_widget, format, filename))
+				show_error_message("Could not export to file \"%s\".", filename);
+		}
+
+
+		free(filename);
+	}
+}
+
+G_MODULE_EXPORT void menubar_export_histogram_pdf(GtkMenuItem *item, gpointer data)
+{
+	export_histogram(EXPORT_FORMAT_PDF);
+}
+
+G_MODULE_EXPORT void menubar_export_histogram_png(GtkMenuItem *item, gpointer data)
+{
+	export_histogram(EXPORT_FORMAT_PNG);
+}
+
+G_MODULE_EXPORT void menubar_export_histogram_svg(GtkMenuItem *item, gpointer data)
+{
+	export_histogram(EXPORT_FORMAT_SVG);
+}
+
 int __build_address_range_tree(void* data)
 {
 	address_range_tree_init(&g_address_range_tree);
