@@ -542,6 +542,10 @@ int main(int argc, char** argv)
 
 	multi_event_set_destroy(&g_mes);
 	filter_destroy(&g_filter);
+
+	if(write_user_settings(&g_settings) != 0)
+		show_error_message("Could not write settings");
+
 	settings_destroy(&g_settings);
 	histogram_destroy(&g_task_histogram);
 	histogram_destroy(&g_counter_histogram);

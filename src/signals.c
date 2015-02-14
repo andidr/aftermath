@@ -39,6 +39,8 @@
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <limits.h>
+#include <libgen.h>
 
 int build_address_range_tree(void);
 
@@ -2095,6 +2097,7 @@ G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpoin
 
 char* export_to_file_with_dialog(enum export_file_format format)
 {
+	char last_dir[PATH_MAX];
 	char* filename;
 	const char* file_type_filter = NULL;
 	const char* file_type_name = NULL;
@@ -2117,10 +2120,14 @@ char* export_to_file_with_dialog(enum export_file_format format)
 					      GTK_FILE_CHOOSER_ACTION_SAVE,
 					      file_type_name,
 					      file_type_filter,
-					      NULL)))
+					      g_settings.last_export_dir)))
 	{
 		return NULL;
 	}
+
+	strncpy(last_dir, filename, PATH_MAX);
+	dirname(last_dir);
+	settings_set_string(&g_settings.last_export_dir, last_dir);
 
 	return filename;
 }

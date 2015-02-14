@@ -89,6 +89,9 @@ int write_user_settings(struct settings* s)
 	if(s->external_editor_command != NULL)
 		g_key_file_set_string(keyfile, "settings", "external_editor_command", s->external_editor_command);
 
+	if(s->last_export_dir != NULL)
+		g_key_file_set_string(keyfile, "settings", "last_export_dir", s->last_export_dir);
+
 	if(!(conf_data = g_key_file_to_data(keyfile, &conf_data_length, &error)))
 		goto out_kf;
 
@@ -132,6 +135,9 @@ int read_user_settings(struct settings* s)
 
 	error = NULL;
 	s->external_editor_command = g_key_file_get_string(keyfile, "settings", "external_editor_command", &error);
+
+	error = NULL;
+	s->last_export_dir = g_key_file_get_string(keyfile, "settings", "last_export_dir", &error);
 
 	ret = 0;
 

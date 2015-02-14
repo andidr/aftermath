@@ -24,6 +24,7 @@
 struct settings {
 	int use_external_editor;
 	char* external_editor_command;
+	char* last_export_dir;
 };
 
 static inline void settings_init(struct settings* s)
