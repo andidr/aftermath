@@ -139,6 +139,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/numamap_writes.svg \
 		share/icons/heatmap_numa.svg \
 		share/icons/fit_all_cpus.svg \
+		share/icons/fit_all_measurement_intervals.svg \
 		share/icons/draw_measurement_intervals.svg
 
 clean-local:

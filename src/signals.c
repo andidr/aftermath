@@ -146,6 +146,20 @@ void measurement_interval_find_show_error(enum measurement_interval_find_status 
 	}
 }
 
+G_MODULE_EXPORT void toolbar_fit_all_measurement_intervals_clicked(GtkButton *button, gpointer data)
+{
+	struct global_single_event* first_start = NULL;
+	struct global_single_event* last_end = NULL;
+	enum measurement_interval_find_status st;
+
+	st = find_first_measurement_interval_start_and_last_measurement_interval_end(&first_start, &last_end);
+
+	if(st == MEASUREMENT_INTERVAL_FIND_OK)
+		gtk_trace_set_bounds(g_trace_widget, first_start->time, last_end->time);
+	else
+		measurement_interval_find_show_error(st);
+}
+
 G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 {
 	reset_zoom();
