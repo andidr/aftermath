@@ -127,7 +127,10 @@ int read_user_settings(struct settings* s)
 	if(!g_key_file_load_from_file(keyfile, conf_filename, flags, &error))
 		goto out_kf;
 
+	error = NULL;
 	s->use_external_editor = g_key_file_get_boolean(keyfile, "settings", "use_external_editor", &error);
+
+	error = NULL;
 	s->external_editor_command = g_key_file_get_string(keyfile, "settings", "external_editor_command", &error);
 
 	ret = 0;
