@@ -2186,6 +2186,33 @@ G_MODULE_EXPORT void menubar_export_histogram_svg(GtkMenuItem *item, gpointer da
 	export_histogram(EXPORT_FORMAT_SVG);
 }
 
+void export_comm_matrix(enum export_file_format format)
+{
+	char* filename = export_to_file_with_dialog(format);
+
+	if(filename) {
+		if(gtk_matrix_save_to_file(g_matrix_widget, format, filename))
+			show_error_message("Could not export to file \"%s\".", filename);
+
+		free(filename);
+	}
+}
+
+G_MODULE_EXPORT void menubar_export_comm_matrix_pdf(GtkMenuItem *item, gpointer data)
+{
+	export_comm_matrix(EXPORT_FORMAT_PDF);
+}
+
+G_MODULE_EXPORT void menubar_export_comm_matrix_png(GtkMenuItem *item, gpointer data)
+{
+	export_comm_matrix(EXPORT_FORMAT_PNG);
+}
+
+G_MODULE_EXPORT void menubar_export_comm_matrix_svg(GtkMenuItem *item, gpointer data)
+{
+	export_comm_matrix(EXPORT_FORMAT_SVG);
+}
+
 int __build_address_range_tree(void* data)
 {
 	address_range_tree_init(&g_address_range_tree);

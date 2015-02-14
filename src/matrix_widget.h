@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include "intensity_matrix.h"
+#include "export.h"
 
 G_BEGIN_DECLS
 
@@ -64,6 +65,7 @@ void gtk_matrix_paint(GtkWidget *widget);
 void gtk_matrix_set_data(GtkWidget *widget, struct intensity_matrix* m);
 void gtk_matrix_set_min_threshold(GtkWidget *widget, double val);
 void gtk_matrix_set_max_threshold(GtkWidget *widget, double val);
+int gtk_matrix_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 
 extern gint gtk_matrix_signals[GTK_MATRIX_MAX_SIGNALS];
 

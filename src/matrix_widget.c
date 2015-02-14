@@ -19,6 +19,18 @@
 #include "marshal.h"
 #include <math.h>
 
+#if CAIRO_HAS_PDF_SURFACE
+#include <cairo/cairo-pdf.h>
+#endif
+
+#if CAIRO_HAS_PNG_SURFACE
+#include <cairo/cairo-png.h>
+#endif
+
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo/cairo-svg.h>
+#endif
+
 gint gtk_matrix_signals[GTK_MATRIX_MAX_SIGNALS];
 gint gtk_matrix_motion_event(GtkWidget* widget, GdkEventMotion* event);
 
@@ -198,27 +210,21 @@ void gtk_matrix_init(GtkMatrix *matrix)
 {
 }
 
-void gtk_matrix_paint(GtkWidget *widget)
+void gtk_matrix_paint_context(GtkMatrix *h, cairo_t* cr)
 {
 	double width, height;
-	GtkMatrix* h = GTK_MATRIX(widget);
 	double threshold_range = h->max_threshold - h->min_threshold;
 
-	if(!gtk_widget_is_drawable(widget))
-		return;
-
-	cairo_t* cr = gdk_cairo_create(widget->window);
-
 	cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-	cairo_rectangle(cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_rectangle(cr, 0, 0, h->widget.allocation.width, h->widget.allocation.height);
 	cairo_fill(cr);
 
 	cairo_set_source_rgb(cr, 1.0, 1.0, 0.0);
 	cairo_set_line_width(cr, 1.0);
 
 	if(h->matrix) {
-		width = (double)widget->allocation.width / (double)h->matrix->width;
-		height = (double)widget->allocation.height / (double)h->matrix->height;
+		width = (double)h->widget.allocation.width / (double)h->matrix->width;
+		height = (double)h->widget.allocation.height / (double)h->matrix->height;
 
 		for(int x = 0; x < h->matrix->width; x++) {
 			for(int y = 0; y < h->matrix->height; y++) {
@@ -244,28 +250,38 @@ void gtk_matrix_paint(GtkWidget *widget)
 		cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
 		cairo_set_line_width(cr, 1.0);
 
-		int draw_grid = (widget->allocation.width > 3*h->matrix->width) &&
-			(widget->allocation.height > 3*h->matrix->height);
+		int draw_grid = (h->widget.allocation.width > 3*h->matrix->width) &&
+			(h->widget.allocation.height > 3*h->matrix->height);
 
 
 		if(draw_grid) {
 			for(int x = 0; x < h->matrix->width; x++) {
 				cairo_move_to(cr, floor(x*width)+0.5, 0);
-				cairo_line_to(cr, floor(x*width)+0.5, widget->allocation.height);
+				cairo_line_to(cr, floor(x*width)+0.5, h->widget.allocation.height);
 				cairo_stroke(cr);
 			}
 
 			for(int y = 0; y < h->matrix->height; y++) {
 				cairo_move_to(cr, 0, floor(y*height)+0.5);
-				cairo_line_to(cr, widget->allocation.width, floor(y*height)+0.5);
+				cairo_line_to(cr, h->widget.allocation.width, floor(y*height)+0.5);
 				cairo_stroke(cr);
 			}
 		}
 
-		cairo_rectangle(cr, 0, 0, widget->allocation.width-0.5, widget->allocation.height-0.5);
+		cairo_rectangle(cr, 0, 0, h->widget.allocation.width-0.5, h->widget.allocation.height-0.5);
 		cairo_stroke(cr);
 	}
+}
 
+void gtk_matrix_paint(GtkWidget *widget)
+{
+	GtkMatrix* h = GTK_MATRIX(widget);
+
+	if(!gtk_widget_is_drawable(widget))
+		return;
+
+	cairo_t* cr = gdk_cairo_create(widget->window);
+	gtk_matrix_paint_context(h, cr);
 	cairo_destroy(cr);
 }
 
@@ -290,4 +306,64 @@ void gtk_matrix_set_max_threshold(GtkWidget *widget, double val)
 	GtkMatrix* g = GTK_MATRIX(widget);
 	g->max_threshold = val;
 	gtk_widget_queue_draw(widget);
+}
+
+int gtk_matrix_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename)
+{
+	GtkMatrix* m = GTK_MATRIX(widget);
+	cairo_surface_t* surf = NULL;
+	int err = 1;
+
+	switch(format) {
+		case EXPORT_FORMAT_PDF:
+			#if CAIRO_HAS_PDF_SURFACE
+			surf = cairo_pdf_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_SVG:
+			#if CAIRO_HAS_SVG_SURFACE
+			surf = cairo_svg_surface_create(filename,
+							widget->allocation.width,
+							widget->allocation.height);
+			#else
+			goto out_err;
+			#endif
+			break;
+		case EXPORT_FORMAT_PNG:
+			surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+							  widget->allocation.width,
+							  widget->allocation.height);
+			break;
+	}
+
+	if(cairo_surface_status(surf) == CAIRO_STATUS_NULL_POINTER)
+		goto out_surf;
+
+	cairo_t* cr = cairo_create(surf);
+	gtk_matrix_paint_context(m, cr);
+	cairo_destroy(cr);
+
+	switch(format) {
+		case EXPORT_FORMAT_PNG:
+			if(cairo_surface_write_to_png(surf, filename) != CAIRO_STATUS_SUCCESS)
+				goto out_surf;
+			break;
+		case EXPORT_FORMAT_PDF:
+		case EXPORT_FORMAT_SVG:
+			break;
+	}
+
+	err = 0;
+
+out_surf:
+	cairo_surface_destroy(surf);
+
+	/* Suppresses warning about unused label */
+	goto out_err;
+out_err:
+	return err;
 }
