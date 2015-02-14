@@ -79,6 +79,73 @@ G_MODULE_EXPORT void toolbar_fit_all_cpus_clicked(GtkButton *button, gpointer da
 	gtk_trace_fit_all_cpus(g_trace_widget);
 }
 
+enum measurement_interval_find_status {
+	MEASUREMENT_INTERVAL_FIND_OK = 0,
+	MEASUREMENT_INTERVAL_FIND_END_BEFORE_START,
+	MEASUREMENT_INTERVAL_FIND_START_AFTER_START,
+	MEASUREMENT_INTERVAL_FIND_NO_START,
+	MEASUREMENT_INTERVAL_FIND_NO_END,
+};
+
+enum measurement_interval_find_status
+find_first_measurement_interval_start_and_last_measurement_interval_end(struct global_single_event** first_start,
+									struct global_single_event** last_end)
+{
+	struct global_single_event* _first_start = NULL;
+	struct global_single_event* _last_end = NULL;
+
+	for(int i = 0; i < g_mes.num_global_single_events; i++) {
+		struct global_single_event* gse = &g_mes.global_single_events[i];
+
+		if(!_first_start && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START) {
+			_first_start = gse;
+			continue;
+		}
+
+		if(_first_start && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END) {
+			_last_end = gse;
+			continue;
+		}
+
+		if(!_first_start && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END)
+			return MEASUREMENT_INTERVAL_FIND_END_BEFORE_START;
+
+		if(_first_start && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START)
+			return MEASUREMENT_INTERVAL_FIND_START_AFTER_START;
+	}
+
+	if(!_first_start)
+		return MEASUREMENT_INTERVAL_FIND_NO_START;
+
+	if(_first_start && !_last_end)
+		return MEASUREMENT_INTERVAL_FIND_NO_END;
+
+	*first_start = _first_start;
+	*last_end = _last_end;
+
+	return MEASUREMENT_INTERVAL_FIND_OK;
+}
+
+void measurement_interval_find_show_error(enum measurement_interval_find_status s)
+{
+	switch(s) {
+		case MEASUREMENT_INTERVAL_FIND_OK:
+			break;
+		case MEASUREMENT_INTERVAL_FIND_END_BEFORE_START:
+			show_error_message("Error: found measurement end before measurement start event.\n");
+			break;
+		case MEASUREMENT_INTERVAL_FIND_START_AFTER_START:
+			show_error_message("Error: found two consecutive measurement start events.\n");
+			break;
+		case MEASUREMENT_INTERVAL_FIND_NO_START:
+			show_error_message("Error: could not find any measurement interval start.\n");
+			break;
+		case MEASUREMENT_INTERVAL_FIND_NO_END:
+			show_error_message("Error: could not find any measurement interval end.\n");
+			break;
+	}
+}
+
 G_MODULE_EXPORT void toolbar_zoom100_clicked(GtkButton *button, gpointer data)
 {
 	reset_zoom();
@@ -610,49 +677,16 @@ G_MODULE_EXPORT void select_range_from_graph_button_clicked(GtkMenuItem *item, g
 
 G_MODULE_EXPORT void select_measurement_interval_button_clicked(GtkMenuItem *item, gpointer data)
 {
-	int start_found = 0;
-	int end_found = 0;
+	struct global_single_event* first_start = NULL;
+	struct global_single_event* last_end = NULL;
+	enum measurement_interval_find_status st;
 
-	uint64_t start;
-	uint64_t end;
+	st = find_first_measurement_interval_start_and_last_measurement_interval_end(&first_start, &last_end);
 
-	for(int i = 0; i < g_mes.num_global_single_events; i++) {
-		struct global_single_event* gse = &g_mes.global_single_events[i];
-
-		if(!start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START) {
-			start = gse->time;
-			start_found = 1;
-			continue;
-		}
-
-		if(start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END) {
-			end = gse->time;
-			end_found = 1;
-			break;
-		}
-
-		if(!start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_END) {
-			show_error_message("Error: found measurement end before measurement start event.\n");
-			return;
-		}
-
-		if(start_found && gse->type == GLOBAL_SINGLE_TYPE_MEASURE_START) {
-			show_error_message("Error: found two consecutive measurement start events.\n");
-			return;
-		}
-	}
-
-	if(!start_found) {
-		show_error_message("Error: could not find measurement start event.\n");
-		return;
-	}
-
-	if(start_found && !end_found) {
-		show_error_message("Error: could not find measurement end event.\n");
-		return;
-	}
-
-	gtk_trace_set_range_selection(g_trace_widget, start, end);
+	if(st == MEASUREMENT_INTERVAL_FIND_OK)
+		gtk_trace_set_range_selection(g_trace_widget, first_start->time, last_end->time);
+	else
+		measurement_interval_find_show_error(st);
 }
 
 G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data)
