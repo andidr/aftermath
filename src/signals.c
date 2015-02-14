@@ -2093,7 +2093,7 @@ G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpoin
 	update_statistics();
 }
 
-void export_to_file_with_dialog(enum export_file_format format)
+char* export_to_file_with_dialog(enum export_file_format format)
 {
 	char* filename;
 	const char* file_type_filter = NULL;
@@ -2119,29 +2119,37 @@ void export_to_file_with_dialog(enum export_file_format format)
 					      file_type_filter,
 					      NULL)))
 	{
-		return;
+		return NULL;
 	}
 
-	if(gtk_trace_save_to_file(g_trace_widget, format, filename)) {
-		show_error_message("Could not export to file \"%s\".", filename);
+	return filename;
+}
+
+void export_timeline(enum export_file_format format)
+{
+	char* filename = export_to_file_with_dialog(format);
+
+	if(filename) {
+		if(gtk_trace_save_to_file(g_trace_widget, format, filename))
+			show_error_message("Could not export to file \"%s\".", filename);
+
+		free(filename);
 	}
-
-	free(filename);
 }
 
-G_MODULE_EXPORT void menubar_export_pdf(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_timeline_pdf(GtkMenuItem *item, gpointer data)
 {
-	export_to_file_with_dialog(EXPORT_FORMAT_PDF);
+	export_timeline(EXPORT_FORMAT_PDF);
 }
 
-G_MODULE_EXPORT void menubar_export_png(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_timeline_png(GtkMenuItem *item, gpointer data)
 {
-	export_to_file_with_dialog(EXPORT_FORMAT_PNG);
+	export_timeline(EXPORT_FORMAT_PNG);
 }
 
-G_MODULE_EXPORT void menubar_export_svg(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_timeline_svg(GtkMenuItem *item, gpointer data)
 {
-	export_to_file_with_dialog(EXPORT_FORMAT_SVG);
+	export_timeline(EXPORT_FORMAT_SVG);
 }
 
 int __build_address_range_tree(void* data)

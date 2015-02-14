@@ -60,27 +60,39 @@
                           <widget class="GtkMenu" id="menu6">
                             <property name="visible">True</property>
                             <child>
-                              <widget class="GtkMenuItem" id="menuitem14">
+                              <widget class="GtkMenuItem" id="menuitem19">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Export _PDF</property>
+                                <property name="label" translatable="yes">_Timeline</property>
                                 <property name="use_underline">True</property>
-                                <signal name="activate" handler="menubar_export_pdf"/>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkMenuItem" id="menuitem15">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Export P_NG</property>
-                                <property name="use_underline">True</property>
-                                <signal name="activate" handler="menubar_export_png"/>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkMenuItem" id="menuitem16">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Export S_VG</property>
-                                <property name="use_underline">True</property>
-                                <signal name="activate" handler="menubar_export_svg"/>
+                                <child>
+                                  <widget class="GtkMenu" id="menu7">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem14">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export _PDF</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_timeline_pdf"/>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem16">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export S_VG</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_timeline_svg"/>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkMenuItem" id="menuitem15">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Export P_NG</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="activate" handler="menubar_export_timeline_png"/>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                </child>
                               </widget>
                             </child>
                           </widget>
