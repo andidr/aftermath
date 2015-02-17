@@ -133,4 +133,25 @@ static inline uint64_t state_event_length_in_interval(struct state_event* se, ui
 	return 0;
 }
 
+static inline uint64_t task_length_in_interval(struct single_event* texec_start, struct single_event* texec_end, uint64_t start, uint64_t end)
+{
+	if(texec_start->time > end || texec_end->time < start)
+		return 0;
+
+	if(texec_start->time >= start && texec_end->time <= end)
+		return texec_end->time - texec_start->time;
+
+	if(texec_start->time <= start && texec_end->time <= end)
+		return texec_end->time - start;
+
+	if(texec_start->time <= start && texec_end->time >= end)
+		return end - start;
+
+	if(texec_start->time <= end && texec_end->time >= end)
+		return end - texec_start->time;
+
+	/* Should never happen */
+	return 0;
+}
+
 #endif
