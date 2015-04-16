@@ -652,7 +652,6 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 
 	/* Y labels */
 	double cpu_height = gtk_trace_cpu_height(g);
-	double last_cpu_start = -10000;
 
 	double min_cpu_height = 10;
 	int skip_cpus = ceil(min_cpu_height / cpu_height);
@@ -666,8 +665,6 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 		cairo_set_source_rgb(cr, 0.8, 0.8, 0.0);
 		cairo_move_to(cr, 5, cpu_start + (cpu_height + extents.height) / 2);
 		cairo_show_text(cr, buf);
-
-		last_cpu_start = cpu_start;
 	}
 
 	cairo_reset_clip(cr);
