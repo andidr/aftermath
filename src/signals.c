@@ -2023,7 +2023,7 @@ G_MODULE_EXPORT void comm_matrix_pair_under_pointer_changed(GtkMatrix *item, int
 {
 	char buffer[128];
 	char pretty_bytes[32];
-	const char* entity;
+	const char* entity = NULL;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
 		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
@@ -2043,7 +2043,7 @@ G_MODULE_EXPORT void comm_summary_matrix_pair_under_pointer_changed(GtkMatrix *i
 {
 	char buffer[128];
 	char pretty_bytes[32];
-	const char* entity;
+	const char* entity = NULL;
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_check_matrix_numonly)))
 		pretty_print_number(pretty_bytes, sizeof(pretty_bytes), absolute, "");
