@@ -57,12 +57,10 @@ int task_instance_tree_insert(struct task_instance_tree* t, struct task_instance
 struct task_instance* task_instance_tree_find(struct task_instance_tree* t, uint64_t task_addr, int cpu, uint64_t start)
 {
 	struct rb_node** new = &t->root.rb_node;
-	struct rb_node* parent = NULL;
 
 	/* Figure out where to put new node */
 	while (*new) {
 		struct task_instance* this = container_of(*new, struct task_instance, rb_all_instances);
-		parent = *new;
 
 		if (start < this->start ||
 		    (start == this->start && task_addr < this->task->addr) ||
