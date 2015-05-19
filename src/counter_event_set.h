@@ -19,6 +19,7 @@
 #define COUNTER_EVENT_SET
 
 #include "events.h"
+#include "buffer.h"
 #include <stdint.h>
 #include <malloc.h>
 
@@ -53,6 +54,30 @@ static inline void counter_event_set_add_offset(struct counter_event_set* ces, i
 {
 	for(int i = 0; i < ces->num_events; i++)
 		ces->events[i].time += offset;
+}
+
+static inline int counter_event_set_add_event(struct counter_event_set* ces, struct counter_event* ce, int calc_slope)
+{
+	if(add_buffer_grow((void**)&ces->events, ce, sizeof(*ce),
+			&ces->num_events, &ces->num_events_free,
+			   EVENT_PREALLOC) != 0)
+	{
+		return 1;
+	}
+
+
+	if(calc_slope) {
+		if(ces->num_events >= 2) {
+			ce->slope = (long double)(ces->events[ces->num_events-1].value - ces->events[ces->num_events-2].value) /
+				(long double)(ces->events[ces->num_events-1].time - ces->events[ces->num_events-2].time);
+		} else {
+			ce->slope = 0;
+		}
+	}
+
+	ces->events[ces->num_events-1].slope = ce->slope;
+
+	return 0;
 }
 
 #endif

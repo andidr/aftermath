@@ -233,12 +233,8 @@ static inline int event_set_add_counter_event(struct event_set* es, struct count
 	if(!(ces = event_set_find_alloc_counter_event_set(es, cd)))
 		return 1;
 
-	if(add_buffer_grow((void**)&ces->events, ce, sizeof(*ce),
-			&ces->num_events, &ces->num_events_free,
-			   EVENT_PREALLOC) != 0)
-	{
+	if(counter_event_set_add_event(ces, ce, calc_slope))
 		return 1;
-	}
 
 	if(ce->time < es->first_start)
 		es->first_start = ce->time;
@@ -246,16 +242,6 @@ static inline int event_set_add_counter_event(struct event_set* es, struct count
 	if(ce->time > es->last_end)
 		es->last_end = ce->time;
 
-	if(calc_slope) {
-		if(ces->num_events >= 2) {
-			ce->slope = (long double)(ces->events[ces->num_events-1].value - ces->events[ces->num_events-2].value) /
-				(long double)(ces->events[ces->num_events-1].time - ces->events[ces->num_events-2].time);
-		} else {
-			ce->slope = 0;
-		}
-	}
-
-	ces->events[ces->num_events-1].slope = ce->slope;
 	ce->event_set = es;
 
 	return 0;
