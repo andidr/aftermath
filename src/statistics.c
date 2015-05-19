@@ -462,10 +462,10 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 				   !event_set_has_write_to_numa_nodes_in_interval(&mes->sets[cpu_idx], &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
 					goto next;
 
-				if(counter_event_set_get_extrapolated_value(ces, se->time, &value_start))
+				if(counter_event_set_interpolate_value(ces, se->time, &value_start))
 					goto next;
 
-				if(counter_event_set_get_extrapolated_value(ces, se->next_texec_end->time, &value_end))
+				if(counter_event_set_interpolate_value(ces, se->next_texec_end->time, &value_end))
 					goto next;
 
 				value = value_end - value_start;

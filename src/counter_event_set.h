@@ -33,7 +33,7 @@ struct counter_event_set {
 int counter_event_set_get_last_event_in_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end);
 uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t time);
 
-int counter_event_set_get_extrapolated_value(struct counter_event_set* ces, uint64_t time, int64_t* val_out);
+int counter_event_set_interpolate_value(struct counter_event_set* ces, uint64_t time, int64_t* val_out);
 
 int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu);
 

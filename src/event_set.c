@@ -787,12 +787,12 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 			    (!f->filter_writes_to_numa_nodes ||
 			     event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
 			{
-				if(counter_event_set_get_extrapolated_value(ces, se->time, &value_start)) {
+				if(counter_event_set_interpolate_value(ces, se->time, &value_start)) {
 					nb_errors++;
 					continue;
 				}
 
-				if(counter_event_set_get_extrapolated_value(ces, se->next_texec_end->time, &value_end)) {
+				if(counter_event_set_interpolate_value(ces, se->next_texec_end->time, &value_end)) {
 					nb_errors++;
 					continue;
 				}

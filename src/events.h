@@ -94,6 +94,24 @@ struct counter_event {
 	long double slope;
 };
 
+/*
+ * Interpolates the counter value between two samples using linear
+ * interpolation
+ */
+static inline int64_t counter_event_interpolate_value(struct counter_event* left,
+						      struct counter_event* right,
+						      int64_t time)
+{
+	if(left->value == right->value)
+		return left->value;
+
+	long double delta = ((long double)right->value) - ((long double)left->value);
+	long double slope = delta / ((long double)(right->time - left->time));
+	long double ival = ((long double)left->value) + slope*((long double)time - left->time);
+
+	return ival;
+}
+
 static inline uint64_t task_length_of_active_frame(struct state_event* se, int* valid)
 {
 	*valid = 0;
