@@ -61,6 +61,11 @@ extern int __unit_assert_cnt__;
 		if((a) != (b)) \
 			ASSERT_OUTRO("%ld", (unsigned long)(b), (unsigned long)(a))
 
+#define ASSERT_EQUALS_LD(a, b) \
+	ASSERT_INTRO() \
+		if((a) != (b)) \
+			ASSERT_OUTRO("%Lf", (long double)(b), (long double)(a))
+
 #define ASSERT_EQUALS_STRING(a, b) \
 	ASSERT_INTRO() \
 		if(strcmp((a), (b)) != 0) \
