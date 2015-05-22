@@ -20,3 +20,4 @@ test-driver
 src/marshal.h
 src/marshal.c
 .kdbgrc.*
+counter_event_set_index_test

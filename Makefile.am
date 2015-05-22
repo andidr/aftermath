@@ -2,12 +2,6 @@ ACLOCAL_AMFLAGS=-I m4
 VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
-TESTS =
-noinst_PROGRAMS = $(TESTS)
-LIB_CFLAGS = -D_POSIX_C_SOURCE=200112 -I$(srcdir)/src -Wall
-TESTS_LDADD = -L. -lm -lpthread
-TESTS_CFLAGS =  $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
-UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 
 aftermath_SOURCES = src/aftermath.c \
 		src/trace_widget.c \
@@ -192,3 +186,18 @@ src/trace_widget.h: src/marshal.h
 aftermath-debug-syms: src/aftermath-debug-syms.sh
 	cp $< $@
 	chmod +x $@
+
+TESTS_LDADD = -L. -lm -lpthread
+TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
+
+UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
+TESTS = counter_event_set_index_test
+noinst_PROGRAMS = $(TESTS)
+
+counter_event_set_index_test_SOURCES = tests/counter_event_set_index.test.c \
+	$(UNIT_TEST_SOURCES) \
+	src/counter_event_set_index.c \
+	src/counter_event_set.c \
+	src/buffer.c
+
+counter_event_set_index_test_CFLAGS = $(TESTS_CFLAGS)
