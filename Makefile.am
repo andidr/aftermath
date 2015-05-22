@@ -50,6 +50,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/counter_description.h \
 		src/counter_event_set.h \
 		src/counter_event_set.c \
+		src/counter_event_set_index.h \
+		src/counter_event_set_index.c \
 		src/event_set.h \
 		src/event_set.c \
 		src/multi_event_set.h \
