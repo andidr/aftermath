@@ -23,9 +23,13 @@
 #include <stdint.h>
 #include <malloc.h>
 
+struct counter_event_set_index;
+
 struct counter_event_set {
 	struct counter_event* events;
 	struct counter_description* desc;
+	struct counter_event_set_index* idx;
+
 	int num_events;
 	int num_events_free;
 };
@@ -35,12 +39,11 @@ uint64_t counter_event_set_get_value(struct counter_event_set* ces, uint64_t tim
 
 int counter_event_set_interpolate_value(struct counter_event_set* ces, uint64_t time, int64_t* val_out);
 
+int counter_event_set_create_index(struct counter_event_set* ces);
+
 int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu);
 
-static inline void counter_event_set_destroy(struct counter_event_set* ces)
-{
-	free(ces->events);
-}
+void counter_event_set_destroy(struct counter_event_set* ces);
 
 static inline void counter_event_set_init(struct counter_event_set* ces, struct counter_description* cd)
 {
@@ -48,6 +51,7 @@ static inline void counter_event_set_init(struct counter_event_set* ces, struct 
 	ces->num_events = 0;
 	ces->num_events_free = 0;
 	ces->desc = cd;
+	ces->idx = NULL;
 }
 
 static inline void counter_event_set_add_offset(struct counter_event_set* ces, int64_t offset)

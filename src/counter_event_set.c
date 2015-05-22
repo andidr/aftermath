@@ -16,7 +16,33 @@
  */
 
 #include "counter_event_set.h"
+#include "counter_event_set_index.h"
 #include "event_set.h"
+
+void counter_event_set_destroy(struct counter_event_set* ces)
+{
+	free(ces->events);
+
+	if(ces->idx)
+		counter_event_set_index_destroy(ces->idx);
+
+	free(ces->idx);
+}
+
+int counter_event_set_create_index(struct counter_event_set* ces)
+{
+	if(!(ces->idx = malloc(sizeof(struct counter_event_set_index))))
+		return 1;
+
+	if(counter_event_set_index_create(ces->idx, ces, COUNTER_EVENT_SET_INDEX_DEFAULT_FAN_OUT)) {
+		free(ces->idx);
+		ces->idx = NULL;
+
+		return 1;
+	}
+
+	return 0;
+}
 
 int counter_event_set_get_last_event_in_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
