@@ -20,6 +20,7 @@
 #include "color.h"
 #include "task_instance.h"
 #include "cairo_extras.h"
+#include "counter_event_set_index.h"
 #include <math.h>
 #include <inttypes.h>
 
@@ -1495,25 +1496,194 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
-void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
+void gtk_trace_paint_counter_noindex(GtkTrace* g, cairo_t* cr, struct counter_event_set* ces, int cpu_idx, int64_t min_vis_val, int64_t max_vis_val, long double min_vis_slope, long double max_vis_slope)
 {
-	struct counter_event_set* ces;
-	struct counter_description* cd;
-	int event_idx;
+	struct counter_description* cd = ces->desc;
 
 	double cpu_height = gtk_trace_cpu_height(g);
+
+	int event_idx;
+
 	long double screen_x;
 	long double screen_y;
 	long double last_screen_x;
 	long double last_screen_y;
 	long double rel_val;
-	int line_segments_drawn = 0;
 
-	int64_t min;
-	int64_t max;
+	double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+	cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
+
+	event_idx = counter_event_set_get_last_event_in_interval(ces, 0, (g->left > 0) ? g->left : 0);
+
+	if(event_idx == -1)
+		event_idx = 0;
+
+	if(event_idx != -1 && event_idx < ces->num_events-1) {
+		if(ces->events[event_idx].time >= g->left) {
+			screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
+
+			if(!cd->slope_mode)
+				rel_val = (long double)(ces->events[event_idx].value-min_vis_val) / (long double)(max_vis_val - min_vis_val);
+			else
+				rel_val = (ces->events[event_idx].slope-min_vis_slope) / (max_vis_slope - min_vis_slope);
+		} else {
+			if(!cd->slope_mode)
+				rel_val = counter_event_interpolate_value(&ces->events[event_idx], &ces->events[event_idx+1], g->left) /
+					(long double)(max_vis_val - min_vis_val);
+			else
+				rel_val = (ces->events[event_idx].slope-min_vis_slope) / (max_vis_slope - min_vis_slope);
+
+			screen_x = gtk_trace_x_to_screen(g, g->left);
+		}
+
+		if(rel_val < 0)
+			rel_val = 0;
+		else if(rel_val > 1.0)
+			rel_val = 1.0;
+
+		screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
+		last_screen_x = screen_x;
+		last_screen_y = screen_y;
+
+		cairo_move_to(cr, screen_x, screen_y);
+		event_idx++;
+
+		for(; event_idx < ces->num_events; event_idx++) {
+			if(ces->events[event_idx].time <= g->right) {
+				screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
+				if(!cd->slope_mode)
+					rel_val = (long double)(ces->events[event_idx].value-min_vis_val) / (long double)(max_vis_val - min_vis_val);
+				else
+					rel_val = (ces->events[event_idx].slope-min_vis_slope) / (max_vis_slope - min_vis_slope);
+			} else {
+				if(!cd->slope_mode)
+					rel_val = counter_event_interpolate_value(&ces->events[event_idx-1], &ces->events[event_idx], g->right) /
+						(long double)(max_vis_val - min_vis_val);
+				else
+					rel_val = (ces->events[event_idx].slope-min_vis_slope) / (max_vis_slope - min_vis_slope);
+
+				screen_x = gtk_trace_x_to_screen(g, g->right);
+			}
+
+			if(rel_val < 0)
+				rel_val = 0;
+			else if(rel_val > 1.0)
+				rel_val = 1.0;
+
+			screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
+
+			if(cd->slope_mode)
+				cairo_line_to(cr, last_screen_x, screen_y);
+
+			if(cd->slope_mode || round(screen_x) != round(last_screen_x) || round(screen_y) != round(last_screen_y))
+				cairo_line_to(cr, screen_x, screen_y);
+
+			last_screen_x = screen_x;
+			last_screen_y = screen_y;
+
+			if(ces->events[event_idx].time > g->right)
+				break;
+		}
+
+		cairo_stroke(cr);
+	}
+}
+
+void gtk_trace_paint_counter_index(GtkTrace* g, cairo_t* cr, struct counter_event_set* ces, int cpu_idx, int64_t min_vis_val, int64_t max_vis_val, long double min_vis_slope, long double max_vis_slope)
+{
+	struct counter_description* cd = ces->desc;
+
+	double cpu_height = gtk_trace_cpu_height(g);
+
+	int64_t min_val;
+	int64_t max_val;
 
 	long double min_slope;
 	long double max_slope;
+
+	long double y1;
+	long double y2;
+
+	long double screen_y1;
+	long double screen_y2;
+
+	int start_px;
+	int end_px;
+
+	int64_t start;
+	int64_t end;
+
+	int idx_err;
+
+	double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+	if(ces->num_events < 2)
+		return;
+
+	if(ces->events[0].time < g->left)
+		start_px = 0;
+	else
+		start_px = gtk_trace_x_to_screen(g, ces->events[0].time);
+
+	if(ces->events[ces->num_events-1].time > g->right)
+		end_px = g->widget.allocation.width;
+	else
+		end_px = gtk_trace_x_to_screen(g, ces->events[ces->num_events-1].time);
+
+	cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
+
+	start = gtk_trace_screen_x_to_trace(g, start_px-10);
+
+	for(int px = start_px; px < end_px+1; px++) {
+		end = gtk_trace_screen_x_to_trace(g, px+1)-1;
+
+		if(!cd->slope_mode) {
+			idx_err = counter_event_set_index_min_max_value(ces->idx, start, end, &min_val, &max_val);
+
+			if(!idx_err) {
+				y1 = (long double)(min_val - min_vis_val) / (long double)(max_vis_val - min_vis_val);
+				y2 = (long double)(max_val - min_vis_val) / (long double)(max_vis_val - min_vis_val);
+			}
+		} else {
+			idx_err = counter_event_set_index_min_max_slope(ces->idx, start, end, &min_slope, &max_slope);
+
+			if(!idx_err) {
+				y1 = (long double)(min_slope - min_vis_slope) / (long double)(max_vis_slope - min_vis_slope);
+				y2 = (long double)(max_slope - min_vis_slope) / (long double)(max_vis_slope - min_vis_slope);
+			}
+		}
+
+
+		if(!idx_err) {
+			screen_y1 = cpu_start + cpu_height - y1*cpu_height;
+			screen_y2 = cpu_start + cpu_height - y2*cpu_height;
+
+			/* Draw at least one pixel */
+			if(fabsl(screen_y1 - screen_y2) < 1) {
+				screen_y1 -= 0.5;
+				screen_y2 = screen_y1 + 0.5;
+			}
+
+			cairo_move_to(cr, px, screen_y1);
+			cairo_line_to(cr, px, screen_y2);
+			cairo_stroke(cr);
+		}
+
+		start = end;
+	}
+}
+
+void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
+{
+	struct counter_event_set* ces;
+	struct counter_description* cd;
+
+	int64_t min_vis_val;
+	int64_t max_vis_val;
+
+	long double min_vis_slope;
+	long double max_vis_slope;
 
 	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
 	cairo_clip(cr);
@@ -1521,113 +1691,37 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 	cairo_set_line_width(cr, 1.0);
 
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
 		for(int ctr = 0; ctr < g->event_sets->sets[cpu_idx].num_counter_event_sets; ctr++) {
 			ces = &g->event_sets->sets[cpu_idx].counter_event_sets[ctr];
 			cd = ces->desc;
 
-			if(g->filter && !filter_has_counter(g->filter, cd))
-				continue;
-
 			if(g->filter && g->filter->filter_counter_values) {
-				min = g->filter->min;
-				max = g->filter->max;
+				min_vis_val = g->filter->min;
+				max_vis_val = g->filter->max;
 			} else {
-				min = cd->min;
-				max = cd->max;
+				min_vis_val = cd->min;
+				max_vis_val = cd->max;
 			}
 
 			if(g->filter && g->filter->filter_counter_slopes) {
-				min_slope = g->filter->min_slope;
-				max_slope = g->filter->max_slope;
+				min_vis_slope = g->filter->min_slope;
+				max_vis_slope = g->filter->max_slope;
 			} else {
-				min_slope = cd->min_slope;
-				max_slope = cd->max_slope;
+				min_vis_slope = cd->min_slope;
+				max_vis_slope = cd->max_slope;
 			}
 
-			cairo_set_source_rgb(cr, cd->color_r, cd->color_g, cd->color_b);
+			if(g->filter && !filter_has_counter(g->filter, cd))
+				continue;
 
-			event_idx = counter_event_set_get_last_event_in_interval(ces, 0, (g->left > 0) ? g->left : 0);
+			if(ces->idx)
+				gtk_trace_paint_counter_index(g, cr, ces, cpu_idx, min_vis_val, max_vis_val, min_vis_slope, max_vis_slope);
+			else
+				gtk_trace_paint_counter_noindex(g, cr, ces, cpu_idx, min_vis_val, max_vis_val, min_vis_slope, max_vis_slope);
 
-			if(event_idx == -1)
-				event_idx = 0;
-
-			if(event_idx != -1 && event_idx < ces->num_events-1) {
-				if(ces->events[event_idx].time >= g->left) {
-					screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
-
-					if(!cd->slope_mode)
-						rel_val = (long double)(ces->events[event_idx].value-min) / (long double)(max - min);
-					else
-						rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
-				} else {
-					if(!cd->slope_mode)
-						rel_val = counter_event_interpolate_value(&ces->events[event_idx], &ces->events[event_idx+1], g->left) /
-							(long double)(max - min);
-					else
-						rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
-
-					screen_x = gtk_trace_x_to_screen(g, g->left);
-				}
-
-				if(rel_val < 0)
-					rel_val = 0;
-				else if(rel_val > 1.0)
-					rel_val = 1.0;
-
-				screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
-				last_screen_x = screen_x;
-				last_screen_y = screen_y;
-
-				cairo_move_to(cr, screen_x, screen_y);
-				event_idx++;
-
-				for(; event_idx < ces->num_events; event_idx++) {
-					if(ces->events[event_idx].time <= g->right) {
-						screen_x = gtk_trace_x_to_screen(g, ces->events[event_idx].time);
-						if(!cd->slope_mode)
-							rel_val = (long double)(ces->events[event_idx].value-min) / (long double)(max - min);
-						else
-							rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
-					} else {
-						if(!cd->slope_mode)
-							rel_val = counter_event_interpolate_value(&ces->events[event_idx-1], &ces->events[event_idx], g->right) /
-								(long double)(max - min);
-						else
-							rel_val = (ces->events[event_idx].slope-min_slope) / (max_slope - min_slope);
-
-						screen_x = gtk_trace_x_to_screen(g, g->right);
-					}
-
-					if(rel_val < 0)
-						rel_val = 0;
-					else if(rel_val > 1.0)
-						rel_val = 1.0;
-
-					screen_y = cpu_start+cpu_height - (rel_val*cpu_height);
-
-					if(cd->slope_mode)
-						cairo_line_to(cr, last_screen_x, screen_y);
-
-					if(cd->slope_mode || round(screen_x) != round(last_screen_x) || round(screen_y) != round(last_screen_y)) {
-						cairo_line_to(cr, screen_x, screen_y);
-						line_segments_drawn++;
-					}
-
-					last_screen_x = screen_x;
-					last_screen_y = screen_y;
-
-					if(ces->events[event_idx].time > g->right)
-						break;
-				}
-
-				cairo_stroke(cr);
-			}
 		}
 	}
 
-	printf("Line segments drawn: %d\n", line_segments_drawn);
 	cairo_reset_clip(cr);
 }
 
