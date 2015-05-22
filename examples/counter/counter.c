@@ -82,10 +82,10 @@ int main(int argc, char** argv)
 	fwrite(counter_name, strlen(counter_name), 1, fp);
 
 	/* Generate some counter samples */
-	for(int i = 0; i < 1024; i++) {
+	for(int i = 0; i < 1000000; i++) {
 		/* Initialize event header */
 		dsk_cre.header.type = EVENT_TYPE_COUNTER;
-		dsk_cre.header.time = i*1000000;
+		dsk_cre.header.time = (int64_t)i*1000000;
 		dsk_cre.header.cpu = 0;
 		dsk_cre.header.worker = 0;
 		dsk_cre.header.active_task = 0;
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 		dsk_cre.counter_id = dsk_cd.counter_id;
 
 		/* Absolute 64-bit value of the sample */
-		dsk_cre.value = 1000.0*(sin(i)+1.0);
+		dsk_cre.value = 1000.0*(sin((double)i / 100.0)) + 1000.0*(sin((double)i / 1000.0));
 
 		/* Convert counter event to on-disk endianness and write to disk */
 		write_struct_convert(fp, &dsk_cre, sizeof(dsk_cre),
