@@ -518,6 +518,17 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		}
 	}
 
+	/* Create indexes for counters */
+	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+		for(struct counter_event_set* ces = &es->counter_event_sets[0];
+		    ces < &es->counter_event_sets[es->num_counter_event_sets];
+		    ces++)
+		{
+			if(counter_event_set_create_index(ces))
+				goto out_trees;
+		}
+	}
+
 	res = 0;
 
 out_trees:
