@@ -19,7 +19,7 @@
 #define COUNTER_DESCRIPTION_H
 
 #include <stdint.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <float.h>
 
 #define COUNTER_PREALLOC 16

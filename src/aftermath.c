@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include <glade/glade.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <sys/time.h>
 #include <math.h>

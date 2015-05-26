@@ -18,7 +18,7 @@
 #include "cell_renderer_color_button.h"
 #include "dialogs.h"
 #include <stdint.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 static void custom_cell_renderer_color_button_init(CustomCellRendererColorButton* cellcolor_button);
 static void custom_cell_renderer_color_button_class_init(CustomCellRendererColorButtonClass* klass);

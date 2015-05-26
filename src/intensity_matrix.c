@@ -16,7 +16,7 @@
  */
 
 #include "intensity_matrix.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 int intensity_matrix_init(struct intensity_matrix* m, int width, int height)

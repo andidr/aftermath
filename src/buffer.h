@@ -18,7 +18,7 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 int check_buffer_grow(void** buffer, int elem_size, int used, int* free, int prealloc_elems);

@@ -21,7 +21,7 @@
 #include "events.h"
 #include "buffer.h"
 #include <stdint.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 struct counter_event_set_index;
 

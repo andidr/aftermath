@@ -20,7 +20,7 @@
 
 #define _GNU_SOURCE
 #include <stdint.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <search.h>
 #include <sys/types.h>
 
