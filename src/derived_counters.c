@@ -87,8 +87,6 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	ce.desc = cd;
-
 	num_sets_having = 0;
 	for(int i = 0; i < mes->num_sets; i++) {
 		int j = event_set_counter_event_set_index(&mes->sets[i], counter_idx);
@@ -110,7 +108,7 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 		if(event_set_add_counter_event(cpu_es, &ce, cd, 1) != 0)
 			return 1;
 
-		multi_event_set_check_update_counter_bounds(mes, &ce);
+		multi_event_set_check_update_counter_bounds(mes, cd, &ce);
 	}
 
 	*cd_out = cd;
@@ -180,13 +178,12 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.desc = cd;
 		ce.value = parallelism / interval_length;
 
 		if(event_set_add_counter_event(cpu_es, &ce, cd, 1) != 0)
 			return 1;
 
-		multi_event_set_check_update_counter_bounds(mes, &ce);
+		multi_event_set_check_update_counter_bounds(mes, cd, &ce);
 	}
 
 	*cd_out = cd;
@@ -275,12 +272,11 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 		}
 
 		cre.time = interval_start + interval_length / 2;
-		cre.desc = cd;
 
 		if(event_set_add_counter_event(cpu_es, &cre, cd, 1) != 0)
 			return 1;
 
-		multi_event_set_check_update_counter_bounds(mes, &cre);
+		multi_event_set_check_update_counter_bounds(mes, cd, &cre);
 	}
 
 	*cd_out = cd;
@@ -386,12 +382,11 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.desc = cd;
 
 		if(event_set_add_counter_event(cpu_es, &ce, cd, 1) != 0)
 			return 1;
 
-		multi_event_set_check_update_counter_bounds(mes, &ce);
+		multi_event_set_check_update_counter_bounds(mes, cd, &ce);
 	}
 
 	*cd_out = cd;
@@ -492,7 +487,6 @@ int derive_task_length_counter(struct multi_event_set* mes, struct counter_descr
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.desc = cd;
 
 		if(cycles != 0) {
 			ce.value = cycles_length / cycles;
@@ -506,7 +500,7 @@ int derive_task_length_counter(struct multi_event_set* mes, struct counter_descr
 		if(event_set_add_counter_event(cpu_es, &ce, cd, 1) != 0)
 			return 1;
 
-		multi_event_set_check_update_counter_bounds(mes, &ce);
+		multi_event_set_check_update_counter_bounds(mes, cd, &ce);
 	}
 
 	*cd_out = cd;
@@ -545,8 +539,6 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
-
-	ce.desc = cd;
 
 	num_sets_having = 0;
 	for(int i = 0; i < mes->num_sets; i++) {
@@ -593,7 +585,7 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 			if(event_set_add_counter_event(cpu_es, &ce, cd, 0) != 0)
 				return 1;
 
-			multi_event_set_check_update_counter_bounds(mes, &ce);
+			multi_event_set_check_update_counter_bounds(mes, cd, &ce);
 		}
 	}
 

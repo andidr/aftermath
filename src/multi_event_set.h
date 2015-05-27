@@ -370,10 +370,8 @@ static inline uint64_t multi_event_set_get_free_counter_id(struct multi_event_se
 	return id;
 }
 
-static inline void multi_event_set_check_update_counter_bounds(struct multi_event_set* mes, struct counter_event* ce)
+static inline void multi_event_set_check_update_counter_bounds(struct multi_event_set* mes, struct counter_description* cd, struct counter_event* ce)
 {
-	struct counter_description* cd = ce->desc;
-
 	if(ce->value < cd->min)
 		cd->min = ce->value;
 

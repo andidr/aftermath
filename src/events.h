@@ -85,8 +85,6 @@ struct counter_event {
 	uint64_t time;
 	int64_t value;
 	long double slope;
-
-	struct counter_description* desc;
 };
 
 /*

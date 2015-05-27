@@ -302,13 +302,12 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
 				cre.time = dsk_cre.header.time;
-				cre.desc = cd;
 				cre.value = dsk_cre.value;
 
 				if(event_set_add_counter_event(es, &cre, cd, 1) != 0)
 					return 1;
 
-				multi_event_set_check_update_counter_bounds(mes, &cre);
+				multi_event_set_check_update_counter_bounds(mes, cd, &cre);
 			} else if(dsk_eh.type == EVENT_TYPE_FRAME_INFO) {
 				memcpy(&dsk_fi, &dsk_eh, sizeof(dsk_eh));
 
