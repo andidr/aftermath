@@ -30,24 +30,24 @@
 
 struct multi_event_set {
 	struct event_set* sets;
-	int num_sets;
-	int num_sets_free;
+	size_t num_sets;
+	size_t num_sets_free;
 
 	struct task* tasks;
-	int num_tasks;
-	int num_tasks_free;
+	size_t num_tasks;
+	size_t num_tasks_free;
 
 	struct frame* frames;
-	int num_frames;
-	int num_frames_free;
+	size_t num_frames;
+	size_t num_frames_free;
 
 	struct counter_description* counters;
-	int num_counters;
-	int num_counters_free;
+	size_t num_counters;
+	size_t num_counters_free;
 
 	struct global_single_event* global_single_events;
-	int num_global_single_events;
-	int num_global_single_events_free;
+	size_t num_global_single_events;
+	size_t num_global_single_events_free;
 
 	int max_numa_node_id;
 

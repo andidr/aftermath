@@ -30,24 +30,24 @@
 
 struct event_set {
 	struct state_event* state_events;
-	int num_state_events;
-	int num_state_events_free;
+	size_t num_state_events;
+	size_t num_state_events_free;
 
 	struct comm_event* comm_events;
-	int num_comm_events;
-	int num_comm_events_free;
+	size_t num_comm_events;
+	size_t num_comm_events_free;
 
 	struct single_event* single_events;
-	int num_single_events;
-	int num_single_events_free;
+	size_t num_single_events;
+	size_t num_single_events_free;
 
 	struct counter_event_set* counter_event_sets;
-	int num_counter_event_sets;
-	int num_counter_event_sets_free;
+	size_t num_counter_event_sets;
+	size_t num_counter_event_sets_free;
 
 	struct annotation* annotations;
-	int num_annotations;
-	int num_annotations_free;
+	size_t num_annotations;
+	size_t num_annotations_free;
 
 	int cpu;
 	int numa_node;

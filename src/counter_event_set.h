@@ -30,8 +30,8 @@ struct counter_event_set {
 	struct counter_description* desc;
 	struct counter_event_set_index* idx;
 
-	int num_events;
-	int num_events_free;
+	size_t num_events;
+	size_t num_events_free;
 };
 
 int counter_event_set_get_last_event_in_interval(struct counter_event_set* es, uint64_t interval_start, uint64_t interval_end);

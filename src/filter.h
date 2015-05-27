@@ -31,13 +31,13 @@
 
 struct filter {
 	struct task** tasks;
-	int num_tasks;
-	int num_tasks_free;
+	size_t num_tasks;
+	size_t num_tasks_free;
 	int filter_tasks;
 
 	struct frame** frames;
-	int num_frames;
-	int num_frames_free;
+	size_t num_frames;
+	size_t num_frames_free;
 	int filter_frames;
 
 	struct bitvector counters;
