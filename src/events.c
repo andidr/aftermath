@@ -301,10 +301,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 					return 1;
 
 				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
-				cre.active_task = task_tree_find(tt, dsk_cre.header.active_task);
-				cre.active_frame = frame_tree_find(ft, dsk_cre.header.active_frame);
 				cre.time = dsk_cre.header.time;
-				cre.counter_id = dsk_cre.counter_id;
 				cre.desc = cd;
 				cre.value = dsk_cre.value;
 
@@ -468,20 +465,6 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
 			ce->what = multi_event_set_find_frame_by_addr(mes, ce->what->addr);
 			ce->event_set = es;
-		}
-
-		/* Update counter events */
-		for(struct counter_event_set* ces = &es->counter_event_sets[0];
-		    ces < &es->counter_event_sets[es->num_counter_event_sets];
-		    ces++)
-		{
-			for(struct counter_event* ce = &ces->events[0];
-			    ce < &ces->events[ces->num_events];
-			    ce++)
-			{
-				ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
-				ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
-			}
 		}
 	}
 

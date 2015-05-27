@@ -87,9 +87,6 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-	ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-	ce.counter_id = id;
 	ce.desc = cd;
 
 	num_sets_having = 0;
@@ -183,9 +180,6 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-		ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-		ce.counter_id = id;
 		ce.desc = cd;
 		ce.value = parallelism / interval_length;
 
@@ -281,9 +275,6 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 		}
 
 		cre.time = interval_start + interval_length / 2;
-		cre.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-		cre.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-		cre.counter_id = id;
 		cre.desc = cd;
 
 		if(event_set_add_counter_event(cpu_es, &cre, cd, 1) != 0)
@@ -370,9 +361,6 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 	}
 
 	ce.value = 0;
-	ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-	ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-	ce.counter_id = id;
 
 	for(int sample = 0; sample < num_samples; sample++) {
 		interval_start = min_time + (uint64_t)sample * interval_length;
@@ -504,9 +492,6 @@ int derive_task_length_counter(struct multi_event_set* mes, struct counter_descr
 		}
 
 		ce.time = interval_start + interval_length / 2;
-		ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-		ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-		ce.counter_id = id;
 		ce.desc = cd;
 
 		if(cycles != 0) {
@@ -561,9 +546,6 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	ce.active_task = multi_event_set_find_task_by_addr(mes, 0x0);
-	ce.active_frame = multi_event_set_find_frame_by_addr(mes, 0x0);
-	ce.counter_id = id;
 	ce.desc = cd;
 
 	num_sets_having = 0;

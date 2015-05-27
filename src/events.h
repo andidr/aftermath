@@ -83,14 +83,10 @@ struct comm_event {
 
 struct counter_event {
 	uint64_t time;
-
-	struct task* active_task;
-	struct frame* active_frame;
-	struct counter_description* desc;
-
-	uint64_t counter_id;
 	int64_t value;
 	long double slope;
+
+	struct counter_description* desc;
 };
 
 /*
