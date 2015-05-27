@@ -415,9 +415,7 @@ int multi_task_statistics_to_task_length_multi_histogram(struct multi_task_stati
 void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* cs, struct counter_description* cd, int64_t start, int64_t end)
 {
 	struct counter_event_set* ces;
-	struct counter_description* p_cd;
 	char buffer[128];
-	int cpu;
 	int64_t value_start, value_end;
 	int start_idx;
 	uint64_t value;
@@ -434,8 +432,8 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 			if((start_idx = event_set_get_first_single_event_in_interval_type(&mes->sets[cpu_idx], start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 				continue;
 
-			if(!counter_event_set_is_monotonously_increasing(ces, &p_cd, &cpu)) {
-				snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", p_cd->name, cpu);
+			if(!counter_event_set_is_monotonously_increasing(ces)) {
+				snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", ces->desc->name, mes->sets[cpu_idx].cpu);
 				gtk_label_set_text(GTK_LABEL(g_label_info_counter), buffer);
 			} else
 				gtk_label_set_text(GTK_LABEL(g_label_info_counter), "");

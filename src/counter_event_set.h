@@ -41,7 +41,7 @@ int counter_event_set_interpolate_value(struct counter_event_set* ces, uint64_t 
 
 int counter_event_set_create_index(struct counter_event_set* ces);
 
-int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu);
+int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces);
 
 void counter_event_set_destroy(struct counter_event_set* ces);
 

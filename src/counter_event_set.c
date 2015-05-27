@@ -130,16 +130,14 @@ int counter_event_set_interpolate_value(struct counter_event_set* ces, uint64_t 
 	return 0;
 }
 
-int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces, struct counter_description** cd, int* cpu)
+int counter_event_set_is_monotonously_increasing(struct counter_event_set* ces)
 {
 	int64_t value = INT64_MIN;
 
 	for(int idx = 0; idx < ces->num_events; idx++) {
-		if (ces->events[idx].value < value) {
-			*cd = ces->events[idx].desc;
-			*cpu = ces->events[idx].event_set->cpu;
+		if (ces->events[idx].value < value)
 			return 0;
-		}
+
 		value = ces->events[idx].value;
 	}
 

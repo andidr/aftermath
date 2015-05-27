@@ -481,7 +481,6 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 			{
 				ce->active_task = multi_event_set_find_task_by_addr(mes, ce->active_task->addr);
 				ce->active_frame = multi_event_set_find_frame_by_addr(mes, ce->active_frame->addr);
-				ce->event_set = es;
 			}
 		}
 	}

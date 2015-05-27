@@ -810,15 +810,17 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 	*nb_errors_out = nb_errors;
 }
 
-int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd, int* cpu)
+int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd)
 {
 	for(int idx = 0; idx < es->num_counter_event_sets; idx++) {
 		if(!f ||
 		   (filter_has_counter(f, es->counter_event_sets[idx].desc) &&
 		    filter_has_cpu(f, es->cpu)))
 		{
-			if(!counter_event_set_is_monotonously_increasing(&es->counter_event_sets[idx], cd, cpu))
+			if(!counter_event_set_is_monotonously_increasing(&es->counter_event_sets[idx])) {
+				*cd = es->counter_event_sets[idx].desc;
 				return 0;
+			}
 		}
 	}
 

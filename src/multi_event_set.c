@@ -88,9 +88,12 @@ void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, s
 
 int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes, struct filter* f, struct counter_description** cd, int* cpu)
 {
-	for (int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++)
-		if(!event_set_counters_monotonously_increasing(&mes->sets[cpu_idx], f, cd, cpu))
+	for (int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
+		if(!event_set_counters_monotonously_increasing(&mes->sets[cpu_idx], f, cd)) {
+			*cpu = mes->sets[cpu_idx].cpu;
 			return 0;
+		}
+	}
 
 	return 1;
 }

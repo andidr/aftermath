@@ -242,8 +242,6 @@ static inline int event_set_add_counter_event(struct event_set* es, struct count
 	if(ce->time > es->last_end)
 		es->last_end = ce->time;
 
-	ce->event_set = es;
-
 	return 0;
 }
 
@@ -328,7 +326,7 @@ int event_set_get_task_duration_in_interval (struct event_set* es, struct filter
 
 void event_set_dump_per_task_counter_values(struct event_set* es, struct filter* f, FILE* file, int* nb_errors_out);
 
-int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd, int* cpu);
+int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd);
 
 int event_set_has_counter(struct event_set* es, struct counter_description* cd);
 

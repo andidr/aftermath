@@ -82,7 +82,6 @@ struct comm_event {
 };
 
 struct counter_event {
-	struct event_set* event_set;
 	uint64_t time;
 
 	struct task* active_task;
