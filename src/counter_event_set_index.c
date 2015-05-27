@@ -574,18 +574,18 @@ int counter_event_set_index_node_min_max_slope_internal(struct counter_event_set
 		lmax = (lmax_start > lmax_end) ? lmax_start : lmax_end;
 
 		/* Check nodes in between */
-		for(iter = node_start; iter != node_end; iter++) {
+		for(iter = node_start+1; iter != node_end; iter++) {
 			if(iter->slope_max > lmax)
 				lmax = iter->slope_max;
 
 			if(iter->slope_min < lmin)
 				lmin = iter->slope_min;
-
-			*min = lmin;
-			*max = lmax;
-
-			return 0;
 		}
+
+		*min = lmin;
+		*max = lmax;
+
+		return 0;
 	}
 
 	/* never reached */
