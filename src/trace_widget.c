@@ -2447,7 +2447,7 @@ struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y)
 	double cpu_height = gtk_trace_cpu_height(g);
 	int worker_pointer = (y+cpu_height*g->cpu_offset) / cpu_height;
 
-	if(g->event_sets->num_sets < worker_pointer ||
+	if(g->event_sets->num_sets <= worker_pointer ||
 	   worker_pointer < 0)
 	{
 		return NULL;
