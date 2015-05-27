@@ -196,7 +196,8 @@ static void custom_cell_renderer_color_button_render(GtkCellRenderer* cell, GdkW
 {
 	CustomCellRendererColorButton* cellcolor_button = CUSTOM_CELL_RENDERER_COLOR_BUTTON(cell);
 	gint width, height;
-	gint x_offset, y_offset;
+	gint x_offset = 0;
+	gint y_offset = 0;
 
 	custom_cell_renderer_color_button_get_size(cell, widget, cell_area,
 						   &x_offset, &y_offset,
