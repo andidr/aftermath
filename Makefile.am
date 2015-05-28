@@ -193,6 +193,8 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 	cp $< $@
 	chmod +x $@
 
+CLEANFILES = aftermath-debug-syms
+
 TESTS_LDADD = -L. -lm -lpthread
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
