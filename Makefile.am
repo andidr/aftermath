@@ -203,7 +203,7 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 CLEANFILES = aftermath-debug-syms aftermath.1
 
 TESTS_LDADD = -L. -lm -lpthread
-TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
+TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 TESTS = counter_event_set_index_test

@@ -16,11 +16,13 @@
  */
 
 #include "uncompress.h"
+#include "ansi_extras.h"
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
+#include <stdio.h>
 
 int uncompress_detect_type(const char* filename, enum compression_type* type)
 {
@@ -125,6 +127,109 @@ int uncompress_pipe_open(struct uncompress_pipe* p, enum compression_type type, 
 			const char* const args[] = {"unxz", "-k", "--stdout", filename, NULL};
 			return  uncompress_pipe_open_cmd(p, "unxz", args);
 		}
+	}
+
+	return 1;
+}
+
+int gzip_get_uncompressed_size(const char* filename, off_t* size)
+{
+	struct uncompress_pipe p;
+	char* line_ptr;
+	size_t n;
+	int status;
+	int ret = 1;
+	size_t compressed_size;
+	size_t uncompressed_size;
+
+	const char* const args[] = {"gzip", "-l", filename, NULL};
+
+	if(uncompress_pipe_open_cmd(&p, "gzip", args))
+		goto out_err;
+
+	/* Discard first line */
+	if(getline(&line_ptr, &n, p.stdout) == -1)
+		goto out_pipe;
+
+	if(getline(&line_ptr, &n, p.stdout) == -1)
+		goto out_free;
+
+	if(sscanf(line_ptr, "%zu %zu", &compressed_size, &uncompressed_size) != 2)
+		goto out_free;
+
+	*size = uncompressed_size;
+
+	ret = 0;
+out_free:
+	free(line_ptr);
+out_pipe:
+	uncompress_pipe_close(&p, &status);
+out_err:
+	return ret;
+}
+
+int xz_get_uncompressed_size(const char* filename, off_t* size)
+{
+	struct uncompress_pipe p;
+	char* line_ptr = NULL;
+	size_t n;
+	int status;
+	int ret = 1;
+	size_t compressed_size;
+	size_t uncompressed_size;
+	int found = 0;
+	int garbage;
+
+	const char* const args[] = {"xz", "-l", "--robot", filename, NULL};
+
+	if(uncompress_pipe_open_cmd(&p, "xz", args))
+		goto out_err;
+
+	/* Discard all but the last line */
+	while(!found) {
+		if(getline(&line_ptr, &n, p.stdout) == -1)
+			goto out_free;
+
+		if(strncmp(line_ptr, "totals", 6) == 0)
+			found = 1;
+	}
+
+	/* Skip "totals " */
+	if(sscanf(line_ptr+7, "%d %d %zu %zu", &garbage, &garbage, &compressed_size, &uncompressed_size) != 4)
+		goto out_free;
+
+	*size = uncompressed_size;
+
+	ret = 0;
+
+out_free:
+	free(line_ptr);
+	uncompress_pipe_close(&p, &status);
+out_err:
+	return ret;
+}
+
+int uncompress_get_size(const char* filename, off_t* size)
+{
+	enum compression_type type;
+
+	if(uncompress_detect_type(filename, &type))
+		return 1;
+
+	switch(type) {
+		case COMPRESSION_TYPE_UNKNOWN:
+		case COMPRESSION_TYPE_BZIP2:
+			return 1;
+
+		case COMPRESSION_TYPE_UNCOMPRESSED:
+			*size = file_size(filename);
+			return 0;
+
+		case COMPRESSION_TYPE_GZIP:
+			return gzip_get_uncompressed_size(filename, size);
+
+		case COMPRESSION_TYPE_XZ:
+			return xz_get_uncompressed_size(filename, size);
 	}
 
 	return 1;

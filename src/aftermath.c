@@ -193,10 +193,14 @@ int main(int argc, char** argv)
 		.progress_widgets = &progress_widgets,
 	};
 
-	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED)
+	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED) {
 		load_thread_data.ignore_progress = 0;
-	else
-		load_thread_data.ignore_progress = 1;
+	} else {
+		if(uncompress_get_size(tracefile, &load_thread_data.trace_size))
+			load_thread_data.ignore_progress = 1;
+		else
+			load_thread_data.ignore_progress = 0;
+	}
 
 	pthread_create(&tid, NULL, load_thread, &load_thread_data);
 

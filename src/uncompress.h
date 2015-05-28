@@ -42,5 +42,6 @@ int uncompress_detect_type(const char* filename, enum compression_type* type);
 int uncompress_pipe_open_cmd(struct uncompress_pipe* p, char* cmd, const char* const argv[]);
 int uncompress_pipe_open(struct uncompress_pipe* p, enum compression_type type, const char* filename);
 int uncompress_pipe_close(struct uncompress_pipe* p, int* status);
+int uncompress_get_size(const char* filename, off_t* size);
 
 #endif
