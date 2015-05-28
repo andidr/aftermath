@@ -107,6 +107,7 @@ aftermath_SOURCES = src/aftermath.c \
 		src/export.h \
 		src/aux.h \
 		src/aftermath-debug-syms.sh \
+		doc/man/aftermath.1 \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
@@ -143,6 +144,12 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/fit_all_measurement_intervals.svg \
 		share/icons/draw_measurement_intervals.svg \
 		share/bitmap/splash.png
+
+man_MANS = aftermath.1
+
+aftermath.1: doc/man/aftermath.1
+	sed -e "s/\$$PACKAGE_VERSION/$(PACKAGE_VERSION)/g" \
+	    -e "s|\$$DATE|$$(date +%m/%d/%Y)|g" $< > $@
 
 clean-local:
 	-find . -iname "*~" | xargs rm
@@ -193,7 +200,7 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 	cp $< $@
 	chmod +x $@
 
-CLEANFILES = aftermath-debug-syms
+CLEANFILES = aftermath-debug-syms aftermath.1
 
 TESTS_LDADD = -L. -lm -lpthread
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200112 -I$(srcdir)/tests/lib -I$(srcdir)/src
