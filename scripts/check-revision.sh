@@ -25,9 +25,9 @@ print_usage() {
 while [ $# -ne 0 ]
 do
     case "$1" in
-	-d)
-	    BUILD_DIR="$2"
-	    shift
+	-d*)
+	    BUILD_DIR=$(parse_opt "$1" "$2")
+	    $(parse_opt_shift "$1")
 	    ;;
 	-v|--verbose)
 	    VERBOSE="true"

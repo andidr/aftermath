@@ -10,7 +10,7 @@ print_usage() {
     echo "If the end revision is omitted HEAD is assumed to be the end revision."
     echo
     echo "Options:"
-    echo "  -p, --prefix PREFIX        Use PREFIX for the build directory"
+    echo "  -p PREFIX, --prefix=PREFIX Use PREFIX for the build directory"
     echo "  -v, --verbose              Verbose output"
     echo "  -vv, --very-verbose        Also use verbose output when checking a single revision"
     echo
@@ -48,9 +48,9 @@ do
 	-h|--help)
 	    print_usage $0
 	    ;;
-	-p|--prefix)
-	    BUILD_PREFIX="$2"
-	    shift
+	-p*|--prefix=*)
+	    BUILD_PREFIX=$(parse_opt "$1" "$2")
+	    $(parse_opt_shift "$1")
 	    ;;
 	-*)
 	    die "Unknown flag \"$1\". Aborting."
