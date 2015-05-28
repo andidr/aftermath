@@ -4,6 +4,7 @@ bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
 
 aftermath_SOURCES = src/aftermath.c \
+		src/trace_widget.h \
 		src/trace_widget.c \
 		src/histogram_widget.h \
 		src/histogram_widget.c \
@@ -23,6 +24,7 @@ aftermath_SOURCES = src/aftermath.c \
 		src/signals.c \
 		src/globals.h \
 		src/globals.c \
+		src/marshal.in \
 		src/marshal.h \
 		src/marshal.c \
 		src/dialogs.h \
@@ -102,6 +104,9 @@ aftermath_SOURCES = src/aftermath.c \
 		src/task_instance_tree.c \
 		src/cairo_extras.h \
 		src/cairo_extras.c \
+		src/export.h \
+		src/aux.h \
+		src/aftermath-debug-syms.sh \
 		$(UNIT_TEST_SOURCES)
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
 aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
