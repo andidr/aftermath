@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. $(dirname "$0")/lib.sh
+
 print_usage() {
     echo "Usage: $0 [OPTION]... REVISION"
     echo "Checks if a specific git revision of the project builds, installs and if its"
@@ -16,19 +18,6 @@ print_usage() {
     echo " 0 Revision build, installs and tests pass"
     echo " 1 An error occured either in the build, install or test phase"
     exit 0
-}
-
-die() {
-    echo "$1" >&2
-    exit 1
-}
-
-echo_verbose() {
-    [ ! -z $VERBOSE ] && echo "$1"
-}
-
-echo_verbose_n() {
-    [ ! -z $VERBOSE ] && echo -n "$1"
 }
 
 [ -d ".git" ] || die "Please run this script from the main directory"

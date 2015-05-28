@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. $(dirname "$0")/lib.sh
+
 print_usage() {
     echo "Usage: $0 [OPTION]... START_REVISION [END_REVISION]"
     echo "Checks if all revisions between START_REVISION and END_REVISION build,"
@@ -18,19 +20,6 @@ print_usage() {
     echo " 0 All revisions build, install and pass tests"
     echo " 1 At least one of the revision does not build / install / pass tests"
     exit 0
-}
-
-die() {
-    echo "$1" >&2
-    exit 1
-}
-
-echo_verbose() {
-    [ ! -z $VERBOSE ] && echo "$1"
-}
-
-echo_verbose_n() {
-    [ ! -z $VERBOSE ] && echo -n "$1"
 }
 
 [ -d ".git" ] || die "Please run this script from the main directory"
