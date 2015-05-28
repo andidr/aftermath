@@ -512,7 +512,7 @@ int counter_event_set_index_node_min_max_slope_internal(struct counter_event_set
 		/* End also in between */
 		if(end < node_start->left_event->time) {
 			/* Slope is identical for both points */
-			start_val = (node_start-1)->right_event->slope;
+			start_val = node_start->left_event->slope;
 			end_val = start_val;
 
 			*min = (start_val < end_val) ? start_val : end_val;
@@ -521,7 +521,7 @@ int counter_event_set_index_node_min_max_slope_internal(struct counter_event_set
 			return 0;
 		} else {
 			/* Interpolate for the start */
-			start_val = (node_start-1)->right_event->slope;
+			start_val = node_start->left_event->slope;
 			counter_event_set_index_node_min_max_slope_internal(n, node_start->left_event->time, end,
 									    &lmin, &lmax);
 
@@ -541,7 +541,7 @@ int counter_event_set_index_node_min_max_slope_internal(struct counter_event_set
 	/* End in between two nodes? */
 	if(end < node_end->left_event->time) {
 		/* Interpolate for the end */
-		end_val = (node_end-1)->right_event->slope;
+		end_val = node_end->left_event->slope;
 		counter_event_set_index_node_min_max_slope_internal(n, start, (node_end-1)->right_event->time,
 								    &lmin, &lmax);
 
@@ -631,10 +631,7 @@ int counter_event_set_index_node_min_max_slope_leaf(struct counter_event_set_ind
 		cre_start++;
 
 	/* Determine slope at the start of the interval */
-	if(cre_start->time == start)
-		start_val = cre_start->slope;
-	else
-		start_val = (cre_start-1)->slope;
+	start_val = cre_start->slope;
 
 	cre_end = cre_start;
 
@@ -643,10 +640,7 @@ int counter_event_set_index_node_min_max_slope_leaf(struct counter_event_set_ind
 		cre_end++;
 
 	/* Determine slope at the end of the interval */
-	if(cre_end->time == end)
-		end_val = cre_end->slope;
-	else
-		end_val = (cre_end-1)->slope;
+	end_val = cre_end->slope;
 
 	lmin = (start_val < end_val) ? start_val : end_val;
 	lmax = (start_val < end_val) ? end_val : start_val;

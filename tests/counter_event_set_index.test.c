@@ -639,12 +639,12 @@ UNIT_TEST(lookup_test_min_max_slope_one_leaf)
 	/* Perfect match on first event, between first and second event */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, D, 3*D/2, &min, &max), 0);
 	ASSERT_EQUALS_LD(min, 0);
-	ASSERT_EQUALS_LD(max, 0);
+	ASSERT_EQUALS_LD(max, SQ(1));
 
 	/* Between first and second event, between second and third event */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, 3*D/2, 5*D/2, &min, &max), 0);
-	ASSERT_EQUALS_LD(min, 0);
-	ASSERT_EQUALS_LD(max, SQ(1));
+	ASSERT_EQUALS_LD(min, SQ(1));
+	ASSERT_EQUALS_LD(max, SQ(2));
 
 	counter_event_set_index_destroy(&idx);
 	counter_event_set_destroy(&ces);
@@ -850,7 +850,7 @@ UNIT_TEST(lookup_test_min_max_slope_two_leaves)
 	 */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, 0, fan_out*D + D/2, &min, &max), 0);
 	ASSERT_EQUALS_LD(min, 0);
-	ASSERT_EQUALS_LD(max, SQ(fan_out-1));
+	ASSERT_EQUALS_LD(max, SQ(fan_out));
 
 	/* Start: between two leaves
 	 * End: right of second leaf
@@ -864,7 +864,7 @@ UNIT_TEST(lookup_test_min_max_slope_two_leaves)
 	 *           S          E
 	 */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, fan_out*D + D/2, 2*fan_out*D+1, &min, &max), 0);
-	ASSERT_EQUALS_LD(min, SQ(fan_out-1));
+	ASSERT_EQUALS_LD(min, SQ(fan_out));
 	ASSERT_EQUALS_LD(max, SQ(2*fan_out-1));
 
 	/* Start: between two leaves
@@ -879,8 +879,8 @@ UNIT_TEST(lookup_test_min_max_slope_two_leaves)
 	 *           S E
 	 */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, fan_out*D + D/4, fan_out*D + 3*D/4, &min, &max), 0);
-	ASSERT_EQUALS_LD(min, SQ(fan_out-1));
-	ASSERT_EQUALS_LD(max, SQ(fan_out-1));
+	ASSERT_EQUALS_LD(min, SQ(fan_out));
+	ASSERT_EQUALS_LD(max, SQ(fan_out));
 
 	/* Start: left of first leaf
 	 * End: right of second leaf
@@ -1014,25 +1014,25 @@ void generic_lookup_test_min_max_slope_n_levels(int n)
 	 * End: between two leaves */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, 0, fan_out*D + D/2, &min, &max), 0);
 	ASSERT_EQUALS_LD(min, 0);
-	ASSERT_EQUALS_LD(max, SQ(fan_out-1));
+	ASSERT_EQUALS_LD(max, SQ(fan_out));
 
 	/* Start: between two leaves
 	 * End: right of second leaf */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, fan_out*D + D/2, 2*fan_out*D+1, &min, &max), 0);
-	ASSERT_EQUALS_LD(min, SQ(fan_out-1));
-	ASSERT_EQUALS_LD(max, SQ(2*fan_out-1));
+	ASSERT_EQUALS_LD(min, SQ(fan_out));
+	ASSERT_EQUALS_LD(max, SQ(2*fan_out));
 
 	/* Start: between two leaves
 	 * End: between two leaves */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, fan_out*D + D/4, fan_out*D + 3*D/4, &min, &max), 0);
-	ASSERT_EQUALS_LD(min, SQ(fan_out-1));
-	ASSERT_EQUALS_LD(max, SQ(fan_out-1));
+	ASSERT_EQUALS_LD(min, SQ(fan_out));
+	ASSERT_EQUALS_LD(max, SQ(fan_out));
 
 	/* Start: left of first leaf
 	 * End: right of second leaf */
 	ASSERT_EQUALS(counter_event_set_index_min_max_slope(&idx, 0, 2*fan_out*D+1, &min, &max), 0);
 	ASSERT_EQUALS_LD(min, 0);
-	ASSERT_EQUALS_LD(max, SQ(2*fan_out-1));
+	ASSERT_EQUALS_LD(max, SQ(2*fan_out));
 
 	counter_event_set_index_destroy(&idx);
 	counter_event_set_destroy(&ces);
