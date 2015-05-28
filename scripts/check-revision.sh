@@ -10,6 +10,7 @@ print_usage() {
     echo "Options:"
     echo "  -d DIRECTORY               Use DIRECTORY as the build directory"
     echo "  -v, --verbose              Verbose output"
+    echo "  -j N, --jobs=N             Build using N jobs"
     echo "  -f, --force-overwrite      Overwrite build directory if it already exists"
     echo "  -k, --keep                 Keep files; do not remove build directory when done"
     echo "  -h, --help                 Print usage"
@@ -21,6 +22,8 @@ print_usage() {
 }
 
 [ -d ".git" ] || die "Please run this script from the main directory"
+
+BUILDFLAGS=""
 
 while [ $# -ne 0 ]
 do
@@ -40,6 +43,11 @@ do
 	    ;;
 	-h|--help)
 	    print_usage $0
+	    ;;
+	-j*|--jobs=*)
+	    JOBS=$(parse_opt "$1" "$2")
+	    $(parse_opt_shift "$1")
+	    BUILDFLAGS="-j$JOBS"
 	    ;;
 	-*)
 	    die "Unknown flag \"$1\". Aborting."
@@ -85,7 +93,7 @@ echo_verbose_n "Executing configure... "
 echo_verbose "done."
 
 echo_verbose_n "Building... "
-make >> build-log 2>&1 || die "Could not build project. Check $BUILD_DIR/build-log."
+make $BUILDFLAGS >> build-log 2>&1 || die "Could not build project. Check $BUILD_DIR/build-log."
 echo_verbose "done."
 
 echo_verbose_n "Running tests... "

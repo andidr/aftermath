@@ -52,6 +52,11 @@ do
 	    BUILD_PREFIX=$(parse_opt "$1" "$2")
 	    $(parse_opt_shift "$1")
 	    ;;
+	-j*|--jobs=*)
+	    JOBS=$(parse_opt "$1" "$2")
+	    $(parse_opt_shift "$1")
+	    FLAGS="-j$JOBS"
+	    ;;
 	-*)
 	    die "Unknown flag \"$1\". Aborting."
 	    ;;
