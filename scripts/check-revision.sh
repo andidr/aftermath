@@ -47,7 +47,7 @@ do
 	-j*|--jobs=*)
 	    JOBS=$(parse_opt "$1" "$2")
 	    $(parse_opt_shift "$1")
-	    BUILDFLAGS="-j$JOBS"
+	    BUILDFLAGS="$BUILDFLAGS -j$JOBS"
 	    ;;
 	-*)
 	    die "Unknown flag \"$1\". Aborting."
