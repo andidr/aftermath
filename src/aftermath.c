@@ -155,6 +155,8 @@ int main(int argc, char** argv)
 
 	g_visuals_modified = 0;
 
+	multi_event_set_init(&g_mes);
+
 	settings_init(&g_settings);
 
 	if(read_user_settings(&g_settings) != 0) {

@@ -301,6 +301,31 @@ static inline struct frame* multi_event_set_find_frame_by_addr(struct multi_even
 	return multi_event_set_find_frame(mes, &f);
 }
 
+static inline void multi_event_set_init(struct multi_event_set* mes)
+{
+	mes->sets = NULL;
+	mes->num_sets = 0;
+	mes->num_sets_free = 0;
+	mes->num_tasks = 0;
+	mes->num_tasks_free = 0;
+	mes->tasks = NULL;
+	mes->num_frames = 0;
+	mes->num_frames_free = 0;
+	mes->frames = NULL;
+	mes->counters = NULL;
+	mes->num_counters = 0;
+	mes->num_counters_free = 0;
+	mes->max_numa_node_id = 0;
+	mes->max_write_size = 0;
+	mes->max_read_size = 0;
+	mes->min_cpu = -1;
+	mes->max_cpu = -1;
+	mes->cpu_idx_map = NULL;
+	mes->num_global_single_events = 0;
+	mes->num_global_single_events_free = 0;
+	mes->global_single_events = NULL;
+}
+
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
 	for(int set = 0; set < mes->num_sets; set++)

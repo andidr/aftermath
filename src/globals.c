@@ -124,29 +124,7 @@ GtkWidget* g_vbox_stats_all;
 GtkWidget* g_vbox_comm;
 GtkWidget* g_vbox_comm_pos;
 
-struct multi_event_set g_mes = { .sets = NULL,
-				 .num_sets = 0,
-				 .num_sets_free = 0,
-				 .num_tasks = 0,
-				 .num_tasks_free = 0,
-				 .tasks = NULL,
-				 .num_frames = 0,
-				 .num_frames_free = 0,
-				 .frames = NULL,
-				 .counters = NULL,
-				 .num_counters = 0,
-				 .num_counters_free = 0,
-				 .max_numa_node_id = 0,
-				 .max_write_size = 0,
-				 .max_read_size = 0,
-				 .min_cpu = -1,
-				 .max_cpu = -1,
-				 .cpu_idx_map = NULL,
-				 .num_global_single_events = 0,
-				 .num_global_single_events_free = 0,
-				 .global_single_events = NULL
-};
-
+struct multi_event_set g_mes;
 struct filter g_filter;
 struct settings g_settings;
 struct histogram g_task_histogram;
