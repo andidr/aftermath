@@ -1,5 +1,5 @@
 .\" Manpage for aftermath.
-.TH man 1 "$DATE" "$PACKAGE_VERSION" "Aftermath"
+.TH man 1 "@CONFIG_DATE@" "@PACKAGE_VERSION@" "Aftermath"
 .SH NAME
 aftermath \- View an execution trace of a task-parallel program
 .SH SYNOPSIS

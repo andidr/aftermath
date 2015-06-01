@@ -58,4 +58,6 @@ PKG_CHECK_MODULES(GLADE, [libglade-2.0 >= 2.0])
 
 CFLAGS="$CFLAGS -Wall"
 
-AC_OUTPUT(Makefile)
+CONFIG_DATE=`date +%m/%d/%Y`
+AC_SUBST(CONFIG_DATE)
+AC_OUTPUT([Makefile doc/man/aftermath.1])

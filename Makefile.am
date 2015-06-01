@@ -145,11 +145,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/draw_measurement_intervals.svg \
 		share/bitmap/splash.png
 
-man_MANS = aftermath.1
-
-aftermath.1: doc/man/aftermath.1
-	sed -e "s/\$$PACKAGE_VERSION/$(PACKAGE_VERSION)/g" \
-	    -e "s|\$$DATE|$$(date +%m/%d/%Y)|g" $< > $@
+man_MANS = doc/man/aftermath.1
 
 clean-local:
 	-find . -iname "*~" | xargs rm
