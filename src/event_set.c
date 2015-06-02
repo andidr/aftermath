@@ -632,11 +632,11 @@ int event_set_get_min_task_duration_in_interval(struct event_set* es, struct fil
 	{
 		curr = se->next_texec_end->time - se->time;
 
-		if(curr < min && filter_has_task(f, se->active_task) &&
+		if(curr < min && (!f || (filter_has_task(f, se->active_task) &&
 		   filter_has_frame(f, se->active_frame) &&
 		   filter_has_task_duration(f, curr) &&
 		   (!f-> filter_writes_to_numa_nodes ||
-		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
+		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))))
 			min = curr;
 	}
 
@@ -662,11 +662,11 @@ int event_set_get_min_max_task_duration_in_interval(struct event_set* es, struct
 	{
 		curr = se->next_texec_end->time - se->time;
 
-		if(filter_has_task(f, se->active_task) &&
+		if(!f || (filter_has_task(f, se->active_task) &&
 		   filter_has_frame(f, se->active_frame) &&
 		   filter_has_task_duration(f, curr) &&
 		   (!f-> filter_writes_to_numa_nodes ||
-		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
+		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
 		{
 			if(curr < lmin)
 				lmin = curr;
@@ -697,11 +697,11 @@ int event_set_get_max_task_duration_in_interval(struct event_set* es, struct fil
 	{
 		curr = se->next_texec_end->time - se->time;
 
-		if(curr > max && filter_has_task(f, se->active_task) &&
+		if(curr > max && (!f || (filter_has_task(f, se->active_task) &&
 		   filter_has_frame(f, se->active_frame) &&
 		   filter_has_task_duration(f, curr) &&
 		   (!f-> filter_writes_to_numa_nodes ||
-		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))
+		    event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize)))))
 			max = curr;
 	}
 
