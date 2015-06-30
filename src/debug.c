@@ -19,8 +19,6 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-char *strdup(const char *s);
-
 int debug_read_task_symbols(const char* filename, struct multi_event_set* mes)
 {
 	int ret = 1;

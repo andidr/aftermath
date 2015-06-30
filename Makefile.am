@@ -2,45 +2,20 @@ ACLOCAL_AMFLAGS=-I m4
 VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
+noinst_LIBRARIES = libaftermath-core.a
 
-aftermath_SOURCES = src/aftermath.c \
-		src/trace_widget.h \
-		src/trace_widget.c \
-		src/histogram_widget.h \
-		src/histogram_widget.c \
-		src/multi_histogram_widget.h \
-		src/multi_histogram_widget.c \
-		src/matrix_widget.h \
-		src/matrix_widget.c \
-		src/intensity_matrix.h \
-		src/intensity_matrix.c \
-		src/buffer.h \
+libaftermath_core_a_SOURCES = src/buffer.h \
 		src/buffer.c \
 		src/events.h \
 		src/events.c \
 		src/filter.h \
 		src/filter.c \
-		src/signals.h \
-		src/signals.c \
-		src/globals.h \
-		src/globals.c \
-		src/marshal.in \
-		src/marshal.h \
-		src/marshal.c \
-		src/dialogs.h \
-		src/dialogs.c \
 		src/trace_file.h \
 		src/trace_file.c \
 		src/debug.h \
 		src/debug.c \
 		src/settings.h \
 		src/settings.c \
-		src/task_list.h \
-		src/task_list.c \
-		src/frame_list.h \
-		src/frame_list.c \
-		src/counter_list.h \
-		src/counter_list.c \
 		src/bitvector.h \
 		src/bitvector.c \
 		src/counter_description.h \
@@ -58,28 +33,17 @@ aftermath_SOURCES = src/aftermath.c \
 		src/frame.c \
 		src/util.h \
 		src/util.c \
-		src/statistics.h \
-		src/statistics.c \
 		src/derived_counters.h \
 		src/derived_counters.c \
-		src/color.h \
-		src/color.c \
 		src/page.h \
 		src/page.c \
-		src/cell_renderer_color_button.h \
-		src/cell_renderer_color_button.c \
-		src/glade_extras.h \
 		src/ansi_extras.h \
-		src/numa_node_list.h \
-		src/numa_node_list.c \
 		src/annotation.h \
 		src/annotation.c \
 		src/visuals_file.h \
 		src/visuals_file.c \
 		src/convert.h \
 		src/convert.c \
-		src/cpu_list.h \
-		src/cpu_list.c \
 		src/task_graph.h \
 		src/task_graph.c \
 		src/uncompress.h \
@@ -102,15 +66,56 @@ aftermath_SOURCES = src/aftermath.c \
 		src/task_instance_rw_tree.c \
 		src/task_instance_tree.h \
 		src/task_instance_tree.c \
+		src/aux.h
+
+libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
+
+aftermath_SOURCES = src/aftermath.c \
+		src/trace_widget.h \
+		src/trace_widget.c \
+		src/histogram_widget.h \
+		src/histogram_widget.c \
+		src/multi_histogram_widget.h \
+		src/multi_histogram_widget.c \
+		src/matrix_widget.h \
+		src/matrix_widget.c \
+		src/intensity_matrix.h \
+		src/intensity_matrix.c \
+		src/signals.h \
+		src/signals.c \
+		src/globals.h \
+		src/globals.c \
+		src/marshal.in \
+		src/marshal.h \
+		src/marshal.c \
+		src/dialogs.h \
+		src/dialogs.c \
+		src/task_list.h \
+		src/task_list.c \
+		src/frame_list.h \
+		src/frame_list.c \
+		src/counter_list.h \
+		src/counter_list.c \
+		src/color.h \
+		src/color.c \
+		src/cell_renderer_color_button.h \
+		src/cell_renderer_color_button.c \
+		src/glade_extras.h \
+		src/numa_node_list.h \
+		src/numa_node_list.c \
+		src/cpu_list.h \
+		src/cpu_list.c \
 		src/cairo_extras.h \
 		src/cairo_extras.c \
 		src/export.h \
-		src/aux.h \
+		src/statistics.h \
+		src/statistics.c \
 		src/aftermath-debug-syms.sh \
 		doc/man/aftermath.1 \
 		$(UNIT_TEST_SOURCES)
+
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
-aftermath_LDADD = $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
+aftermath_LDADD = libaftermath-core.a $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
 aftermath_LDFLAGS = -export-dynamic
 aftermathdir=${datarootdir}/aftermath
 dist_aftermath_DATA = share/ui/aftermath.glade \
@@ -206,9 +211,7 @@ TESTS = counter_event_set_index_test
 noinst_PROGRAMS = $(TESTS)
 
 counter_event_set_index_test_SOURCES = tests/counter_event_set_index.test.c \
-	$(UNIT_TEST_SOURCES) \
-	src/counter_event_set_index.c \
-	src/counter_event_set.c \
-	src/buffer.c
+	$(UNIT_TEST_SOURCES)
 
+counter_event_set_index_test_LDADD = libaftermath-core.a
 counter_event_set_index_test_CFLAGS = $(TESTS_CFLAGS)

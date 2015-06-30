@@ -21,8 +21,6 @@
 #include <errno.h>
 #include <string.h>
 
-char *strdup(const char *s);
-
 static char* default_settings =
 	"[settings]\n"
 	"use_external_editor = false\n";
