@@ -208,7 +208,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				(*bytes_read) += sizeof(dsk_se) - sizeof(dsk_eh);
 
-				es = multi_event_set_find_alloc_cpu(mes, dsk_se.header.cpu);
+				if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_se.header.cpu)))
+					return 1;
+
 				se.start = dsk_se.header.time;
 				se.end = dsk_se.end_time;
 				se.state = dsk_se.state;
@@ -224,7 +226,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				(*bytes_read) += sizeof(dsk_ce) - sizeof(dsk_eh);
 
-				es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu);
+				if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_ce.header.cpu)))
+					return 1;
+
 				ce.time = dsk_ce.header.time;
 				ce.active_task = task_tree_find(tt, dsk_ce.header.active_task);
 				ce.active_frame = frame_tree_find(ft, dsk_ce.header.active_frame);
@@ -278,7 +282,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(!last_what || last_what->addr != dsk_sge.what)
 					last_what = frame_tree_find_or_add(ft, dsk_sge.what);
 
-				es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu);
+				if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_sge.header.cpu)))
+					return 1;
+
 				sge.active_task = task_tree_find(tt, dsk_sge.header.active_task);
 				sge.active_frame = frame_tree_find(ft, dsk_sge.header.active_frame);
 				sge.time = dsk_sge.header.time;
@@ -300,7 +306,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				if(!(cd = multi_event_set_find_counter_description(mes, dsk_cre.counter_id)))
 					return 1;
 
-				es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu);
+				if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_cre.header.cpu)))
+					return 1;
+
 				cre.time = dsk_cre.header.time;
 				cre.value = dsk_cre.value;
 
@@ -332,7 +340,9 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				(*bytes_read) += sizeof(dsk_ci) - sizeof(dsk_eh);
 
-				es = multi_event_set_find_alloc_cpu(mes, dsk_ci.header.cpu);
+				if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_ci.header.cpu)))
+					return 1;
+
 				es->numa_node = dsk_ci.numa_node;
 
 				if(mes->max_numa_node_id < dsk_ci.numa_node)
