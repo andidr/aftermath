@@ -1292,6 +1292,10 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 
 	cairo_text_extents_t extents;
 
+	/* Nothing to paint */
+	if(g->event_sets->num_sets == 0)
+		return;
+
 	memset(lines, -1, sizeof(lines[0])*(g->widget.allocation.width+1)*num_cpu_gaps);
 	memset(dots, -1, sizeof(dots[0])*(g->widget.allocation.width+1)*g->event_sets->num_sets);
 	memset(triangles, -1, sizeof(triangles[0])*(g->widget.allocation.width+1)*g->event_sets->num_sets);
