@@ -69,6 +69,12 @@ int event_set_compare_cpus(const void* p1, const void* p2)
 	return 0;
 }
 
+ /*
+ * Returns the index of the first state event in es->state_events that
+ * lies entirely within [interval_start; interval_end]. If no state
+ * event exists that covers the specified interval, the function
+ * returns -1.
+ */
 int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -98,6 +104,13 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 	return center_idx;
 }
 
+/*
+ * Returns the index of the first state event in es->state_events that
+ * starts within [interval_start; interval_end]. If no such state
+ * event exists (e.g., if there are no state events in the specified
+ * interval or if none of them starts in the interval), the function
+ * returns -1.
+ */
 int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int idx = event_set_get_first_state_in_interval(es, interval_start, interval_end);
@@ -120,6 +133,15 @@ int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_
 	return idx;
 }
 
+/*
+ * Returns the index of the first state event in es->state_events that
+ * starts within [interval_start; interval_end] and that is of the
+ * specified type. If no such state event exists (e.g., if there are
+ * no state events in the specified interval, if there is no state
+ * event of the specified type in the interval or if none of the state
+ * events of the correct type starts in the interval), the function
+ * returns -1.
+ */
 int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum worker_state type)
 {
 	int idx = event_set_get_first_state_starting_in_interval(es, start, end);
@@ -136,6 +158,9 @@ int event_set_get_first_state_starting_in_interval_type(struct event_set* es, ui
 	return idx;
 }
 
+/* Returns the index of the counter event set associated to the
+ * counter index counter_idx. If no such counter event set exists, the
+ * function returns -1. */
 int event_set_get_counter_event_set(struct event_set* es, int counter_idx)
 {
 	for(int i = 0; i < es->num_counter_event_sets; i++)
@@ -145,6 +170,12 @@ int event_set_get_counter_event_set(struct event_set* es, int counter_idx)
 	return -1;
 }
 
+/* Returns the index of the next state event following the event with
+ * the index curr_idx whose type is equal to the specified type. If no
+ * such event exists (e.g., if there are no following events or if
+ * their types do not match the specified type), the function returns
+ * -1.
+ */
 int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum worker_state state)
 {
 	int idx = curr_idx+1;
@@ -159,6 +190,12 @@ int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum work
 	return -1;
 }
 
+/* Returns the index of the next communication event following the
+ * event with the index curr_idx whose type is equal to the specified
+ * type. If no such event exists (e.g., if there are no following
+ * events or if their types do not match the specified type), the
+ * function returns -1.
+ */
 int event_set_get_next_comm_event(struct event_set* es, int curr_idx, enum comm_event_type type)
 {
 	int idx = curr_idx+1;
@@ -173,6 +210,12 @@ int event_set_get_next_comm_event(struct event_set* es, int curr_idx, enum comm_
 	return -1;
 }
 
+/* Returns the index of the first communication event following the
+ * event with the index curr_idx whose type is equal to one of the
+ * types specified in the array types. If no such event exists (e.g.,
+ * if there are no following events or if their types do not match any
+ * of the specified types), the function returns -1.
+ */
 int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int num_types, enum comm_event_type* types)
 {
 	int idx = curr_idx+1;
@@ -188,6 +231,16 @@ int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int nu
 	return -1;
 }
 
+/* Finds out which type of state dominates the interval defined by
+ * [start; end]. If for two or more states the time is identical, the
+ * type with the lowest id takes precedence. The filter f is evaluated
+ * on each of the state events that overlap into the interval. State
+ * events that are not filtered out are taken into account for the
+ * determination of the dominant state. If there is a dominant state,
+ * the function returns 1 and the type of state is stored at the
+ * address specified by major_state. If no state event overlaps with
+ * the interval, the function returns 0.
+ */
 int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
 {
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);
@@ -222,6 +275,9 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 	return max > 0;
 }
 
+/* Returns the index of the state event that starts before or at the
+ * indicated time and that ends after or at the indicated time. If no
+ * such event exists, the function return -1. */
 int event_set_get_enclosing_state(struct event_set* es, uint64_t time)
 {
 	int idx = event_set_get_first_state_in_interval(es, time, time);
@@ -235,6 +291,9 @@ int event_set_get_enclosing_state(struct event_set* es, uint64_t time)
 	return idx;
 }
 
+/* Returns the index of the first communication event within the
+ * interval [interval_start; interval_end]. If no such event exists,
+ * the function return -1. */
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -269,6 +328,12 @@ int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t interval
 	return center_idx;
 }
 
+/* Returns the index of the next single event following the event with
+ * the index start_idx whose type is equal to the specified type. If
+ * no such event exists (e.g., if there are no following events or if
+ * their types do not match the specified type), the function returns
+ * -1.
+ */
 int event_set_get_next_single_event(struct event_set* es, int start_idx, enum single_event_type type)
 {
 	int idx = start_idx+1;
@@ -283,6 +348,11 @@ int event_set_get_next_single_event(struct event_set* es, int start_idx, enum si
 	return -1;
 }
 
+/*
+ * Returns the index of the first single event that lies within
+ * [interval_start; interval_end]. If no single event exists in the
+ * specified interval, the function returns -1.
+ */
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -312,6 +382,11 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 	return center_idx;
 }
 
+/*
+ * Returns the index of the last single event that lies within
+ * [interval_start; interval_end]. If no single event exists in the
+ * specified interval, the function returns -1.
+ */
 int event_set_get_last_single_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -341,6 +416,11 @@ int event_set_get_last_single_event_in_interval(struct event_set* es, uint64_t i
 	return center_idx;
 }
 
+/*
+ * Returns the index of the first annotation that lies within
+ * [interval_start; interval_end]. If no annotation exists in the
+ * specified interval the function returns -1.
+ */
 int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -370,6 +450,12 @@ int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t in
 	return center_idx;
 }
 
+/*
+ * Returns the index of the first single event of a certain type that
+ * lies within [interval_start; interval_end]. If no single event
+ * exists in the specified interval or if none of the single events in
+ * the interval is of the requested type the function returns -1.
+ */
 int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type)
 {
 	int idx = event_set_get_first_single_event_in_interval(es, start, end);
@@ -386,6 +472,12 @@ int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint
 	return idx;
 }
 
+/*
+ * Returns the index of the last single event of a certain type that
+ * lies within [interval_start; interval_end]. If no single event
+ * exists in the specified interval or if none of the single events in
+ * the interval is of the requested type the function returns -1.
+ */
 int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type)
 {
 	int idx = event_set_get_last_single_event_in_interval(es, start, end);
@@ -402,6 +494,11 @@ int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint6
 	return idx;
 }
 
+/*
+ * Returns the index of the last communication event within the
+ * interval [interval_start; interval_end]. If no such event exists,
+ * the function return -1.
+ */
 int event_set_get_last_comm_event_in_interval(struct event_set* es, uint64_t interval_start, uint64_t interval_end)
 {
 	int start_idx = 0;
@@ -431,6 +528,11 @@ int event_set_get_last_comm_event_in_interval(struct event_set* es, uint64_t int
 	return center_idx;
 }
 
+/*
+ * Returns the index of the last communication event within the
+ * interval [interval_start; interval_end] that is of the specified
+ * type. If no such event exists, the function return -1.
+ */
 int event_set_get_last_comm_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum comm_event_type type)
 {
 	int idx = event_set_get_last_comm_event_in_interval(es, start, end);
@@ -447,6 +549,13 @@ int event_set_get_last_comm_event_in_interval_type(struct event_set* es, uint64_
 	return idx;
 }
 
+/*
+ * Finds the next task execution start event for a task whose
+ * associated frame has the same address as the frame indicated by f
+ * and whose timestamp is greater or equal than start. If no such
+ * event is found the function returns NULL, otherwise a pointer to
+ * the single event.
+ */
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f)
 {
 	int se_idx = event_set_get_first_single_event_in_interval_type(es, start, es->last_end, SINGLE_TYPE_TEXEC_START);
@@ -461,6 +570,15 @@ struct single_event* event_set_find_next_texec_start_for_frame(struct event_set*
 	return se;
 }
 
+/*
+ * Calculates the average task duration in the interval [start;
+ * end]. The output parameter num_tasks indicates how many tasks have
+ * been considered. Non-integer values are possible when tasks overlap
+ * only partially with the specified interval. If no task overlaps
+ * with the interval or if all of the tasks in the interval are
+ * filtered out the number of tasks is zero and the return value
+ * should be ignored.
+ */
 uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, struct filter* f, long double* num_tasks, uint64_t start, uint64_t end)
 {
 	long double lnum_tasks = 0.0;
@@ -490,6 +608,14 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 			   texec_start->next_texec_end->time > start &&
 			   texec_start->next_texec_end->time <= end)
 			{
+				/* Overlap of the end of the task
+				 * execution with the interval:
+				 *
+				 *    start  end
+				 *    [--------]
+				 *  [------]
+				 *  TS    TE
+				 */
 				length_in_interval = texec_start->next_texec_end->time - start;
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
@@ -497,6 +623,14 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 			} else if(texec_start->time < start &&
 				  texec_start->next_texec_end->time > end)
 			{
+				/* Full overlap, start and end
+				 * outside of the interval:
+				 *
+				 *    start  end
+				 *    [--------]
+				 *  [------------]
+				 *  TS          TE
+				 */
 				length_in_interval = end - start;
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
@@ -504,6 +638,14 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 			} else if(texec_start->time >= start &&
 				  texec_start->next_texec_end->time <= end)
 			{
+				/* Task execution entirely within
+				 * the interval:
+				 *
+				 *    start  end
+				 *    [--------]
+				 *      [----]
+				 *      TS  TE
+				 */
 				length_in_interval = texec_start->next_texec_end->time - texec_start->time;
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
@@ -511,6 +653,14 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 			} else if(texec_start->time >= start &&
 				  texec_start->next_texec_end->time > end)
 			{
+				/* Overlap of the start of the task
+				 * execution with the interval:
+				 *
+				 *    start  end
+				 *    [--------]
+				 *         [------]
+				 *         TS    TE
+				 */
 				length_in_interval = end - texec_start->time;
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
@@ -526,6 +676,36 @@ out:
 	return (uint64_t)(((long double)(length)) / lnum_tasks);
 }
 
+/*
+ * Determines the node that was accessed in majority in the interval
+ * [start; end] with respect to the communication types specified in
+ * types[0..num_types-1]. The major node is returned in
+ * *major_node. If no node such node exists (e.g., if no communication
+ * takes place in the specified interval or if all communication in
+ * the interval is filtered out by f) the return value of the function
+ * is 0. If there is a major node, the return value is different from
+ * 0. If there are two nodes with the same amount of data the node
+ * with the lowest id is returned in *major_node.
+ *
+ * The function assumes that communication happens continuously
+ * throughout the execution of each task that overlaps with the
+ * specified interval. The amount of data that is communicated in the
+ * interval is thus assumed to be equivalent to the fraction of the
+ * task duration within the interval multiplied with the total amount
+ * of data communicated by the task.
+ *
+ * For example, if a task reads 1000 bytes, 2000 bytes and 3000 bytes
+ * from nodes 1, 2 and 1, respectively and if each of these accesses
+ * matches a type in types[0..num_types-1] and if the events are not
+ * filtered out by f, the function assumes that the task accesses 6000
+ * bytes in total during its execution, with 4000 bytes read from node
+ * 1 and 2000 bytes read from node 2. If only 50% of the execution
+ * time of the task overlaps with the specified interval, the function
+ * assumes that 2000 bytes are read from node 1 and 1000 bytes are
+ * read from node 2. As the accesses are assumed to take place
+ * continuously, it does not matter whether the actual communication
+ * events take place within the specified interval or not.
+ */
 int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum comm_event_type* types, unsigned int num_types, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	uint64_t node_data[max_numa_node_id+1];
@@ -537,12 +717,16 @@ int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum c
 	struct single_event* texec_start;
 	struct single_event* texec_end;
 
+	/* Find first task execution starting in interval or the last
+	 * one starting right before the interval. */
 	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
 			return 0;
 
 	texec_start = &es->single_events[texec_start_idx];
 
+	/* There might be a previous task starting before the
+	 * interval, but ending in the interval */
 	if(texec_start->prev_texec_end && texec_start->prev_texec_end->time >= start)
 		texec_start = texec_start->prev_texec_start;
 
@@ -582,6 +766,14 @@ int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum c
 	return max > 0;
 }
 
+/*
+ * Determines the duration of the shortest task that starts and
+ * terminates within the interval [start; end] and that is not
+ * filtered out by f. If no task starts and finishes in the interval
+ * or if all tasks starting in the interval are filtered out the
+ * function returns 0. If a task is found, its duration is returned in
+ * *duration and the return value is different from 0.
+ */
 int event_set_get_min_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration)
 {
 	int idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START);
@@ -611,6 +803,15 @@ int event_set_get_min_task_duration_in_interval(struct event_set* es, struct fil
 	return (min < UINT64_MAX);
 }
 
+/*
+ * Determines the duration of the shortest and the longest task that
+ * starts and terminates within the interval [start; end] and that is
+ * not filtered out by f. If no task starts and finishes in the
+ * interval or if all tasks starting in the interval are filtered out
+ * the function returns 0. If at least one task is found, the minimal
+ * and maximal durations are returned in *min and *max and the return
+ * value is different from 0.
+ */
 int event_set_get_min_max_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* min, uint64_t* max)
 {
 	int idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START);
@@ -647,6 +848,14 @@ int event_set_get_min_max_task_duration_in_interval(struct event_set* es, struct
 	return (lmin < UINT64_MAX);
 }
 
+/*
+ * Determines the duration of the longest task that starts and
+ * terminates within the interval [start; end] and that is not
+ * filtered out by f. If no task starts and finishes in the interval
+ * or if all tasks starting in the interval are filtered out the
+ * function returns 0. If a task is found, its duration is returned in
+ * *duration and the return value is different from 0.
+ */
 int event_set_get_max_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* duration)
 {
 	int idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START);
@@ -676,6 +885,19 @@ int event_set_get_max_task_duration_in_interval(struct event_set* es, struct fil
 	return (max > 0);
 }
 
+/*
+ * Calculates the duration of each task type within the interval
+ * [start; end]. The cumulative durarion for each task type is
+ * returned in durations[0..maxid], where maxid is the highest task
+ * type identifier. The function only takes into account task
+ * instances that are not filtered out by f. Task instances that
+ * partially overlap with the specified interval are taken into
+ * account.
+ *
+ * If at least one task instance that is not filtered out and that
+ * overlaps with the interval the function returns 1, otherwise the
+ * return value is 0.
+ */
 int event_set_get_task_duration_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint64_t* durations)
 {
 	int idx;
@@ -720,6 +942,19 @@ int event_set_get_task_duration_in_interval(struct event_set* es, struct filter*
 	return valid;
 }
 
+/*
+ * Write per-task values to a file at the current position of 'file'
+ * for all counters and tasks not filtered out by f. A per-task value
+ * is calculated by subtracting the number of events at the beginning
+ * of the task execution from the number of events at the end of the
+ * execution. The number of taks not filtered out, but for which the
+ * number of events could not be determined (e.g., due to missing
+ * samples) is returned in *nb_errors_out.
+ *
+ * For tasks whose timestamps for the start and end do not correspond
+ * to timestamps of counter samples, the values are interpolated
+ * linearly using the neighboring samples.
+ */
 void event_set_dump_per_task_counter_values(struct event_set* es, struct filter* f, FILE* file, int* nb_errors_out)
 {
 	struct counter_event_set* ces;
@@ -776,6 +1011,14 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 	*nb_errors_out = nb_errors;
 }
 
+/*
+ * Checks whether the samples of the all counters of the event set
+ * that are not filtered out by f are monotonously increasing. If
+ * there is at least one counter for which the samples do not increase
+ * monotonously, the function sets *cd to the according counter
+ * description and returns 0. If all counters have monotonously
+ * increasing samples, the function returns 1.
+ */
 int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd)
 {
 	for(int idx = 0; idx < es->num_counter_event_sets; idx++) {
@@ -793,6 +1036,9 @@ int event_set_counters_monotonously_increasing(struct event_set* es, struct filt
 	return 1;
 }
 
+/* Checks whether the event set has a counter event set referring to
+ * the counter descirbed by the counter description in cd. Returns 1
+ * on success and 0 if no such counter event set was found. */
 int event_set_has_counter(struct event_set* es, struct counter_description* cd)
 {
 	for (int ctr_idx = 0; ctr_idx < es->num_counter_event_sets; ctr_idx++)
@@ -802,6 +1048,19 @@ int event_set_has_counter(struct event_set* es, struct counter_description* cd)
 	return 0;
 }
 
+/* Counts the number of bytes accessed locally and remotely for the
+ * event set es in the interval defined by [start; end]. The function
+ * only considers tasks that are not filtered out by the filter
+ * f. Tasks not entirely included in the interval contribute as if all
+ * memory accesses of the task, including those outside the interval
+ * [start; end] happened grandually. The identifier of the local node
+ * of the cpu associated to the event set must be specified in
+ * local_node. The result is stored in local_bytes and remote_bytes.
+ *
+ * The function returns 1 if at least one task was not filtered out. A
+ * return value of 0 indicates that no task in the interval passed the
+ * filter.
+ */
 int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
 						      struct filter* f,
 						      uint64_t start,
@@ -821,18 +1080,23 @@ int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
 	if(f && !filter_has_cpu(f, es->cpu))
 		goto out;
 
+	/* Find first task execution starting in interval or the last
+	 * one starting right before the interval. */
 	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
 			goto out;
 
 	texec_start = &es->single_events[texec_start_idx];
 
+	/* There might be a previous task starting before the
+	 * interval, but ending in the interval */
 	if(texec_start->prev_texec_end && texec_start->prev_texec_end->time >= start)
 		texec_start = texec_start->prev_texec_start;
 
 	while(texec_start && texec_start->time < end) {
 		uint64_t task_length = texec_start->next_texec_end->time - texec_start->time;
 
+		/* Check if task is included in the filter */
 		if(!f || (filter_has_task(f, texec_start->active_task) &&
 			  filter_has_frame(f, texec_start->active_frame) &&
 			  filter_has_task_duration(f, task_length) &&
@@ -843,6 +1107,11 @@ int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
 			length += length_in_interval;
 
 			struct comm_event* ce;
+
+			/* Add up all communication of the task and
+			 * add the contribution to
+			 * {local,remote}_bytes according to the
+			 * overlap of the task with the interval */
 			for_each_comm_event_in_interval(es,
 							texec_start->time,
 							texec_start->next_texec_end->time,
@@ -864,18 +1133,57 @@ out:
 	return (length > 0);
 }
 
+/* Determines to which node the majority of the data in the interval
+ * defined by [start; end] was written. The function only considers
+ * tasks that are not filtered out by the filter f. Tasks not entirely
+ * included in the interval contribute as if all writes of the task,
+ * including those outside the interval [start; end] happened
+ * grandually. The result is provided in major_node. The parameter
+ * max_numa_node_id must be set to the highest possible identifier of
+ * a NUMA node within the trace.
+ *
+ * The function returns 1 if at least one write access was not
+ * filtered out. A return value of 0 indicates that no write access in
+ * the interval passed the filter.
+ */
 int event_set_get_major_written_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	enum comm_event_type t = COMM_TYPE_DATA_WRITE;
 	return __event_set_get_major_accessed_node_in_interval(es, &t, 1, f, start, end, max_numa_node_id, major_node);
 }
 
+/* Determines from which node the majority of the data in the interval
+ * defined by [start; end] was read. The function only considers tasks
+ * that are not filtered out by the filter f. Tasks not entirely
+ * included in the interval contribute as if all reads of the task,
+ * including those outside the interval [start; end] happened
+ * grandually. The result is provided in major_node. The parameter
+ * max_numa_node_id must be set to the highest possible identifier of
+ * a NUMA node within the trace.
+ *
+ * The function returns 1 if at least one read access was not filtered
+ * out. A return value of 0 indicates that no read access in the
+ * interval passed the filter.
+ */
 int event_set_get_major_read_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	enum comm_event_type t = COMM_TYPE_DATA_READ;
 	return __event_set_get_major_accessed_node_in_interval(es, &t, 1, f, start, end, max_numa_node_id, major_node);
 }
 
+/* Determines the node from which / to which the majority of the data
+ * in the interval defined by [start; end] was read / written. The
+ * function only considers tasks that are not filtered out by the
+ * filter f. Tasks not entirely included in the interval contribute as
+ * if all memory of the task, including those outside the interval
+ * [start; end] happened grandually. The result is provided in
+ * major_node. The parameter max_numa_node_id must be set to the
+ * highest possible identifier of a NUMA node within the trace.
+ *
+ * The function returns 1 if at least one memory access was not
+ * filtered out. A return value of 0 indicates that no access in the
+ * interval passed the filter.
+ */
 int event_set_get_major_accessed_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
 	enum comm_event_type t[2] = { COMM_TYPE_DATA_READ, COMM_TYPE_DATA_WRITE };

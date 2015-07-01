@@ -289,6 +289,9 @@ static inline void event_set_destroy(struct event_set* es)
 	free(es->annotations);
 }
 
+/* Adds an annotation to the event set. The annotation passed as a
+ * parameter is copied. Only the copy, but not the original annotation
+ * will be destroyed upon destruction of the event set. */
 static inline int event_set_add_annotation(struct event_set* es, struct annotation* a)
 {
 	if(add_buffer_grow((void**)&es->annotations, a, sizeof(*a),
