@@ -361,7 +361,7 @@ int event_set_get_first_annotation_in_interval(struct event_set* es, uint64_t in
 			break;
 	}
 
-	while(center_idx > 0 && es->annotations[center_idx-1].time < interval_end && es->annotations[center_idx-1].time > interval_start)
+	while(center_idx > 0 && es->annotations[center_idx-1].time < interval_end && es->annotations[center_idx-1].time >= interval_start)
 		center_idx--;
 
 	if(es->annotations[center_idx].time > interval_end || es->annotations[center_idx].time < interval_start)
