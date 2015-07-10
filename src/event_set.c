@@ -303,7 +303,7 @@ int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t 
 			break;
 	}
 
-	while(center_idx > 0 && es->single_events[center_idx-1].time < interval_end && es->single_events[center_idx-1].time > interval_start)
+	while(center_idx > 0 && es->single_events[center_idx-1].time < interval_end && es->single_events[center_idx-1].time >= interval_start)
 		center_idx--;
 
 	if(es->single_events[center_idx].time > interval_end || es->single_events[center_idx].time < interval_start)
