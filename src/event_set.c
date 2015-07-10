@@ -472,8 +472,8 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 	if(f && !filter_has_cpu(f, es->cpu))
 		goto out;
 
-	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
-		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
+	if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
+		if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 			goto out;
 
 	texec_start = &es->single_events[texec_start_idx];
@@ -486,10 +486,9 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 			  filter_has_task_duration(f, task_length) &&
 			  (!f-> filter_writes_to_numa_nodes || event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, texec_start->time, texec_start->next_texec_end->time, f->writes_to_numa_nodes_minsize))))
 		{
-
 			if(texec_start->time < start &&
 			   texec_start->next_texec_end->time > start &&
-			   texec_start->next_texec_end->time < end)
+			   texec_start->next_texec_end->time <= end)
 			{
 				length_in_interval = texec_start->next_texec_end->time - start;
 				length += length_in_interval;
@@ -502,8 +501,8 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
 					((long double)task_length);
-			} else if(texec_start->time > start &&
-				  texec_start->next_texec_end->time < end)
+			} else if(texec_start->time >= start &&
+				  texec_start->next_texec_end->time <= end)
 			{
 				length_in_interval = texec_start->next_texec_end->time - texec_start->time;
 				length += length_in_interval;
