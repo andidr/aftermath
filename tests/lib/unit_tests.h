@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 typedef void (unit_test_func)(void);
 void __add_test__(unit_test_func func);
@@ -65,6 +66,16 @@ extern int __unit_assert_cnt__;
 	ASSERT_INTRO() \
 		if((a) != (b)) \
 			ASSERT_OUTRO("%Lf", (long double)(b), (long double)(a))
+
+#define ASSERT_EQUALS_LD_DELTA(a, b, delta)	\
+	do {					\
+		if(fabsl((a) - (b)) > (delta)) {			\
+			fprintf(stderr, "\n\tASSERTION FAILED:\n" __FILE__ ":%d: in function %s(): expected %Lf with a delta of %Lf, but was %Lf \n", __LINE__, __func__, (b), (delta), (a)); \
+			fflush(stderr);				\
+			exit(EXIT_FAILURE);				\
+		}							\
+		__unit_assert_cnt__++;					\
+	} while(0)
 
 #define ASSERT_EQUALS_PTR(a, b) \
 	ASSERT_INTRO() \
