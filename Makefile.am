@@ -160,6 +160,8 @@ clean-local:
 
 valgrind-check: $(foreach TEST,$(TESTS),valgrind-check-$(TEST))
 
+AUTOMAKE_OPTIONS = serial-tests
+
 check-%: %
 	@./$<
 
