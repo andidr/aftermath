@@ -528,18 +528,23 @@ out:
 
 int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum comm_event_type* types, unsigned int num_types, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node)
 {
-	int state_idx_start = event_set_get_first_state_in_interval(es, start, end);
 	uint64_t node_data[max_numa_node_id+1];
 	uint64_t max = 0;
 	uint64_t task_time;
+	int texec_start_idx;
 	long double time_fraction;
 	long double data_fraction;
-
-	if(state_idx_start == -1)
-		return 0;
-
-	struct single_event* texec_start = es->state_events[state_idx_start].texec_start;
+	struct single_event* texec_start;
 	struct single_event* texec_end;
+
+	if((texec_start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+		if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
+			return 0;
+
+	texec_start = &es->single_events[texec_start_idx];
+
+	if(texec_start->prev_texec_end && texec_start->prev_texec_end->time >= start)
+		texec_start = texec_start->prev_texec_start;
 
 	memset(node_data, 0, (max_numa_node_id+1)*sizeof(node_data[0]));
 
