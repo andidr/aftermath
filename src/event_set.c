@@ -822,6 +822,9 @@ int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
 
 	texec_start = &es->single_events[texec_start_idx];
 
+	if(texec_start->prev_texec_end && texec_start->prev_texec_end->time >= start)
+		texec_start = texec_start->prev_texec_start;
+
 	while(texec_start && texec_start->time < end) {
 		uint64_t task_length = texec_start->next_texec_end->time - texec_start->time;
 
