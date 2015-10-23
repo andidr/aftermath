@@ -1101,7 +1101,7 @@ void gtk_trace_paint_heatmap_numa(GtkTrace* g, cairo_t* cr)
 				continue;
 
 			valid = event_set_get_remote_local_numa_bytes_in_interval(&g->event_sets->sets[cpu_idx],
-										  g->filter, start, end, g->event_sets->max_numa_node_id,
+										  g->filter, start, end,
 										  g->event_sets->sets[cpu_idx].numa_node, &local_bytes,
 										  &remote_bytes);
 

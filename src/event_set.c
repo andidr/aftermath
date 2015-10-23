@@ -798,9 +798,12 @@ int event_set_has_counter(struct event_set* es, struct counter_description* cd)
 }
 
 int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
-						      struct filter* f, uint64_t start, uint64_t end,
-						      int max_numa_node_id, uint32_t local_node,
-						      uint64_t* local_bytes, uint64_t* remote_bytes)
+						      struct filter* f,
+						      uint64_t start,
+						      uint64_t end,
+						      uint32_t local_node,
+						      uint64_t* local_bytes,
+						      uint64_t* remote_bytes)
 {
 	uint64_t length_in_interval;
 	uint64_t length = 0;

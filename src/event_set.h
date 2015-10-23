@@ -82,7 +82,7 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 int event_set_get_major_written_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node, int* major_node);
 int event_set_get_major_read_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node);
 int event_set_get_major_accessed_node_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, int* major_node);
-int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int max_numa_node_id, uint32_t local_node, uint64_t* local_bytes, uint64_t* remote_bytes);
+int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, uint32_t local_node, uint64_t* local_bytes, uint64_t* remote_bytes);
 
 struct single_event* event_set_find_next_texec_start_for_frame(struct event_set* es, uint64_t start, struct frame* f);
 
