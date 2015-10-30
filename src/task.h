@@ -32,6 +32,9 @@ struct task {
 	char* symbol_name;
 	int source_line;
 	int id;
+	double color_r;
+	double color_g;
+	double color_b;
 };
 
 struct task_tree {

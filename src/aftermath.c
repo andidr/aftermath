@@ -320,7 +320,7 @@ int main(int argc, char** argv)
 	g_histogram_widget = gtk_histogram_new();
 	gtk_container_add(GTK_CONTAINER(hist_box), g_histogram_widget);
 
-	g_multi_histogram_widget = gtk_multi_histogram_new();
+	g_multi_histogram_widget = gtk_multi_histogram_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(hist_box), g_multi_histogram_widget);
 
 	g_counter_list_widget = counter_combo_box;

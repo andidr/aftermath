@@ -20,6 +20,17 @@
 #include <inttypes.h>
 #include "cell_renderer_color_button.h"
 
+void task_list_color_changed(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer color, gpointer user_data)
+{
+	GtkTreeView* task_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkTreeIter iter;
+	GtkListStore* store = GTK_LIST_STORE(model);
+
+	gtk_tree_model_get_iter_from_string(model, &iter, path);
+	gtk_list_store_set(store, &iter, TASK_LIST_COL_COLOR, color, -1);
+}
+
 void task_list_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer user_data)
 {
 	GtkTreeView* task_treeview = user_data;
@@ -47,6 +58,7 @@ void task_list_init(GtkTreeView* task_treeview)
 
 	renderer = custom_cell_renderer_color_button_new();
 	column = gtk_tree_view_column_new_with_attributes("Color", renderer, "color", TASK_LIST_COL_COLOR, NULL);
+	g_signal_connect(G_OBJECT(renderer), "color-changed", G_CALLBACK(task_list_color_changed), task_treeview);
 	gtk_tree_view_append_column(task_treeview, column);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -98,6 +110,10 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 		color.green = task_type_colors[col_idx][1] * 65535;
 		color.blue = task_type_colors[col_idx][2] * 65535;
 
+		tasks[i].color_r = task_type_colors[col_idx][0];
+		tasks[i].color_g = task_type_colors[col_idx][1];
+		tasks[i].color_b = task_type_colors[col_idx][2];
+
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
 				   TASK_LIST_COL_FILTER, TRUE,
@@ -118,6 +134,7 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 	gboolean current_state;
 	gboolean has_unchecked = FALSE;
 	struct task* t;
+	GdkColor* color;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
 		return;
@@ -125,12 +142,17 @@ void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 	do {
 		gtk_tree_model_get(model, &iter,
 				   TASK_LIST_COL_FILTER, &current_state,
+				   TASK_LIST_COL_COLOR, &color,
 				   TASK_LIST_COL_TASK_POINTER, &t, -1);
 
-		if(current_state)
+		if(current_state) {
+			t->color_r = color->red / 65535.0;
+			t->color_g = color->green / 65535.0;
+			t->color_b = color->blue / 65535.0;
 			filter_add_task(filter, t);
-		else
+		} else {
 			has_unchecked = TRUE;
+		}
 	} while(gtk_tree_model_iter_next(model, &iter));
 
 	if(has_unchecked) {

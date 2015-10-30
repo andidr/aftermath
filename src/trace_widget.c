@@ -881,9 +881,9 @@ void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
 
 			if(last_id != -1) {
 				if((valid && last_id != curr_id) || !valid) {
-					red = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][0];
-					green = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][1];
-					blue = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][2];
+                                        red = g->event_sets->tasks[last_id].color_r;
+                                        green = g->event_sets->tasks[last_id].color_g;
+                                        blue = g->event_sets->tasks[last_id].color_b;
 
 					cairo_set_source_rgb(cr, red, green, blue);
 					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
@@ -903,9 +903,9 @@ void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
 		}
 
 		if(last_id != -1) {
-			red = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][0];
-			green = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][1];
-			blue = task_type_colors[last_id % NUM_TASK_TYPE_COLORS][2];
+                        red = g->event_sets->tasks[last_id].color_r;
+                        green = g->event_sets->tasks[last_id].color_g;
+                        blue = g->event_sets->tasks[last_id].color_b;
 
 			cairo_set_source_rgb(cr, red, green, blue);
 			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);

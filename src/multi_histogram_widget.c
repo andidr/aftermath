@@ -45,9 +45,10 @@ void gtk_multi_histogram_destroy(GtkObject *object)
 	}
 }
 
-GtkWidget* gtk_multi_histogram_new(void)
+GtkWidget* gtk_multi_histogram_new(struct multi_event_set* mes)
 {
 	GtkMultiHistogram *g = gtk_type_new(gtk_multi_histogram_get_type());
+	g->mes = mes;
 
 	return GTK_WIDGET(g);
 }
@@ -189,9 +190,11 @@ void gtk_multi_histogram_paint_context(GtkMultiHistogram *h, cairo_t* cr)
 
 			curr_hist = h->histograms->histograms[hist_idx];
 
-			double* col = &h->hist_colors[(h->histograms->task_ids[hist_idx] % 10)*3];
+			double col_r = h->mes->tasks[h->histograms->task_ids[hist_idx]].color_r;
+			double col_g = h->mes->tasks[h->histograms->task_ids[hist_idx]].color_g;
+			double col_b = h->mes->tasks[h->histograms->task_ids[hist_idx]].color_b;
 
-			cairo_set_source_rgb(cr, col[0], col[1], col[2]);
+			cairo_set_source_rgb(cr, col_r, col_g, col_b);
 			cairo_set_line_width(cr, 1.0);
 
 			for(int i = 0; i < curr_hist->num_bins; i++) {
@@ -230,11 +233,10 @@ void gtk_multi_histogram_paint(GtkWidget *widget)
 	cairo_destroy(cr);
 }
 
-void gtk_multi_histogram_set_data(GtkWidget *widget, struct multi_histogram* d, double* hist_colors)
+void gtk_multi_histogram_set_data(GtkWidget *widget, struct multi_histogram* d)
 {
 	GtkMultiHistogram* h = GTK_MULTI_HISTOGRAM(widget);
 	h->histograms = d;
-	h->hist_colors = hist_colors;
 
 	printf("Setting histograms to %p\n", h->histograms);
 

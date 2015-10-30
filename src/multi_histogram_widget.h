@@ -37,8 +37,8 @@ enum gtk_multi_histogram_signals {
 
 struct _GtkMultiHistogram {
 	GtkWidget widget;
-	double* hist_colors;  // Array must be [10][3] sized
 	struct multi_histogram* histograms;
+	struct multi_event_set* mes;
 };
 
 struct _GtkMultiHistogramClass {
@@ -46,7 +46,7 @@ struct _GtkMultiHistogramClass {
 };
 
 void gtk_multi_histogram_destroy(GtkObject *object);
-GtkWidget* gtk_multi_histogram_new(void);
+GtkWidget* gtk_multi_histogram_new(struct multi_event_set* mes);
 GtkType gtk_multi_histogram_get_type(void);
 void gtk_multi_histogram_class_init(GtkMultiHistogramClass *class);
 void gtk_multi_histogram_size_request(GtkWidget *widget, GtkRequisition *requisition);
@@ -55,7 +55,7 @@ void gtk_multi_histogram_realize(GtkWidget *widget);
 gboolean gtk_multi_histogram_expose(GtkWidget *widget, GdkEventExpose *event);
 void gtk_multi_histogram_init(GtkMultiHistogram *histogram);
 void gtk_multi_histogram_paint(GtkWidget *widget);
-void gtk_multi_histogram_set_data(GtkWidget *widget, struct multi_histogram* d, double* hist_colors);
+void gtk_multi_histogram_set_data(GtkWidget *widget, struct multi_histogram* d);
 int gtk_multi_histogram_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 
 extern gint gtk_multi_histogram_signals[GTK_MULTI_HISTOGRAM_MAX_SIGNALS];

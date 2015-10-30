@@ -731,7 +731,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_matrix_local_perc), "0%\nlocal");
 
 	gtk_histogram_set_data(g_histogram_widget, NULL);
-	gtk_multi_histogram_set_data(g_multi_histogram_widget, NULL, NULL);
+	gtk_multi_histogram_set_data(g_multi_histogram_widget, NULL);
 
 	gtk_matrix_set_data(g_matrix_widget, NULL);
 }
@@ -989,7 +989,7 @@ void update_multi_task_statistics(void)
 	}
 
 	multi_task_statistics_to_task_length_multi_histogram(&mts, &g_task_multi_histogram);
-	gtk_multi_histogram_set_data(g_multi_histogram_widget, &g_task_multi_histogram, (double*)task_type_colors);
+	gtk_multi_histogram_set_data(g_multi_histogram_widget, &g_task_multi_histogram);
 
 	get_max_hist_and_num_tasks(&mts, &max_hist, &num_tasks, &cycles);
 
