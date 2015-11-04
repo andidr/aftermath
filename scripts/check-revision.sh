@@ -97,7 +97,7 @@ make $BUILDFLAGS >> build-log 2>&1 || die "Could not build project. Check $BUILD
 echo_verbose "done."
 
 echo_verbose_n "Running tests... "
-make check >> build-log 2>&1 || die "Tests failed. Check $BUILD_DIR/build-log."
+make check VERBOSE=1 >> build-log 2>&1 || die "Tests failed. Check $BUILD_DIR/build-log."
 echo_verbose "done."
 
 echo_verbose_n "Installing... "
