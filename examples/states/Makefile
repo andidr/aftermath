@@ -1,7 +1,15 @@
 AFTERMATH_SRC=../../src
 CFLAGS=-std=c99 -Wall -I$(AFTERMATH_SRC)
 
-all: states
+all: states states-noncontiguous
+
+states-noncontiguous: $(AFTERMATH_SRC)/trace_file.h \
+	$(AFTERMATH_SRC)/ansi_extras.h \
+	$(AFTERMATH_SRC)/convert.h \
+	$(AFTERMATH_SRC)/convert.c \
+	$(AFTERMATH_SRC)/trace_file.c \
+	states-noncontiguous.c
+	$(CC) $(CFLAGS) -o $@ $(filter %.c,$^)
 
 states: $(AFTERMATH_SRC)/trace_file.h \
 	$(AFTERMATH_SRC)/ansi_extras.h \
@@ -12,4 +20,4 @@ states: $(AFTERMATH_SRC)/trace_file.h \
 	$(CC) $(CFLAGS) -o $@ $(filter %.c,$^)
 
 clean:
-	rm -f states
+	rm -f states states-noncontiguous
