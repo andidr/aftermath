@@ -1,0 +1,8 @@
+{
+   tzset_internal
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:tzset_internal
+   ...
+}
