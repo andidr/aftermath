@@ -31,14 +31,15 @@ void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* 
 {
 	int state_idx;
 	struct state_event* se;
+	struct event_set* es;
 
-	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-		if((state_idx = event_set_get_first_state_in_interval(&mes->sets[cpu_idx], start, end)) == -1)
+	for_each_event_set(mes, es) {
+		if((state_idx = event_set_get_first_state_in_interval(es, start, end)) == -1)
 			continue;
 
-		se = &mes->sets[cpu_idx].state_events[state_idx];
+		se = &es->state_events[state_idx];
 
-		while(state_idx < mes->sets[cpu_idx].num_state_events &&
+		while(state_idx < es->num_state_events &&
 		      se->start < end)
 		{
 			if(filter_has_state_event(f, se))
@@ -59,16 +60,15 @@ void single_event_statistics_gather(struct multi_event_set* mes, struct filter* 
 {
 	int evt_idx;
 	struct single_event* sge;
+	struct event_set* es;
 
-	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-		if((evt_idx = event_set_get_first_single_event_in_interval(&mes->sets[cpu_idx], start, end)) == -1)
+	for_each_event_set(mes, es) {
+		if((evt_idx = event_set_get_first_single_event_in_interval(es, start, end)) == -1)
 			continue;
 
-		sge = &mes->sets[cpu_idx].single_events[evt_idx];
+		sge = &es->single_events[evt_idx];
 
-		while(evt_idx < mes->sets[cpu_idx].num_single_events &&
-		      sge->time < end)
-		{
+		while(evt_idx < es->num_single_events && sge->time < end) {
 			if(sge->type == SINGLE_TYPE_TCREATE && filter_has_single_event(f, sge))
 				s->num_tcreate_events++;
 
@@ -150,17 +150,18 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 	int start_idx;
 	uint64_t curr_length;
 	int hist_bin;
+	struct event_set* es;
 
 	for(int histogram = 0; histogram < 2; histogram++) {
-		for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-			if((start_idx = event_set_get_first_single_event_in_interval_type(&mes->sets[cpu_idx], start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+		for_each_event_set(mes, es) {
+			if((start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 				continue;
 
-			if(!filter_has_cpu(f, mes->sets[cpu_idx].cpu))
+			if(!filter_has_cpu(f, es->cpu))
 				continue;
 
 
-			struct single_event* se = &mes->sets[cpu_idx].single_events[start_idx];
+			struct single_event* se = &es->single_events[start_idx];
 
 			while(se && se->next_texec_end && se->next_texec_end->time <= end) {
 				if(!filter_has_frame(f, se->active_frame))
@@ -175,7 +176,7 @@ void task_statistics_gather(struct multi_event_set* mes, struct filter* f, struc
 					goto next;
 
 				if(f->filter_writes_to_numa_nodes &&
-				   !event_set_has_write_to_numa_nodes_in_interval(&mes->sets[cpu_idx], &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
+				   !event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
 					goto next;
 
 				if(histogram) {
@@ -212,16 +213,17 @@ void task_statistics_gather_with_min_max_cycles(struct multi_event_set* mes, str
 	int start_idx;
 	uint64_t curr_length;
 	int hist_bin;
+	struct event_set* es;
 
-	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-		if((start_idx = event_set_get_first_single_event_in_interval_type(&mes->sets[cpu_idx], start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+	for_each_event_set(mes, es) {
+		if((start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 			continue;
 
-		if(!filter_has_cpu(f, mes->sets[cpu_idx].cpu))
+		if(!filter_has_cpu(f, es->cpu))
 			continue;
 
 
-		struct single_event* se = &mes->sets[cpu_idx].single_events[start_idx];
+		struct single_event* se = &es->single_events[start_idx];
 
 		while(se && se->next_texec_end && se->next_texec_end->time <= end) {
 			if(!filter_has_frame(f, se->active_frame))
@@ -236,7 +238,7 @@ void task_statistics_gather_with_min_max_cycles(struct multi_event_set* mes, str
 				goto next;
 
 			if(f->filter_writes_to_numa_nodes &&
-			   !event_set_has_write_to_numa_nodes_in_interval(&mes->sets[cpu_idx], &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
+			   !event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
 				goto next;
 
 			s->cycles += curr_length;
@@ -416,6 +418,7 @@ int multi_task_statistics_to_task_length_multi_histogram(struct multi_task_stati
 void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, struct task_statistics* cs, struct counter_description* cd, int64_t start, int64_t end)
 {
 	struct counter_event_set* ces;
+	struct event_set* es;
 	char buffer[128];
 	int64_t value_start, value_end;
 	int start_idx;
@@ -424,25 +427,25 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 	int hist_bin;
 
 	for(int histogram = 0; histogram < 2; histogram++) {
-		for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-			ces = event_set_find_counter_event_set(&mes->sets[cpu_idx], cd);
+		for_each_event_set(mes, es) {
+			ces = event_set_find_counter_event_set(es, cd);
 
 			if(!ces)
 				continue;
 
-			if((start_idx = event_set_get_first_single_event_in_interval_type(&mes->sets[cpu_idx], start, end, SINGLE_TYPE_TEXEC_START)) == -1)
+			if((start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 				continue;
 
 			if(!counter_event_set_is_monotonously_increasing(ces)) {
-				snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", ces->desc->name, mes->sets[cpu_idx].cpu);
+				snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", ces->desc->name, es->cpu);
 				gtk_label_set_text(GTK_LABEL(g_label_info_counter), buffer);
 			} else
 				gtk_label_set_text(GTK_LABEL(g_label_info_counter), "");
 
-			if(!filter_has_cpu(f, mes->sets[cpu_idx].cpu))
+			if(!filter_has_cpu(f, es->cpu))
 				continue;
 
-			struct single_event* se = &mes->sets[cpu_idx].single_events[start_idx];
+			struct single_event* se = &es->single_events[start_idx];
 
 			while(se && se->next_texec_end && se->next_texec_end->time <= end) {
 
@@ -458,7 +461,7 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 					goto next;
 
 				if(f->filter_writes_to_numa_nodes &&
-				   !event_set_has_write_to_numa_nodes_in_interval(&mes->sets[cpu_idx], &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
+				   !event_set_has_write_to_numa_nodes_in_interval(es, &f->writes_to_numa_nodes, se->time, se->next_texec_end->time, f->writes_to_numa_nodes_minsize))
 					goto next;
 
 				if(counter_event_set_interpolate_value(ces, se->time, &value_start))
@@ -581,10 +584,12 @@ void multi_histogram_destroy(struct multi_histogram* mh)
 
 int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only)
 {
+	struct event_set* es;
+
 	if(intensity_matrix_init(m, mes->max_numa_node_id+1, mes->max_numa_node_id+1))
 		return 1;
 
-	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		int first_comm_index = event_set_get_first_comm_in_interval(es, start, end);
 
 		if(first_comm_index == -1)
@@ -626,12 +631,13 @@ int numa_node_exchange_matrix_gather(struct multi_event_set* mes, struct filter*
 
 int cpu_exchange_matrix_gather(struct multi_event_set* mes, struct filter* f, struct intensity_matrix* m, int64_t start, int64_t end, int comm_type_mask, int exclude_reflexive, int ignore_direction, int num_only)
 {
+	struct event_set* es;
 	int src, dst;
 
 	if(intensity_matrix_init(m, mes->max_cpu+1, mes->max_cpu+1))
 		return 1;
 
-	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		int first_comm_index = event_set_get_first_comm_in_interval(es, start, end);
 
 		if(first_comm_index == -1)

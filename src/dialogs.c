@@ -445,6 +445,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	GtkListStore *liststore;
 	GtkCellRenderer *column;
 
+	struct event_set* es;
+
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, dialog);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, table_properties);
@@ -512,8 +514,9 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	gtk_table_attach(GTK_TABLE(ctx.table_properties), ctx.combo_state, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
-	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-		snprintf(buffer, sizeof(buffer), "CPU %d", mes->sets[cpu_idx].cpu);
+
+	for_each_event_set(mes, es) {
+		snprintf(buffer, sizeof(buffer), "CPU %d", es->cpu);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_cpu), buffer);
 	}
 

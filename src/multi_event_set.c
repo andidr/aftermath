@@ -28,10 +28,11 @@ int multi_event_set_get_max_task_duration_in_interval(struct multi_event_set* me
 {
 	uint64_t max = 0;
 	uint64_t curr;
+	struct event_set* es;
 
-	for(int i = 0 ; i < mes->num_sets; i++)
-		if(!f || filter_has_cpu(f, mes->sets[i].cpu))
-			if(event_set_get_max_task_duration_in_interval(&mes->sets[i], f, start, end, &curr))
+	for_each_event_set(mes, es)
+		if(!f || filter_has_cpu(f, es->cpu))
+			if(event_set_get_max_task_duration_in_interval(es, f, start, end, &curr))
 				if(curr > max)
 					max = curr;
 
@@ -44,10 +45,11 @@ int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* me
 {
 	uint64_t min = UINT64_MAX;
 	uint64_t curr;
+	struct event_set* es;
 
-	for(int i = 0 ; i < mes->num_sets; i++)
-		if(!f || filter_has_cpu(f, mes->sets[i].cpu))
-			if(event_set_get_min_task_duration_in_interval(&mes->sets[i], f, start, end, &curr))
+	for_each_event_set(mes, es)
+		if(!f || filter_has_cpu(f, es->cpu))
+			if(event_set_get_min_task_duration_in_interval(es, f, start, end, &curr))
 				if(curr < min)
 					min = curr;
 
@@ -62,10 +64,11 @@ int multi_event_set_get_min_max_task_duration_in_interval(struct multi_event_set
 	uint64_t lmax = 0;
 	uint64_t curr_min;
 	uint64_t curr_max;
+	struct event_set* es;
 
-	for(int i = 0 ; i < mes->num_sets; i++) {
-		if(!f || filter_has_cpu(f, mes->sets[i].cpu)) {
-			if(event_set_get_min_max_task_duration_in_interval(&mes->sets[i], f, start, end, &curr_min, &curr_max)) {
+	for_each_event_set(mes, es) {
+		if(!f || filter_has_cpu(f, es->cpu)) {
+			if(event_set_get_min_max_task_duration_in_interval(es, f, start, end, &curr_min, &curr_max)) {
 				if(curr_min < lmin)
 					lmin = curr_min;
 				if(curr_max > lmax)
@@ -82,15 +85,19 @@ int multi_event_set_get_min_max_task_duration_in_interval(struct multi_event_set
 
 void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, struct filter* f, FILE* file, int* nb_errors_out)
 {
-	for(int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++)
-		event_set_dump_per_task_counter_values(&mes->sets[cpu_idx], f, file, nb_errors_out);
+	struct event_set* es;
+
+	for_each_event_set(mes, es)
+		event_set_dump_per_task_counter_values(es, f, file, nb_errors_out);
 }
 
 int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes, struct filter* f, struct counter_description** cd, int* cpu)
 {
-	for (int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-		if(!event_set_counters_monotonously_increasing(&mes->sets[cpu_idx], f, cd)) {
-			*cpu = mes->sets[cpu_idx].cpu;
+	struct event_set* es;
+
+	for_each_event_set(mes, es) {
+		if(!event_set_counters_monotonously_increasing(es, f, cd)) {
+			*cpu = es->cpu;
 			return 0;
 		}
 	}
@@ -100,12 +107,12 @@ int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes
 
 int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filter* f)
 {
+	struct event_set* es;
+
 	for (int counter_idx = 0; counter_idx < mes->num_counters; counter_idx++) {
 		struct counter_description* cd = &mes->counters[counter_idx];
 
-		for (int cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
-			struct event_set* es = &mes->sets[cpu_idx];
-
+		for_each_event_set(mes, es) {
 			if(f && !filter_has_cpu(f, es->cpu))
 				continue;
 

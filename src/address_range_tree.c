@@ -375,8 +375,10 @@ int address_range_tree_match_prodcons(struct address_range_tree* t)
 
 int address_range_tree_from_multi_event_set(struct address_range_tree* t, struct multi_event_set* mes)
 {
-	for(int i = 0; i < mes->num_sets; i++)
-		if(address_range_tree_from_event_set(t, &mes->sets[i]))
+	struct event_set* es;
+
+	for_each_event_set(mes, es)
+		if(address_range_tree_from_event_set(t, es))
 			return 1;
 
 	if(address_range_tree_match_prodcons(t))

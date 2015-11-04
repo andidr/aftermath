@@ -65,13 +65,19 @@ struct multi_event_set {
 	int* cpu_idx_map;
 };
 
+#define for_each_event_set(mes, es)					\
+	for((es) = &(mes)->sets[0];					\
+	    (es) < &(mes)->sets[(mes)->num_sets];			\
+	    (es)++)
+
 static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes, int64_t* time)
 {
 	int64_t min = INT64_MAX;
+	struct event_set* es;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].first_start < min)
-			min = mes->sets[i].first_start;
+	for_each_event_set(mes, es)
+		if(es->first_start < min)
+			min = es->first_start;
 
 	*time = min;
 
@@ -81,10 +87,11 @@ static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes
 static inline int multi_event_event_set_get_max_time(struct multi_event_set* mes, int64_t* time)
 {
 	int64_t max = 0;
+	struct event_set* es;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].last_end > max)
-			max = mes->sets[i].last_end;
+	for_each_event_set(mes, es)
+		if(es->last_end > max)
+			max = es->last_end;
 
 	*time = max;
 
@@ -93,8 +100,10 @@ static inline int multi_event_event_set_get_max_time(struct multi_event_set* mes
 
 static inline void multi_event_event_set_add_counter_offset(struct multi_event_set* mes, int counter_id, int64_t offset)
 {
-	for(int i = 0; i < mes->num_sets; i++)
-		event_set_add_counter_offset(&mes->sets[i], counter_id, offset);
+	struct event_set* es;
+
+	for_each_event_set(mes, es)
+		event_set_add_counter_offset(es, counter_id, offset);
 }
 
 static inline struct counter_description* multi_event_set_find_counter_description(struct multi_event_set* mes, uint64_t counter_id)
@@ -120,10 +129,11 @@ static inline int64_t multi_event_get_min_counter_value(struct multi_event_set* 
 static inline int multi_event_get_max_cpu(struct multi_event_set* mes)
 {
 	int max_cpu = -1;
+	struct event_set* es;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].cpu > max_cpu)
-			max_cpu = mes->sets[i].cpu;
+	for_each_event_set(mes, es)
+		if(es->cpu > max_cpu)
+			max_cpu = es->cpu;
 
 	return max_cpu;
 }
@@ -265,10 +275,11 @@ static inline struct event_set* multi_event_set_find_alloc_cpu(struct multi_even
 static inline uint64_t multi_event_set_first_event_start(struct multi_event_set* mes)
 {
 	uint64_t start = UINT64_MAX;
+	struct event_set* es;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].first_start < start)
-			start = mes->sets[i].first_start;
+	for_each_event_set(mes, es)
+		if(es->first_start < start)
+			start = es->first_start;
 
 	return start;
 }
@@ -276,10 +287,11 @@ static inline uint64_t multi_event_set_first_event_start(struct multi_event_set*
 static inline uint64_t multi_event_set_last_event_end(struct multi_event_set* mes)
 {
 	uint64_t end = 0;
+	struct event_set* es;
 
-	for(int i = 0; i < mes->num_sets; i++)
-		if(mes->sets[i].last_end > end)
-			end = mes->sets[i].last_end;
+	for_each_event_set(mes, es)
+		if(es->last_end > end)
+			end = es->last_end;
 
 	return end;
 }
@@ -336,8 +348,10 @@ static inline void multi_event_set_init(struct multi_event_set* mes)
 
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
-	for(int set = 0; set < mes->num_sets; set++)
-		event_set_destroy(&mes->sets[set]);
+	struct event_set* es;
+
+	for_each_event_set(mes, es)
+		event_set_destroy(es);
 
 	for(int task = 0; task < mes->num_tasks; task++)
 		task_destroy(&mes->tasks[task]);

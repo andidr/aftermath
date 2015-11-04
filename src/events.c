@@ -407,6 +407,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	struct frame_tree ft;
 	enum compression_type compression_type;
 	struct uncompress_pipe pipe;
+	struct event_set* es;
 	int status;
 
 	int res = 1;
@@ -460,10 +461,10 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 	mes->num_frames = ft.num_frames;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		event_set_sort_comm(&mes->sets[i]);
+	for_each_event_set(mes, es) {
+		event_set_sort_comm(es);
 
-		if(trace_update_task_execution_bounds(&mes->sets[i]) != 0)
+		if(trace_update_task_execution_bounds(es) != 0)
 			goto out_trees;
 	}
 
@@ -475,7 +476,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	 * containing these data structures might have changed due to a call
 	 * to realloc in add_buffer_grow()
 	 */
-	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		/* Update single events */
 		for(struct single_event* se = &es->single_events[0];
 		    se < &es->single_events[es->num_single_events];
@@ -530,7 +531,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	/* Second round for communication events; update frame references to
 	 * write events
 	 */
-	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		for(struct comm_event* ce = &es->comm_events[0];
 		    ce < &es->comm_events[es->num_comm_events];
 		    ce++)
@@ -560,7 +561,7 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	}
 
 	/* Create indexes for counters */
-	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		for(struct counter_event_set* ces = &es->counter_event_sets[0];
 		    ces < &es->counter_event_sets[es->num_counter_event_sets];
 		    ces++)

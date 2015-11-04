@@ -143,8 +143,9 @@ out:
 int write_visual_elements(struct multi_event_set* mes, FILE* fp)
 {
 	struct visuals_annotation dsk_a;
+	struct event_set* es;
 
-	for(struct event_set* es = mes->sets; es < &mes->sets[mes->num_sets]; es++) {
+	for_each_event_set(mes, es) {
 		for(struct annotation* a = es->annotations; a < &es->annotations[es->num_annotations]; a++) {
 			dsk_a.header.type = VISUAL_TYPE_ANNOTATION;
 			dsk_a.cpu = a->cpu;

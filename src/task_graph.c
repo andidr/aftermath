@@ -189,6 +189,7 @@ void export_task_graph_event_set(FILE* fp, struct multi_event_set* mes, struct a
 int export_task_graph(const char* outfile, struct multi_event_set* mes, struct address_range_tree* art, struct filter* f, int64_t start, int64_t end)
 {
 	FILE* fp = fopen(outfile, "w+");
+	struct event_set* es;
 
 	if(!fp)
 		return 1;
@@ -201,10 +202,10 @@ int export_task_graph(const char* outfile, struct multi_event_set* mes, struct a
 
 	fprintf(fp, "digraph task_graph {\n");
 
-	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++)
+	for_each_event_set(mes, es)
 		export_nodes_event_set(fp, art, mes, es, f, start, end);
 
-	for(struct event_set* es = &mes->sets[0]; es < &mes->sets[mes->num_sets]; es++)
+	for_each_event_set(mes, es)
 		export_task_graph_event_set(fp, mes, art, es, f, start, end);
 
 	fprintf(fp, "}\n");
