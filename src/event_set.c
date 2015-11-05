@@ -142,14 +142,14 @@ int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_
  * events of the correct type starts in the interval), the function
  * returns -1.
  */
-int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum worker_state type)
+int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, int type)
 {
 	int idx = event_set_get_first_state_starting_in_interval(es, start, end);
 
 	if(idx == -1)
 		return -1;
 
-	if(es->state_events[idx].state != type) {
+	if(es->state_events[idx].state_id != type) {
 		if((idx = event_set_get_next_state_event(es, idx, type)) != -1)
 			if(es->state_events[idx].start > end)
 				return -1;
@@ -176,12 +176,12 @@ int event_set_get_counter_event_set(struct event_set* es, int counter_idx)
  * their types do not match the specified type), the function returns
  * -1.
  */
-int event_set_get_next_state_event(struct event_set* es, int curr_idx, enum worker_state state)
+int event_set_get_next_state_event(struct event_set* es, int curr_idx, int state)
 {
 	int idx = curr_idx+1;
 
 	while(idx < es->num_state_events) {
-		if(es->state_events[idx].state == state)
+		if(es->state_events[idx].state_id == state)
 			return idx;
 
 		idx++;
@@ -237,14 +237,14 @@ int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int nu
  * on each of the state events that overlap into the interval. State
  * events that are not filtered out are taken into account for the
  * determination of the dominant state. If there is a dominant state,
- * the function returns 1 and the type of state is stored at the
- * address specified by major_state. If no state event overlaps with
- * the interval, the function returns 0.
+ * the function returns 1 and the sequential id of state is stored at
+ * the address specified by major_state_seq. If no state event overlaps
+ * with the interval, the function returns 0.
  */
-int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_state)
+int event_set_get_major_state_seq(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int num_states, int* major_state_seq)
 {
 	int idx_start = event_set_get_first_state_in_interval(es, start, end);
-	uint64_t state_durations[WORKER_STATE_MAX];
+	uint64_t state_durations[num_states];
 	uint64_t max = 0;
 	uint64_t half = (end - start) / 2;
 
@@ -255,20 +255,20 @@ int event_set_get_major_state(struct event_set* es, struct filter* f, uint64_t s
 
 	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
 		if(!f || filter_has_state_event(f, &es->state_events[i])) {
-			state_durations[es->state_events[i].state] +=
+			state_durations[es->state_events[i].state_id_seq] +=
 				state_event_length_in_interval(&es->state_events[i], start, end);
 
-			if(state_durations[es->state_events[i].state] > half) {
-				*major_state = es->state_events[i].state;
+			if(state_durations[es->state_events[i].state_id_seq] > half) {
+				*major_state_seq = es->state_events[i].state_id_seq;
 				return 1;
 			}
 		}
 	}
 
-	for(int state = 0; state < WORKER_STATE_MAX; state++) {
-		if(state_durations[state] > max) {
-			max = state_durations[state];
-			*major_state = state;
+	for(int id_seq = 0; id_seq < num_states; id_seq++) {
+		if(state_durations[id_seq] > max) {
+			max = state_durations[id_seq];
+			*major_state_seq = id_seq;
 		}
 	}
 

@@ -6,6 +6,8 @@ noinst_LIBRARIES = libaftermath-core.a
 
 libaftermath_core_a_SOURCES = src/buffer.h \
 		src/buffer.c \
+		src/color.h \
+		src/color.c \
 		src/events.h \
 		src/events.c \
 		src/filter.h \
@@ -19,6 +21,8 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/bitvector.h \
 		src/bitvector.c \
 		src/counter_description.h \
+		src/state_description.h \
+		src/state_description.c \
 		src/counter_event_set.h \
 		src/counter_event_set.c \
 		src/counter_event_set_index.h \
@@ -96,6 +100,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/frame_list.c \
 		src/counter_list.h \
 		src/counter_list.c \
+		src/state_list.h \
+		src/state_list.c \
 		src/color.h \
 		src/color.c \
 		src/cell_renderer_color_button.h \

@@ -19,6 +19,7 @@
 #define MULTI_EVENT_SET
 
 #include "counter_description.h"
+#include "state_description.h"
 #include "event_set.h"
 #include "task.h"
 #include "color.h"
@@ -44,6 +45,10 @@ struct multi_event_set {
 	struct counter_description* counters;
 	size_t num_counters;
 	size_t num_counters_free;
+
+        struct state_description* states;
+        size_t num_states;
+        size_t num_states_free;
 
 	struct global_single_event* global_single_events;
 	size_t num_global_single_events;
@@ -315,6 +320,9 @@ static inline void multi_event_set_init(struct multi_event_set* mes)
 	mes->counters = NULL;
 	mes->num_counters = 0;
 	mes->num_counters_free = 0;
+        mes->states = NULL;
+	mes->num_states = 0;
+	mes->num_states_free = 0;
 	mes->max_numa_node_id = 0;
 	mes->max_write_size = 0;
 	mes->max_read_size = 0;
@@ -337,11 +345,73 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	for(int counter = 0; counter < mes->num_counters; counter++)
 		counter_description_destroy(&mes->counters[counter]);
 
+	for(int state = 0; state < mes->num_states; state++)
+		state_description_destroy(&mes->states[state]);
+
 	free(mes->sets);
 	free(mes->tasks);
 	free(mes->frames);
 	free(mes->cpu_idx_map);
 	free(mes->global_single_events);
+	free(mes->states);
+}
+
+static inline int multi_event_set_state_description_alloc(struct multi_event_set* mes, uint32_t state_id, int name_len)
+{
+	if(check_buffer_grow((void**)&mes->states, sizeof(struct state_description),
+			  mes->num_states, &mes->num_states_free,
+			     STATE_PREALLOC))
+	{
+		return 1;
+	}
+
+	if(state_description_init(&mes->states[mes->num_states], state_id, name_len) == 0) {
+		mes->num_states_free--;
+		mes->num_states++;
+
+		return 0;
+	}
+
+	return 1;
+}
+
+static inline int multi_event_set_state_descriptions_artificial(struct multi_event_set* mes)
+{
+	for(int i = 0; i < mes->num_states; i++)
+		if(!mes->states[i].artificial)
+			return 0;
+
+	return 1;
+}
+
+static inline int multi_event_set_state_ids_in_range(struct multi_event_set* mes, int low, int high)
+{
+	for(int i = 0; i < mes->num_states; i++) {
+		if(mes->states[i].state_id < low ||
+		   mes->states[i].state_id > high)
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+static inline struct state_description* multi_event_set_state_description_alloc_ptr(struct multi_event_set* mes, uint32_t state_id, int name_len)
+{
+	if(multi_event_set_state_description_alloc(mes, state_id, name_len) != 0)
+		return NULL;
+
+	return &mes->states[mes->num_states-1];
+}
+
+static inline struct state_description* multi_event_set_find_state_description(struct multi_event_set* mes, uint32_t state_id)
+{
+	for(int i = 0; i < mes->num_states; i++)
+		if(mes->states[i].state_id == state_id)
+			return &mes->states[i];
+
+	return NULL;
 }
 
 static inline int multi_event_set_counter_description_alloc(struct multi_event_set* mes, uint64_t counter_id, int name_len)
@@ -612,5 +682,6 @@ void multi_event_set_dump_per_task_counter_values(struct multi_event_set* mes, s
 int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes, struct filter*f, struct counter_description** cd, int* cpu);
 
 int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filter* f);
+uint32_t multi_event_set_seq_state_id(struct multi_event_set* mes, uint32_t id);
 
 #endif

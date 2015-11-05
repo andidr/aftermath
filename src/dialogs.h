@@ -79,7 +79,7 @@ struct derived_counter_options {
 	unsigned int numa_node;
 	int exclude_node;
 	char* name;
-	enum worker_state state;
+	int state;
 	enum access_type contention_type;
 	enum access_model contention_model;
 	enum data_direction data_direction;

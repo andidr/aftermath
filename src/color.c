@@ -36,3 +36,13 @@ double node_colors_dbl[NUM_NODE_COLORS][3] = {{COL_NORM(0xFB), COL_NORM(0xB4), C
 					      {COL_NORM(0xFF), COL_NORM(0xFF), COL_NORM(0xCC)},
 					      {COL_NORM(0xE5), COL_NORM(0xD8), COL_NORM(0xBD)},
 					      {COL_NORM(0xFD), COL_NORM(0xDA), COL_NORM(0xEC)}};
+
+double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(255.0)},
+			    {COL_NORM(  0.0), COL_NORM(  0.0), COL_NORM(255.0)},
+			    {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(255.0)},
+			    {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(  0.0)},
+			    {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(174.0)},
+			    {COL_NORM(179.0), COL_NORM(  0.0), COL_NORM(  0.0)},
+			    {COL_NORM(  0.0), COL_NORM(255.0), COL_NORM(  0.0)},
+			    {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
+			    {COL_NORM(235.0), COL_NORM(  0.0), COL_NORM(  0.0)}};

@@ -35,6 +35,7 @@
 #include "frame_list.h"
 #include "numa_node_list.h"
 #include "counter_list.h"
+#include "state_list.h"
 #include "debug.h"
 #include "ansi_extras.h"
 #include "util.h"
@@ -239,6 +240,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, counter_treeview);
+	IMPORT_GLADE_WIDGET(xml, state_treeview);
 	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_treeview);
 	IMPORT_GLADE_WIDGET(xml, code_view);
 	IMPORT_GLADE_WIDGET(xml, main_notebook);
@@ -257,26 +259,6 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
 	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_min_size_entry);
-
-	IMPORT_GLADE_WIDGET(xml, label_perc_seeking);
-	IMPORT_GLADE_WIDGET(xml, label_perc_texec);
-	IMPORT_GLADE_WIDGET(xml, label_perc_tcreate);
-	IMPORT_GLADE_WIDGET(xml, label_perc_resdep);
-	IMPORT_GLADE_WIDGET(xml, label_perc_tdec);
-	IMPORT_GLADE_WIDGET(xml, label_perc_bcast);
-	IMPORT_GLADE_WIDGET(xml, label_perc_init);
-	IMPORT_GLADE_WIDGET(xml, label_perc_estimate);
-	IMPORT_GLADE_WIDGET(xml, label_perc_reorder);
-
-	IMPORT_GLADE_WIDGET(xml, label_par_seeking);
-	IMPORT_GLADE_WIDGET(xml, label_par_texec);
-	IMPORT_GLADE_WIDGET(xml, label_par_tcreate);
-	IMPORT_GLADE_WIDGET(xml, label_par_resdep);
-	IMPORT_GLADE_WIDGET(xml, label_par_tdec);
-	IMPORT_GLADE_WIDGET(xml, label_par_bcast);
-	IMPORT_GLADE_WIDGET(xml, label_par_init);
-	IMPORT_GLADE_WIDGET(xml, label_par_estimate);
-	IMPORT_GLADE_WIDGET(xml, label_par_reorder);
 
 	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_avg_task_length);
@@ -367,6 +349,7 @@ int main(int argc, char** argv)
 	g_writes_to_numa_nodes_treeview = writes_to_numa_nodes_treeview;
 	g_frame_numa_node_treeview = frame_numa_node_treeview;
 	g_counter_treeview = counter_treeview;
+	g_state_treeview = state_treeview;
 	g_code_view = code_view;
 	g_main_notebook = main_notebook;
 	g_statusbar = statusbar;
@@ -385,26 +368,6 @@ int main(int argc, char** argv)
 	g_use_global_slopes_check = use_global_slopes_check;
 	g_global_slopes_min_entry = global_slopes_min_entry;
 	g_global_slopes_max_entry = global_slopes_max_entry;
-
-	g_label_perc_seeking = label_perc_seeking;
-	g_label_perc_texec = label_perc_texec;
-	g_label_perc_tcreate = label_perc_tcreate;
-	g_label_perc_resdep = label_perc_resdep;
-	g_label_perc_tdec = label_perc_tdec;
-	g_label_perc_bcast = label_perc_bcast;
-	g_label_perc_init = label_perc_init;
-	g_label_perc_estimate = label_perc_estimate;
-	g_label_perc_reorder = label_perc_reorder;
-
-	g_label_par_seeking = label_par_seeking;
-	g_label_par_texec = label_par_texec;
-	g_label_par_tcreate = label_par_tcreate;
-	g_label_par_resdep = label_par_resdep;
-	g_label_par_tdec = label_par_tdec;
-	g_label_par_bcast = label_par_bcast;
-	g_label_par_init = label_par_init;
-	g_label_par_estimate = label_par_estimate;
-	g_label_par_reorder = label_par_reorder;
 
 	g_label_hist_selection_length = label_hist_selection_length;
 	g_label_hist_avg_task_length = label_hist_avg_task_length;
@@ -500,6 +463,9 @@ int main(int argc, char** argv)
 
 	counter_list_init(GTK_TREE_VIEW(g_counter_treeview));
 	counter_list_fill(GTK_TREE_VIEW(g_counter_treeview), g_mes.counters, g_mes.num_counters);
+
+	state_list_init(GTK_TREE_VIEW(g_state_treeview));
+	state_list_fill_name(GTK_TREE_VIEW(g_state_treeview), g_mes.states, g_mes.num_states);
 
 	numa_node_list_init(GTK_TREE_VIEW(g_comm_numa_node_treeview));
 	numa_node_list_fill(GTK_TREE_VIEW(g_comm_numa_node_treeview), g_mes.max_numa_node_id);

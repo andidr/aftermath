@@ -52,7 +52,7 @@ int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int
 void multi_histogram_destroy(struct multi_histogram* mh);
 
 struct state_statistics {
-	uint64_t state_cycles[WORKER_STATE_MAX];
+	uint64_t* state_cycles;
 };
 
 void state_statistics_init(struct state_statistics* s);

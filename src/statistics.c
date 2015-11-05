@@ -23,7 +23,8 @@
 
 void state_statistics_init(struct state_statistics* s)
 {
-	memset(s->state_cycles, 0, sizeof(s->state_cycles));
+	s->state_cycles = malloc(sizeof(uint64_t) * g_mes.num_states);
+	memset(s->state_cycles, 0, sizeof(uint64_t) * g_mes.num_states);
 }
 
 void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end)
@@ -41,7 +42,7 @@ void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* 
 		      se->start < end)
 		{
 			if(filter_has_state_event(f, se))
-				s->state_cycles[se->state] += state_event_length_in_interval(se, start, end);
+				s->state_cycles[se->state_id_seq] += state_event_length_in_interval(se, start, end);
 
 			state_idx++;
 			se++;

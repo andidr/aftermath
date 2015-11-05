@@ -42,6 +42,7 @@ extern GtkWidget* g_frame_treeview;
 extern GtkWidget* g_writes_to_numa_nodes_treeview;
 extern GtkWidget* g_frame_numa_node_treeview;
 extern GtkWidget* g_counter_treeview;
+extern GtkWidget* g_state_treeview;
 extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;
 extern GtkWidget* g_statusbar;
@@ -61,26 +62,6 @@ extern GtkWidget* g_global_values_max_entry;
 extern GtkWidget* g_use_global_slopes_check;
 extern GtkWidget* g_global_slopes_min_entry;
 extern GtkWidget* g_global_slopes_max_entry;
-
-extern GtkWidget* g_label_perc_seeking;
-extern GtkWidget* g_label_perc_texec;
-extern GtkWidget* g_label_perc_tcreate;
-extern GtkWidget* g_label_perc_resdep;
-extern GtkWidget* g_label_perc_tdec;
-extern GtkWidget* g_label_perc_bcast;
-extern GtkWidget* g_label_perc_init;
-extern GtkWidget* g_label_perc_estimate;
-extern GtkWidget* g_label_perc_reorder;
-
-extern GtkWidget* g_label_par_seeking;
-extern GtkWidget* g_label_par_texec;
-extern GtkWidget* g_label_par_tcreate;
-extern GtkWidget* g_label_par_resdep;
-extern GtkWidget* g_label_par_tdec;
-extern GtkWidget* g_label_par_bcast;
-extern GtkWidget* g_label_par_init;
-extern GtkWidget* g_label_par_estimate;
-extern GtkWidget* g_label_par_reorder;
 
 extern GtkWidget* g_label_hist_num_tasks;
 extern GtkWidget* g_label_hist_selection_length;

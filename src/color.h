@@ -30,6 +30,8 @@ extern double node_colors_dbl[NUM_NODE_COLORS][3];
 #define NUM_TASK_TYPE_COLORS 10
 extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];
 
+#define NUM_STATE_COLORS 9
+extern double state_colors[NUM_STATE_COLORS][3];
 
 static inline void get_node_color_dbl(unsigned int node, unsigned int max_node, double* r, double* g, double* b)
 {

@@ -21,6 +21,7 @@
 #include "multi_event_set.h"
 #include "convert.h"
 #include "uncompress.h"
+#include "color.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -134,6 +135,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct trace_frame_info dsk_fi;
 	struct trace_cpu_info dsk_ci;
 	struct trace_global_single_event dsk_gse;
+	struct trace_state_description dsk_sd;
 
 	struct event_set* es;
 	struct state_event se;
@@ -142,6 +144,7 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct counter_description* cd;
 	struct counter_event cre;
 	struct global_single_event gse;
+	struct state_description* sd;
 
 	struct task* last_task = NULL;
 	struct frame* last_frame = NULL;
@@ -189,6 +192,34 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 			if(multi_event_set_add_global_single_event(mes, &gse))
 				return 1;
+		} else if (dsk_eh.type == EVENT_TYPE_STATE_DESCRIPTION) {
+			dsk_sd.type = dsk_eh.type;
+
+			if(read_struct_convert(fp, &dsk_sd, sizeof(dsk_sd), trace_state_description_conversion_table, sizeof(dsk_eh.type)) != 0)
+				return 1;
+
+			(*bytes_read) += sizeof(dsk_sd) - sizeof(dsk_eh.type);
+
+			/* State description already read? */
+			if((sd = multi_event_set_find_state_description(mes, dsk_sd.state_id)) != NULL) {
+				if(!sd->artificial)
+					return 1;
+
+				if(state_description_realloc_name(sd, dsk_sd.name_len))
+					return 1;
+			} else if((sd = multi_event_set_state_description_alloc_ptr(mes, dsk_sd.state_id, dsk_sd.name_len)) == NULL)
+				return 1;
+
+			if(fread(sd->name, dsk_sd.name_len, 1, fp) != 1)
+				return 1;
+
+			sd->name[dsk_sd.name_len] = '\0';
+
+			sd->color_r = state_colors[sd->state_id % NUM_STATE_COLORS][0];
+			sd->color_g = state_colors[sd->state_id % NUM_STATE_COLORS][1];
+			sd->color_b = state_colors[sd->state_id % NUM_STATE_COLORS][2];
+
+			sd->artificial = 0;
 		} else {
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
 				return 1;
@@ -213,7 +244,22 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 				se.start = dsk_se.header.time;
 				se.end = dsk_se.end_time;
-				se.state = dsk_se.state;
+				se.state_id = dsk_se.state;
+
+				if((se.state_id_seq = multi_event_set_seq_state_id(mes, dsk_se.state)) == -1) {
+					if((sd = multi_event_set_state_description_alloc_ptr(mes, dsk_se.state, strlen(STATE_UNKNOWN_NAME))) == NULL)
+						return 1;
+
+					sd->color_r = state_colors[sd->state_id % NUM_STATE_COLORS][0];
+					sd->color_g = state_colors[sd->state_id % NUM_STATE_COLORS][1];
+					sd->color_b = state_colors[sd->state_id % NUM_STATE_COLORS][2];
+					sd->artificial = 1;
+
+					strcpy(sd->name, STATE_UNKNOWN_NAME);
+
+					se.state_id_seq = multi_event_set_seq_state_id(mes, dsk_se.state);
+				}
+
 				se.active_task = task_tree_find(tt, dsk_se.header.active_task);
 				se.active_frame = frame_tree_find(ft, dsk_se.header.active_frame);
 				se.texec_start = NULL;
@@ -397,6 +443,10 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 	if(read_trace_samples(mes, &tt, &ft, fp, bytes_read) != 0)
 		goto out_trees;
+
+	if(multi_event_set_state_descriptions_artificial(mes) &&
+	   multi_event_set_state_ids_in_range(mes, 0, OPENSTREAM_WORKER_STATE_MAX-1))
+		set_openstream_state_descriptions(mes);
 
 	multi_event_set_sort_by_cpu(mes);
 

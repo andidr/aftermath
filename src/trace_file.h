@@ -28,6 +28,7 @@
  * | trace_header               |
  * +----------------------------+
  * | Arbitrary number of:       |
+ * | - trace_state_description  |
  * | - trace_state_events       |
  * | - trace_comm_events        |
  * | - trace_single_events      |
@@ -45,11 +46,11 @@
 
 /* OSTV in ASCII */
 #define TRACE_MAGIC 0x5654534f
-#define TRACE_VERSION 15
+#define TRACE_VERSION 16
 
 static inline int trace_version_compatible(int version)
 {
-	return (version == 13 || version == 14 || version == 15);
+	return (version == 13 || version == 14 || version == 15 || version == 16);
 }
 
 enum event_type {
@@ -60,23 +61,9 @@ enum event_type {
 	EVENT_TYPE_COUNTER_DESCRIPTION = 4,
 	EVENT_TYPE_FRAME_INFO = 5,
 	EVENT_TYPE_CPU_INFO = 6,
-	EVENT_TYPE_GLOBAL_SINGLE_EVENT = 7
+	EVENT_TYPE_GLOBAL_SINGLE_EVENT = 7,
+	EVENT_TYPE_STATE_DESCRIPTION = 8
 };
-
-enum worker_state {
-	WORKER_STATE_SEEKING = 0,
-	WORKER_STATE_TASKEXEC = 1,
-	WORKER_STATE_RT_TCREATE = 2,
-	WORKER_STATE_RT_RESDEP = 3,
-	WORKER_STATE_RT_TDEC = 4,
-	WORKER_STATE_RT_BCAST = 5,
-	WORKER_STATE_RT_INIT = 6,
-	WORKER_STATE_RT_ESTIMATE_COSTS = 7,
-	WORKER_STATE_RT_REORDER = 8,
-	WORKER_STATE_MAX = 9
-};
-
-extern const char* worker_state_names[];
 
 enum comm_event_type {
 	COMM_TYPE_UNKNOWN = 0,
@@ -288,6 +275,20 @@ struct trace_global_single_event {
 } __attribute__((packed));
 
 extern int trace_global_single_event_conversion_table[];
+
+/* Struct describing a worker's state present in the trace. */
+struct trace_state_description {
+        /* Short header field */
+        uint32_t type;
+
+        /* State id */
+        uint32_t state_id;
+
+	/* Length of the state name not including the terminating zero byte */
+        uint32_t name_len;
+} __attribute__((packed));
+
+extern int trace_state_description_conversion_table[];
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);

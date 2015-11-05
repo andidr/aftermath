@@ -20,18 +20,6 @@
 #include "convert.h"
 #include <stdio.h>
 
-const char* worker_state_names[] = {
-	"seeking",
-	"taskexec",
-	"tcreate",
-	"resdep",
-	"tdec",
-	"bcast",
-	"init",
-	"estimate_costs",
-	"reorder"
-};
-
 int trace_header_conversion_table[] = {
 	FIELD_SIZE(struct trace_header, magic),
 	FIELD_SIZE(struct trace_header, version),
@@ -112,6 +100,13 @@ int trace_global_single_event_conversion_table[] = {
 	FIELD_SIZE(struct trace_global_single_event, type),
 	FIELD_SIZE(struct trace_global_single_event, time),
 	FIELD_SIZE(struct trace_global_single_event, single_type),
+	CONVERSION_TABLE_END
+};
+
+int trace_state_description_conversion_table[] = {
+	FIELD_SIZE(struct trace_state_description, type),
+	FIELD_SIZE(struct trace_state_description, state_id),
+	FIELD_SIZE(struct trace_state_description, name_len),
 	CONVERSION_TABLE_END
 };
 

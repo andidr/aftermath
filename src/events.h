@@ -56,7 +56,9 @@ struct state_event {
 	struct task* active_task;
 	struct frame* active_frame;
 
-	int state;
+	int state_id_seq;
+	int state_id;
+
 	struct single_event* texec_start;
 	struct single_event* texec_end;
 };

@@ -116,3 +116,12 @@ int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filte
 
 	return 1;
 }
+
+uint32_t multi_event_set_seq_state_id(struct multi_event_set* mes, uint32_t id)
+{
+	for(size_t i = 0; i < mes->num_states; i++) {
+		if(mes->states[i].state_id == id)
+			return i;
+	}
+	return -1;
+}

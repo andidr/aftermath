@@ -438,8 +438,12 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int exclude_idx;
 	int ret = 0;
 	const char* name;
-	enum worker_state state = WORKER_STATE_SEEKING;
+	int state_desc_idx = 0;
 	struct derived_counter_dialog_context ctx;
+
+	GtkTreeIter iter;
+	GtkListStore *liststore;
+	GtkCellRenderer *column;
 
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, dialog);
@@ -447,7 +451,6 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_type);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_cpu);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_counter);
-	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_state);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, combo_numa_node);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scale_samples);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, entry_name);
@@ -497,6 +500,17 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, scroll_tasks);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, treeview_tasks);
 
+	liststore = gtk_list_store_new(1, G_TYPE_STRING);
+
+	for(int i = 0; i < mes->num_states; i++)
+		gtk_list_store_insert_with_values(liststore, &iter, i, 0, mes->states[i].name, -1);
+
+	ctx.combo_state = gtk_combo_box_new_with_model(GTK_TREE_MODEL(liststore));
+	column = gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(ctx.combo_state), column, TRUE);
+	gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(ctx.combo_state), column, "text", 0, NULL );
+	gtk_table_attach(GTK_TABLE(ctx.table_properties), ctx.combo_state, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
+
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_cpu), 0);
 	for(cpu_idx = 0; cpu_idx < mes->num_sets; cpu_idx++) {
 		snprintf(buffer, sizeof(buffer), "CPU %d", mes->sets[cpu_idx].cpu);
@@ -534,7 +548,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_divcounter), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_numa_node), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_exclude_node), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), WORKER_STATE_TASKEXEC);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ctx.combo_state), 0);
 
 retry:
 	if(gtk_dialog_run(GTK_DIALOG(ctx.dialog)) == GTK_RESPONSE_ACCEPT) {
@@ -549,7 +563,7 @@ retry:
 		}
 
 		if(type_idx == DERIVED_COUNTER_PARALLELISM &&
-		   (state = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_state))) == -1)
+		   (state_desc_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(ctx.combo_state))) == -1)
 		{
 			show_error_message("Please select a state.");
 			goto retry;
@@ -645,7 +659,7 @@ retry:
 		opt->cpu = mes->sets[cpu_idx].cpu;
 		opt->num_samples = gtk_range_get_value(GTK_RANGE(ctx.scale_samples));
 		opt->name = malloc(strlen(name)+1);
-		opt->state = state;
+		opt->state = mes->states[state_desc_idx].state_id;
 		opt->counter_idx = ctr_idx;
 		opt->divcounter_idx = divctr_idx;
 		opt->numa_node = numa_node_idx;

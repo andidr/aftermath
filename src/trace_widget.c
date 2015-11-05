@@ -52,16 +52,6 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton* event);
 gint gtk_trace_button_release_event(GtkWidget* widget, GdkEventButton* event);
 gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event);
 
-static double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(255.0)},
-				   {COL_NORM(  0.0), COL_NORM(  0.0), COL_NORM(255.0)},
-				   {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(255.0)},
-				   {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(  0.0)},
-				   {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(174.0)},
-				   {COL_NORM(179.0), COL_NORM(  0.0), COL_NORM(  0.0)},
-				   {COL_NORM(  0.0), COL_NORM(255.0), COL_NORM(  0.0)},
-				   {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
-				   {COL_NORM(235.0), COL_NORM(  0.0), COL_NORM(  0.0)}};
-
 static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
 				  {COL_NORM(225.0), COL_NORM(137.0), COL_NORM(  0.0)},
 				  {COL_NORM( 23.0), COL_NORM( 95.0), COL_NORM(  0.0)},
@@ -747,26 +737,29 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 			break;
 
 		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
-			int major_state;
+			int major_state_seq;
 			long double start = gtk_trace_screen_x_to_trace(g, px);
 			long double end = gtk_trace_screen_x_to_trace(g, px+1);
 
 			if(start < 0)
 				continue;
 
-			int has_major = event_set_get_major_state(&g->event_sets->sets[cpu_idx], g->filter, start, end, &major_state);
+			int has_major = event_set_get_major_state_seq(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->num_states, &major_state_seq);
 
 			if(last_major_state != -1) {
-				if((has_major && last_major_state != major_state) || !has_major) {
-					cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
+				if((has_major && last_major_state != major_state_seq) || !has_major) {
+					cairo_set_source_rgb(cr,
+							     g->event_sets->states[last_major_state].color_r,
+							     g->event_sets->states[last_major_state].color_g,
+							     g->event_sets->states[last_major_state].color_b);
 					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
 					cairo_fill(cr);
 					num_events_drawn++;
 				}
 			}
 
-			if(has_major && last_major_state != major_state) {
-				last_major_state = major_state;
+			if(has_major && last_major_state != major_state_seq) {
+				last_major_state = major_state_seq;
 				last_start = px;
 			}
 
@@ -777,7 +770,11 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 		}
 
 		if(last_major_state != -1) {
-			cairo_set_source_rgb(cr, state_colors[last_major_state][0], state_colors[last_major_state][1], state_colors[last_major_state][2]);
+			cairo_set_source_rgb(cr,
+					     g->event_sets->states[last_major_state].color_r,
+					     g->event_sets->states[last_major_state].color_g,
+					     g->event_sets->states[last_major_state].color_b);
+
 			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
 			cairo_fill(cr);
 			num_events_drawn++;

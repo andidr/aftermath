@@ -86,7 +86,7 @@ UNIT_TEST(add_single_state_event_test)
 	se.end = 1000;
 	se.active_task = NULL;
 	se.active_frame = NULL;
-	se.state = 1;
+	se.state_id = 1;
 	se.texec_start = NULL;
 	se.texec_end = NULL;
 
@@ -111,7 +111,7 @@ UNIT_TEST(add_multi_state_event_test)
 	se.active_frame = NULL;
 	se.texec_start = NULL;
 	se.texec_end = NULL;
-	se.state = 1;
+	se.state_id = 1;
 
 	for(int i = 0; i < 1000; i++) {
 		se.start = i*1000;
@@ -142,7 +142,7 @@ UNIT_TEST(get_first_state_in_interval_test)
 		se.end = (i+1)*1000+999;
 		se.active_task = NULL;
 		se.active_frame = NULL;
-		se.state = i;
+		se.state_id = i;
 		se.texec_start = NULL;
 		se.texec_end = NULL;
 
@@ -189,7 +189,7 @@ UNIT_TEST(get_first_state_starting_in_interval_test)
 		se.end = (i+1)*1000+999;
 		se.active_task = NULL;
 		se.active_frame = NULL;
-		se.state = i;
+		se.state_id = i;
 		se.texec_start = NULL;
 		se.texec_end = NULL;
 
@@ -241,7 +241,7 @@ UNIT_TEST(get_first_state_starting_in_interval_type_test)
 		se.end = (i+1)*1000+999;
 		se.active_task = NULL;
 		se.active_frame = NULL;
-		se.state = i;
+		se.state_id = i;
 		se.texec_start = NULL;
 		se.texec_end = NULL;
 
@@ -305,7 +305,7 @@ UNIT_TEST(get_next_state_event_test)
 	for(int i = 0; i < 10; i++) {
 		se.start = (i+1)*1000;
 		se.end = (i+1)*1000+999;
-		se.state = i;
+		se.state_id = i;
 
 		ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 	}
@@ -331,12 +331,13 @@ END_TEST()
 UNIT_TEST(get_major_state_empty_test)
 {
 	struct event_set es;
-	int major_state;
+	int major_state_seq;
+	int num_states = 0;
 
 	event_set_init(&es, 0);
 
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 0, 1000, &major_state), 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 0, 1000, num_states, &major_state_seq), 0);
 
 	event_set_destroy(&es);
 }
@@ -349,7 +350,8 @@ UNIT_TEST(get_major_state_one_event_test)
 {
 	struct event_set es;
 	struct state_event se;
-	int major_state;
+	int major_state_seq;
+	int num_states = 1;
 
 	event_set_init(&es, 0);
 
@@ -360,34 +362,35 @@ UNIT_TEST(get_major_state_one_event_test)
 	se.texec_end = NULL;
 	se.start = 1000;
 	se.end = 1999;
-	se.state = 0;
+	se.state_id = 0;
+	se.state_id_seq = 0;
 	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 
 	/* Exact match */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1000, 1999, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1000, 1999, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Exact match at the start, end somewhere in the middle */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1000, 1500, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1000, 1500, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Start and end somewhere in the middle */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1250, 1500, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1250, 1500, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Start before event, end after the event */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 0, 3000, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 0, 3000, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Entirely before the event */
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 0, 999, &major_state), 0);
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 0, 999, num_states, &major_state_seq), 0);
 
 	/* Entirely after the event */
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 3000, 30000, &major_state), 0);
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 3000, 30000, num_states, &major_state_seq), 0);
 
 	event_set_destroy(&es);
 }
@@ -400,7 +403,8 @@ UNIT_TEST(get_major_state_two_events_test)
 {
 	struct event_set es;
 	struct state_event se;
-	int major_state;
+	int major_state_seq;
+	int num_states = 2;
 
 	event_set_init(&es, 0);
 
@@ -412,35 +416,37 @@ UNIT_TEST(get_major_state_two_events_test)
 
 	se.start = 1000;
 	se.end = 1999;
-	se.state = 0;
+	se.state_id = 0;
+	se.state_id_seq = 0;
 	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 
 	se.start = 2000;
 	se.end = 2999;
-	se.state = 1;
+	se.state_id = 1;
+	se.state_id_seq = 1;
 	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 
 	/* Leave out just one cycle of the first event */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1001, 2999, &major_state), 1);
-	ASSERT_EQUALS(major_state, 1);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1001, 2999, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 1);
 
 	/* Leave out just one cycle of the second event */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1000, 2998, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1000, 2998, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Half of both events with one cycle more for the first
 	 * event */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1499, 2500, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1499, 2500, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Half of both events with one cycle more for the second
 	 * event */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1500, 2500, &major_state), 1);
-	ASSERT_EQUALS(major_state, 1);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1500, 2500, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 1);
 
 	event_set_destroy(&es);
 }
@@ -454,7 +460,8 @@ UNIT_TEST(get_major_state_short_events_test)
 {
 	struct event_set es;
 	struct state_event se;
-	int major_state;
+	int major_state_seq;
+	int num_states = 2;
 
 	event_set_init(&es, 0);
 
@@ -470,18 +477,19 @@ UNIT_TEST(get_major_state_short_events_test)
 	for(int i = 0; i < 1001; i++) {
 		se.start = (i+1)*1000;
 		se.end = (i+1)*1000 + 999;
-		se.state = (i % 2);
+		se.state_id = (i % 2);
+		se.state_id_seq = (i % 2);
 		ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 	}
 
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 1000, 1001999, &major_state), 1);
-	ASSERT_EQUALS(major_state, 0);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1000, 1001999, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Leave out first and last event, such that type 1 becomes dominant */
-	major_state = -1;
-	ASSERT_EQUALS(event_set_get_major_state(&es, NULL, 2000, 1000999, &major_state), 1);
-	ASSERT_EQUALS(major_state, 1);
+	major_state_seq = -1;
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 2000, 1000999, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(major_state_seq, 1);
 
 	event_set_destroy(&es);
 }
@@ -509,7 +517,7 @@ UNIT_TEST(get_enclosing_state_test)
 	se.texec_end = NULL;
 	se.start = 1000;
 	se.end = 1999;
-	se.state = 0;
+	se.state_id = 0;
 	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
 
 	/* Before the state event */
