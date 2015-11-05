@@ -64,12 +64,14 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 {
 	struct counter_description* cd;
 	struct event_set* cpu_es;
+	struct event_set* es;
 	struct counter_event ce;
 
 	int set_indexes[mes->num_sets];
 	int sets_having[mes->num_sets];
 	int num_sets_having;
 	int cpu_idx;
+	int i;
 
 	uint64_t id;
 	uint64_t min_time = multi_event_set_first_event_start(mes);
@@ -88,8 +90,9 @@ int derive_aggregate_counter(struct multi_event_set* mes, struct counter_descrip
 	strcpy(cd->name, counter_name);
 
 	num_sets_having = 0;
-	for(int i = 0; i < mes->num_sets; i++) {
-		int j = event_set_counter_event_set_index(&mes->sets[i], counter_idx);
+
+	for_each_event_set_i(mes, es, i) {
+		int j = event_set_counter_event_set_index(es, counter_idx);
 
 		if(j != -1) {
 			sets_having[num_sets_having] = i;
@@ -121,6 +124,8 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 	struct counter_description* cd;
 	int cpu_idx;
 	struct event_set* cpu_es;
+	struct event_set* es;
+	int i;
 	uint64_t id;
 	int curr_idx[mes->num_sets];
 	uint64_t curr_start[mes->num_sets];
@@ -146,13 +151,13 @@ int derive_parallelism_counter(struct multi_event_set* mes, struct counter_descr
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		if(mes->sets[i].num_state_events > 0)
-			curr_idx[i] = event_set_get_next_state_event(&mes->sets[i], -1, state);
+	for_each_event_set_i(mes, es, i) {
+		if(es->num_state_events > 0)
+			curr_idx[i] = event_set_get_next_state_event(es, -1, state);
 		else
 			curr_idx[i] = -1;
 
-		curr_start[i] = (curr_idx[i] != -1) ? mes->sets[i].state_events[curr_idx[i]].start : 0;
+		curr_start[i] = (curr_idx[i] != -1) ? es->state_events[curr_idx[i]].start : 0;
 	}
 
 	for(int sample = 0; sample < num_samples; sample++) {
@@ -196,9 +201,11 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 	struct counter_description* cd;
 	int cpu_idx;
 	struct event_set* cpu_es;
+	struct event_set* es;
 	uint64_t id;
 	int curr_idx[mes->num_sets];
 	uint64_t curr_time[mes->num_sets];
+	int i;
 
 	struct comm_event* ce;
 	int min_idx;
@@ -222,13 +229,13 @@ int derive_numa_contention_counter_spikes(struct multi_event_set* mes, struct co
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	for(int i = 0; i < mes->num_sets; i++) {
+	for_each_event_set_i(mes, es, i) {
 		if(mes->sets[i].num_comm_events > 0)
-			curr_idx[i] = event_set_get_next_comm_event_arr(&mes->sets[i], -1, num_comm_types, comm_types);
+			curr_idx[i] = event_set_get_next_comm_event_arr(es, -1, num_comm_types, comm_types);
 		else
 			curr_idx[i] = -1;
 
-		curr_time[i] = (curr_idx[i] != -1) ? mes->sets[i].comm_events[curr_idx[i]].time : 0;
+		curr_time[i] = (curr_idx[i] != -1) ? es->comm_events[curr_idx[i]].time : 0;
 	}
 
 	cre.value = 0;
@@ -322,6 +329,8 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 	struct counter_description* cd;
 	int cpu_idx;
 	struct event_set* cpu_es;
+	struct event_set* es;
+	int i;
 	uint64_t id;
 	int curr_idx[mes->num_sets];
 	uint64_t curr_start[mes->num_sets];
@@ -348,12 +357,12 @@ int derive_numa_contention_counter_linear(struct multi_event_set* mes, struct co
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		curr_idx[i] = event_set_get_next_single_event(&mes->sets[i], -1, SINGLE_TYPE_TEXEC_START);
-		curr_start[i] = (curr_idx[i] != -1) ? mes->sets[i].single_events[curr_idx[i]].time : 0;
-		curr_end[i] = (curr_idx[i] != -1) ? mes->sets[i].single_events[curr_idx[i]].next_texec_end->time : 0;
+	for_each_event_set_i(mes, es, i) {
+		curr_idx[i] = event_set_get_next_single_event(es, -1, SINGLE_TYPE_TEXEC_START);
+		curr_start[i] = (curr_idx[i] != -1) ? es->single_events[curr_idx[i]].time : 0;
+		curr_end[i] = (curr_idx[i] != -1) ? es->single_events[curr_idx[i]].next_texec_end->time : 0;
 		curr_length[i] = (curr_idx[i] != -1) ? curr_end[i] - curr_start[i] : 0;
-		curr_bytes[i] = (curr_idx[i] != -1) ? get_comm_bytes_in_interval(&mes->sets[i], curr_start[i], curr_end[i], numa_node, data_direction, contention_type, exclude_node) : 0;
+		curr_bytes[i] = (curr_idx[i] != -1) ? get_comm_bytes_in_interval(es, curr_start[i], curr_end[i], numa_node, data_direction, contention_type, exclude_node) : 0;
 	}
 
 	ce.value = 0;
@@ -411,6 +420,8 @@ int derive_task_length_counter(struct multi_event_set* mes, struct counter_descr
 	struct counter_description* cd;
 	int cpu_idx;
 	struct event_set* cpu_es;
+	struct event_set* es;
+	int i;
 	uint64_t id;
 	struct single_event* curr_texec_start[mes->num_sets];
 	uint64_t curr_start[mes->num_sets];
@@ -438,14 +449,14 @@ int derive_task_length_counter(struct multi_event_set* mes, struct counter_descr
 	cd->counter_id = id;
 	strcpy(cd->name, counter_name);
 
-	for(int i = 0; i < mes->num_sets; i++) {
+	for_each_event_set_i(mes, es, i) {
 		curr_texec_start[i] = NULL;
 
-		if(mes->sets[i].num_single_events > 0 && bitvector_test_bit(cpus, mes->sets[i].cpu)) {
-			idx = event_set_get_next_single_event(&mes->sets[i], -1, SINGLE_TYPE_TEXEC_START);
+		if(mes->sets[i].num_single_events > 0 && bitvector_test_bit(cpus, es->cpu)) {
+			idx = event_set_get_next_single_event(es, -1, SINGLE_TYPE_TEXEC_START);
 
 			if(idx != -1)
-				curr_texec_start[i] = &mes->sets[i].single_events[idx];
+				curr_texec_start[i] = &es->single_events[idx];
 			else
 				curr_texec_start[i] = NULL;
 		}
@@ -512,12 +523,14 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 {
 	struct counter_description* cd;
 	struct event_set* cpu_es;
+	struct event_set* es;
 	struct counter_event ce;
 
 	int set_indexes[mes->num_sets];
 	int set_divindexes[mes->num_sets];
 	int sets_having[mes->num_sets];
 	int num_sets_having;
+	int i;
 
 	uint64_t id;
 	uint64_t min_time = multi_event_set_first_event_start(mes);
@@ -541,9 +554,10 @@ int derive_ratio_counter(struct multi_event_set* mes, struct counter_description
 	strcpy(cd->name, counter_name);
 
 	num_sets_having = 0;
-	for(int i = 0; i < mes->num_sets; i++) {
-		int j = event_set_counter_event_set_index(&mes->sets[i], counter_idx);
-		int k = event_set_counter_event_set_index(&mes->sets[i], divcounter_idx);
+
+	for_each_event_set_i(mes, es, i) {
+		int j = event_set_counter_event_set_index(es, counter_idx);
+		int k = event_set_counter_event_set_index(es, divcounter_idx);
 
 		if(j != -1 && k != -1) {
 			sets_having[num_sets_having] = i;

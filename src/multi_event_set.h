@@ -70,6 +70,11 @@ struct multi_event_set {
 	    (es) < &(mes)->sets[(mes)->num_sets];			\
 	    (es)++)
 
+#define for_each_event_set_i(mes, es, i)				\
+	for((es) = &(mes)->sets[0], (i) = 0;				\
+	    (es) < &(mes)->sets[(mes)->num_sets];			\
+	    (es)++, (i)++)
+
 static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes, int64_t* time)
 {
 	int64_t min = INT64_MAX;
@@ -200,14 +205,17 @@ static inline int multi_event_set_find_cpu_idx(struct multi_event_set* mes, int 
 
 static inline void multi_event_set_update_cpu_idx_map(struct multi_event_set* mes)
 {
+	struct event_set* es;
 	int num_cpus = mes->max_cpu - mes->min_cpu + 1;
 	int mapidx;
+	int i;
 
 	for(int i = 0; i < num_cpus; i++)
 		mes->cpu_idx_map[i] = -1;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		mapidx = mes->sets[i].cpu - mes->min_cpu;
+
+	for_each_event_set_i(mes, es, i) {
+		mapidx = es->cpu - mes->min_cpu;
 		mes->cpu_idx_map[mapidx] = i;
 	}
 }
@@ -501,18 +509,19 @@ static inline struct single_event* multi_event_set_find_next_texec_start_for_fra
 {
 	struct single_event* tips[mes->num_sets];
 	struct single_event* min = NULL;
-
+	struct event_set* es;
 	int updates = 1;
+	int i;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		int idx = event_set_get_first_single_event_in_interval_type(&mes->sets[i], start, mes->sets[i].last_end, SINGLE_TYPE_TEXEC_START);
-		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	for_each_event_set_i(mes, es, i) {
+		int idx = event_set_get_first_single_event_in_interval_type(es, start, es->last_end, SINGLE_TYPE_TEXEC_START);
+		tips[i] = (idx == -1) ? NULL : &es->single_events[idx];
 	}
 
 	while(updates != 0) {
 		updates = 0;
 
-		for(int i = 0; i < mes->num_sets; i++) {
+		for_each_event_set_i(mes, es, i) {
 			if(tips[i] && tips[i]->active_frame->addr == f->addr)
 				if(!min || tips[i]->time < min->time)
 					min = tips[i];
@@ -532,24 +541,25 @@ static inline struct single_event* multi_event_set_find_next_tdestroy_for_frame(
 {
 	struct single_event* tips[mes->num_sets];
 	struct single_event* min = NULL;
-
+	struct event_set* es;
 	int updates = 1;
+	int i;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		int idx = event_set_get_first_single_event_in_interval_type(&mes->sets[i], start, mes->sets[i].last_end, SINGLE_TYPE_TDESTROY);
-		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	for_each_event_set_i(mes, es, i) {
+		int idx = event_set_get_first_single_event_in_interval_type(es, start, es->last_end, SINGLE_TYPE_TDESTROY);
+		tips[i] = (idx == -1) ? NULL : &es->single_events[idx];
 	}
 
 	while(updates != 0) {
 		updates = 0;
 
-		for(int i = 0; i < mes->num_sets; i++) {
+		for_each_event_set_i(mes, es, i) {
 			if(tips[i] && tips[i]->type == SINGLE_TYPE_TDESTROY && tips[i]->what->addr == f->addr)
 				if(!min || tips[i]->time < min->time)
 					min = tips[i];
 
 			if(tips[i] && (!min || tips[i]->time < min->time)) {
-				if(tips[i] < &mes->sets[i].single_events[mes->sets[i].num_single_events-1])
+				if(tips[i] < &es->single_events[es->num_single_events-1])
 					tips[i] = tips[i] + 1;
 				else
 					tips[i] = NULL;
@@ -566,18 +576,19 @@ static inline struct single_event* multi_event_set_find_prev_texec_start_for_fra
 {
 	struct single_event* tips[mes->num_sets];
 	struct single_event* max = NULL;
-
+	struct event_set* es;
 	int updates = 1;
+	int i;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		int idx = event_set_get_last_single_event_in_interval_type(&mes->sets[i], 0, start, SINGLE_TYPE_TEXEC_START);
-		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	for_each_event_set_i(mes, es, i) {
+		int idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START);
+		tips[i] = (idx == -1) ? NULL : &es->single_events[idx];
 	}
 
 	while(updates != 0) {
 		updates = 0;
 
-		for(int i = 0; i < mes->num_sets; i++) {
+		for_each_event_set_i(mes, es, i) {
 			if(tips[i] && tips[i]->active_frame->addr == f->addr)
 				if(!max || tips[i]->time > max->time)
 					max = tips[i];
@@ -597,18 +608,19 @@ static inline struct single_event* multi_event_set_find_prev_tcreate_for_frame(s
 {
 	struct single_event* tips[mes->num_sets];
 	struct single_event* max = NULL;
-
+	struct event_set* es;
 	int updates = 1;
+	int i;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		int idx = event_set_get_last_single_event_in_interval_type(&mes->sets[i], 0, start, SINGLE_TYPE_TCREATE);
-		tips[i] = (idx == -1) ? NULL : &mes->sets[i].single_events[idx];
+	for_each_event_set_i(mes, es, i) {
+		int idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TCREATE);
+		tips[i] = (idx == -1) ? NULL : &es->single_events[idx];
 	}
 
 	while(updates != 0) {
 		updates = 0;
 
-		for(int i = 0; i < mes->num_sets; i++) {
+		for_each_event_set_i(mes, es, i) {
 			if(tips[i] && tips[i]->type == SINGLE_TYPE_TCREATE && tips[i]->what->addr == f->addr)
 				if(!max || tips[i]->time > max->time)
 					max = tips[i];
@@ -630,24 +642,25 @@ static inline struct comm_event* multi_event_set_find_prev_write_to_frame(struct
 {
 	struct comm_event* tips[mes->num_sets];
 	struct comm_event* max = NULL;
-
+	struct event_set* es;
 	int updates = 1;
+	int i;
 
-	for(int i = 0; i < mes->num_sets; i++) {
-		int idx = event_set_get_last_comm_event_in_interval_type(&mes->sets[i], 0, start, COMM_TYPE_DATA_WRITE);
-		tips[i] = (idx == -1) ? NULL : &mes->sets[i].comm_events[idx];
+	for_each_event_set_i(mes, es, i) {
+		int idx = event_set_get_last_comm_event_in_interval_type(es, 0, start, COMM_TYPE_DATA_WRITE);
+		tips[i] = (idx == -1) ? NULL : &es->comm_events[idx];
 	}
 
 	while(updates != 0) {
 		updates = 0;
 
-		for(int i = 0; i < mes->num_sets; i++) {
+		for_each_event_set_i(mes, es, i) {
 			if(tips[i] && tips[i]->type == COMM_TYPE_DATA_WRITE && tips[i]->what->addr == f->addr)
 				if(!max || tips[i]->time > max->time)
 					max = tips[i];
 
 			if(tips[i] && (!max || tips[i]->time > max->time)) {
-				tips[i] = tips[i] > &mes->sets[i].comm_events[0] ? tips[i]-1 : NULL;
+				tips[i] = tips[i] > &es->comm_events[0] ? tips[i]-1 : NULL;
 				updates = 1;
 			}
 		}
