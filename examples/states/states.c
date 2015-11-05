@@ -28,6 +28,31 @@
 #include <ansi_extras.h>
 #include <convert.h>
 
+const char* worker_state_names[] = {
+	"seeking",
+	"taskexec",
+	"tcreate",
+	"resdep",
+	"tdec",
+	"bcast",
+	"init",
+	"estimate_costs",
+	"reorder"
+};
+
+enum worker_state {
+	WORKER_STATE_SEEKING = 0,
+	WORKER_STATE_TASKEXEC = 1,
+	WORKER_STATE_RT_TCREATE = 2,
+	WORKER_STATE_RT_RESDEP = 3,
+	WORKER_STATE_RT_TDEC = 4,
+	WORKER_STATE_RT_BCAST = 5,
+	WORKER_STATE_RT_INIT = 6,
+	WORKER_STATE_RT_ESTIMATE_COSTS = 7,
+	WORKER_STATE_RT_REORDER = 8,
+	WORKER_STATE_MAX = 9
+};
+
 int main(int argc, char** argv)
 {
 	/* Trace file name and handle */
@@ -39,6 +64,9 @@ int main(int argc, char** argv)
 
 	/* Data structure representing a single state event */
 	struct trace_state_event dsk_se;
+
+        /* Metadata for states */
+        struct trace_state_description dsk_sd;
 
 	/* Determine date and time for trace header */
 	time_t t = time(NULL);
@@ -62,6 +90,23 @@ int main(int argc, char** argv)
 	/* Convert header to on-disk endianness and write to disk */
 	write_struct_convert(fp, &dsk_header, sizeof(dsk_header),
 			     trace_header_conversion_table, 0);
+
+        /* State descriptions */
+        for(int i = 0; i < WORKER_STATE_MAX; i++) {
+                int name_len = strlen(worker_state_names[i]);
+
+                /* Initialize a state description */
+                dsk_sd.type = EVENT_TYPE_STATE_DESCRIPTION;
+                dsk_sd.name_len = name_len;
+                dsk_sd.state_id = i;
+
+	        /* Convert state description to on-disk endianness and write to disk */
+                write_struct_convert(fp, &dsk_sd, sizeof(dsk_sd), trace_state_description_conversion_table, 0);
+
+                /* The name of the state must be written right
+                   after the state description */
+                fwrite(worker_state_names[i], name_len, 1, fp);
+        }
 
 	/* First state: seeking from 0 to 1000000 cycles */
 	dsk_se.header.type = EVENT_TYPE_STATE;
