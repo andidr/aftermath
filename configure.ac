@@ -52,6 +52,7 @@ AC_CHECK_HEADER(dlfcn.h, , AC_ERROR([Could not find dlfcn.h on your system.]))
 AC_CHECK_HEADER(link.h, , AC_ERROR([Could not find link.h on your system.]))
 AC_CHECK_HEADER(stdarg.h, , AC_ERROR([Could not find stdarg.h on your system.]))
 AC_CHECK_HEADER(signal.h, , AC_ERROR([Could not find signal.h on your system.]))
+AC_CHECK_HEADER(regex.h, , AC_ERROR([Could not find signal.h on your system.]))
 #AC_CHECK_HEADER(sys/mman.h, AC_DEFINE(HAVE_SYS_MMAN_H, 1, [sys/mman.h is present]))
 
 AC_CHECK_FUNCS(strdup)

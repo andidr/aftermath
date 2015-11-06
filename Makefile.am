@@ -26,6 +26,8 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/trace_file.c \
 		src/debug.h \
 		src/debug.c \
+		src/color_scheme.h \
+		src/color_scheme.c \
 		src/settings.h \
 		src/settings.c \
 		src/bitvector.h \
