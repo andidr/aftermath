@@ -209,7 +209,7 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 
 CLEANFILES = aftermath-debug-syms aftermath.1
 
-TESTS_LDADD = -L. -lm -lpthread
+TESTS_LDADD = -L. -lm -lpthread libaftermath-core.a
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
@@ -219,17 +219,17 @@ noinst_PROGRAMS = $(TESTS)
 counter_event_set_index_test_SOURCES = tests/counter_event_set_index.test.c \
 	$(UNIT_TEST_SOURCES)
 
-counter_event_set_index_test_LDADD = libaftermath-core.a
+counter_event_set_index_test_LDADD = $(TESTS_LDADD)
 counter_event_set_index_test_CFLAGS = $(TESTS_CFLAGS)
 
 event_set_test_SOURCES = tests/event_set.test.c \
 	$(UNIT_TEST_SOURCES)
 
 event_set_test_CFLAGS = $(TESTS_CFLAGS)
-event_set_test_LDADD = libaftermath-core.a
+event_set_test_LDADD = $(TESTS_LDADD)
 
 wr_trace_states_test_SOURCES = tests/wr_trace_states.test.c \
 	$(UNIT_TEST_SOURCES)
 
 wr_trace_states_test_CFLAGS = $(TESTS_CFLAGS)
-wr_trace_states_test_LDADD = libaftermath-core.a
+wr_trace_states_test_LDADD = $(TESTS_LDADD)
