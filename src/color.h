@@ -63,4 +63,9 @@ static inline void get_node_color_htmlrgb(unsigned int node, unsigned int max_no
 	snprintf(buff, 8, "#%02X%02X%02X", (int)r, (int)g, (int)b);
 }
 
+static inline void color_to_htmlrgb(double r, double g, double b, char* buff)
+{
+	snprintf(buff, 8, "#%02X%02X%02X", (int)COL_EXP(r), (int)COL_EXP(g), (int)COL_EXP(b));
+}
+
 #endif
