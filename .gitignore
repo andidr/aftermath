@@ -30,3 +30,4 @@ event_set_test
 ansi_extras_test
 parser_test
 object_notation_test
+color_scheme_test

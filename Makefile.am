@@ -235,7 +235,8 @@ TESTS = counter_event_set_index_test \
 	wr_trace_states_test \
 	ansi_extras_test \
 	parser_test \
-	object_notation_test
+	object_notation_test \
+	color_scheme_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -274,3 +275,9 @@ object_notation_test_SOURCES = tests/object_notation.test.c \
 
 object_notation_test_CFLAGS = $(TESTS_CFLAGS)
 object_notation_test_LDADD = $(TESTS_LDADD)
+
+color_scheme_test_SOURCES = tests/color_scheme.test.c \
+	$(UNIT_TEST_SOURCES)
+
+color_scheme_test_CFLAGS = $(TESTS_CFLAGS)
+color_scheme_test_LDADD = $(TESTS_LDADD)
