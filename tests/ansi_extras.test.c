@@ -106,12 +106,39 @@ UNIT_TEST(strreplace_test)
 }
 END_TEST()
 
+UNIT_TEST(escape_string_test)
+{
+	struct twostrs {
+		const char* r;
+		const char* e;
+	};
+
+	static const struct twostrs exp[] = {
+		{"AAA", "AAA"},
+		{"A\"", "A\\\""},
+		{"A\t\tA", "A\\t\\tA"},
+		{"A\a\b\f\n\r\t\v\\\"A", "A\\a\\b\\f\\n\\r\\t\\v\\\\\\\"A"},
+		{"String with funky\x01\x02\x01 chars", "String with funky\\x01\\x02\\x01 chars"},
+		{NULL, NULL}
+	};
+
+	char *tmp;
+
+	for(const struct twostrs* i = &exp[0]; i->r; i++) {
+		tmp = escape_string(i->r);
+		ASSERT_NONNULL(tmp);
+		ASSERT_EQUALS_STRING(tmp, i->e);
+		free(tmp);
+	}
+}
+END_TEST()
+
 UNIT_TEST_SUITE(ansi_extras_test)
 {
-	ADD_TEST(strreplace_test);
 	ADD_TEST(strreplace_test);
 	ADD_TEST(int64_swap_test);
 	ADD_TEST(int32_swap_test);
 	ADD_TEST(int16_swap_test);
+	ADD_TEST(escape_string_test);
 }
 END_TEST_SUITE()
