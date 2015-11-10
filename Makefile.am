@@ -42,6 +42,7 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/page.h \
 		src/page.c \
 		src/ansi_extras.h \
+		src/ansi_extras.c \
 		src/annotation.h \
 		src/annotation.c \
 		src/visuals_file.h \

@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #define SWAP_BITS(val, ret, type)					\
 	do {								\
@@ -132,5 +133,7 @@ static inline void print_short(char* buf, int max_len, const char* src)
 
 	snprintf(buf, max_len, "%.*s...%.*s", pref_len, src, suff_len, &src[strlen(src)-suff_len]);
 }
+
+char* escape_string(const char* str);
 
 #endif
