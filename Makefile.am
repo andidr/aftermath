@@ -213,7 +213,11 @@ TESTS_LDADD = -L. -lm -lpthread libaftermath-core.a
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
-TESTS = counter_event_set_index_test event_set_test wr_trace_states_test
+TESTS = counter_event_set_index_test \
+	event_set_test \
+	wr_trace_states_test \
+	ansi_extras_test
+
 noinst_PROGRAMS = $(TESTS)
 
 counter_event_set_index_test_SOURCES = tests/counter_event_set_index.test.c \
@@ -233,3 +237,9 @@ wr_trace_states_test_SOURCES = tests/wr_trace_states.test.c \
 
 wr_trace_states_test_CFLAGS = $(TESTS_CFLAGS)
 wr_trace_states_test_LDADD = $(TESTS_LDADD)
+
+ansi_extras_test_SOURCES = tests/ansi_extras.test.c \
+	$(UNIT_TEST_SOURCES)
+
+ansi_extras_test_CFLAGS = $(TESTS_CFLAGS)
+ansi_extras_test_LDADD = $(TESTS_LDADD)
