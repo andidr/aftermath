@@ -81,6 +81,28 @@ void task_list_init(GtkTreeView* task_treeview)
 	g_object_unref(store);
 }
 
+void task_list_update_colors(GtkTreeView* task_treeview)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	GdkColor color;
+	struct task* t;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		gtk_tree_model_get(model, &iter, TASK_LIST_COL_TASK_POINTER, &t, -1);
+
+		color.red = t->color_r * 65535.0;
+		color.green = t->color_g * 65535.0;
+		color.blue = t->color_b * 65535.0;
+
+		gtk_list_store_set(store, &iter, TASK_LIST_COL_COLOR, &color, -1);
+	} while(gtk_tree_model_iter_next(model, &iter));
+}
+
 void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_tasks)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
