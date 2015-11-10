@@ -63,7 +63,7 @@ void state_list_init(GtkTreeView* state_treeview)
 	gtk_tree_view_append_column(state_treeview, column);
 
 	store = gtk_list_store_new(STATE_LIST_COL_NUM, GDK_TYPE_COLOR, G_TYPE_STRING, 
-				   G_TYPE_STRING, G_TYPE_STRING, -1);
+				   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, -1);
 
 	gtk_tree_view_set_model(state_treeview, GTK_TREE_MODEL(store));
 
@@ -97,6 +97,7 @@ void __state_list_append(GtkListStore* store, struct state_description* state, i
 			   STATE_LIST_COL_NAME, state->name,
 			   STATE_LIST_COL_PER, buff_per,
 			   STATE_LIST_COL_PAR, buff_par,
+			   STATE_LIST_COL_STATEDESC_POINTER, state,
 			   -1);
 }
 
@@ -106,6 +107,28 @@ void state_list_append(GtkTreeView* state_treeview, struct state_description* st
 	GtkListStore* store = GTK_LIST_STORE(model);
 
 	__state_list_append(store, state, init);
+}
+
+void state_list_update_colors(GtkTreeView* task_treeview)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	GdkColor color;
+	struct state_description* sd;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		gtk_tree_model_get(model, &iter, STATE_LIST_COL_STATEDESC_POINTER, &sd, -1);
+
+		color.red = sd->color_r * 65535.0;
+		color.green = sd->color_g * 65535.0;
+		color.blue = sd->color_b * 65535.0;
+
+		gtk_list_store_set(store, &iter, STATE_LIST_COL_COLOR, &color, -1);
+	} while(gtk_tree_model_iter_next(model, &iter));
 }
 
 void state_list_fill(GtkTreeView* state_treeview, struct state_description* states, int num_states)

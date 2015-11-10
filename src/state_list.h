@@ -28,10 +28,12 @@ enum state_list_columns {
 	STATE_LIST_COL_NAME,
 	STATE_LIST_COL_PER,
 	STATE_LIST_COL_PAR,
+	STATE_LIST_COL_STATEDESC_POINTER,
         STATE_LIST_COL_NUM
 };
 
 void state_list_init(GtkTreeView* state_treeview);
+void state_list_update_colors(GtkTreeView* task_treeview);
 void state_list_append(GtkTreeView* state_treeview, struct state_description* state, int init);
 void state_list_fill(GtkTreeView* state_treeview, struct state_description* states, int num_states);
 void state_list_fill_name(GtkTreeView* state_treeview, struct state_description* states, int num_states);
