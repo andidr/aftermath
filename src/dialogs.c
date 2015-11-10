@@ -449,6 +449,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	GtkCellRenderer *column;
 
 	struct event_set* es;
+	struct counter_description* cd;
 
 	glade_xml_signal_autoconnect(xml);
 	IMPORT_GLADE_WIDGET_ASSIGN_STRUCT(xml, &ctx, dialog);
@@ -525,8 +526,9 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_counter), 0);
 	gtk_combo_box_remove_text(GTK_COMBO_BOX(ctx.combo_divcounter), 0);
-	for(ctr_idx = 0; ctr_idx < mes->num_counters; ctr_idx++) {
-		strncpy(buffer, mes->counters[ctr_idx].name, sizeof(buffer));
+
+	for_each_counterdesc(mes, cd) {
+		strncpy(buffer, cd->name, sizeof(buffer));
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_counter), buffer);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ctx.combo_divcounter), buffer);
 	}

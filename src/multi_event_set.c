@@ -108,10 +108,9 @@ int multi_event_set_counters_monotonously_increasing(struct multi_event_set* mes
 int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filter* f)
 {
 	struct event_set* es;
+	struct counter_description* cd;
 
-	for (int counter_idx = 0; counter_idx < mes->num_counters; counter_idx++) {
-		struct counter_description* cd = &mes->counters[counter_idx];
-
+	for_each_counterdesc(mes, cd) {
 		for_each_event_set(mes, es) {
 			if(f && !filter_has_cpu(f, es->cpu))
 				continue;

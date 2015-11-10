@@ -95,6 +95,16 @@ struct multi_event_set {
 	    (sd) < &(mes)->states[(mes)->num_states];			\
 	    (sd)++, (i)++)
 
+#define for_each_counterdesc(mes, cd)					\
+	for((cd) = &(mes)->counters[0];				\
+	    (cd) < &(mes)->counters[(mes)->num_counters];		\
+	    (cd)++)
+
+#define for_each_counterdesc_i(mes, cd, i)				\
+	for((cd) = &(mes)->counters[0], (i) = 0;			\
+	    (cd) < &(mes)->counters[(mes)->num_counters];		\
+	    (cd)++, (i)++)
+
 static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes, int64_t* time)
 {
 	int64_t min = INT64_MAX;
@@ -133,9 +143,11 @@ static inline void multi_event_event_set_add_counter_offset(struct multi_event_s
 
 static inline struct counter_description* multi_event_set_find_counter_description(struct multi_event_set* mes, uint64_t counter_id)
 {
-	for(int i = 0; i < mes->num_counters; i++)
-		if(mes->counters[i].counter_id == counter_id)
-			return &mes->counters[i];
+	struct counter_description* cd;
+
+	for_each_counterdesc(mes, cd)
+		if(cd->counter_id == counter_id)
+			return cd;
 
 	return NULL;
 }
@@ -143,10 +155,11 @@ static inline struct counter_description* multi_event_set_find_counter_descripti
 static inline int64_t multi_event_get_min_counter_value(struct multi_event_set* mes)
 {
 	int64_t min = INT64_MAX;
+	struct counter_description* cd;
 
-	for(int i = 0; i < mes->num_counters; i++)
-		if(mes->counters[i].min < min)
-			min = mes->counters[i].min;
+	for_each_counterdesc(mes, cd)
+		if(cd->min < min)
+			min = cd->min;
 
 	return min;
 }
@@ -166,10 +179,11 @@ static inline int multi_event_get_max_cpu(struct multi_event_set* mes)
 static inline int64_t multi_event_get_max_counter_value(struct multi_event_set* mes)
 {
 	int64_t max = INT64_MIN;
+	struct counter_description* cd;
 
-	for(int i = 0; i < mes->num_counters; i++)
-		if(mes->counters[i].max > max)
-			max = mes->counters[i].max;
+	for_each_counterdesc(mes, cd)
+		if(cd->max > max)
+			max = cd->max;
 
 	return max;
 }
@@ -177,10 +191,11 @@ static inline int64_t multi_event_get_max_counter_value(struct multi_event_set* 
 static inline long double multi_event_get_min_counter_slope(struct multi_event_set* mes)
 {
 	long double min_slope = INT64_MAX;
+	struct counter_description* cd;
 
-	for(int i = 0; i < mes->num_counters; i++)
-		if(mes->counters[i].min_slope < min_slope)
-			min_slope = mes->counters[i].min_slope;
+	for_each_counterdesc(mes, cd)
+		if(cd->min_slope < min_slope)
+			min_slope = cd->min_slope;
 
 	return min_slope;
 }
@@ -188,10 +203,11 @@ static inline long double multi_event_get_min_counter_slope(struct multi_event_s
 static inline long double multi_event_get_max_counter_slope(struct multi_event_set* mes)
 {
 	long double max_slope = INT64_MIN;
+	struct counter_description* cd;
 
-	for(int i = 0; i < mes->num_counters; i++)
-		if(mes->counters[i].max_slope > max_slope)
-			max_slope = mes->counters[i].max_slope;
+	for_each_counterdesc(mes, cd)
+		if(cd->max_slope > max_slope)
+			max_slope = cd->max_slope;
 
 	return max_slope;
 }
@@ -379,6 +395,7 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	struct event_set* es;
 	struct task* t;
 	struct state_description* sd;
+	struct counter_description* cd;
 
 	for_each_event_set(mes, es)
 		event_set_destroy(es);
@@ -386,8 +403,8 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	for_each_task(mes, t)
 		task_destroy(t);
 
-	for(int counter = 0; counter < mes->num_counters; counter++)
-		counter_description_destroy(&mes->counters[counter]);
+	for_each_counterdesc(mes, cd)
+		counter_description_destroy(cd);
 
 	for_each_statedesc(mes, sd)
 		state_description_destroy(sd);
@@ -500,11 +517,11 @@ static inline struct counter_description* multi_event_set_counter_description_al
 static inline uint64_t multi_event_set_get_free_counter_id(struct multi_event_set* mes)
 {
 	uint64_t id = 0;
+	struct counter_description* cd;
 
-	for(int i = 0; i < mes->num_counters; i++) {
-		if(mes->counters[i].counter_id >= id)
-			id = mes->counters[i].counter_id + 1;
-	}
+	for_each_counterdesc(mes, cd)
+		if(cd->counter_id >= id)
+			id = cd->counter_id + 1;
 
 	return id;
 }

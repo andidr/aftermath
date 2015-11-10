@@ -137,6 +137,7 @@ int main(int argc, char** argv)
 	char buffer_short[20];
 	char title[PATH_MAX+10];
 	enum compression_type compression_type;
+	struct counter_description* cd;
 
 	g_visuals_filename = NULL;
 
@@ -325,8 +326,8 @@ int main(int argc, char** argv)
 
 	g_counter_list_widget = counter_combo_box;
 
-	for(int i = 0; i < g_mes.num_counters; i++) {
-		print_short(buffer_short, sizeof(buffer_short), g_mes.counters[i].name);
+	for_each_counterdesc(&g_mes, cd) {
+		print_short(buffer_short, sizeof(buffer_short), cd->name);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(g_counter_list_widget), buffer_short);
 	}
 
