@@ -1069,6 +1069,8 @@ void update_statistics(void)
 	char buffer[128];
 	char buffer2[128];
 	struct state_statistics sts;
+	struct state_description* sd;
+	int i;
 
 	int64_t left, right;
 	int64_t length;
@@ -1096,9 +1098,9 @@ void update_statistics(void)
 	state_statistics_init(&sts);
 	state_statistics_gather_cycles(&g_mes, &g_filter, &sts, left, right);
 
-        for(int i = 0; i < g_mes.num_states; i++) {
-                g_mes.states[i].per = (100*(double)sts.state_cycles[i]) / (double)(length*g_mes.num_sets);
-                g_mes.states[i].par = (double)sts.state_cycles[i] / (double)length;
+	for_each_statedesc_i(&g_mes, sd, i) {
+                sd->per = (100*(double)sts.state_cycles[i]) / (double)(length*g_mes.num_sets);
+                sd->par = (double)sts.state_cycles[i] / (double)length;
         }
 
 	struct single_event_statistics single_stats;

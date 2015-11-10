@@ -439,7 +439,10 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	int ret = 0;
 	const char* name;
 	int state_desc_idx = 0;
+	int i;
+
 	struct derived_counter_dialog_context ctx;
+	struct state_description* sd;
 
 	GtkTreeIter iter;
 	GtkListStore *liststore;
@@ -504,8 +507,8 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 
 	liststore = gtk_list_store_new(1, G_TYPE_STRING);
 
-	for(int i = 0; i < mes->num_states; i++)
-		gtk_list_store_insert_with_values(liststore, &iter, i, 0, mes->states[i].name, -1);
+	for_each_statedesc_i(mes, sd, i)
+		gtk_list_store_insert_with_values(liststore, &iter, i, 0, sd->name, -1);
 
 	ctx.combo_state = gtk_combo_box_new_with_model(GTK_TREE_MODEL(liststore));
 	column = gtk_cell_renderer_text_new();
