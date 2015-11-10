@@ -297,6 +297,7 @@ int multi_task_statistics_gather(struct multi_event_set* mes, struct filter* f, 
 	uint64_t min_all, max_all;
 	int reset_filter = 0;
 	int ms_index = 0;
+	struct task* t;
 
 	if(f) {
 		if(!(f->filter_tasks)) {
@@ -311,19 +312,19 @@ int multi_task_statistics_gather(struct multi_event_set* mes, struct filter* f, 
 		ms->min_all = min_all;
 		ms->max_all = max_all;
 
-		for(int task_idx = 0; task_idx < mes->num_tasks; task_idx++) {
+		for_each_task(mes, t) {
 			filter_clear_tasks(f);
 
-			if(!(reset_filter || array_has_task(tasks_in_filter, nb_tasks_in_filter, &mes->tasks[task_idx])))
+			if(!(reset_filter || array_has_task(tasks_in_filter, nb_tasks_in_filter, t)))
 				continue;
 
-			filter_add_task(f, &mes->tasks[task_idx]);
+			filter_add_task(f, t);
 			task_statistics_gather_with_min_max_cycles(mes, f, ms->stats[ms_index], start, end, min_all, max_all);
 
 			if(ms->stats[ms_index]->num_tasks == 0)
 				continue;
 
-			ms->task_ids[ms_index] = mes->tasks[task_idx].id;
+			ms->task_ids[ms_index] = t->id;
 			ms_index++;
 		}
 

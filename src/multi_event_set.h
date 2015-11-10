@@ -75,6 +75,16 @@ struct multi_event_set {
 	    (es) < &(mes)->sets[(mes)->num_sets];			\
 	    (es)++, (i)++)
 
+#define for_each_task(mes, t)						\
+	for((t) = &(mes)->tasks[0];					\
+	    (t) < &(mes)->tasks[(mes)->num_tasks];			\
+	    (t)++)
+
+#define for_each_task_i(mes, t, i)					\
+	for((t) = &(mes)->tasks[0], (i) = 0;				\
+	    (t) < &(mes)->tasks[(mes)->num_tasks];			\
+	    (t)++, (i)++)
+
 static inline int multi_event_event_set_get_min_time(struct multi_event_set* mes, int64_t* time)
 {
 	int64_t min = INT64_MAX;
@@ -357,12 +367,13 @@ static inline void multi_event_set_init(struct multi_event_set* mes)
 static inline void multi_event_set_destroy(struct multi_event_set* mes)
 {
 	struct event_set* es;
+	struct task* t;
 
 	for_each_event_set(mes, es)
 		event_set_destroy(es);
 
-	for(int task = 0; task < mes->num_tasks; task++)
-		task_destroy(&mes->tasks[task]);
+	for_each_task(mes, t)
+		task_destroy(t);
 
 	for(int counter = 0; counter < mes->num_counters; counter++)
 		counter_description_destroy(&mes->counters[counter]);
