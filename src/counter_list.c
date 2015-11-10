@@ -195,6 +195,28 @@ void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* fil
 	} while(gtk_tree_model_iter_next(model, &iter));
 }
 
+void counter_list_update_colors(GtkTreeView* task_treeview)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	GdkColor color;
+	struct counter_description* cd;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		gtk_tree_model_get(model, &iter, COUNTER_LIST_COL_COUNTER_POINTER, &cd, -1);
+
+		color.red = cd->color_r * 65535.0;
+		color.green = cd->color_g * 65535.0;
+		color.blue = cd->color_b * 65535.0;
+
+		gtk_list_store_set(store, &iter, COUNTER_LIST_COL_COLOR, &color, -1);
+	} while(gtk_tree_model_iter_next(model, &iter));
+}
+
 struct counter_description* counter_list_get_highlighted_entry(GtkTreeView* counter_treeview)
 {
 	GtkTreeSelection* selection;

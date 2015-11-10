@@ -41,7 +41,7 @@ void counter_list_append(GtkTreeView* counter_treeview, struct counter_descripti
 void counter_list_fill(GtkTreeView* counter_treeview, struct counter_description* counters, int num_counters);
 void counter_list_clear(GtkTreeView* counter_treeview);
 void counter_list_build_filter(GtkTreeView* counter_treeview, struct filter* filter);
-
+void counter_list_update_colors(GtkTreeView* task_treeview);
 void counter_list_check_all(GtkTreeView* counter_treeview);
 void counter_list_uncheck_all(GtkTreeView* counter_treeview);
 struct counter_description* counter_list_get_highlighted_entry(GtkTreeView* counter_treeview);
