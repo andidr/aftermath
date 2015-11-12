@@ -27,12 +27,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SWAP_BITS(val, ret, type) \
-	do { \
-		ret = 0;		  \
-		char* cval = (char*)&val; \
-		for(unsigned int i = 0; i < sizeof(type); ++i)	\
-			ret |= ((type)cval[i]) << ((sizeof(type)*8-8) - 8*i);	\
+#define SWAP_BITS(val, ret, type)					\
+	do {								\
+		ret = 0;						\
+		for(unsigned int i = 0; i < 8*sizeof(type); i += 8)	\
+			ret |= ((val >> i) & 0xFF) << ((sizeof(type)*8-8) - i); \
 	} while(0)
 
 inline int64_t int64_swap(int64_t val)
