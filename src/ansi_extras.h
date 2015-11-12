@@ -34,7 +34,7 @@
 			ret |= ((val >> i) & 0xFF) << ((sizeof(type)*8-8) - i); \
 	} while(0)
 
-inline int64_t int64_swap(int64_t val)
+static inline int64_t int64_swap(int64_t val)
 {
 	int64_t ret;
 	SWAP_BITS(val, ret, int64_t);
@@ -42,7 +42,7 @@ inline int64_t int64_swap(int64_t val)
 	return ret;
 }
 
-inline int32_t int32_swap(int32_t val)
+static inline int32_t int32_swap(int32_t val)
 {
 	int32_t ret;
 	SWAP_BITS(val, ret, int32_t);
@@ -50,7 +50,7 @@ inline int32_t int32_swap(int32_t val)
 	return ret;
 }
 
-inline int16_t int16_swap(int16_t val)
+static inline int16_t int16_swap(int16_t val)
 {
 	int16_t ret;
 	SWAP_BITS(val, ret, int16_t);
