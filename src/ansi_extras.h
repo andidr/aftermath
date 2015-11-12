@@ -27,17 +27,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SWAP_BITS(val, ret, bits) \
+#define SWAP_BITS(val, ret, type) \
 	do { \
+		ret = 0;		  \
 		char* cval = (char*)&val; \
-		for(unsigned int i = 0; i < (bits) / 8; ++i) \
-			ret |= cval[i] << (((bits)-8) - 8*i); \
+		for(unsigned int i = 0; i < sizeof(type); ++i)	\
+			ret |= ((type)cval[i]) << ((sizeof(type)*8-8) - 8*i);	\
 	} while(0)
 
 inline int64_t int64_swap(int64_t val)
 {
 	int64_t ret;
-	SWAP_BITS(val, ret, sizeof(int64_t)*8);
+	SWAP_BITS(val, ret, int64_t);
 
 	return ret;
 }
@@ -45,7 +46,7 @@ inline int64_t int64_swap(int64_t val)
 inline int32_t int32_swap(int32_t val)
 {
 	int32_t ret;
-	SWAP_BITS(val, ret, sizeof(int32_t)*8);
+	SWAP_BITS(val, ret, int32_t);
 
 	return ret;
 }
@@ -53,7 +54,7 @@ inline int32_t int32_swap(int32_t val)
 inline int16_t int16_swap(int16_t val)
 {
 	int16_t ret;
-	SWAP_BITS(val, ret, sizeof(int16_t)*8);
+	SWAP_BITS(val, ret, int16_t);
 
 	return ret;
 }
