@@ -134,6 +134,13 @@ static inline void print_short(char* buf, int max_len, const char* src)
 	snprintf(buf, max_len, "%.*s...%.*s", pref_len, src, suff_len, &src[strlen(src)-suff_len]);
 }
 
+static inline int isodigit(char c)
+{
+	return (c >= '0' && c <= '7');
+}
+
 char* escape_string(const char* str);
+char* unescape_string(const char* str);
+int unescape_string_in_place(char** sstr, int shrink);
 
 #endif
