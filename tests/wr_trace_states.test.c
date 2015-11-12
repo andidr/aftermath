@@ -16,32 +16,12 @@
  */
 
 #include <unit_tests.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <time.h>
+#include "common.h"
 #include "../src/events.h"
 #include "../src/trace_file.h"
 #include "../src/convert.h"
 #include "../src/multi_event_set.h"
-
-/* Create a temporary file based on a template, opens it and returns a
- * pointer to the FILE structure.
- */
-FILE* tmpfile_template(char* template, const char* mode)
-{
-	FILE* fp;
-	int fd;
-
-	if((fd = mkstemp(template)) == -1)
-		return NULL;
-
-	if(!(fp = fdopen(fd, mode))) {
-		close(fd);
-		return NULL;
-	}
-
-	return fp;
-}
 
 /* Fills a header structure with default data */
 static inline void fill_header(struct trace_header* dsk_header)
