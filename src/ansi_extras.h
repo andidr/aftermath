@@ -86,8 +86,9 @@ static inline void strreplace(char* haystack, const char* needle, const char* re
 	int replacement_len = strlen(replacement);
 
 	while((pos = strstr(haystack, needle))) {
-		memmove(pos+(replacement_len-needle_len), pos, strlen(pos)+1);
+		memmove(pos+replacement_len, pos+needle_len, strlen(pos+needle_len)+1);
 		memcpy(pos, replacement, replacement_len);
+		haystack = pos+replacement_len;
 	}
 }
 
