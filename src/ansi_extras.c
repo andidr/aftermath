@@ -227,12 +227,15 @@ int unescape_string_in_place(char** sstr, int shrink)
 	return 0;
 }
 
-char* unescape_string(const char* str)
+char* unescape_stringn(const char* str, size_t len)
 {
-	char* tmp = strdup(str);
+	char* tmp = malloc(len+1);
 
 	if(!tmp)
 		return NULL;
+
+	strncpy(tmp, str, len);
+	tmp[len] = '\0';
 
 	if(unescape_string_in_place(&tmp, 1)) {
 		free(tmp);
@@ -240,4 +243,9 @@ char* unescape_string(const char* str)
 	}
 
 	return tmp;
+}
+
+char* unescape_string(const char* str)
+{
+	return unescape_stringn(str, strlen(str));
 }

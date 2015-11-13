@@ -148,6 +148,7 @@ static inline int isodigit(char c)
 
 char* escape_string(const char* str);
 char* unescape_string(const char* str);
+char* unescape_stringn(const char* str, size_t len);
 int unescape_string_in_place(char** sstr, int shrink);
 
 #endif
