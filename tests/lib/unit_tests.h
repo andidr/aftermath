@@ -85,7 +85,7 @@ extern int __unit_assert_cnt__;
 #define ASSERT_EQUALS_STRING(a, b) \
 	ASSERT_INTRO() \
 		if(strcmp((a), (b)) != 0) \
-			ASSERT_OUTRO("%s", (const char*)(b), (const char*)(a))
+			ASSERT_OUTRO("\"%s\"", (const char*)(b), (const char*)(a))
 
 #define ASSERT_DIFFERENT(a, b) \
 	ASSERT_INTRO() \
