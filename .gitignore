@@ -28,3 +28,4 @@ doc/man/aftermath.1
 test-tmp/trace*
 ansi_extras_test
 parser_test
+object_notation_test

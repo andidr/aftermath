@@ -221,7 +221,8 @@ TESTS = counter_event_set_index_test \
 	event_set_test \
 	wr_trace_states_test \
 	ansi_extras_test \
-	parser_test
+	parser_test \
+	object_notation_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -254,3 +255,9 @@ parser_test_SOURCES = tests/parser.test.c \
 
 parser_test_CFLAGS = $(TESTS_CFLAGS)
 parser_test_LDADD = $(TESTS_LDADD)
+
+object_notation_test_SOURCES = tests/object_notation.test.c \
+	$(UNIT_TEST_SOURCES)
+
+object_notation_test_CFLAGS = $(TESTS_CFLAGS)
+object_notation_test_LDADD = $(TESTS_LDADD)
