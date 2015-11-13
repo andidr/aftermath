@@ -10,6 +10,7 @@
 #include "types.h"
 #include "stddef.h"
 #include "poison.h"
+#include "kernel.h"
 
 /*
  * Simple doubly linked list implementation.
