@@ -71,7 +71,8 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/task_instance_rw_tree.c \
 		src/task_instance_tree.h \
 		src/task_instance_tree.c \
-		src/aux.h
+		src/aux.h \
+		src/parser.h
 
 libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
 
