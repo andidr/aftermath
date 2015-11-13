@@ -87,6 +87,20 @@ extern int __unit_assert_cnt__;
 		if(strcmp((a), (b)) != 0) \
 			ASSERT_OUTRO("\"%s\"", (const char*)(b), (const char*)(a))
 
+#define ASSERT_EQUALS_STRING_N(a, b, n) \
+	do { \
+		if(strncmp((a), (b), (n)) != 0) { \
+			fprintf(stderr, "\n\tASSERTION FAILED:\n" __FILE__ ":%d: in function %s(): expected prefix \"%.*s\", but was \"%.*s\"\n", __LINE__, __func__, (n), (b), (n), (a)); \
+			fflush(stderr); \
+			exit(EXIT_FAILURE); \
+		} \
+	} while(0)
+
+#define ASSERT_STRING_PREFIX(a, b) \
+	ASSERT_INTRO() \
+		if(strncmp((a), (b), strlen(b)) != 0) \
+			ASSERT_OUTRO("%s", (const char*)(b), (const char*)(a))
+
 #define ASSERT_DIFFERENT(a, b) \
 	ASSERT_INTRO() \
 		if((a) == (b)) \
