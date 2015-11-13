@@ -27,3 +27,4 @@ wr_trace_states_test
 doc/man/aftermath.1
 test-tmp/trace*
 ansi_extras_test
+parser_test

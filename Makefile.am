@@ -218,7 +218,8 @@ UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 TESTS = counter_event_set_index_test \
 	event_set_test \
 	wr_trace_states_test \
-	ansi_extras_test
+	ansi_extras_test \
+	parser_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -245,3 +246,9 @@ ansi_extras_test_SOURCES = tests/ansi_extras.test.c \
 
 ansi_extras_test_CFLAGS = $(TESTS_CFLAGS)
 ansi_extras_test_LDADD = $(TESTS_LDADD)
+
+parser_test_SOURCES = tests/parser.test.c \
+	$(UNIT_TEST_SOURCES)
+
+parser_test_CFLAGS = $(TESTS_CFLAGS)
+parser_test_LDADD = $(TESTS_LDADD)
