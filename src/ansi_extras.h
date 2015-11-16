@@ -103,15 +103,22 @@ static inline off_t file_size(const char* filename)
 	return stat_buf.st_size;
 }
 
+static inline char* strdupn(const char* s, size_t len)
+{
+	char* ret = malloc(len+1);
+
+	if(ret)
+		strncpy(ret, s, len);
+
+	ret[len] = '\0';
+
+	return ret;
+}
+
 #if !HAVE_STRDUP
 static inline char* strdup(const char* s)
 {
-	char* ret = malloc(strlen(s)+1);
-
-	if(ret)
-		strcpy(ret, s);
-
-	return ret;
+	return strdupn(s, strlen(s));
 }
 #endif
 
