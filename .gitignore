@@ -1,6 +1,7 @@
 .deps/
 Makefile
 Makefile.in
+libaftermath-core.a
 aclocal.m4
 autom4te.cache/
 compile
