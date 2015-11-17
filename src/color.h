@@ -18,7 +18,10 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include "ansi_extras.h"
 #include <stdio.h>
+#include <ctype.h>
+#include <string.h>
 
 #define COL_NORM(x) (((double)x) / 255.0)
 #define COL_EXP(x) (((double)x) * 255.0)
@@ -66,6 +69,53 @@ static inline void get_node_color_htmlrgb(unsigned int node, unsigned int max_no
 static inline void color_to_htmlrgb(double r, double g, double b, char* buff)
 {
 	snprintf(buff, 8, "#%02X%02X%02X", (int)COL_EXP(r), (int)COL_EXP(g), (int)COL_EXP(b));
+}
+
+static inline int htmlrgb_to_uchar(const char* str, unsigned char* r, unsigned char* g, unsigned char* b)
+{
+	size_t len = strlen(str);
+
+	if(len != 4 && len != 7)
+		return 1;
+
+	if(str[0] != '#')
+		return 1;
+
+	for(size_t i = 1; i < len; i++)
+		if(!isxdigit(str[i]))
+			return 1;
+
+	if(len == 4) {
+		*r = xdigit_val(str[1]);
+		*g = xdigit_val(str[2]);
+		*b = xdigit_val(str[3]);
+
+		*r |= (*r) << 4;
+		*g |= (*g) << 4;
+		*b |= (*b) << 4;
+	} else {
+		*r = (xdigit_val(str[1]) << 4) | xdigit_val(str[2]);
+		*g = (xdigit_val(str[3]) << 4) | xdigit_val(str[4]);
+		*b = (xdigit_val(str[5]) << 4) | xdigit_val(str[6]);
+	}
+
+	return 0;
+}
+
+static inline int htmlrgb_to_double(const char* str, double* r, double* g, double* b)
+{
+	unsigned char ur;
+	unsigned char ug;
+	unsigned char ub;
+
+	if(htmlrgb_to_uchar(str, &ur, &ug, &ub))
+		return 1;
+
+	*r = COL_NORM(ur);
+	*g = COL_NORM(ug);
+	*b = COL_NORM(ub);
+
+	return 0;
 }
 
 #endif
