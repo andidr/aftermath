@@ -151,4 +151,18 @@ char* unescape_string(const char* str);
 char* unescape_stringn(const char* str, size_t len);
 int unescape_string_in_place(char** sstr, int shrink);
 
+static inline int xdigit_val(char c)
+{
+	if(isdigit(c))
+		return c-'0';
+
+	if(c >= 'a' && c <= 'f')
+		return c-'a'+10;
+
+	if(c >= 'A' && c <= 'F')
+		return c-'A'+10;
+
+	return -1;
+}
+
 #endif
