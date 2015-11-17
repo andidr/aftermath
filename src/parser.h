@@ -52,6 +52,23 @@ static inline int parser_token_equals_str(const struct parser_token* t, const ch
 	return 0;
 }
 
+/* Checks whether the token is equal to any of the a zero-terminated
+ * strings in sstr. The last entry of sstr must be NULL. */
+static inline int parser_token_equals_str_oneof(const struct parser_token* t, const char** sstr)
+{
+	const char* str = *sstr;
+
+	while(str) {
+		if(strncmp(t->str, str, t->len) == 0)
+			return 1;
+
+		sstr++;
+		str = *sstr;
+	}
+
+	return 0;
+}
+
 /* Checks whether the token represents a single character and whether
  * the character is equal to the parameter c. */
 static inline int parser_token_equals_char(const struct parser_token* t, char c)
