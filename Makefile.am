@@ -159,6 +159,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/ui/parallelism_dialog.glade \
 		share/ui/message_dialog.glade \
 		share/ui/color_schemes_dialog.glade \
+		share/ui/filter_expression_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_steals.svg \
 		share/icons/draw_pushes.svg \

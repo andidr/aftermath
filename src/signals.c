@@ -37,6 +37,7 @@
 #include "task_graph.h"
 #include "export.h"
 #include "address_range_tree.h"
+#include "filter_expression.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -2327,4 +2328,53 @@ G_MODULE_EXPORT void menubar_edit_color_schemes(GtkMenuItem* item)
 	show_color_schemes_dialog(&g_color_scheme_set,
 				  color_scheme_applied,
 				  color_scheme_set_imported);
+}
+
+G_MODULE_EXPORT void menubar_evaluate_filter_expression(GtkMenuItem* item)
+{
+	char* expr;
+	char buffer[32];
+
+	if((expr = show_filter_expression_dialog(g_last_filter_expr))) {
+		g_last_filter_expr = expr;
+
+		if(filter_is_valid_expression(expr)) {
+			if(filter_eval_expression(&g_filter, &g_mes, expr))
+				show_error_message("Could not apply filter expression");
+
+			/* Update task duration entries + checkbox */
+			if(g_filter.filter_task_length) {
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_use_task_length_check), TRUE);
+
+				snprintf(buffer, sizeof(buffer), "%"PRId64, g_filter.min_task_length);
+				gtk_entry_set_text(GTK_ENTRY(g_task_length_min_entry), buffer);
+
+				snprintf(buffer, sizeof(buffer), "%"PRId64, g_filter.max_task_length);
+				gtk_entry_set_text(GTK_ENTRY(g_task_length_max_entry), buffer);
+			}
+
+			/* Update check boxes for single event types */
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_check_single_c),
+						     filter_has_single_event_type(&g_filter, SINGLE_TYPE_TCREATE));
+
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_check_single_es),
+						     filter_has_single_event_type(&g_filter, SINGLE_TYPE_TEXEC_START));
+
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_check_single_ee),
+						     filter_has_single_event_type(&g_filter, SINGLE_TYPE_TEXEC_END));
+
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_check_single_d),
+						     filter_has_single_event_type(&g_filter, SINGLE_TYPE_TDESTROY));
+
+			/* Update lists */
+			cpu_list_update_from_filter(GTK_TREE_VIEW(g_cpu_treeview), &g_filter);
+			task_list_update_from_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
+			counter_list_update_from_filter(GTK_TREE_VIEW(g_counter_treeview), &g_filter);
+
+			gtk_trace_set_filter(g_trace_widget, &g_filter);
+			update_statistics();
+		} else {
+			show_error_message("Not a valid filter expression");
+		}
+	}
 }

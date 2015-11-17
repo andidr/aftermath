@@ -22,6 +22,7 @@
 #include "color_scheme_set_list.h"
 #include "color_scheme_list.h"
 #include "histogram_widget.h"
+#include "filter_expression.h"
 #include <glade/glade.h>
 #include <math.h>
 #include <inttypes.h>
@@ -731,6 +732,12 @@ G_MODULE_EXPORT gint accept_dialog(GtkWidget *widget, gpointer data)
         return 0;
 }
 
+G_MODULE_EXPORT gint accept_dialog_userdata(GtkWidget *widget, gpointer data)
+{
+	gtk_dialog_response(GTK_DIALOG(data), GTK_RESPONSE_ACCEPT);
+	return 0;
+}
+
 int show_settings_dialog(struct settings* s)
 {
 	int ret = 0;
@@ -1182,4 +1189,49 @@ void show_color_schemes_dialog(struct color_scheme_set* scheme_set,
 
 	gtk_widget_destroy(dialog);
 	g_object_unref(G_OBJECT(xml));
+}
+
+void filter_expression_entry_check(GtkEditable* editable, gpointer user_data)
+{
+	const char* expr;
+	GdkColor color;
+
+	expr = gtk_entry_get_text(GTK_ENTRY(editable));
+
+	if(filter_is_valid_expression(expr))
+		gdk_color_parse("darkgreen", &color);
+	else
+		gdk_color_parse("red", &color);
+
+	gtk_widget_modify_bg(GTK_WIDGET(editable), GTK_STATE_NORMAL, &color);
+}
+
+char* show_filter_expression_dialog(const char* def)
+{
+	char* ret = NULL;
+	const char* str;
+
+	GladeXML* xml = glade_xml_new(DATA_PATH "/filter_expression_dialog.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, expression_entry);
+
+	gtk_signal_connect(GTK_OBJECT(expression_entry), "activate", GTK_SIGNAL_FUNC(accept_dialog_userdata), dialog);
+	gtk_signal_connect(GTK_OBJECT(expression_entry), "changed", GTK_SIGNAL_FUNC(filter_expression_entry_check), NULL);
+
+	if(def) {
+		gtk_entry_set_text(GTK_ENTRY(expression_entry), def);
+		gtk_editable_select_region(GTK_EDITABLE(expression_entry), 0, strlen(def));
+	}
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		str = gtk_entry_get_text(GTK_ENTRY(expression_entry));
+		if(!(ret = strdup(str)))
+			show_error_message("Could not reserve space for expression");
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
 }

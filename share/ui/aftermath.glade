@@ -378,6 +378,16 @@
                         <accelerator key="g" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menuitem33">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Filter expression</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_evaluate_filter_expression"/>
+                        <accelerator key="f" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

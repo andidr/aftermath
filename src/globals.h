@@ -165,4 +165,6 @@ extern int g_predecessor_max_depth;
 extern struct list_head* g_predecessors;
 extern int* g_num_predecessors;
 
+extern char* g_last_filter_expr;
+
 #endif

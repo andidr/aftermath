@@ -125,3 +125,4 @@ int g_draw_predecessors;
 int g_predecessor_max_depth;
 struct list_head* g_predecessors;
 int* g_num_predecessors;
+char* g_last_filter_expr;

@@ -420,6 +420,8 @@ int main(int argc, char** argv)
 	g_predecessors = NULL;
 	g_num_predecessors = NULL;
 
+	g_last_filter_expr = NULL;
+
 	g_vbox_stats_all = vbox_stats_all;
 	g_vbox_comm = vbox_comm;
 	g_vbox_comm_pos = vbox_comm_pos;
@@ -534,6 +536,8 @@ int main(int argc, char** argv)
 
 	if(g_address_range_tree_built)
 		address_range_tree_destroy(&g_address_range_tree);
+
+	free(g_last_filter_expr);
 
 	color_scheme_set_destroy(&g_color_scheme_set);
 

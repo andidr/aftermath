@@ -98,5 +98,6 @@ GtkWidget* detach_dialog_create(const char* title, GtkWidget* child);
 void detach_dialog_destroy(GtkWidget* dlg, GtkWidget* child, GtkWidget* new_parent);
 
 void show_color_schemes_dialog(struct color_scheme_set* scheme_set, void (*scheme_applied_callback)(struct color_scheme*), int (*import_callback)(const char*));
+char* show_filter_expression_dialog(const char* def);
 
 #endif
