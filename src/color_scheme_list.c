@@ -72,7 +72,7 @@ void color_scheme_list_regex_edited(GtkCellRendererText *cell,
 	GtkTreeIter iter;
 	GtkListStore* store = GTK_LIST_STORE(model);
 	struct color_scheme_rule* csr;
-	int regex_valid = color_scheme_rule_is_valid_regex(new_regex);
+	int regex_valid = is_valid_regex(new_regex);
 	const char* regex_color = (regex_valid) ? "darkgreen" : "red";
 
 	gtk_tree_model_get_iter_from_string(model, &iter, path);
@@ -149,7 +149,7 @@ void color_scheme_list_fill(GtkTreeView* cs_treeview, struct color_scheme* cs)
 		color.green = cs->rules[i]->color_g * 65535;
 		color.blue = cs->rules[i]->color_b* 65535;
 
-		if(color_scheme_rule_is_valid_regex(cs->rules[i]->regex))
+		if(is_valid_regex(cs->rules[i]->regex))
 			regex_color = "darkgreen";
 		else
 			regex_color = "red";

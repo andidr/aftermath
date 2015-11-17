@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <regex.h>
 
 #define SWAP_BITS(val, ret, type)					\
 	do {								\
@@ -163,6 +164,20 @@ static inline int xdigit_val(char c)
 		return c-'A'+10;
 
 	return -1;
+}
+
+/* Checks whether the expression given in sregex is a valid POSIX
+ * extended regular expression */
+static inline int is_valid_regex(const char* sregex)
+{
+	regex_t regex;
+
+	if(regcomp(&regex, sregex, REG_EXTENDED | REG_NOSUB))
+		return 0;
+
+	regfree(&regex);
+
+	return 1;
 }
 
 #endif

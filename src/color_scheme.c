@@ -77,20 +77,6 @@ int color_scheme_rule_regex_matches(struct color_scheme_rule* csr, const char* s
 	return ret;
 }
 
-/* Checks whether the expression given in sregex is a valid POSIX
- * extended regular expression */
-int color_scheme_rule_is_valid_regex(const char* sregex)
-{
-	regex_t regex;
-
-	if(regcomp(&regex, sregex, REG_EXTENDED))
-		return 0;
-
-	regfree(&regex);
-
-	return 1;
-}
-
 /* Returns the type for the machine-readable scheme rule type
  * string. If the string does not represent a valid type the function
  * returns 1, otherwise 0. */
