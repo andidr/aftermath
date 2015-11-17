@@ -315,4 +315,18 @@ static inline int parser_read_next_int(struct parser* p, struct parser_token* t)
 	return parser_read_int(p, t);
 }
 
+/* Returns the address of the next occurrence of c. The position of
+ * the parser is advanced to the position of the character. If the
+ * character is not found NULL is returned. */
+static inline const char* parser_find_char(struct parser* p, char c)
+{
+	while(!parser_reached_end(p) && *p->curr != c)
+		p->curr++;
+
+	if(*p->curr != c)
+		return NULL;
+
+	return p->curr;
+}
+
 #endif
