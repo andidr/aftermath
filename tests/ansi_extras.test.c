@@ -244,6 +244,38 @@ UNIT_TEST(unescape_string_test)
 }
 END_TEST()
 
+UNIT_TEST(xdigitval_test)
+{
+	ASSERT_EQUALS(xdigit_val('0'), 0);
+	ASSERT_EQUALS(xdigit_val('1'), 1);
+	ASSERT_EQUALS(xdigit_val('2'), 2);
+	ASSERT_EQUALS(xdigit_val('3'), 3);
+	ASSERT_EQUALS(xdigit_val('4'), 4);
+	ASSERT_EQUALS(xdigit_val('5'), 5);
+	ASSERT_EQUALS(xdigit_val('6'), 6);
+	ASSERT_EQUALS(xdigit_val('7'), 7);
+	ASSERT_EQUALS(xdigit_val('8'), 8);
+	ASSERT_EQUALS(xdigit_val('9'), 9);
+
+	ASSERT_EQUALS(xdigit_val('a'), 10);
+	ASSERT_EQUALS(xdigit_val('b'), 11);
+	ASSERT_EQUALS(xdigit_val('c'), 12);
+	ASSERT_EQUALS(xdigit_val('d'), 13);
+	ASSERT_EQUALS(xdigit_val('e'), 14);
+	ASSERT_EQUALS(xdigit_val('f'), 15);
+
+	ASSERT_EQUALS(xdigit_val('A'), 10);
+	ASSERT_EQUALS(xdigit_val('B'), 11);
+	ASSERT_EQUALS(xdigit_val('C'), 12);
+	ASSERT_EQUALS(xdigit_val('D'), 13);
+	ASSERT_EQUALS(xdigit_val('E'), 14);
+	ASSERT_EQUALS(xdigit_val('F'), 15);
+
+	ASSERT_EQUALS(xdigit_val('g'), -1);
+	ASSERT_EQUALS(xdigit_val('G'), -1);
+}
+END_TEST()
+
 UNIT_TEST_SUITE(ansi_extras_test)
 {
 	ADD_TEST(strreplace_test);
@@ -253,5 +285,6 @@ UNIT_TEST_SUITE(ansi_extras_test)
 	ADD_TEST(escape_string_test);
 	ADD_TEST(unescape_string_in_place_test);
 	ADD_TEST(unescape_string_test);
+	ADD_TEST(xdigitval_test);
 }
 END_TEST_SUITE()
