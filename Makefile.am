@@ -244,7 +244,8 @@ TESTS = counter_event_set_index_test \
 	parser_test \
 	object_notation_test \
 	color_scheme_test \
-	bitvector_test
+	bitvector_test \
+	filter_expression_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -295,3 +296,9 @@ bitvector_test_SOURCES = tests/bitvector.test.c \
 
 bitvector_test_CFLAGS = $(TESTS_CFLAGS)
 bitvector_test_LDADD = $(TESTS_LDADD)
+
+filter_expression_test_SOURCES = tests/filter_expression.test.c \
+	$(UNIT_TEST_SOURCES)
+
+filter_expression_test_CFLAGS = $(TESTS_CFLAGS)
+filter_expression_test_LDADD = $(TESTS_LDADD)
