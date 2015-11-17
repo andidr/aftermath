@@ -22,6 +22,8 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/events.c \
 		src/filter.h \
 		src/filter.c \
+		src/filter_expression.h \
+		src/filter_expression.c \
 		src/trace_file.h \
 		src/trace_file.c \
 		src/debug.h \
