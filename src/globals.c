@@ -115,6 +115,7 @@ struct intensity_matrix g_comm_matrix;
 struct intensity_matrix g_comm_summary_matrix;
 struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 struct address_range_tree g_address_range_tree;
+struct color_scheme_set g_color_scheme_set;
 int g_address_range_tree_built;
 
 int g_visuals_modified;

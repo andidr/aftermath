@@ -26,6 +26,7 @@
 #include "bitvector.h"
 #include "filter.h"
 #include "statistics.h"
+#include "color_scheme.h"
 
 struct progress_window_widgets {
 	GtkWindow* window;
@@ -95,5 +96,7 @@ int background_task_with_modal_dialog(const char* message, const char* title, in
 
 GtkWidget* detach_dialog_create(const char* title, GtkWidget* child);
 void detach_dialog_destroy(GtkWidget* dlg, GtkWidget* child, GtkWidget* new_parent);
+
+void show_color_schemes_dialog(struct color_scheme_set* scheme_set, void (*scheme_applied_callback)(struct color_scheme*), int (*import_callback)(const char*));
 
 #endif

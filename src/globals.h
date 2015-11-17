@@ -27,6 +27,7 @@
 #include "intensity_matrix.h"
 #include "address_range_tree.h"
 #include "contrib/linux-kernel/list.h"
+#include "color_scheme.h"
 
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
@@ -127,6 +128,7 @@ extern struct intensity_matrix g_comm_matrix;
 extern struct intensity_matrix g_comm_summary_matrix;
 extern struct address_range_tree g_address_range_tree;
 extern int g_address_range_tree_built;
+extern struct color_scheme_set g_color_scheme_set;
 
 #define NUM_TRACE_MARKERS 6
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];

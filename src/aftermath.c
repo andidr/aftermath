@@ -501,6 +501,8 @@ int main(int argc, char** argv)
 
 	g_address_range_tree_built = 0;
 
+	color_scheme_set_init(&g_color_scheme_set);
+
 	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
 
@@ -532,6 +534,8 @@ int main(int argc, char** argv)
 
 	if(g_address_range_tree_built)
 		address_range_tree_destroy(&g_address_range_tree);
+
+	color_scheme_set_destroy(&g_color_scheme_set);
 
 	return 0;
 }

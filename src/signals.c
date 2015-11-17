@@ -2250,3 +2250,81 @@ G_MODULE_EXPORT gint comm_matrix_detach_toggled(GtkWidget* button, gpointer data
 
 	return 0;
 }
+
+void color_scheme_applied(struct color_scheme* cs)
+{
+	struct color_scheme_rule* csr;
+	struct task* t;
+	struct state_description* sd;
+	struct counter_description* cd;
+
+	for_each_task(&g_mes, t) {
+		if(!t->symbol_name)
+			continue;
+
+		for(int i = 0; i < cs->num_rules; i++) {
+			csr = cs->rules[i];
+
+			if(csr->type != COLOR_SCHEME_RULE_TYPE_TASKNAME)
+				continue;
+
+			if(t->symbol_name && color_scheme_rule_regex_matches(csr, t->symbol_name)) {
+				t->color_r = csr->color_r;
+				t->color_g = csr->color_g;
+				t->color_b = csr->color_b;
+			}
+		}
+	}
+
+	for_each_statedesc(&g_mes, sd) {
+		for(int i = 0; i < cs->num_rules; i++) {
+			csr = cs->rules[i];
+
+			if(csr->type != COLOR_SCHEME_RULE_TYPE_STATENAME)
+				continue;
+
+			if(sd->name && color_scheme_rule_regex_matches(csr, sd->name)) {
+				sd->color_r = csr->color_r;
+				sd->color_g = csr->color_g;
+				sd->color_b = csr->color_b;
+			}
+		}
+	}
+
+	for_each_counterdesc(&g_mes, cd) {
+		for(int i = 0; i < cs->num_rules; i++) {
+			csr = cs->rules[i];
+
+			if(csr->type != COLOR_SCHEME_RULE_TYPE_COUNTERNAME)
+				continue;
+
+			if(cd->name && color_scheme_rule_regex_matches(csr, cd->name)) {
+				cd->color_r = csr->color_r;
+				cd->color_g = csr->color_g;
+				cd->color_b = csr->color_b;
+			}
+		}
+	}
+
+	gtk_widget_queue_draw(g_trace_widget);
+	task_list_update_colors(GTK_TREE_VIEW(g_task_treeview));
+	state_list_update_colors(GTK_TREE_VIEW(g_state_treeview));
+	counter_list_update_colors(GTK_TREE_VIEW(g_counter_treeview));
+}
+
+int color_scheme_set_imported(const char* filename)
+{
+	if(color_scheme_set_load(&g_color_scheme_set, filename)) {
+		show_error_message("Could not load color scheme set from file %s.", filename);
+		return 0;
+	}
+
+	return 1;
+}
+
+G_MODULE_EXPORT void menubar_edit_color_schemes(GtkMenuItem* item)
+{
+	show_color_schemes_dialog(&g_color_scheme_set,
+				  color_scheme_applied,
+				  color_scheme_set_imported);
+}

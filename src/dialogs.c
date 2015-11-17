@@ -19,6 +19,8 @@
 #include "glade_extras.h"
 #include "cpu_list.h"
 #include "task_list.h"
+#include "color_scheme_set_list.h"
+#include "color_scheme_list.h"
 #include "histogram_widget.h"
 #include <glade/glade.h>
 #include <math.h>
@@ -940,4 +942,244 @@ void detach_dialog_destroy(GtkWidget* dlg, GtkWidget* child, GtkWidget* new_pare
 {
 	gtk_widget_reparent(child, new_parent);
 	gtk_widget_destroy(dlg);
+}
+
+struct color_scheme_and_set_tree_view {
+	struct color_scheme_set* css;
+	GtkTreeView* css_treeview;
+	GtkTreeView* cs_treeview;
+
+	void (*scheme_applied_callback)(struct color_scheme*);
+	int (*import_callback)(const char*);
+};
+
+void color_scheme_rule_added(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme_rule* csr;
+	struct color_scheme* cs;
+
+	if(!(cs = color_scheme_set_list_get_selected(csastv->css_treeview))) {
+		show_error_message("No scheme selected");
+		return;
+	}
+
+	if(!(csr = malloc(sizeof(struct color_scheme_rule)))) {
+		show_error_message("Could not reserve memory for color scheme rule");
+		return;
+	}
+
+	if(color_scheme_rule_init(csr, COLOR_SCHEME_RULE_TYPE_TASKNAME, "")) {
+		show_error_message("Could not initialize color scheme rule");
+		free(csr);
+		return;
+	}
+
+	if(color_scheme_add_color_scheme_rule(cs, csr)) {
+		show_error_message("Could not add color scheme to scheme set");
+		color_scheme_rule_destroy(csr);
+		free(csr);
+		return;
+	}
+
+	color_scheme_list_reset(csastv->cs_treeview, cs);
+}
+
+void color_scheme_rule_deleted(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme_rule* csr;
+	struct color_scheme* cs;
+
+	if(!(cs = color_scheme_set_list_get_selected(csastv->css_treeview))) {
+		show_error_message("No scheme selected");
+		return;
+	}
+
+	if(!(csr = color_scheme_list_get_selected(csastv->cs_treeview))) {
+		show_error_message("No rule selected");
+		return;
+	}
+
+	color_scheme_list_remove(csastv->cs_treeview, csr);
+	if(color_scheme_remove_color_scheme_rule(cs, csr)) {
+		show_error_message("Could not remove color scheme rule from color scheme");
+		return;
+	}
+
+	color_scheme_rule_destroy(csr);
+	free(csr);
+}
+
+void color_scheme_added(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme* cs = malloc(sizeof(struct color_scheme));
+
+	if(!cs) {
+		show_error_message("Could not reserve memory for color scheme");
+		return;
+	}
+
+	if(color_scheme_init(cs, "Unnamed")) {
+		show_error_message("Could not initialize color scheme");
+		free(cs);
+		return;
+	}
+
+	if(color_scheme_set_add_color_scheme(csastv->css, cs)) {
+		show_error_message("Could not add color scheme to scheme set");
+		color_scheme_destroy(cs);
+		free(cs);
+		return;
+	}
+
+	color_scheme_set_list_reset(csastv->css_treeview, csastv->css);
+}
+
+void color_scheme_deleted(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme* cs;
+
+	if(!(cs = color_scheme_set_list_get_selected(csastv->css_treeview))) {
+		show_error_message("No scheme selected");
+		return;
+	}
+
+	color_scheme_set_list_remove(csastv->css_treeview, cs);
+	if(color_scheme_set_remove_color_scheme(csastv->css, cs)) {
+		show_error_message("Could not remove color scheme from color scheme set");
+		return;
+	}
+
+	color_scheme_destroy(cs);
+	free(cs);
+
+	color_scheme_list_clear(csastv->cs_treeview);
+}
+
+gboolean color_scheme_selection_changed(GtkTreeSelection* selection,
+					GtkTreeModel* model,
+					GtkTreePath* path,
+					gboolean selected,
+					gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme* cs;
+
+	if(!selected) {
+		if(!(cs = color_scheme_set_list_get(csastv->css_treeview, path)))
+			show_error_message("Could not find associated color scheme");
+
+		color_scheme_list_reset(csastv->cs_treeview, cs);
+	}
+
+	return TRUE;
+}
+
+void color_scheme_applied_wrapper(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	struct color_scheme* cs;
+
+	if(!(cs = color_scheme_set_list_get_selected(csastv->css_treeview))) {
+		show_error_message("No scheme selected");
+		return;
+	}
+
+	csastv->scheme_applied_callback(cs);
+}
+
+void color_scheme_set_imported_wrapper(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	char* filename;
+
+	filename = load_save_file_dialog("Import color scheme set",
+					 GTK_FILE_CHOOSER_ACTION_OPEN,
+					 "Color schemes",
+					 "*.acs",
+					 NULL);
+
+	if(filename) {
+		if(csastv->import_callback(filename)) {
+			color_scheme_set_list_clear(csastv->css_treeview);
+			color_scheme_list_clear(csastv->cs_treeview);
+
+			color_scheme_set_list_fill(GTK_TREE_VIEW(csastv->css_treeview), csastv->css);
+		}
+		free(filename);
+	}
+}
+
+void color_scheme_set_exported(GtkButton* btn, gpointer user_data)
+{
+	struct color_scheme_and_set_tree_view* csastv = user_data;
+	char* filename;
+
+	filename = load_save_file_dialog("Import color scheme set",
+					 GTK_FILE_CHOOSER_ACTION_SAVE,
+					 "Color schemes",
+					 "*.acs",
+					 NULL);
+
+	if(filename) {
+		if(color_scheme_set_save(csastv->css, filename))
+			show_error_message("Could not export to file %s.", filename);
+
+		free(filename);
+	}
+}
+
+void show_color_schemes_dialog(struct color_scheme_set* scheme_set,
+			       void (*scheme_applied_callback)(struct color_scheme*),
+			       int (*import_callback)(const char*))
+{
+	GladeXML* xml = glade_xml_new(DATA_PATH "/color_schemes_dialog.glade", NULL, NULL);
+	GtkTreeSelection* selection;
+
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, css_treeview);
+	IMPORT_GLADE_WIDGET(xml, cs_treeview);
+	IMPORT_GLADE_WIDGET(xml, import_button);
+	IMPORT_GLADE_WIDGET(xml, export_button);
+	IMPORT_GLADE_WIDGET(xml, add_scheme_button);
+	IMPORT_GLADE_WIDGET(xml, apply_scheme_button);
+	IMPORT_GLADE_WIDGET(xml, delete_scheme_button);
+	IMPORT_GLADE_WIDGET(xml, add_rule_button);
+	IMPORT_GLADE_WIDGET(xml, delete_rule_button);
+
+	struct color_scheme_and_set_tree_view csastv = {
+		.css = scheme_set,
+		.css_treeview = GTK_TREE_VIEW(css_treeview),
+		.cs_treeview = GTK_TREE_VIEW(cs_treeview),
+		.scheme_applied_callback = scheme_applied_callback,
+		.import_callback = import_callback
+	};
+
+	color_scheme_set_list_init(GTK_TREE_VIEW(css_treeview));
+	color_scheme_set_list_fill(GTK_TREE_VIEW(css_treeview), scheme_set);
+
+	color_scheme_list_init(GTK_TREE_VIEW(cs_treeview));
+
+	gtk_signal_connect(GTK_OBJECT(import_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_set_imported_wrapper), &csastv);
+	gtk_signal_connect(GTK_OBJECT(export_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_set_exported), &csastv);
+	gtk_signal_connect(GTK_OBJECT(add_scheme_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_added), &csastv);
+	gtk_signal_connect(GTK_OBJECT(delete_scheme_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_deleted), &csastv);
+	gtk_signal_connect(GTK_OBJECT(add_rule_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_rule_added), &csastv);
+	gtk_signal_connect(GTK_OBJECT(delete_rule_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_rule_deleted), &csastv);
+	gtk_signal_connect(GTK_OBJECT(apply_scheme_button), "clicked", GTK_SIGNAL_FUNC(color_scheme_applied_wrapper), &csastv);
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(css_treeview));
+	gtk_tree_selection_set_select_function(selection, color_scheme_selection_changed, &csastv, NULL);
+
+	/* FIXME: Really ugly workaround to keep the dialog open when
+	 * a child dialog is closed */
+	while(gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_CLOSE)
+		;;
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
 }

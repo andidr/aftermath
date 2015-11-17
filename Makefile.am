@@ -118,6 +118,10 @@ aftermath_SOURCES = src/aftermath.c \
 		src/counter_list.c \
 		src/state_list.h \
 		src/state_list.c \
+		src/color_scheme_list.h \
+		src/color_scheme_list.c \
+		src/color_scheme_set_list.h \
+		src/color_scheme_set_list.c \
 		src/color.h \
 		src/color.c \
 		src/cell_renderer_color_button.h \
@@ -152,6 +156,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/ui/task_graph_texec_dialog.glade \
 		share/ui/parallelism_dialog.glade \
 		share/ui/message_dialog.glade \
+		share/ui/color_schemes_dialog.glade \
 		share/icons/draw_states.svg \
 		share/icons/draw_steals.svg \
 		share/icons/draw_pushes.svg \
