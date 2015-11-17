@@ -26,6 +26,7 @@ wr_trace_states_test
 .dirstamp
 doc/man/aftermath.1
 test-tmp/trace*
+event_set_test
 ansi_extras_test
 parser_test
 object_notation_test
