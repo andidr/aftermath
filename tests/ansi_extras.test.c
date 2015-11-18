@@ -276,6 +276,72 @@ UNIT_TEST(xdigitval_test)
 }
 END_TEST()
 
+UNIT_TEST(atou64n_test)
+{
+	const char* str = "1234567890";
+
+	ASSERT_EQUALS(atou64n(str, 10), 1234567890);
+	ASSERT_EQUALS(atou64n(str, 9), 123456789);
+	ASSERT_EQUALS(atou64n(str, 8), 12345678);
+	ASSERT_EQUALS(atou64n(str, 7), 1234567);
+	ASSERT_EQUALS(atou64n(str, 6), 123456);
+	ASSERT_EQUALS(atou64n(str, 5), 12345);
+	ASSERT_EQUALS(atou64n(str, 4), 1234);
+	ASSERT_EQUALS(atou64n(str, 3), 123);
+	ASSERT_EQUALS(atou64n(str, 2), 12);
+	ASSERT_EQUALS(atou64n(str, 1), 1);
+
+	ASSERT_EQUALS(atou64n(str+1, 9), 234567890);
+	ASSERT_EQUALS(atou64n(str+2, 8), 34567890);
+	ASSERT_EQUALS(atou64n(str+3, 7), 4567890);
+	ASSERT_EQUALS(atou64n(str+4, 6), 567890);
+	ASSERT_EQUALS(atou64n(str+5, 5), 67890);
+	ASSERT_EQUALS(atou64n(str+6, 4), 7890);
+	ASSERT_EQUALS(atou64n(str+7, 3), 890);
+	ASSERT_EQUALS(atou64n(str+8, 2), 90);
+	ASSERT_EQUALS(atou64n(str+9, 1), 0);
+}
+END_TEST()
+
+UNIT_TEST(atou64n_unit_test)
+{
+	uint64_t val = 0;
+
+	ASSERT_EQUALS(atou64n_unit("1234", 4, &val), 0);
+	ASSERT_EQUALS(val, 1234);
+
+	ASSERT_EQUALS(atou64n_unit("1234", 3, &val), 0);
+	ASSERT_EQUALS(val, 123);
+
+	ASSERT_EQUALS(atou64n_unit("1234", 2, &val), 0);
+	ASSERT_EQUALS(val, 12);
+
+	ASSERT_EQUALS(atou64n_unit("1234", 1, &val), 0);
+	ASSERT_EQUALS(val, 1);
+
+	ASSERT_EQUALS(atou64n_unit("1234K", 5, &val), 0);
+	ASSERT_EQUALS(val, 1234000);
+
+	ASSERT_EQUALS(atou64n_unit("1234 K", 6, &val), 0);
+	ASSERT_EQUALS(val, 1234000);
+
+	ASSERT_EQUALS(atou64n_unit("1234    K", 9, &val), 0);
+	ASSERT_EQUALS(val, 1234000);
+
+	ASSERT_EQUALS(atou64n_unit("1234M", 5, &val), 0);
+	ASSERT_EQUALS(val, 1234000000);
+
+	ASSERT_EQUALS(atou64n_unit("1234G", 5, &val), 0);
+	ASSERT_EQUALS(val, 1234000000000);
+
+	ASSERT_EQUALS(atou64n_unit("1234T", 5, &val), 0);
+	ASSERT_EQUALS(val, 1234000000000000);
+
+	ASSERT_EQUALS(atou64n_unit("1234P", 5, &val), 0);
+	ASSERT_EQUALS(val, 1234000000000000000);
+}
+END_TEST()
+
 UNIT_TEST_SUITE(ansi_extras_test)
 {
 	ADD_TEST(strreplace_test);
@@ -286,5 +352,7 @@ UNIT_TEST_SUITE(ansi_extras_test)
 	ADD_TEST(unescape_string_in_place_test);
 	ADD_TEST(unescape_string_test);
 	ADD_TEST(xdigitval_test);
+	ADD_TEST(atou64n_test);
+	ADD_TEST(atou64n_unit_test);
 }
 END_TEST_SUITE()
