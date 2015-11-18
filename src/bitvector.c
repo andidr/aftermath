@@ -84,7 +84,7 @@ void bitvector_set_bit(struct bitvector* bv, int bit)
 	int ov_chunk_bit = (bit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits;
 	int ov_chunk = ov_chunk_bit / BITS_PER_CHUNK;
 
-	bv->overview_chunks[ov_chunk] |= 1 << ov_chunk_bit % BITS_PER_CHUNK;
+	bv->overview_chunks[ov_chunk] |= (bitvector_chunk_t)1 << ov_chunk_bit % BITS_PER_CHUNK;
 
 	if(bit > bv->max_set_bit) {
 		bv->max_set_bit = bit;
