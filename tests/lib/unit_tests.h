@@ -9,6 +9,7 @@
 typedef void (unit_test_func)(void);
 void __add_test__(unit_test_func func);
 void __run_tests__(void);
+void __fail__(void);
 int fgetline(const char* filename, char* buffer, int buf_len, int lineno);
 
 #define MAX_TESTS 1024
@@ -52,7 +53,7 @@ extern int __unit_assert_cnt__;
 			fgetline(__FILE__, line, sizeof(line), __LINE__); \
 			fprintf(stderr, "Failed test: %s", line); \
 			fflush(stderr); \
-			exit(EXIT_FAILURE); \
+			__fail__(); \
 		} \
 		__unit_assert_cnt__++; \
 	} while(0);
@@ -72,7 +73,7 @@ extern int __unit_assert_cnt__;
 		if(fabsl((a) - (b)) > (delta)) {			\
 			fprintf(stderr, "\n\tASSERTION FAILED:\n" __FILE__ ":%d: in function %s(): expected %Lf with a delta of %Lf, but was %Lf \n", __LINE__, __func__, (b), (delta), (a)); \
 			fflush(stderr);				\
-			exit(EXIT_FAILURE);				\
+			__fail__();					\
 		}							\
 		__unit_assert_cnt__++;					\
 	} while(0)
@@ -92,7 +93,7 @@ extern int __unit_assert_cnt__;
 		if(strncmp((a), (b), (n)) != 0) { \
 			fprintf(stderr, "\n\tASSERTION FAILED:\n" __FILE__ ":%d: in function %s(): expected prefix \"%.*s\", but was \"%.*s\"\n", __LINE__, __func__, (n), (b), (n), (a)); \
 			fflush(stderr); \
-			exit(EXIT_FAILURE); \
+			__fail__(); \
 		} \
 	} while(0)
 
@@ -162,7 +163,7 @@ extern int __unit_assert_cnt__;
 		if(val_d < interval_low_d || val_d > interval_high_d) { \
 			fprintf(stderr, "\n\tASSERTION FAILED: " __FILE__ " line %d: expected a value within [%f;%f], but was %f \n", __LINE__, interval_low_d, interval_high_d, val_d); \
 			fflush(stderr); \
-			exit(EXIT_FAILURE); \
+			__fail__(); \
 		} \
 		__unit_assert_cnt__++; \
 	} while(0);

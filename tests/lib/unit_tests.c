@@ -20,6 +20,11 @@ unit_test_func* test_funcs[MAX_TESTS];
 	return list_length;
 	}*/
 
+void __fail__(void)
+{
+	exit(EXIT_FAILURE);
+}
+
 void __add_test__(unit_test_func* func)
 {
 	if(__unit_test_nr__ == MAX_TESTS) {
