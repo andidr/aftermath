@@ -9,17 +9,6 @@ int __unit_assert_cnt__ = 0;
 
 unit_test_func* test_funcs[MAX_TESTS];
 
-/*unsigned int __get_list_length__(struct list_entry* root)
-{
-	unsigned int list_length = 0;
-	struct list_entry* iter;
-
-	list_foreach(root, iter)
-		list_length++;
-
-	return list_length;
-	}*/
-
 void __fail__(void)
 {
 	exit(EXIT_FAILURE);
