@@ -123,6 +123,32 @@ void cpu_list_build_filter(GtkTreeView* cpu_treeview, struct filter* f)
 		filter_set_cpu_filtering(f, 0);
 }
 
+void cpu_list_update_from_bitvector(GtkTreeView* cpu_treeview, struct bitvector* bv)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(cpu_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	gboolean current_state;
+	int cpu = 0;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		current_state = bitvector_test_bit(bv, cpu);
+		gtk_list_store_set(store, &iter, CPU_LIST_COL_FILTER, current_state, -1);
+		cpu++;
+	} while(gtk_tree_model_iter_next(model, &iter));
+}
+
+void cpu_list_update_from_filter(GtkTreeView* cpu_treeview, struct filter* f)
+{
+	if(!f->filter_cpus)
+		cpu_list_check_all(cpu_treeview);
+	else
+		cpu_list_update_from_bitvector(cpu_treeview, &f->cpus);
+}
+
 void cpu_list_set_status_all(GtkTreeView* cpu_treeview, gboolean status)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(cpu_treeview);

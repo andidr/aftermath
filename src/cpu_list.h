@@ -33,6 +33,7 @@ void cpu_list_init(GtkTreeView* cpu_treeview);
 void cpu_list_fill(GtkTreeView* cpu_treeview, int max_cpu);
 void cpu_list_build_bitvector(GtkTreeView* cpu_treeview, struct bitvector* bv);
 void cpu_list_build_filter(GtkTreeView* cpu_treeview, struct filter* f);
+void cpu_list_update_from_filter(GtkTreeView* cpu_treeview, struct filter* f);
 
 void cpu_list_check_all(GtkTreeView* cpu_treeview);
 void cpu_list_uncheck_all(GtkTreeView* cpu_treeview);
