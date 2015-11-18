@@ -241,7 +241,8 @@ TESTS = counter_event_set_index_test \
 	ansi_extras_test \
 	parser_test \
 	object_notation_test \
-	color_scheme_test
+	color_scheme_test \
+	bitvector_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -286,3 +287,9 @@ color_scheme_test_SOURCES = tests/color_scheme.test.c \
 
 color_scheme_test_CFLAGS = $(TESTS_CFLAGS)
 color_scheme_test_LDADD = $(TESTS_LDADD)
+
+bitvector_test_SOURCES = tests/bitvector.test.c \
+	$(UNIT_TEST_SOURCES)
+
+bitvector_test_CFLAGS = $(TESTS_CFLAGS)
+bitvector_test_LDADD = $(TESTS_LDADD)
