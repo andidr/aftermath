@@ -20,16 +20,6 @@
 #include <string.h>
 #include <stdio.h>
 
-int next_pow2(int val)
-{
-	int curr_pow;
-
-	for(curr_pow = 2; curr_pow < val; curr_pow *= 2)
-		;;
-
-	return curr_pow;
-}
-
 int bitvector_num_bits_set(struct bitvector* bv)
 {
 	int count = 0;
