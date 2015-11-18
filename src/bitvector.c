@@ -261,6 +261,15 @@ struct bitvector* bitvector_copy(struct bitvector* bv)
 	return ret;
 }
 
+int bitvector_is_zero(struct bitvector* bv)
+{
+	for(int i = 0; i < NUM_OVERVIEW_CHUNKS; i++)
+		if(bv->overview_chunks[i])
+			return 0;
+
+	return 1;
+}
+
 void bitvector_dump(struct bitvector* bv)
 {
 	printf("O=%d, MISB = %d, MASB = %d, C = ", (int)(bv->overview_chunks[0]), bv->min_set_bit, bv->max_set_bit);

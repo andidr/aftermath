@@ -48,6 +48,7 @@ void bitvector_merge(struct bitvector* dst, struct bitvector* src);
 int bitvector_get_next_bit(struct bitvector* bv, int start_bit);
 int bitvector_num_bits_set(struct bitvector* bv);
 int bitvector_get_nth_set_bit(struct bitvector* bv, int n);
+int bitvector_is_zero(struct bitvector* bv);
 
 void bitvector_dump(struct bitvector* bv);
 struct bitvector* bitvector_copy(struct bitvector* bv);
