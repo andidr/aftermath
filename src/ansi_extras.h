@@ -242,4 +242,26 @@ static inline int atou64n_unit(const char* str, size_t len, uint64_t* val)
 	return 0;
 }
 
+/* Compares the first len_a characters of a to the first len_b
+ * characters of b. Returns 1 if both sequences have the same length
+ * and if the characters are identical, otherwise 0. */
+static inline int strnneq(const char* a, size_t len_a, const char* b, size_t len_b)
+{
+	if(len_a != len_b)
+		return 0;
+
+	if(strncmp(a, b, len_a) == 0)
+		return 1;
+
+	return 0;
+}
+
+/* Compares the first len_a characters of a to zero-terminated string
+ * b. Returns 1 if both sequences have the same length and if the
+ * characters are identical, otherwise 0. */
+static inline int strn1eq(const char* a, size_t len_a, const char* b)
+{
+	return strnneq(a, len_a, b, strlen(b));
+}
+
 #endif
