@@ -342,6 +342,21 @@ UNIT_TEST(atou64n_unit_test)
 }
 END_TEST()
 
+UNIT_TEST(strnneq_test)
+{
+	ASSERT_TRUE(strnneq("ABCDEF", 3, "ABC", 3));
+	ASSERT_FALSE(strnneq("ABCDEF", 2, "ABC", 3));
+}
+END_TEST()
+
+UNIT_TEST(strn1eq_test)
+{
+	ASSERT_TRUE(strn1eq("ABCDEF", 3, "ABC"));
+	ASSERT_FALSE(strn1eq("ABCDEF", 4, "ABC"));
+	ASSERT_FALSE(strn1eq("ABCDEF", 4, "ABCE"));
+}
+END_TEST()
+
 UNIT_TEST_SUITE(ansi_extras_test)
 {
 	ADD_TEST(strreplace_test);
@@ -354,5 +369,7 @@ UNIT_TEST_SUITE(ansi_extras_test)
 	ADD_TEST(xdigitval_test);
 	ADD_TEST(atou64n_test);
 	ADD_TEST(atou64n_unit_test);
+	ADD_TEST(strnneq_test);
+	ADD_TEST(strn1eq_test);
 }
 END_TEST_SUITE()
