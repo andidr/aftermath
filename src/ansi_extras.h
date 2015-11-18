@@ -180,4 +180,66 @@ static inline int is_valid_regex(const char* sregex)
 	return 1;
 }
 
+/* Converts the substring of the first len characters of str to an
+ * integer */
+static inline uint64_t atou64n(const char* str, size_t len)
+{
+	uint64_t val = 0;
+
+	for(size_t i = 0; i < len; i++) {
+		val *= 10;
+		val += str[i]-'0';
+	}
+
+	return val;
+}
+
+/* Returns the multiplier for a unit prefix, e.g., 1000 for K, 1000000
+ * for M and so on. */
+static inline int uint_multiplier(char unit, uint64_t* val)
+{
+	switch(unit) {
+		case 'K': *val = (uint64_t)1000; break;
+		case 'M': *val = (uint64_t)1000000; break;
+		case 'G': *val = (uint64_t)1000000000; break;
+		case 'T': *val = (uint64_t)1000000000000; break;
+		case 'P': *val = (uint64_t)1000000000000000; break;
+		default:
+			return 1;
+	}
+
+	return 0;
+}
+
+/* Parses the first len characters of str for an unsigned integer with
+ * an optional unit prefix (K, M, G, T, P). The value is returned in
+ * val. If the characters do not form a valid expression the function
+ * returns 1, otherwise 0. */
+static inline int atou64n_unit(const char* str, size_t len, uint64_t* val)
+{
+	uint64_t mult;
+	size_t i;
+
+	if(len == 0)
+		return 1;
+
+	if(!isdigit(str[len-1])) {
+		if(uint_multiplier(str[len-1], &mult))
+			return 1;
+
+		i = len-2;
+
+		/* Skip whitespace between unit and number */
+		while(isspace(str[i]) && i >= 0)
+			i--;
+
+		*val = atou64n(str, i+1);
+		*val *= mult;
+	} else {
+		*val = atou64n(str, len);
+	}
+
+	return 0;
+}
+
 #endif

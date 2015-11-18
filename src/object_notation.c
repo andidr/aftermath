@@ -197,12 +197,7 @@ static inline struct object_notation_node* object_notation_parse_int(struct pars
 	node->node.type = OBJECT_NOTATION_NODE_TYPE_INT;
 	INIT_LIST_HEAD(&node->node.siblings);
 
-	node->value = 0;
-
-	for(size_t i = 0; i < t.len; i++) {
-		node->value *= 10;
-		node->value += t.str[i]-'0';
-	}
+	node->value = atou64n(t.str, t.len);
 
 	return (struct object_notation_node*)node;
 }

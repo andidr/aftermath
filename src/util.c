@@ -16,11 +16,11 @@
  */
 
 #include "util.h"
+#include "ansi_extras.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <ctype.h>
 
 unsigned int pretty_print_get_powern(long double v, long double base, int step, unsigned int min_pow, unsigned int max_pow)
 {
@@ -78,37 +78,5 @@ void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles)
 
 int pretty_read_cycles(const char* buffer, uint64_t* cycles)
 {
-	const char units[] = { 'K', 'M', 'G', 'T', 'P' };
-	size_t len = strlen(buffer);
-	uint64_t tmp;
-	uint64_t multiplier = 1;
-	int unit_found = 0;
-
-	/* Make sure that the first n-1 characters are digits */
-	for(int i = 0; i < len-1; i++)
-		if(!isdigit(buffer[i]))
-			return 1;
-
-	/* Scan the whole buffer, trailing unit is ignored by
-	 * sscanf */
-	sscanf(buffer, "%"PRIu64, &tmp);
-
-	/* Find unit */
-	if(!isdigit(buffer[len-1])) {
-		for(int i = 0; i < 5; i++) {
-			multiplier *= 1000;
-
-			if(buffer[len-1] == units[i]) {
-				unit_found = 1;
-				break;
-			}
-		}
-
-		if(!unit_found)
-			return 1;
-	}
-
-	*cycles = tmp * multiplier;
-
-	return 0;
+	return atou64n_unit(buffer, strlen(buffer), cycles);
 }
