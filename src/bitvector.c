@@ -99,6 +99,79 @@ void bitvector_set_bit(struct bitvector* bv, int bit)
 	bv->bits[chunk] |= (bitvector_chunk_t)1 << chunk_bit;
 }
 
+void bitvector_update_overview_for_bit(struct bitvector* bv, int bit)
+{
+	int ov_bit = (bit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits;
+	int ov_chunk_bit = ov_bit % BITS_PER_CHUNK;
+	int ov_chunk = ov_bit / BITS_PER_CHUNK;
+	int ibit;
+
+	bv->overview_chunks[ov_chunk] &= ~((bitvector_chunk_t)1 << ov_chunk_bit);
+
+	for(int dec = 0; dec < 2; dec++) {
+		ibit = bit;
+
+		while((ibit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits == ov_bit) {
+			if(bitvector_test_bit(bv, ibit)) {
+				bv->overview_chunks[ov_chunk] |= ((bitvector_chunk_t)1 << ov_chunk_bit);
+				return;
+			}
+
+			ibit += dec ? -1 : 1;
+		}
+	}
+}
+
+void bitvector_update_min(struct bitvector* bv)
+{
+	bv->min_set_bit = BITS_PER_CHUNK*bv->num_chunks;
+
+	for(int chunk = 0; chunk < bv->num_chunks; chunk++) {
+		if(bv->bits[chunk]) {
+			for(int chunk_bit = 0; chunk_bit < BITS_PER_CHUNK; chunk_bit++) {
+				if(bv->bits[chunk] & ((bitvector_chunk_t)1 << chunk_bit)) {
+					bv->min_set_bit = chunk_bit + chunk*BITS_PER_CHUNK;
+					bv->min_chunk = chunk;
+					return;
+				}
+			}
+		}
+	}
+}
+
+void bitvector_update_max(struct bitvector* bv)
+{
+	bv->max_set_bit = 0;
+
+	for(int chunk = bv->num_chunks-1; chunk >= 0 ; chunk--) {
+		if(bv->bits[chunk]) {
+			for(int chunk_bit = BITS_PER_CHUNK-1; chunk_bit >= 0; chunk_bit--) {
+				if(bv->bits[chunk] & ((bitvector_chunk_t)1 << chunk_bit)) {
+					bv->max_set_bit = chunk_bit + chunk*BITS_PER_CHUNK;
+					bv->max_chunk = chunk;
+					return;
+				}
+			}
+		}
+	}
+}
+
+void bitvector_clear_bit(struct bitvector* bv, int bit)
+{
+	int chunk = bit / BITS_PER_CHUNK;
+	int chunk_bit = bit % BITS_PER_CHUNK;
+
+	bv->bits[chunk] &= ~((bitvector_chunk_t)1 << chunk_bit);
+
+	if(bit == bv->max_set_bit)
+		bitvector_update_max(bv);
+
+	if(bit == bv->min_set_bit)
+		bitvector_update_min(bv);
+
+	bitvector_update_overview_for_bit(bv, bit);
+}
+
 int bitvector_test_bit(struct bitvector* bv, int bit)
 {
 	int chunk = bit / BITS_PER_CHUNK;
