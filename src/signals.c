@@ -1034,6 +1034,8 @@ G_MODULE_EXPORT void global_hist_view_activated(GtkRadioButton *button, gpointer
 {
 	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
 
+	gtk_histogram_enable_range_selection(g_histogram_widget);
+
 	if(active) {
 		gtk_widget_set_sensitive(g_counter_list_widget, 0);
 		update_task_statistics();
@@ -1053,6 +1055,8 @@ G_MODULE_EXPORT void per_task_hist_view_activated(GtkRadioButton *button, gpoint
 G_MODULE_EXPORT void counter_hist_view_activated(GtkRadioButton *button, gpointer data)
 {
 	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+
+	gtk_histogram_disable_range_selection(g_histogram_widget);
 
 	if(active) {
 		gtk_widget_set_sensitive(g_counter_list_widget, 1);
@@ -1603,6 +1607,41 @@ G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data
 G_MODULE_EXPORT void task_length_entry_activated(GtkEntry *e, gpointer data)
 {
 	task_filter_update();
+}
+
+G_MODULE_EXPORT void histogram_range_selection_changed(GtkHistogram *item, gdouble left, gdouble right, gpointer data)
+{
+	char txt[20];
+
+	task_filter_update();
+
+	pretty_print_cycles(txt, 20, left);
+	gtk_entry_set_text(GTK_ENTRY(g_task_length_min_entry), txt);
+	pretty_print_cycles(txt, 20, right);
+	gtk_entry_set_text(GTK_ENTRY(g_task_length_max_entry), txt);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_use_task_length_check), TRUE);
+
+	filter_set_task_length_filtering_range(&g_filter, left, right);
+	filter_set_task_length_filtering(&g_filter, 1);
+
+	update_statistics();
+}
+
+G_MODULE_EXPORT void multi_histogram_range_selection_changed(GtkMultiHistogram *item, gdouble left, gdouble right, gpointer data)
+{
+	char txt[20];
+	task_filter_update();
+
+	pretty_print_cycles(txt, 20, left);
+	gtk_entry_set_text(GTK_ENTRY(g_task_length_min_entry), txt);
+	pretty_print_cycles(txt, 20, right);
+	gtk_entry_set_text(GTK_ENTRY(g_task_length_max_entry), txt);
+
+	filter_set_task_length_filtering_range(&g_filter, left, right);
+	filter_set_task_length_filtering(&g_filter, 1);
+
+	update_statistics();
 }
 
 G_MODULE_EXPORT void comm_filter_update(void)

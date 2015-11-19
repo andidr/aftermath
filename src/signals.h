@@ -20,6 +20,8 @@
 
 #include <gtk/gtk.h>
 #include "trace_widget.h"
+#include "histogram_widget.h"
+#include "multi_histogram_widget.h"
 #include "matrix_widget.h"
 #include "events.h"
 
@@ -29,6 +31,8 @@ void trace_ybounds_changed(GtkTrace *item, gdouble left, gdouble right, gpointer
 void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
+void histogram_range_selection_changed(GtkHistogram *item, gdouble left, gdouble right, gpointer data);
+void multi_histogram_range_selection_changed(GtkMultiHistogram *item, gdouble left, gdouble right, gpointer data);
 void task_link_activated(uint64_t work_fn);
 void time_link_activated(uint64_t time);
 gint link_activated(GtkLabel *label, gchar *uri, gpointer user_data);

@@ -15,6 +15,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <inttypes.h>
+#include "marshal.h"
 #include "histogram_widget.h"
 
 #if CAIRO_HAS_PDF_SURFACE
@@ -29,6 +31,7 @@
 #include <cairo/cairo-svg.h>
 #endif
 
+void gtk_histogram_emit_range_selection_changed(GtkWidget* widget, int64_t start, int64_t end);
 
 gint gtk_histogram_signals[GTK_HISTOGRAM_MAX_SIGNALS];
 
@@ -52,6 +55,8 @@ GtkWidget* gtk_histogram_new(void)
 	GtkHistogram *g = gtk_type_new(gtk_histogram_get_type());
 
 	g->histogram = NULL;
+	g->selection_enabled = 1;
+	g->selecting = 0;
 
 	return GTK_WIDGET(g);
 }
@@ -89,6 +94,17 @@ void gtk_histogram_class_init(GtkHistogramClass *class)
 	widget_class->size_request = gtk_histogram_size_request;
 	widget_class->size_allocate = gtk_histogram_size_allocate;
 	widget_class->expose_event = gtk_histogram_expose;
+	widget_class->button_press_event = gtk_histogram_button_press_event;
+	widget_class->button_release_event = gtk_histogram_button_release_event;
+
+	gtk_histogram_signals[GTK_HISTOGRAM_RANGE_SELECTION_CHANGED] =
+                g_signal_new("range-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+			     0,
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__DOUBLE_DOUBLE,
+                             G_TYPE_NONE, 2,
+                             G_TYPE_DOUBLE, G_TYPE_DOUBLE);
 
 	object_class->destroy = gtk_histogram_destroy;
 }
@@ -137,9 +153,12 @@ void gtk_histogram_realize(GtkWidget *widget)
 	attributes.height = widget->allocation.height;
 
 	attributes.wclass = GDK_INPUT_OUTPUT;
-	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
+	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | 
+				GDK_BUTTON_RELEASE_MASK | GDK_BUTTON1_MOTION_MASK;
 
 	attributes_mask = GDK_WA_X | GDK_WA_Y;
+
+	g_signal_connect(G_OBJECT(widget), "motion-notify-event", G_CALLBACK(gtk_histogram_motion_event), NULL);
 
 	widget->window = gdk_window_new(
 		gtk_widget_get_parent_window (widget),
@@ -165,6 +184,45 @@ gboolean gtk_histogram_expose(GtkWidget *widget, GdkEventExpose *event)
 
 void gtk_histogram_init(GtkHistogram *histogram)
 {
+}
+
+static inline long double gtk_histogram_pxpv_x(GtkHistogram* h)
+{
+	return (long double)h->widget.allocation.width  / (long double)(h->histogram->right - h->histogram->left);
+}
+
+static inline long double gtk_histogram_screen_x_to_histogram(GtkHistogram* h, int x)
+{
+	long double px_per_val = gtk_histogram_pxpv_x(h);
+	return (x / px_per_val) + h->histogram->left;
+}
+
+static inline long double gtk_histogram_x_to_screen(GtkHistogram* h, long double x)
+{
+	long double px_per_val = gtk_histogram_pxpv_x(h);
+	long double norm_val = x - h->histogram->left;
+	long double norm_px_val = norm_val * px_per_val;
+	long double norm_px_w_offs = norm_px_val;
+
+	return norm_px_w_offs;
+}
+
+void gtk_histogram_paint_selection(GtkHistogram* h, cairo_t* cr)
+{
+	long double left_x = gtk_histogram_x_to_screen(h, h->range_selection_start);
+	long double right_x = gtk_histogram_x_to_screen(h, h->range_selection_end);
+	cairo_rectangle(cr, 0, 0, h->widget.allocation.width, h->widget.allocation.height);
+	cairo_clip(cr);
+
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.3);
+	cairo_rectangle(cr, left_x, 0, right_x - left_x, h->widget.allocation.height);
+	cairo_fill(cr);
+
+	cairo_set_source_rgba(cr, 1.0, 1.0, 0.0, 0.3);
+	cairo_rectangle(cr, left_x, 0, right_x - left_x, h->widget.allocation.height);
+	cairo_stroke(cr);
+
+	cairo_reset_clip(cr);
 }
 
 void gtk_histogram_paint_context(GtkHistogram* h, cairo_t* cr)
@@ -199,6 +257,9 @@ void gtk_histogram_paint_context(GtkHistogram* h, cairo_t* cr)
 		cairo_line_to(cr, init_x, init_y);
 		cairo_fill(cr);
 	}
+
+	if(h->selecting)
+		gtk_histogram_paint_selection(h, cr);
 }
 
 void gtk_histogram_paint(GtkWidget *widget)
@@ -281,4 +342,83 @@ out_surf:
 	goto out_err;
 out_err:
 	return err;
+}
+
+gint gtk_histogram_button_press_event(GtkWidget* widget, GdkEventButton *event)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+
+	if(!h->selection_enabled || !h->histogram)
+		return TRUE;
+
+	if(event->button == 1) {
+		/* left click */
+		h->selecting = 1;
+		h->range_selection_start = gtk_histogram_screen_x_to_histogram(h, event->x);
+	}
+	return TRUE;
+}
+
+gint gtk_histogram_button_release_event(GtkWidget* widget, GdkEventButton* event)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+
+	if(!h->selection_enabled || !h->histogram)
+		return TRUE;
+
+	if(event->button == 1) {
+		gtk_histogram_emit_range_selection_changed(widget, h->range_selection_start, h->range_selection_end);
+		h->selecting = 0;
+		gtk_widget_queue_draw(widget);
+	}
+
+	return TRUE;
+}
+
+gint gtk_histogram_motion_event(GtkWidget* widget, GdkEventMotion* event)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+
+	if(!h->selection_enabled || !h->histogram)
+		return TRUE;
+
+	if(h->selecting) {
+		h->range_selection_end = gtk_histogram_screen_x_to_histogram(h, event->x);
+		gtk_widget_queue_draw(widget);
+	}
+
+	return TRUE;
+}
+
+void gtk_histogram_emit_range_selection_changed(GtkWidget* widget, int64_t start, int64_t end)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+	int64_t tmp;
+
+	if(start > end) {
+		tmp = start;
+		start = end;
+		end = tmp;
+	}
+
+	if(start < h->histogram->left)
+		start = h->histogram->left;
+
+	if(end > h->histogram->right)
+		end = h->histogram->right;
+
+	g_signal_emit(widget, gtk_histogram_signals[GTK_HISTOGRAM_RANGE_SELECTION_CHANGED], 0,
+		      (double)start, (double)end);
+}
+
+void gtk_histogram_enable_range_selection(GtkWidget *widget)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+	h->selection_enabled = 1;
+}
+
+void gtk_histogram_disable_range_selection(GtkWidget *widget)
+{
+	GtkHistogram* h = GTK_HISTOGRAM(widget);
+	h->selection_enabled = 0;
 }

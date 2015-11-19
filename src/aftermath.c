@@ -443,6 +443,8 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "range-selection-changed", G_CALLBACK(trace_range_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "create-annotation", G_CALLBACK(trace_create_annotation), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "edit-annotation", G_CALLBACK(trace_edit_annotation), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_histogram_widget), "range-selection-changed", G_CALLBACK(histogram_range_selection_changed), g_histogram_widget);
+	g_signal_connect(G_OBJECT(g_multi_histogram_widget), "range-selection-changed", G_CALLBACK(multi_histogram_range_selection_changed), g_multi_histogram_widget);
 	g_signal_connect(G_OBJECT(toplevel_window), "delete-event", G_CALLBACK(check_quit), NULL);
 
 	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);

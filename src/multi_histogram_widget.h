@@ -32,11 +32,18 @@ typedef struct _GtkMultiHistogram GtkMultiHistogram;
 typedef struct _GtkMultiHistogramClass GtkMultiHistogramClass;
 
 enum gtk_multi_histogram_signals {
+	GTK_MULTI_HISTOGRAM_RANGE_SELECTION_CHANGED = 0,
 	GTK_MULTI_HISTOGRAM_MAX_SIGNALS
 };
 
 struct _GtkMultiHistogram {
 	GtkWidget widget;
+	int moved_during_navigation;
+
+	int64_t range_selection_start;
+	int64_t range_selection_end;
+	int selecting;
+
 	struct multi_histogram* histograms;
 	struct multi_event_set* mes;
 };
@@ -57,6 +64,9 @@ void gtk_multi_histogram_init(GtkMultiHistogram *histogram);
 void gtk_multi_histogram_paint(GtkWidget *widget);
 void gtk_multi_histogram_set_data(GtkWidget *widget, struct multi_histogram* d);
 int gtk_multi_histogram_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
+gint gtk_multi_histogram_button_press_event(GtkWidget* widget, GdkEventButton *event);
+gint gtk_multi_histogram_button_release_event(GtkWidget *widget, GdkEventButton* event);
+gint gtk_multi_histogram_motion_event(GtkWidget* widget, GdkEventMotion* event);
 
 extern gint gtk_multi_histogram_signals[GTK_MULTI_HISTOGRAM_MAX_SIGNALS];
 

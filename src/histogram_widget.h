@@ -32,11 +32,19 @@ typedef struct _GtkHistogram GtkHistogram;
 typedef struct _GtkHistogramClass GtkHistogramClass;
 
 enum gtk_histogram_signals {
+	GTK_HISTOGRAM_RANGE_SELECTION_CHANGED = 0,
 	GTK_HISTOGRAM_MAX_SIGNALS
 };
 
 struct _GtkHistogram {
 	GtkWidget widget;
+	int moved_during_navigation;
+
+	int64_t range_selection_start;
+	int64_t range_selection_end;
+	int selecting;
+	int selection_enabled;
+
 	struct histogram* histogram;
 };
 
@@ -56,6 +64,11 @@ void gtk_histogram_init(GtkHistogram *histogram);
 void gtk_histogram_paint(GtkWidget *widget);
 void gtk_histogram_set_data(GtkWidget *widget, struct histogram* d);
 int gtk_histogram_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
+gint gtk_histogram_button_press_event(GtkWidget* widget, GdkEventButton *event);
+gint gtk_histogram_button_release_event(GtkWidget *widget, GdkEventButton* event);
+gint gtk_histogram_motion_event(GtkWidget* widget, GdkEventMotion* event);
+void gtk_histogram_enable_range_selection(GtkWidget *widget);
+void gtk_histogram_disable_range_selection(GtkWidget *widget);
 
 extern gint gtk_histogram_signals[GTK_HISTOGRAM_MAX_SIGNALS];
 
