@@ -17,6 +17,7 @@
 
 #include <unit_tests.h>
 #include "../src/ansi_extras.h"
+#include "common.h"
 
 UNIT_TEST(int64_swap_test)
 {
@@ -303,6 +304,108 @@ UNIT_TEST(atou64n_test)
 }
 END_TEST()
 
+UNIT_TEST(atodbln_test)
+{
+	double val;
+	double refval;
+
+	const char* vals[] = {
+		"1234",
+		"1234.5",
+		"1234.56789",
+		"1234e0",
+		"1234e-0",
+		"1234e+0",
+		"1234e1",
+		"1234e-1",
+		"1234e+1",
+		"1234e2",
+		"1234e-2",
+		"1234e+2",
+		"1234e10",
+		"1234e-10",
+		"1234e+10",
+	};
+
+	for(int i = 0; i < ARRAY_SIZE(vals); i++) {
+		ASSERT_EQUALS(atodbln(vals[i], strlen(vals[i]), &val), 0);
+		refval = strtod(vals[i], NULL);
+		ASSERT_EQUALS_LD(val, refval);
+	}
+}
+END_TEST()
+
+UNIT_TEST(atodbln_unit_test)
+{
+	double val;
+	size_t len;
+	uint64_t mult = 0;
+
+	const char* vals[] = {
+		"1234",
+		"1234.5",
+		"1234.56789",
+		"1234e0",
+		"1234e-0",
+		"1234e+0",
+		"1234e1",
+		"1234e-1",
+		"1234e+1",
+		"1234e2",
+		"1234e-2",
+		"1234e+2",
+		"1234e10",
+		"1234e-10",
+		"1234e+10",
+
+		"1234K",
+		"1234.5K",
+		"1234.56789K",
+		"1234e0K",
+		"1234e-0K",
+		"1234e+0K",
+		"1234e1K",
+		"1234e-1K",
+		"1234e+1K",
+		"1234e2K",
+		"1234e-2K",
+		"1234e+2K",
+		"1234e10K",
+		"1234e-10K",
+		"1234e+10K",
+
+		"1234 K",
+		"1234.5 K",
+		"1234.56789 K",
+		"1234e0 K",
+		"1234e-0 K",
+		"1234e+0 K",
+		"1234e1 K",
+		"1234e-1 K",
+		"1234e+1 K",
+		"1234e2 K",
+		"1234e-2 K",
+		"1234e+2 K",
+		"1234e10 K",
+		"1234e-10 K",
+		"1234e+10 K",
+	};
+
+	for(int i = 0; i < ARRAY_SIZE(vals); i++) {
+		len = strlen(vals[i]);
+
+		ASSERT_EQUALS(atodbln_unit(vals[i], len, &val), 0);
+
+		if(!isdigit(vals[i][len-1])) {
+			ASSERT_EQUALS(uint_multiplier(vals[i][len-1], &mult), 0);
+			ASSERT_EQUALS_LD(val, strtod(vals[i], NULL)*((double)mult));
+		} else {
+			ASSERT_EQUALS_LD(val, strtod(vals[i], NULL));
+		}
+	}
+}
+END_TEST()
+
 UNIT_TEST(atou64n_unit_test)
 {
 	uint64_t val = 0;
@@ -369,6 +472,8 @@ UNIT_TEST_SUITE(ansi_extras_test)
 	ADD_TEST(xdigitval_test);
 	ADD_TEST(atou64n_test);
 	ADD_TEST(atou64n_unit_test);
+	ADD_TEST(atodbln_test);
+	ADD_TEST(atodbln_unit_test);
 	ADD_TEST(strnneq_test);
 	ADD_TEST(strn1eq_test);
 }
