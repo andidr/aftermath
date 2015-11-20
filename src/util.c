@@ -78,5 +78,12 @@ void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles)
 
 int pretty_read_cycles(const char* buffer, uint64_t* cycles)
 {
-	return atou64n_unit(buffer, strlen(buffer), cycles);
+	double d;
+
+	if(atodbln_unit(buffer, strlen(buffer), &d))
+		return 1;
+
+	*cycles = (uint64_t)d;
+
+	return 0;
 }
