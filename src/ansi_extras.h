@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <regex.h>
+#include <alloca.h>
 
 #define SWAP_BITS(val, ret, type)					\
 	do {								\
@@ -237,6 +238,58 @@ static inline int atou64n_unit(const char* str, size_t len, uint64_t* val)
 		*val *= mult;
 	} else {
 		*val = atou64n(str, len);
+	}
+
+	return 0;
+}
+
+/* Parses the first len characters of str for an double
+ * expression. The value is returned in val. If the characters do not
+ * form a valid expression the function returns 1, otherwise 0. */
+static inline int atodbln(const char* str, size_t len, double* val)
+{
+	char* buffer;
+
+	if(!(buffer = alloca(len+1)))
+		return 1;
+
+	memcpy(buffer, str, len);
+	buffer[len] = '\0';
+
+	*val = strtod(buffer, NULL);
+
+	return 0;
+}
+
+/* Parses the first len characters of str for an double expression
+ * with an optional unit prefix (K, M, G, T, P). The value is returned
+ * in val. If the characters do not form a valid expression the
+ * function returns 1, otherwise 0. */
+static inline int atodbln_unit(const char* str, size_t len, double* val)
+{
+	uint64_t mult;
+	size_t i;
+
+	if(len == 0)
+		return 1;
+
+	if(!isdigit(str[len-1])) {
+		if(uint_multiplier(str[len-1], &mult))
+			return 1;
+
+		i = len-2;
+
+		/* Skip whitespace between unit and number */
+		while(isspace(str[i]) && i >= 0)
+			i--;
+
+		if(atodbln(str, i+1, val))
+			return 1;
+
+		*val *= (double)mult;
+	} else {
+		if(atodbln(str, len, val))
+			return 1;
 	}
 
 	return 0;
