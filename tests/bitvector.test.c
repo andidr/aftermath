@@ -17,8 +17,7 @@
 
 #include <unit_tests.h>
 #include "../src/bitvector.h"
-
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#include "common.h"
 
 UNIT_TEST(set_test)
 {
