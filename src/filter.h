@@ -175,6 +175,14 @@ static inline void filter_add_single_event_type(struct filter* f, enum single_ev
 	f->single_event_types |= (1 << t);
 }
 
+static inline void filter_remove_single_event_type(struct filter* f, enum single_event_type t)
+{
+	f->single_event_types &= ~(1 << t);
+
+	if(!f->single_event_types)
+		f->filter_single_event_types = 0;
+}
+
 static inline int filter_has_single_event_type(struct filter* f, enum single_event_type t)
 {
 	if(!f->filter_single_event_types)
