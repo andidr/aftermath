@@ -136,8 +136,6 @@ static inline void filter_clear_tasks(struct filter* f)
 {
 	f->num_tasks_free += f->num_tasks;
 	f->num_tasks = 0;
-
-	filter_set_task_filtering(f, 0);
 }
 
 static inline int filter_add_task(struct filter* f, struct task* t)
