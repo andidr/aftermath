@@ -202,6 +202,14 @@ static inline void filter_clear_cpus(struct filter* f)
 	filter_set_cpu_filtering(f, 0);
 }
 
+static inline void filter_add_cpu_range(struct filter* f, int cpu_start, int cpu_end)
+{
+	filter_set_cpu_filtering(f, 1);
+
+	for(int cpu = cpu_start; cpu <= cpu_end; cpu++)
+		bitvector_set_bit(&f->cpus, cpu);
+}
+
 static inline void filter_add_cpu(struct filter* f, int cpu)
 {
 	filter_set_cpu_filtering(f, 1);
