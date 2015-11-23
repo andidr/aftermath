@@ -216,7 +216,6 @@ static inline void filter_add_counter(struct filter* f, struct counter_descripti
 
 static inline void filter_clear_counters(struct filter* f)
 {
-	f->filter_counters = 0;
 	bitvector_clear(&f->counters);
 }
 
