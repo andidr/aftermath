@@ -38,7 +38,7 @@ void task_list_init(GtkTreeView* task_treeview);
 void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_tasks);
 void task_list_update_colors(GtkTreeView* task_treeview);
 void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter);
-
+void task_list_update_from_filter(GtkTreeView* task_treeview, struct filter* f);
 void task_list_check_all(GtkTreeView* task_treeview);
 void task_list_uncheck_all(GtkTreeView* task_treeview);
 

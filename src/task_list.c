@@ -149,6 +149,29 @@ void task_list_fill(GtkTreeView* task_treeview, struct task* tasks, int num_task
 	}
 }
 
+void task_list_update_from_filter(GtkTreeView* task_treeview, struct filter* f)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	struct task* t;
+	gboolean b;
+
+	if(!f->filter_tasks) {
+		task_list_check_all(task_treeview);
+		return;
+	}
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		gtk_tree_model_get(model, &iter, TASK_LIST_COL_TASK_POINTER, &t, -1);
+		b = filter_has_task(f, t);
+		gtk_list_store_set(store, &iter, TASK_LIST_COL_FILTER, b, -1);
+	} while(gtk_tree_model_iter_next(model, &iter));
+}
+
 void task_list_build_filter(GtkTreeView* task_treeview, struct filter* filter)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(task_treeview);
