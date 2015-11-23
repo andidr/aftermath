@@ -147,6 +147,19 @@ static inline int filter_add_task(struct filter* f, struct task* t)
 			FILTER_TASK_PREALLOC);
 }
 
+static inline void filter_remove_task(struct filter* f, struct task* t)
+{
+	for(int i = 0; i < f->num_tasks; i++) {
+		if(f->tasks[i] == t) {
+			for(int j = i; j < f->num_tasks-1; j++)
+				f->tasks[j] = f->tasks[j+1];
+
+			f->num_tasks--;
+			f->num_tasks_free++;
+		}
+	}
+}
+
 static inline void filter_set_single_event_type_filtering(struct filter* f, int b)
 {
 	f->filter_single_event_types = b;
