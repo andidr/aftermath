@@ -216,6 +216,17 @@ static inline void filter_add_cpu(struct filter* f, int cpu)
 	bitvector_set_bit(&f->cpus, cpu);
 }
 
+static inline void filter_remove_cpu(struct filter* f, int cpu)
+{
+	bitvector_clear_bit(&f->cpus, cpu);
+}
+
+static inline void filter_remove_cpu_range(struct filter* f, int cpu_start, int cpu_end)
+{
+	for(int cpu = cpu_start; cpu <= cpu_end; cpu++)
+		bitvector_clear_bit(&f->cpus, cpu);
+}
+
 static inline void filter_set_frame_filtering(struct filter* f, int b)
 {
 	f->filter_frames = b;
