@@ -232,6 +232,32 @@ struct counter_description* counter_list_get_highlighted_entry(GtkTreeView* coun
 	return cd;
 }
 
+void counter_list_update_from_bitvector(GtkTreeView* counter_treeview, struct bitvector* bv)
+{
+	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
+	GtkListStore* store = GTK_LIST_STORE(model);
+	GtkTreeIter iter;
+	gboolean current_state;
+	int ctr_index = 0;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		current_state = bitvector_test_bit(bv, ctr_index);
+		gtk_list_store_set(store, &iter, COUNTER_LIST_COL_FILTER, current_state, -1);
+		ctr_index++;
+	} while(gtk_tree_model_iter_next(model, &iter));
+}
+
+void counter_list_update_from_filter(GtkTreeView* counter_treeview, struct filter* f)
+{
+	if(!f->filter_counters)
+		counter_list_check_all(counter_treeview);
+	else
+		counter_list_update_from_bitvector(counter_treeview, &f->counters);
+}
+
 void counter_list_set_status_all(GtkTreeView* counter_treeview, gboolean status)
 {
 	GtkTreeModel* model = gtk_tree_view_get_model(counter_treeview);
