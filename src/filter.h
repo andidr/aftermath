@@ -254,6 +254,11 @@ static inline void filter_add_counter(struct filter* f, struct counter_descripti
 	bitvector_set_bit(&f->counters, c->index);
 }
 
+static inline void filter_remove_counter(struct filter* f, struct counter_description* c)
+{
+	bitvector_clear_bit(&f->counters, c->index);
+}
+
 static inline void filter_clear_counters(struct filter* f)
 {
 	bitvector_clear(&f->counters);
