@@ -153,7 +153,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 man_MANS = doc/man/aftermath.1
 
 clean-local:
-	-find . -iname "*~" | xargs rm
+	-find . -iname "*~" -delete
 
 %-silent:
 	@$(MAKE) $* | EGREP="$(EGREP)" CC="$(CC)" SED="$(SED)" AR="$(AR)" ./scripts/build_silently_filter.sh
