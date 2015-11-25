@@ -11,7 +11,8 @@ VALGRIND_FLAGS=--gen-suppressions=all \
 		--leak-resolution=high \
 		--error-exitcode=1 \
 		--suppressions=./tests/valgrind-suppressions \
-		--run-libc-freeres=no
+		--run-libc-freeres=no \
+		--partial-loads-ok=yes
 
 libaftermath_core_a_SOURCES = src/buffer.h \
 		src/buffer.c \
