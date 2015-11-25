@@ -80,6 +80,13 @@ echo_verbose_n "Checking out files... "
 git archive "$REV" | tar x -C "$BUILD_DIR" >> "$BUILD_DIR/build-log" 2>&1 || die "Could not check out files. Check $BUILD_DIR/build-log."
 echo_verbose "done."
 
+echo_verbose_n "Checking headers... "
+for header in "$BUILD_DIR"/src/*.h
+do
+    ./scripts/check-header.sh -v "$header" >> "$BUILD_DIR/build-log" 2>&1 || die "Header check failed. Check $BUILD_DIR/build-log."
+done
+echo_verbose "done."
+
 cd "$BUILD_DIR"
 
 echo_verbose_n "Executing bootstrap script... "
