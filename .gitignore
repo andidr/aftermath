@@ -33,3 +33,4 @@ object_notation_test
 color_scheme_test
 bitvector_test
 filter_expression_test
+scripts/check-header.sh

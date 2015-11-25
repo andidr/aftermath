@@ -232,7 +232,7 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 	cp $< $@
 	chmod +x $@
 
-CLEANFILES = aftermath-debug-syms aftermath.1
+CLEANFILES = aftermath-debug-syms aftermath.1 scripts/check-header.sh
 
 TESTS_LDADD = -L. -lm -lpthread libaftermath-core.a
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src

@@ -74,3 +74,7 @@ CFLAGS="$CFLAGS -Wall"
 CONFIG_DATE=`date +%m/%d/%Y`
 AC_SUBST(CONFIG_DATE)
 AC_OUTPUT([Makefile doc/man/aftermath.1])
+
+CHECK_HEADER_CFLAGS="$DEFS $GLIB_CFLAGS $CFLAGS $GTK_CFLAGS $GLADE_CFLAGS"
+AC_SUBST(CHECK_HEADER_CFLAGS)
+AC_OUTPUT([scripts/check-header.sh], [chmod +x scripts/check-header.sh])
