@@ -431,7 +431,7 @@ int show_derived_counter_dialog(struct multi_event_set* mes, struct derived_coun
 	char buffer[256];
 	int type_idx;
 	int cpu_idx;
-	int ctr_idx;
+	int ctr_idx = 0;
 	int divctr_idx = 0;
 	int numa_node_idx = 0;
 	int numa_node;
