@@ -4,6 +4,15 @@ bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
 noinst_LIBRARIES = libaftermath-core.a
 
+VALGRIND_FLAGS=--gen-suppressions=all \
+		--track-origins=yes \
+		--leak-check=full \
+		--show-reachable=yes \
+		--leak-resolution=high \
+		--error-exitcode=1 \
+		--suppressions=./tests/valgrind-suppressions \
+		--run-libc-freeres=no
+
 libaftermath_core_a_SOURCES = src/buffer.h \
 		src/buffer.c \
 		src/color.h \
@@ -175,7 +184,8 @@ check-%: %
 
 valgrind-check-raw-%: %
 	@echo -n "[VALGRIND]"
-	@G_SLICE=always-malloc G_DEBUG=gc-friendly $(VALGRIND) --gen-suppressions=all --track-origins=yes --leak-check=full --show-reachable=yes --leak-resolution=high --error-exitcode=1 --suppressions=./tests/valgrind-suppressions --run-libc-freeres=no ./$< 2> valgrind.$<.log ; \
+	@G_SLICE=always-malloc G_DEBUG=gc-friendly \
+	    $(VALGRIND) $(VALGRIND_FLAGS) ./$< 2> valgrind.$<.log ; \
 	if [ $$? != 0 ] ; \
 	then \
 		cat valgrind.$<.log; \
