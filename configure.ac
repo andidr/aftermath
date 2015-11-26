@@ -1,6 +1,17 @@
 AC_INIT([aftermath], [unreleased])
 AC_CONFIG_SRCDIR([src/aftermath.c])
-AM_INIT_AUTOMAKE([subdir-objects])
+
+m4_define([serial_tests], [
+	m4_esyscmd([case `${AUTOMAKE:-automake} --version | head -n 1` in
+		*1.11.*|*1.10.*|*1.9.*)
+			;;
+		*)
+			echo serial-tests
+			;;
+	esac])
+])
+
+AM_INIT_AUTOMAKE([subdir-objects] serial_tests)
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 m4_include([m4/with_check.m4])
