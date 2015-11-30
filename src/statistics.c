@@ -304,7 +304,6 @@ int multi_task_statistics_gather(struct multi_event_set* mes, struct filter* f, 
 		}
 
 		multi_event_set_get_min_max_task_duration_in_interval(mes, f, start, end, &min_all, &max_all);
-		multi_event_set_get_min_max_task_duration_in_interval(mes, f, start, end, &min_all, &max_all);
 
 		ms->min_all = min_all;
 		ms->max_all = max_all;
