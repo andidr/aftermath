@@ -989,11 +989,17 @@ void update_multi_task_statistics(void)
 		return;
 	}
 
-	multi_task_statistics_gather(&g_mes, &g_filter, &mts, left, right);
+	if(multi_task_statistics_gather(&g_mes, &g_filter, &mts, left, right)) {
+		show_error_message("Cannot gather task statistics.");
+		multi_task_statistics_destroy(&mts);
+		return;
+	}
 
 	multi_histogram_destroy(&g_task_multi_histogram);
+
 	if(multi_histogram_init(&g_task_multi_histogram, mts.num_tasks_stats, HISTOGRAM_DEFAULT_NUM_BINS, 0, 1)) {
 		show_error_message("Cannot initialize task length multi histogram structure.");
+		multi_task_statistics_destroy(&mts);
 		return;
 	}
 
