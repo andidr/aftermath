@@ -226,6 +226,9 @@ void task_statistics_gather_with_min_max_cycles(struct multi_event_set* mes, str
 	int hist_bin;
 	struct event_set* es;
 
+	s->max_cycles = max_cycles;
+	s->min_cycles = min_cycles;
+
 	for_each_event_set(mes, es) {
 		if((start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 			continue;
