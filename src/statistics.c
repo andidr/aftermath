@@ -113,26 +113,37 @@ int multi_task_statistics_init(struct multi_task_statistics* ms, int num_tasks_s
 	ms->num_tasks_stats = num_tasks_stats;
 	ms->min_all = UINT64_MAX;
 	ms->max_all = 0;
+	int idx;
 
 	if(!(ms->stats = calloc(num_tasks_stats, sizeof(struct task_statistics*))))
-		return 1;
+		goto out_err;
 
-	for(int idx = 0; idx < num_tasks_stats; idx++) {
+	for(idx = 0; idx < num_tasks_stats; idx++) {
 		if(!(ms->stats[idx] = malloc(sizeof(struct task_statistics)))) {
 			show_error_message("Cannot allocate task statistics structure in multi task statistics\n");
-			return 1;
+			goto out_err_destroy;
 		}
 
 		if(task_statistics_init(ms->stats[idx], num_hist_bins))
-			return 1;
+			goto out_err_free;
 	}
 
 	if(!(ms->task_ids = calloc(num_tasks_stats, sizeof(int)))) {
 		show_error_message("Cannot allocate task identifiers array in multi task statistics\n");
-		return 1;
+		goto out_err_destroy;
 	}
 
 	return 0;
+
+out_err_free:
+	free(ms->stats[idx]);
+out_err_destroy:
+	for(int i = 0; i < idx; i++) {
+		task_statistics_destroy(ms->stats[i]);
+		free(ms->stats[i]);
+	}
+out_err:
+	return 1;
 }
 
 /* Recursively destroys a multi_task_statistics structure */
