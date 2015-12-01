@@ -365,7 +365,7 @@ int task_statistics_to_task_length_histogram(struct task_statistics* s, struct h
 	if(s->num_hist_bins != h->num_bins)
 		return 1;
 
-	h->left = 0;
+	h->left = s->min_cycles;
 	h->right = s->max_cycles;
 	h->max_hist = s->max_hist;
 	h->num_hist = s->num_tasks;
