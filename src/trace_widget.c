@@ -741,7 +741,7 @@ void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 			long double start = gtk_trace_screen_x_to_trace(g, px);
 			long double end = gtk_trace_screen_x_to_trace(g, px+1);
 
-			if(start < 0)
+			if(end < 0)
 				continue;
 
 			int has_major = event_set_get_major_state_seq(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->num_states, &major_state_seq);
