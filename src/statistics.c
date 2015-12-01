@@ -351,8 +351,9 @@ int multi_task_statistics_gather(struct multi_event_set* mes, struct filter* f, 
 			if (multi_task_statistics_shrink(ms, ms_index))
 				return 1;
 
+		filter_clear_tasks(f);
+
 		if(reset_filter) {
-			filter_clear_tasks(f);
 			filter_set_task_filtering(f, 0);
 		} else {
 			for(int task_idx = 0; task_idx < nb_tasks_in_filter; task_idx++)
