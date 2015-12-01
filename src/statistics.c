@@ -409,7 +409,7 @@ int multi_task_statistics_to_task_length_multi_histogram(struct multi_task_stati
 		mh->max_values[bin_idx] = values[bin_idx] / max_value;
 
 	for(int task_idx = 0; task_idx < ms->num_tasks_stats; task_idx++) {
-		mh->histograms[task_idx]->left = 0;
+		mh->histograms[task_idx]->left = ms->stats[task_idx]->min_cycles;
 		mh->histograms[task_idx]->right = ms->stats[task_idx]->max_cycles;
 		mh->histograms[task_idx]->max_hist = ms->stats[task_idx]->max_hist;
 		mh->histograms[task_idx]->num_hist = ms->stats[task_idx]->num_tasks;
