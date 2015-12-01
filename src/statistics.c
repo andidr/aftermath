@@ -555,33 +555,46 @@ void histogram_destroy(struct histogram* h)
  * to the first and last bin, respectively. */
 int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int num_bins, long double left, long double right)
 {
+	int idx;
+
 	mh->num_hists = num_hists;
 	mh->num_hist_bins = num_bins;
 
 	if(!(mh->histograms = calloc(num_hists, sizeof(struct histogram *))))
-		return 1;
+		goto out_err;
 
-	for(int idx = 0; idx < num_hists; idx++) {
+	for(idx = 0; idx < num_hists; idx++) {
 		if(!(mh->histograms[idx] = malloc(sizeof(struct histogram)))) {
 			show_error_message("Cannot allocate histogram structure in multi histogram");
-			return 1;
+			goto out_err_destroy;
 		}
 
 		if(histogram_init(mh->histograms[idx], num_bins, left, right))
-			return 1;
+			goto out_err_free;
 	}
 
 	if(!(mh->task_ids = calloc(num_hists, sizeof(int)))) {
 		show_error_message("Cannot allocate task identifiers array in multi histogram");
-		return 1;
+		goto out_err_destroy;
 	}
 
 	if(!(mh->max_values = calloc(num_bins, sizeof(long double)))) {
 		show_error_message("Cannot allocate maximum values array in multi histogram");
-		return 1;
+		free(mh->task_ids);
+		goto out_err_destroy;
 	}
 
 	return 0;
+
+out_err_free:
+	free(mh->histograms[idx]);
+out_err_destroy:
+	for(int i = 0; i < idx; i++) {
+		histogram_destroy(mh->histograms[i]);
+		free(mh->histograms[i]);
+	}
+out_err:
+	return 1;
 }
 
 /* Recursively destroys a multi_histogram structure */
