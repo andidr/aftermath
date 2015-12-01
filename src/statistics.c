@@ -118,7 +118,7 @@ int multi_task_statistics_init(struct multi_task_statistics* ms, int num_tasks_s
 		return 1;
 
 	for(int idx = 0; idx < num_tasks_stats; idx++) {
-		if(!(ms->stats[idx] = malloc(1*sizeof(struct task_statistics)))) {
+		if(!(ms->stats[idx] = malloc(sizeof(struct task_statistics)))) {
 			show_error_message("Cannot allocate task statistics structure in multi task statistics\n");
 			return 1;
 		}
