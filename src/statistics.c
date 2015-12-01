@@ -551,7 +551,7 @@ int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int
 		return 1;
 
 	for(int idx = 0; idx < num_hists; idx++) {
-		if(!(mh->histograms[idx] = malloc(1*sizeof(struct histogram)))) {
+		if(!(mh->histograms[idx] = malloc(sizeof(struct histogram)))) {
 			show_error_message("Cannot allocate histogram structure in multi histogram");
 			return 1;
 		}
