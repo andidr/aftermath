@@ -43,6 +43,9 @@ struct multi_histogram {
 
 	unsigned int num_hist_bins;
 	long double* max_values;  // array of num_hist_bins long double
+
+	long double left;
+	long double right;
 };
 
 int histogram_init(struct histogram* h, unsigned int num_bins, long double left, long double right);

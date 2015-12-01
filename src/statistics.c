@@ -409,6 +409,9 @@ int multi_task_statistics_to_task_length_multi_histogram(struct multi_task_stati
       	long double values[mh->num_hist_bins];
 	long double max_value = sum_bin_values(ms, mh->num_hist_bins, values);
 
+	mh->left = ms->min_all;
+	mh->right = ms->max_all;
+
 	for(int bin_idx = 0; bin_idx < mh->num_hist_bins; bin_idx++)
 		mh->max_values[bin_idx] = values[bin_idx] / max_value;
 
