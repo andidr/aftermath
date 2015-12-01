@@ -287,16 +287,21 @@ int multi_task_statistics_shrink(struct multi_task_statistics* ms, int num_tasks
 	for(int task_idx = num_tasks_stats; task_idx < ms->num_tasks_stats; task_idx++)
 		task_statistics_destroy(ms->stats[task_idx]);
 
-	if(num_tasks_stats == 0)
-		return 1;
-	else
-		ms->num_tasks_stats = num_tasks_stats;
+	if(num_tasks_stats == 0) {
+		free(ms->stats);
+		free(ms->task_ids);
 
-	if(!(ms->stats = realloc(ms->stats, num_tasks_stats*sizeof(struct task_statistics*))))
-		return 1;
+		ms->stats = NULL;
+		ms->task_ids = NULL;
+	} else {
+		if(!(ms->stats = realloc(ms->stats, num_tasks_stats*sizeof(struct task_statistics*))))
+			return 1;
 
-	if(!(ms->task_ids = realloc(ms->task_ids, num_tasks_stats*sizeof(int*))))
-		return 1;
+		if(!(ms->task_ids = realloc(ms->task_ids, num_tasks_stats*sizeof(int*))))
+			return 1;
+	}
+
+	ms->num_tasks_stats = num_tasks_stats;
 
 	return 0;
 }
