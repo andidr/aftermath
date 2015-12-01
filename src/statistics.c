@@ -547,11 +547,11 @@ int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int
 	mh->num_hists = num_hists;
 	mh->num_hist_bins = num_bins;
 
-	if(!(mh->histograms = (struct histogram**) calloc(num_hists, sizeof(struct histogram *))))
+	if(!(mh->histograms = calloc(num_hists, sizeof(struct histogram *))))
 		return 1;
 
 	for(int idx = 0; idx < num_hists; idx++) {
-		if(!(mh->histograms[idx] = (struct histogram*) malloc (1*sizeof(struct histogram)))) {
+		if(!(mh->histograms[idx] = malloc(1*sizeof(struct histogram)))) {
 			show_error_message("Cannot allocate histogram structure in multi histogram");
 			return 1;
 		}
@@ -560,12 +560,12 @@ int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int
 			return 1;
 	}
 
-	if(!(mh->task_ids = (int*) calloc(num_hists, sizeof(int)))) {
+	if(!(mh->task_ids = calloc(num_hists, sizeof(int)))) {
 		show_error_message("Cannot allocate task identifiers array in multi histogram");
 		return 1;
 	}
 
-	if(!(mh->max_values = (long double*) calloc(num_bins, sizeof(long double)))) {
+	if(!(mh->max_values = calloc(num_bins, sizeof(long double)))) {
 		show_error_message("Cannot allocate maximum values array in multi histogram");
 		return 1;
 	}
