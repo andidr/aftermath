@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-#define COUNTER_EVENT_SET_INDEX_DEFAULT_FAN_OUT 10
+#define COUNTER_EVENT_SET_INDEX_DEFAULT_FAN_OUT 100
 
 enum counter_event_set_index_node_type {
 	COUNTER_EVENT_SET_INDEX_NODE_TYPE_INTERNAL = 0,
