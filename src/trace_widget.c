@@ -69,6 +69,10 @@ static double predecessor_colors[NUM_PREDECESSOR_COLORS][3] = {
 	{COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)},
 	{COL_NORM(  0.0), COL_NORM(255.0), COL_NORM(  0.0)}};
 
+typedef int (*lane_pixel_function)(void* data, int cpu_idx,
+				   uint64_t start, uint64_t end,
+				   double* r, double* g, double* b);
+
 GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 {
 	GtkTrace *g = gtk_type_new(gtk_trace_get_type());
@@ -602,6 +606,160 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 	}
 
 	return TRUE;
+}
+
+void gtk_trace_paint_generic(GtkTrace* g, cairo_t* cr, lane_pixel_function pxfun, void* data)
+{
+	double cpu_height = gtk_trace_cpu_height(g);
+	double cpu_start;
+	int num_events_drawn = 0;
+	int px;
+
+	long double start;
+	long double end;
+
+	struct {
+		double r;
+		double g;
+		double b;
+
+		int valid;
+		int start_px;
+		int end_px;
+	} last, curr;
+
+	/* Make compiler happy wrt to uninitialized variables */
+	last.r = 0;
+	last.g = 0;
+	last.b = 0;
+
+	/* Clip to timeline without axes */
+	cairo_rectangle(cr, g->axis_width, 0,
+			g->widget.allocation.width - g->axis_width,
+			g->widget.allocation.height - g->axis_width);
+	cairo_clip(cr);
+
+	/* Draw each CPU lane */
+	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+		/* Skip CPUs not included in filter */
+		if(g->filter && !filter_has_cpu(g->filter, g->event_sets->sets[cpu_idx].cpu))
+			continue;
+
+		/* Y coordinate of the current CPU lane */
+		cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+		/* Before first visible lane? */
+		if(cpu_start + cpu_height < 0)
+			continue;
+
+		/* After last visible lane? */
+		if(cpu_start > g->widget.allocation.height - g->axis_width)
+			break;
+
+		last.start_px = 0;
+		last.end_px = 0;
+		last.valid = 0;
+
+		/* Find a value for each horizontal pixel on the lane */
+		for(px = g->axis_width; px < g->widget.allocation.width; px++) {
+			/* Start and end timestamps of the pixel's interval */
+			start = gtk_trace_screen_x_to_trace(g, px);
+			end = gtk_trace_screen_x_to_trace(g, px+1);
+
+			/* Skip pixels whose timestamp < 0 */
+			if(end <= 0)
+				continue;
+
+			/* Adjust intervals overlapping with 0 */
+			if(start < 0)
+				start = 0;
+
+			curr.valid = pxfun(data, cpu_idx, start, end, &curr.r, &curr.g, &curr.b);
+
+			if(last.valid) {
+				/* If we are passing from a defined interval to
+				   an undefined interval or if the color changes
+				   we need to draw the rectangle corresponding
+				   to the previous interval. */
+				if(!curr.valid ||
+				   (curr.valid && (curr.r != last.r ||
+						   curr.g != last.g ||
+						   curr.b != last.b)))
+				{
+					cairo_set_source_rgb(cr,
+							     last.r,
+							     last.g,
+							     last.b);
+
+					cairo_rectangle(cr,
+							last.start_px,
+							cpu_start,
+							px-last.start_px,
+							cpu_height);
+
+					cairo_fill(cr);
+					num_events_drawn++;
+				}
+			}
+
+			/* In case of an update move curr to last */
+			if(curr.valid && (!last.valid ||
+					  curr.r != last.r ||
+					  curr.g != last.g ||
+					  curr.b != last.b))
+			{
+				last.r = curr.r;
+				last.g = curr.g;
+				last.b = curr.b;
+				last.start_px = px;
+				last.valid = 1;
+			}
+
+			if(!curr.valid) {
+				last.valid = 0;
+			} else {
+				/* Save end pixel in case this is the last valid
+				   interval for this lane */
+				last.end_px = px;
+			}
+		}
+
+		/* Draw last interval whose rendering is not triggered
+		   by a subsequent interval */
+		if(last.valid) {
+			cairo_set_source_rgb(cr,
+					     last.r,
+					     last.g,
+					     last.b);
+
+			cairo_rectangle(cr,
+					last.start_px,
+					cpu_start,
+					px-last.start_px,
+					cpu_height);
+
+			cairo_fill(cr);
+			num_events_drawn++;
+		}
+	}
+
+	/* Draw separators between lanes */
+	if(cpu_height > 3) {
+		cairo_set_line_width (cr, 1);
+		cairo_set_source_rgb(cr, 0, 0, 0);
+
+		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
+			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
+			cairo_stroke(cr);
+		}
+	}
+
+	printf("Rectangles drawn: %d\n", num_events_drawn);
+
+	cairo_reset_clip(cr);
 }
 
 void gtk_trace_paint_background(GtkTrace* g, cairo_t* cr)
