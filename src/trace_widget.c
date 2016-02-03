@@ -872,114 +872,42 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+struct state_lane_pxfun_ctx {
+	struct multi_event_set* mes;
+	struct filter* filter;
+};
+
+int state_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct state_lane_pxfun_ctx* ctx = data;
+
+	int has_major;
+	int major_state;
+
+	has_major = event_set_get_major_state_seq(&ctx->mes->sets[cpu_idx],
+						  ctx->filter,
+						  start,
+						  end,
+						  ctx->mes->num_states,
+						  &major_state);
+
+	if(has_major) {
+		*r = ctx->mes->states[major_state].color_r;
+		*g = ctx->mes->states[major_state].color_g;
+		*b = ctx->mes->states[major_state].color_b;
+	}
+
+	return has_major;
+}
+
 void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 {
-	double cpu_height = gtk_trace_cpu_height(g);
+	struct state_lane_pxfun_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
 
-	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
-	cairo_clip(cr);
-
-	cairo_set_source_rgb(cr, 1.0, 0, 0);
-	int num_events_drawn = 0;
-
-	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-		long double last_start = 0;
-		long double last_end = 0;
-		int last_major_state = -1;
-		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
-		if(cpu_start + cpu_height < 0)
-			continue;
-
-		if(cpu_start > g->widget.allocation.height - g->axis_width)
-			break;
-
-		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
-			int major_state_seq;
-			long double start = gtk_trace_screen_x_to_trace(g, px);
-			long double end = gtk_trace_screen_x_to_trace(g, px+1);
-
-			if(end < 0)
-				continue;
-
-			int has_major = event_set_get_major_state_seq(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->num_states, &major_state_seq);
-
-			if(last_major_state != -1) {
-				if((has_major && last_major_state != major_state_seq) || !has_major) {
-					cairo_set_source_rgb(cr,
-							     g->event_sets->states[last_major_state].color_r,
-							     g->event_sets->states[last_major_state].color_g,
-							     g->event_sets->states[last_major_state].color_b);
-					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
-					cairo_fill(cr);
-					num_events_drawn++;
-				}
-			}
-
-			if(has_major && last_major_state != major_state_seq) {
-				last_major_state = major_state_seq;
-				last_start = px;
-			}
-
-			if(!has_major)
-				last_major_state = -1;
-			else
-				last_end = px;
-		}
-
-		if(last_major_state != -1) {
-			cairo_set_source_rgb(cr,
-					     g->event_sets->states[last_major_state].color_r,
-					     g->event_sets->states[last_major_state].color_g,
-					     g->event_sets->states[last_major_state].color_b);
-
-			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
-			cairo_fill(cr);
-			num_events_drawn++;
-		}
-
-		if(g->highlight_state_event &&
-		   event_set_has_state_event(&g->event_sets->sets[cpu_idx], g->highlight_state_event) &&
-		   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
-		{
-			if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
-				double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
-				double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
-
-				if(x_start < g->axis_width)
-					x_start = 0;
-
-				if(x_end > g->widget.allocation.width)
-					x_end = g->widget.allocation.width;
-
-				double width = x_end - x_start;
-
-				if(width < 1)
-					width = 1;
-
-				cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
-				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
-				cairo_fill(cr);
-			}
-		}
-	}
-
-	if(cpu_height > 3) {
-		cairo_set_line_width (cr, 1);
-		cairo_set_source_rgb(cr, 0, 0, 0);
-
-		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
-			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
-			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
-			cairo_stroke(cr);
-		}
-	}
-
-	printf("State events drawn: %d\n", num_events_drawn);
-
-	cairo_reset_clip(cr);
+	gtk_trace_paint_generic(g, cr, state_lane_pxfun, &ctx);
 }
 
 static int get_max_index_uint64(uint64_t* vals, int n)
@@ -2014,6 +1942,42 @@ void gtk_trace_paint_highlighted_task(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_highlighted_state(GtkTrace* g, cairo_t* cr)
+{
+	if(g->highlight_state_event &&
+	   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
+	{
+		if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
+			double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
+			double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
+
+			int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, g->highlight_state_event->event_set->cpu);
+			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+			double cpu_height = gtk_trace_cpu_height(g);
+
+			if(x_start < g->axis_width)
+				x_start = 0;
+
+			if(x_end > g->widget.allocation.width)
+				x_end = g->widget.allocation.width;
+
+			double width = x_end - x_start;
+
+			if(width < 1)
+				width = 1;
+
+			cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
+			cairo_clip(cr);
+
+			cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
+			cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+			cairo_fill(cr);
+
+			cairo_reset_clip(cr);
+		}
+	}
+}
+
 void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 {
 	double cpu_height = gtk_trace_cpu_height(g);
@@ -2480,6 +2444,9 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 
 	if(g->highlight_predecessor_inst)
 		gtk_trace_paint_highlighted_predecessor_instances(g, cr);
+
+	if(g->highlight_state_event)
+		gtk_trace_paint_highlighted_state(g, cr);
 
 	if(g->highlight_task_texec_start)
 		gtk_trace_paint_highlighted_task(g, cr);
