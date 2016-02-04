@@ -1072,110 +1072,65 @@ void gtk_trace_paint_heatmap_numa(GtkTrace* g, cairo_t* cr)
 	gtk_trace_paint_generic(g, cr, heatmap_numa_lane_pxfun, &ctx);
 }
 
-void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
+struct numa_map_lane_pxfun_ctx {
+	struct multi_event_set* mes;
+	struct filter* filter;
+};
+
+int numa_read_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
 {
-	int last_node;
-	int curr_node;
-	double cpu_height = gtk_trace_cpu_height(g);
-	int valid;
-	double col_r, col_g, col_b;
+	struct numa_map_lane_pxfun_ctx* ctx = data;
+	int valid = 0;
+	int node;
 
-	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
-	cairo_clip(cr);
+	valid = event_set_get_major_read_node_in_interval(&ctx->mes->sets[cpu_idx],
+							  ctx->filter,
+							  start, end,
+							  ctx->mes->max_numa_node_id,
+							  &node);
 
-	cairo_set_source_rgb(cr, 1.0, 0, 0);
-	int num_parts_drawn = 0;
+	if(valid)
+		get_node_color_dbl(node, ctx->mes->max_numa_node_id, r, g, b);
 
-	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-		long double last_start = 0;
-		long double last_end = 0;
-		last_node = -1;
+	return valid;
+}
 
-		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+int numa_write_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct numa_map_lane_pxfun_ctx* ctx = data;
+	int valid = 0;
+	int node;
 
-		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
-			long double start = gtk_trace_screen_x_to_trace(g, px);
-			long double end = gtk_trace_screen_x_to_trace(g, px+1);
+	valid = event_set_get_major_written_node_in_interval(&ctx->mes->sets[cpu_idx],
+							     ctx->filter,
+							     start, end,
+							     ctx->mes->max_numa_node_id,
+							     &node);
 
-			if(start < 0)
-				continue;
+	if(valid)
+		get_node_color_dbl(node, ctx->mes->max_numa_node_id, r, g, b);
 
-			if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS)
-				valid = event_set_get_major_read_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
-			else
-				valid = event_set_get_major_written_node_in_interval(&g->event_sets->sets[cpu_idx], g->filter, start, end, g->event_sets->max_numa_node_id, &curr_node);
+	return valid;
+}
 
-			if(last_node != -1) {
-				if((valid && last_node != curr_node) || !valid) {
-					get_node_color_dbl(last_node, g->event_sets->max_numa_node_id, &col_r, &col_g, &col_b);
-					cairo_set_source_rgb(cr, col_r, col_g, col_b);
-					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
-					cairo_fill(cr);
-					num_parts_drawn++;
-				}
-			}
+void gtk_trace_paint_numa_read_map(GtkTrace* g, cairo_t* cr)
+{
+	struct numa_map_lane_pxfun_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
 
-			if(valid && last_node != curr_node) {
-				last_node = curr_node;
-				last_start = px;
-			}
+	gtk_trace_paint_generic(g, cr, numa_read_map_lane_pxfun, &ctx);
+}
 
-			if(!valid)
-				last_node = -1;
-			else
-				last_end = px;
-		}
+void gtk_trace_paint_numa_write_map(GtkTrace* g, cairo_t* cr)
+{
+	struct numa_map_lane_pxfun_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
 
-		if(last_node != -1) {
-			get_node_color_dbl(last_node, g->event_sets->max_numa_node_id, &col_r, &col_g, &col_b);
-			cairo_set_source_rgb(cr, col_r, col_g, col_b);
-			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
-			cairo_fill(cr);
-			num_parts_drawn++;
-		}
-	}
-
-	if(g->highlight_state_event &&
-	   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
-	{
-		if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
-			double cpu_start = gtk_trace_cpu_start(g, multi_event_set_find_cpu_idx(g->event_sets, g->highlight_state_event->event_set->cpu));
-			double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);
-			double x_end = gtk_trace_x_to_screen(g, g->highlight_state_event->end);
-
-			if(x_start < g->axis_width)
-				x_start = 0;
-
-			if(x_end > g->widget.allocation.width)
-				x_end = g->widget.allocation.width;
-
-			double width = x_end - x_start;
-
-			if(width < 1)
-				width = 1;
-
-			cairo_set_source_rgb(cr, highlight_color[0], highlight_color[1], highlight_color[2]);
-			cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
-			cairo_fill(cr);
-		}
-	}
-
-	if(cpu_height > 3) {
-		cairo_set_line_width (cr, 1);
-		cairo_set_source_rgb(cr, 0, 0, 0);
-
-		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
-			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
-			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
-			cairo_stroke(cr);
-		}
-	}
-
-	printf("NUMA map parts drawn: %d\n", num_parts_drawn);
-
-	cairo_reset_clip(cr);
+	gtk_trace_paint_generic(g, cr, numa_write_map_lane_pxfun, &ctx);
 }
 
 void draw_triangle(cairo_t* cr, int x, int y, int width, int height)
@@ -2256,9 +2211,11 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	if(g->map_mode == GTK_TRACE_MAP_MODE_HEAT_NUMA)
 		gtk_trace_paint_heatmap_numa(g, cr);
 
-	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS ||
-	   g->map_mode == GTK_TRACE_MAP_MODE_NUMA_WRITES)
-		gtk_trace_paint_numa_map(g, cr);
+	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_READS)
+		gtk_trace_paint_numa_read_map(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_NUMA_WRITES)
+		gtk_trace_paint_numa_write_map(g, cr);
 
 	if(g->map_mode == GTK_TRACE_MAP_MODE_TASK_TYPE)
 		gtk_trace_paint_task_type_map(g, cr);
