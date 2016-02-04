@@ -872,14 +872,14 @@ void gtk_trace_paint_axes(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
-struct state_lane_pxfun_ctx {
+struct pxfun_common_ctx {
 	struct multi_event_set* mes;
 	struct filter* filter;
 };
 
 int state_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
 {
-	struct state_lane_pxfun_ctx* ctx = data;
+	struct pxfun_common_ctx* ctx = data;
 
 	int has_major;
 	int major_state;
@@ -902,7 +902,7 @@ int state_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, doub
 
 void gtk_trace_paint_states(GtkTrace* g, cairo_t* cr)
 {
-	struct state_lane_pxfun_ctx ctx = {
+	struct pxfun_common_ctx ctx = {
 		.mes = g->event_sets,
 		.filter = g->filter
 	};
@@ -925,14 +925,9 @@ static int get_max_index_uint64(uint64_t* vals, int n)
 	return idx_max;
 }
 
-struct type_lane_pxfun_ctx {
-	struct multi_event_set* mes;
-	struct filter* filter;
-};
-
 int type_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
 {
-	struct type_lane_pxfun_ctx* ctx = data;
+	struct pxfun_common_ctx* ctx = data;
 	uint64_t durations[ctx->mes->num_tasks];
 	int valid = 0;
 	int idx;
@@ -956,7 +951,7 @@ int type_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, doubl
 
 void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
 {
-	struct type_lane_pxfun_ctx ctx = {
+	struct pxfun_common_ctx ctx = {
 		.mes = g->event_sets,
 		.filter = g->filter
 	};
@@ -1072,14 +1067,9 @@ void gtk_trace_paint_heatmap_numa(GtkTrace* g, cairo_t* cr)
 	gtk_trace_paint_generic(g, cr, heatmap_numa_lane_pxfun, &ctx);
 }
 
-struct numa_map_lane_pxfun_ctx {
-	struct multi_event_set* mes;
-	struct filter* filter;
-};
-
 int numa_read_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
 {
-	struct numa_map_lane_pxfun_ctx* ctx = data;
+	struct pxfun_common_ctx* ctx = data;
 	int valid = 0;
 	int node;
 
@@ -1097,7 +1087,7 @@ int numa_read_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t e
 
 int numa_write_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
 {
-	struct numa_map_lane_pxfun_ctx* ctx = data;
+	struct pxfun_common_ctx* ctx = data;
 	int valid = 0;
 	int node;
 
@@ -1115,7 +1105,7 @@ int numa_write_map_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t 
 
 void gtk_trace_paint_numa_read_map(GtkTrace* g, cairo_t* cr)
 {
-	struct numa_map_lane_pxfun_ctx ctx = {
+	struct pxfun_common_ctx ctx = {
 		.mes = g->event_sets,
 		.filter = g->filter
 	};
@@ -1125,7 +1115,7 @@ void gtk_trace_paint_numa_read_map(GtkTrace* g, cairo_t* cr)
 
 void gtk_trace_paint_numa_write_map(GtkTrace* g, cairo_t* cr)
 {
-	struct numa_map_lane_pxfun_ctx ctx = {
+	struct pxfun_common_ctx ctx = {
 		.mes = g->event_sets,
 		.filter = g->filter
 	};
