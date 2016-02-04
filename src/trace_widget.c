@@ -1023,95 +1023,53 @@ void gtk_trace_paint_heatmap_tasklen(GtkTrace* g, cairo_t* cr)
 	gtk_trace_paint_generic(g, cr, heatmap_lane_pxfun, &ctx);
 }
 
+struct heatmap_numa_lane_pxfun_ctx {
+	struct multi_event_set* mes;
+	struct filter* filter;
+	int shades;
+};
+
+int heatmap_numa_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct heatmap_numa_lane_pxfun_ctx* ctx = data;
+	int valid = 0;
+	int64_t bin;
+	long double ratio;
+	long double intensity;
+	uint64_t local_bytes;
+	uint64_t remote_bytes;
+
+	valid = event_set_get_remote_local_numa_bytes_in_interval(&ctx->mes->sets[cpu_idx],
+								  ctx->filter,
+								  start, end,
+								  ctx->mes->sets[cpu_idx].numa_node,
+								  &local_bytes,
+								  &remote_bytes);
+
+	if(local_bytes+remote_bytes > 0)
+		ratio = ((long double)remote_bytes) / ((long double)(local_bytes+remote_bytes));
+	else
+		ratio = 1.0;
+
+	bin = roundl(ratio * ((long double)ctx->shades));
+	intensity =  ((long double)bin) / ((long double)ctx->shades);
+
+	*r = intensity;
+	*g = 0.0;
+	*b = 0.6;
+
+	return valid;
+}
+
 void gtk_trace_paint_heatmap_numa(GtkTrace* g, cairo_t* cr)
 {
-	int64_t last_bin;
-	int64_t curr_bin;
-	double cpu_height = gtk_trace_cpu_height(g);
-	int valid;
-	uint64_t local_bytes, remote_bytes;
-	long double ratio;
+	struct heatmap_numa_lane_pxfun_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter,
+		.shades = g->heatmap_shades
+	};
 
-	cairo_rectangle(cr, g->axis_width, 0, g->widget.allocation.width - g->axis_width, g->widget.allocation.height - g->axis_width);
-	cairo_clip(cr);
-
-	cairo_set_source_rgb(cr, 1.0, 0, 0);
-	int num_parts_drawn = 0;
-
-	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-		long double last_start = 0;
-		long double last_end = 0;
-		last_bin = -1;
-
-		double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
-		for(int px = g->axis_width; px < g->widget.allocation.width; px++) {
-			long double start = gtk_trace_screen_x_to_trace(g, px);
-			long double end = gtk_trace_screen_x_to_trace(g, px+1);
-
-			if(start < 0)
-				continue;
-
-			valid = event_set_get_remote_local_numa_bytes_in_interval(&g->event_sets->sets[cpu_idx],
-										  g->filter, start, end,
-										  g->event_sets->sets[cpu_idx].numa_node, &local_bytes,
-										  &remote_bytes);
-
-			if(local_bytes+remote_bytes > 0)
-				ratio = ((long double)remote_bytes) / ((long double)(local_bytes+remote_bytes));
-			else
-				ratio = 1.0;
-
-			curr_bin = roundl(ratio * ((long double)g->heatmap_shades));
-
-			if(last_bin != -1) {
-				if((valid && last_bin != curr_bin) || !valid) {
-					long double intensity =  ((long double)last_bin) / ((long double)g->heatmap_shades);
-
-					cairo_set_source_rgb(cr, intensity, 0.0, 0.6);
-					cairo_rectangle(cr, last_start, cpu_start, px-last_start, cpu_height);
-					cairo_fill(cr);
-					num_parts_drawn++;
-				}
-			}
-
-			if(valid && last_bin != curr_bin) {
-				last_bin = curr_bin;
-				last_start = px;
-			}
-
-			if(!valid)
-				last_bin = -1;
-			else
-				last_end = px;
-		}
-
-		if(last_bin != -1) {
-			long double intensity =  ((long double)last_bin) / ((long double)g->heatmap_shades);
-
-			cairo_set_source_rgb(cr, intensity, 0.0, 0.6);
-			cairo_rectangle(cr, last_start, cpu_start, last_end - last_start, cpu_height);
-			cairo_fill(cr);
-			num_parts_drawn++;
-		}
-	}
-
-	if(cpu_height > 3) {
-		cairo_set_line_width (cr, 1);
-		cairo_set_source_rgb(cr, 0, 0, 0);
-
-		for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
-			double cpu_start = gtk_trace_cpu_start(g, cpu_idx);
-
-			cairo_move_to(cr, g->axis_width, floor(cpu_start)+0.5);
-			cairo_line_to(cr, g->widget.allocation.width, floor(cpu_start)+0.5);
-			cairo_stroke(cr);
-		}
-	}
-
-	printf("Heatmap parts drawn: %d\n", num_parts_drawn);
-
-	cairo_reset_clip(cr);
+	gtk_trace_paint_generic(g, cr, heatmap_numa_lane_pxfun, &ctx);
 }
 
 void gtk_trace_paint_numa_map(GtkTrace* g, cairo_t* cr)
