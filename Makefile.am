@@ -88,7 +88,9 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/aux.h \
 		src/parser.h \
 		src/object_notation.h \
-		src/object_notation.c
+		src/object_notation.c \
+		src/monotonic_index.h \
+		src/monotonic_index.c
 
 libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
 
