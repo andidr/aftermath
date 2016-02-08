@@ -248,7 +248,8 @@ TESTS = counter_event_set_index_test \
 	object_notation_test \
 	color_scheme_test \
 	bitvector_test \
-	filter_expression_test
+	filter_expression_test \
+	monotonic_index_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -305,3 +306,9 @@ filter_expression_test_SOURCES = tests/filter_expression.test.c \
 
 filter_expression_test_CFLAGS = $(TESTS_CFLAGS)
 filter_expression_test_LDADD = $(TESTS_LDADD)
+
+monotonic_index_test_SOURCES = tests/monotonic_index.test.c \
+	$(UNIT_TEST_SOURCES)
+
+monotonic_index_test_CFLAGS = $(TESTS_CFLAGS)
+monotonic_index_test_LDADD = $(TESTS_LDADD)
