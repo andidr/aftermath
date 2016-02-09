@@ -54,6 +54,10 @@ struct event_set {
 	size_t num_annotations;
 	size_t num_annotations_free;
 
+	struct omp_for_chunk_set_part* omp_for_chunk_set_parts;
+	size_t num_omp_for_chunk_set_parts;
+	size_t num_omp_for_chunk_set_parts_free;
+
 	int cpu;
 	int numa_node;
 	uint64_t first_start;
@@ -284,6 +288,10 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_annotations = 0;
 	es->num_annotations_free = 0;
 	es->annotations = NULL;
+
+	es->num_omp_for_chunk_set_parts = 0;
+	es->num_omp_for_chunk_set_parts_free = 0;
+	es->omp_for_chunk_set_parts = NULL;
 
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;
