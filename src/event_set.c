@@ -231,6 +231,42 @@ int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int nu
 	return -1;
 }
 
+/* Determines for each type of state how much time was spent in that
+ * state suring the interval defined by [start; end]. The filter f is
+ * evaluated on each of the state events that overlap into the
+ * interval. If no state event overlaps with the interval, the
+ * function returns 0, otherwise 1. If break_half is set to 1
+ * calculations stop as soon as one state occupies more than half of
+ * the duration of the interval. If init is set to 1, the state
+ * durations array is initialized with zeros.
+ */
+int event_set_get_state_durations(struct event_set* es, struct filter* f,
+				  uint64_t start, uint64_t end,
+				  int num_states, uint64_t* state_durations,
+				  int init, int break_half)
+{
+	int idx_start = event_set_get_first_state_in_interval(es, start, end);
+	uint64_t half = (end - start) / 2;
+
+	if(init)
+		memset(state_durations, 0, num_states * sizeof(uint64_t));
+
+	if(idx_start == -1)
+		return 0;
+
+	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
+		if(!f || filter_has_state_event(f, &es->state_events[i])) {
+			state_durations[es->state_events[i].state_id_seq] +=
+				state_event_length_in_interval(&es->state_events[i], start, end);
+
+			if(break_half && state_durations[es->state_events[i].state_id_seq] > half)
+				return 1;
+		}
+	}
+
+	return 1;
+}
+
 /* Finds out which type of state dominates the interval defined by
  * [start; end]. If for two or more states the time is identical, the
  * type with the lowest id takes precedence. The filter f is evaluated
@@ -243,26 +279,13 @@ int event_set_get_next_comm_event_arr(struct event_set* es, int curr_idx, int nu
  */
 int event_set_get_major_state_seq(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int num_states, int* major_state_seq)
 {
-	int idx_start = event_set_get_first_state_in_interval(es, start, end);
 	uint64_t state_durations[num_states];
 	uint64_t max = 0;
-	uint64_t half = (end - start) / 2;
 
-	if(idx_start == -1)
+	if(!event_set_get_state_durations(es, f, start, end, num_states,
+					  state_durations, 1, 1))
+	{
 		return 0;
-
-	memset(state_durations, 0, sizeof(state_durations));
-
-	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
-		if(!f || filter_has_state_event(f, &es->state_events[i])) {
-			state_durations[es->state_events[i].state_id_seq] +=
-				state_event_length_in_interval(&es->state_events[i], start, end);
-
-			if(state_durations[es->state_events[i].state_id_seq] > half) {
-				*major_state_seq = es->state_events[i].state_id_seq;
-				return 1;
-			}
-		}
 	}
 
 	for(int id_seq = 0; id_seq < num_states; id_seq++) {
