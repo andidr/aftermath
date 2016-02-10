@@ -251,7 +251,8 @@ TESTS = counter_event_set_index_test \
 	color_scheme_test \
 	bitvector_test \
 	filter_expression_test \
-	monotonic_index_test
+	monotonic_index_test \
+	state_index_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -314,3 +315,9 @@ monotonic_index_test_SOURCES = tests/monotonic_index.test.c \
 
 monotonic_index_test_CFLAGS = $(TESTS_CFLAGS)
 monotonic_index_test_LDADD = $(TESTS_LDADD)
+
+state_index_test_SOURCES = tests/state_index.test.c \
+	$(UNIT_TEST_SOURCES)
+
+state_index_test_CFLAGS = $(TESTS_CFLAGS)
+state_index_test_LDADD = $(TESTS_LDADD)
