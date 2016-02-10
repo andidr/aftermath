@@ -58,6 +58,7 @@ struct event_set {
 struct filter;
 int event_set_get_enclosing_state(struct event_set* es, uint64_t time);
 int event_set_get_first_state_in_interval(struct event_set* es, uint64_t start, uint64_t end);
+int event_set_has_state_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end);
 int event_set_get_first_state_starting_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_state_starting_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, int type);
 int event_set_get_next_state_event(struct event_set* es, int curr_idx, int state);

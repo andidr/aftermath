@@ -105,6 +105,29 @@ int event_set_get_first_state_in_interval(struct event_set* es, uint64_t interva
 }
 
 /*
+ * Checks whether the interval defined by [start; end] contains at
+ * least one state event that overlaps with the interval and that has
+ * not been filtered out by f. If no such state is found, the function
+ * return 0, otherwise 1.
+ */
+int event_set_has_state_in_interval(struct event_set* es, struct filter* f, uint64_t start, uint64_t end)
+{
+	int idx = event_set_get_first_state_in_interval(es, start, end);
+
+	if(idx == -1)
+		return 0;
+
+	for(; idx < es->num_state_events && es->state_events[idx].start <= end;
+	    idx++)
+	{
+		if(!f || filter_has_state_event(f, &es->state_events[idx]))
+			return 1;
+	}
+
+	return 0;
+}
+
+/*
  * Returns the index of the first state event in es->state_events that
  * starts within [interval_start; interval_end]. If no such state
  * event exists (e.g., if there are no state events in the specified
