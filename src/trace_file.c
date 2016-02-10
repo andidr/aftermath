@@ -110,6 +110,36 @@ int trace_state_description_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_omp_for_conversion_table[] = {
+	FIELD_SIZE(struct trace_omp_for_instance, type),
+	FIELD_SIZE(struct trace_omp_for_instance, flags),
+	FIELD_SIZE(struct trace_omp_for_instance, addr),
+	FIELD_SIZE(struct trace_omp_for_instance, id),
+	FIELD_SIZE(struct trace_omp_for_instance, increment),
+	FIELD_SIZE(struct trace_omp_for_instance, lower_bound),
+	FIELD_SIZE(struct trace_omp_for_instance, upper_bound),
+	FIELD_SIZE(struct trace_omp_for_instance, num_workers),
+	CONVERSION_TABLE_END
+};
+
+int trace_omp_for_chunk_set_conversion_table[] = {
+	FIELD_SIZE(struct trace_omp_for_chunk_set, type),
+	FIELD_SIZE(struct trace_omp_for_chunk_set, for_id),
+	FIELD_SIZE(struct trace_omp_for_chunk_set, id),
+	FIELD_SIZE(struct trace_omp_for_chunk_set, first_lower),
+	FIELD_SIZE(struct trace_omp_for_chunk_set, first_upper),
+	CONVERSION_TABLE_END
+};
+
+int trace_omp_for_chunk_set_part_conversion_table[] = {
+	FIELD_SIZE(struct trace_omp_for_chunk_set_part, type),
+	FIELD_SIZE(struct trace_omp_for_chunk_set_part, cpu),
+	FIELD_SIZE(struct trace_omp_for_chunk_set_part, chunk_set_id),
+	FIELD_SIZE(struct trace_omp_for_chunk_set_part, start),
+	FIELD_SIZE(struct trace_omp_for_chunk_set_part, end),
+	CONVERSION_TABLE_END
+};
+
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
