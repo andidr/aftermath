@@ -120,7 +120,7 @@ int event_set_has_state_in_interval(struct event_set* es, struct filter* f, uint
 	for(; idx < es->num_state_events && es->state_events[idx].start <= end;
 	    idx++)
 	{
-		if(!f || filter_has_state_event(f, &es->state_events[idx]))
+		if(filter_has_state_event(f, &es->state_events[idx]))
 			return 1;
 	}
 
@@ -278,7 +278,7 @@ int event_set_get_state_durations(struct event_set* es, struct filter* f,
 		return 0;
 
 	for(int i = idx_start; i < es->num_state_events && es->state_events[i].start < end; i++) {
-		if(!f || filter_has_state_event(f, &es->state_events[i])) {
+		if(filter_has_state_event(f, &es->state_events[i])) {
 			state_durations[es->state_events[i].state_id_seq] +=
 				state_event_length_in_interval(&es->state_events[i], start, end);
 
@@ -633,7 +633,7 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 	struct single_event* texec_start;
 	int texec_start_idx;
 
-	if(f && !filter_has_cpu(f, es->cpu))
+	if(!filter_has_cpu(f, es->cpu))
 		goto out;
 
 	if((texec_start_idx = event_set_get_last_single_event_in_interval_type(es, 0, start, SINGLE_TYPE_TEXEC_START)) == -1)
@@ -779,7 +779,7 @@ int __event_set_get_major_accessed_node_in_interval(struct event_set* es, enum c
 	memset(node_data, 0, (max_numa_node_id+1)*sizeof(node_data[0]));
 
 	for(; texec_start && texec_start->time < end; texec_start = texec_start->next_texec_start) {
-		if(!f || filter_has_single_event(f, texec_start)) {
+		if(filter_has_single_event(f, texec_start)) {
 			texec_end = texec_start->next_texec_end;
 
 			task_time = task_length_in_interval(texec_start, texec_end, start, end);
@@ -1019,7 +1019,7 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 	for(int ctr_ev_idx = 0; ctr_ev_idx < es->num_counter_event_sets; ctr_ev_idx++) {
 		ces = &es->counter_event_sets[ctr_ev_idx];
 
-		if(f && !filter_has_counter(f, ces->desc))
+		if(!filter_has_counter(f, ces->desc))
 			continue;
 
 		for(struct single_event* se = first_texec_start;
@@ -1123,7 +1123,7 @@ int event_set_get_remote_local_numa_bytes_in_interval(struct event_set* es,
 	*local_bytes = 0;
 	*remote_bytes = 0;
 
-	if(f && !filter_has_cpu(f, es->cpu))
+	if(!filter_has_cpu(f, es->cpu))
 		goto out;
 
 	/* Find first task execution starting in interval or the last

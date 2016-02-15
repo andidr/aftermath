@@ -28,7 +28,7 @@ void filter_sort_tasks(struct filter* f)
 
 int filter_has_task(struct filter* f, struct task* t)
 {
-	if(!f->filter_tasks)
+	if(!f || !f->filter_tasks)
 		return 1;
 
 	return (bsearch(&t, f->tasks,
@@ -45,7 +45,7 @@ void filter_sort_frames(struct filter* f)
 
 int filter_has_frame(struct filter* f, struct frame* fr)
 {
-	if(!f->filter_frames)
+	if(!f || !f->filter_frames)
 		return 1;
 
 	if(!filter_has_frame_numa_node(f, fr->numa_node))

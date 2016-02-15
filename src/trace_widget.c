@@ -549,7 +549,7 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 		if(!g->moved_during_navigation) {
 			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
 
-			if(se && (!g->filter || filter_has_state_event(g->filter, se))) {
+			if(se && filter_has_state_event(g->filter, se)) {
 				g->highlight_state_event = se;
 				g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
 				gtk_widget_queue_draw(widget);
@@ -590,7 +590,7 @@ gint gtk_trace_motion_event(GtkWidget* widget, GdkEventMotion* event)
 		default:
 			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
 
-			if(se && g->filter && !filter_has_state_event(g->filter, se))
+			if(se && !filter_has_state_event(g->filter, se))
 				se = NULL;
 
 			g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED], 0, se, cpu, worker);
@@ -642,7 +642,7 @@ void gtk_trace_paint_generic(GtkTrace* g, cairo_t* cr, lane_pixel_function pxfun
 	/* Draw each CPU lane */
 	for(int cpu_idx = 0; cpu_idx < g->event_sets->num_sets; cpu_idx++) {
 		/* Skip CPUs not included in filter */
-		if(g->filter && !filter_has_cpu(g->filter, g->event_sets->sets[cpu_idx].cpu))
+		if(!filter_has_cpu(g->filter, g->event_sets->sets[cpu_idx].cpu))
 			continue;
 
 		/* Y coordinate of the current CPU lane */
@@ -1202,7 +1202,7 @@ void gtk_trace_paint_comm(GtkTrace* g, cairo_t* cr)
 			else if(comm_type == COMM_TYPE_DATA_WRITE && !g->draw_data_writes)
 				continue;
 
-			if(g->filter && !filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event]))
+			if(!filter_has_comm_event(g->filter, g->event_sets, &g->event_sets->sets[cpu_idx].comm_events[comm_event]))
 				continue;
 
 			long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
@@ -1570,7 +1570,7 @@ void gtk_trace_paint_counters(GtkTrace* g, cairo_t* cr)
 				max_vis_slope = cd->max_slope;
 			}
 
-			if(g->filter && !filter_has_counter(g->filter, cd))
+			if(!filter_has_counter(g->filter, cd))
 				continue;
 
 			if(ces->idx)
@@ -1609,7 +1609,7 @@ void gtk_trace_paint_single_events(GtkTrace* g, cairo_t* cr)
 				if(g->event_sets->sets[cpu_idx].single_events[single_event].time > g->right)
 					break;
 
-				if(g->filter && !filter_has_single_event(g->filter, &g->event_sets->sets[cpu_idx].single_events[single_event]))
+				if(!filter_has_single_event(g->filter, &g->event_sets->sets[cpu_idx].single_events[single_event]))
 					continue;
 
 				long double screen_x = roundl(gtk_trace_x_to_screen(g, time));
@@ -1717,7 +1717,7 @@ void gtk_trace_paint_highlighted_task(GtkTrace* g, cairo_t* cr)
 void gtk_trace_paint_highlighted_state(GtkTrace* g, cairo_t* cr)
 {
 	if(g->highlight_state_event &&
-	   (!g->filter || filter_has_state_event(g->filter, g->highlight_state_event)))
+	   filter_has_state_event(g->filter, g->highlight_state_event))
 	{
 		if(g->highlight_state_event->start <= g->right && g->highlight_state_event->end >= g->left) {
 			double x_start = gtk_trace_x_to_screen(g, g->highlight_state_event->start);

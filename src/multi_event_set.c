@@ -31,7 +31,7 @@ int multi_event_set_get_max_task_duration_in_interval(struct multi_event_set* me
 	struct event_set* es;
 
 	for_each_event_set(mes, es)
-		if(!f || filter_has_cpu(f, es->cpu))
+		if(filter_has_cpu(f, es->cpu))
 			if(event_set_get_max_task_duration_in_interval(es, f, start, end, &curr))
 				if(curr > max)
 					max = curr;
@@ -48,7 +48,7 @@ int multi_event_set_get_min_task_duration_in_interval(struct multi_event_set* me
 	struct event_set* es;
 
 	for_each_event_set(mes, es)
-		if(!f || filter_has_cpu(f, es->cpu))
+		if(filter_has_cpu(f, es->cpu))
 			if(event_set_get_min_task_duration_in_interval(es, f, start, end, &curr))
 				if(curr < min)
 					min = curr;
@@ -67,7 +67,7 @@ int multi_event_set_get_min_max_task_duration_in_interval(struct multi_event_set
 	struct event_set* es;
 
 	for_each_event_set(mes, es) {
-		if(!f || filter_has_cpu(f, es->cpu)) {
+		if(filter_has_cpu(f, es->cpu)) {
 			if(event_set_get_min_max_task_duration_in_interval(es, f, start, end, &curr_min, &curr_max)) {
 				if(curr_min < lmin)
 					lmin = curr_min;
@@ -112,7 +112,7 @@ int multi_event_set_cpus_have_counters(struct multi_event_set* mes, struct filte
 
 	for_each_counterdesc(mes, cd) {
 		for_each_event_set(mes, es) {
-			if(f && !filter_has_cpu(f, es->cpu))
+			if(!filter_has_cpu(f, es->cpu))
 				continue;
 
 			if(!event_set_has_counter(es, cd))

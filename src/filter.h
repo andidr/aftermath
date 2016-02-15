@@ -185,6 +185,9 @@ static inline void filter_remove_single_event_type(struct filter* f, enum single
 
 static inline int filter_has_single_event_type(struct filter* f, enum single_event_type t)
 {
+	if(!f)
+		return 1;
+
 	if(!f->filter_single_event_types)
 		return 1;
 
@@ -271,7 +274,7 @@ static inline void filter_clear_counters(struct filter* f)
 
 static inline int filter_has_counter(struct filter* f, struct counter_description* cd)
 {
-	return !f->filter_counters || bitvector_test_bit(&f->counters, cd->index);
+	return !f || !f->filter_counters || bitvector_test_bit(&f->counters, cd->index);
 }
 
 static inline void filter_add_frame_numa_node(struct filter* f, int node_id)
@@ -288,7 +291,7 @@ static inline void filter_clear_frame_numa_nodes(struct filter* f)
 
 static inline int filter_has_frame_numa_node(struct filter* f, int node_id)
 {
-	return !f->filter_frame_numa_nodes || bitvector_test_bit(&f->frame_numa_nodes, node_id);
+	return !f || !f->filter_frame_numa_nodes || bitvector_test_bit(&f->frame_numa_nodes, node_id);
 }
 
 static inline void filter_set_frame_numa_node_filtering(struct filter* f, int b)
@@ -310,7 +313,7 @@ static inline void filter_clear_comm_numa_nodes(struct filter* f)
 
 static inline int filter_has_comm_numa_node(struct filter* f, int node_id)
 {
-	return !f->filter_comm_numa_nodes || bitvector_test_bit(&f->comm_numa_nodes, node_id);
+	return !f || !f->filter_comm_numa_nodes || bitvector_test_bit(&f->comm_numa_nodes, node_id);
 }
 
 static inline void filter_set_comm_numa_node_filtering(struct filter* f, int b)
@@ -344,7 +347,7 @@ static inline void filter_writes_to_numa_nodes_nodes(struct filter* f)
 
 static inline int filter_has_writes_to_numa_nodes_node(struct filter* f, int node_id)
 {
-	return !f->filter_writes_to_numa_nodes || bitvector_test_bit(&f->writes_to_numa_nodes, node_id);
+	return !f || !f->filter_writes_to_numa_nodes || bitvector_test_bit(&f->writes_to_numa_nodes, node_id);
 }
 
 static inline void filter_set_writes_to_numa_nodes_filtering(struct filter* f, int b)
@@ -360,7 +363,7 @@ int filter_has_frame(struct filter* f, struct frame* fr);
 
 static inline int filter_has_cpu(struct filter* f, int cpu)
 {
-	if(!f->filter_cpus)
+	if(!f || !f->filter_cpus)
 		return 1;
 
 	return bitvector_test_bit(&f->cpus, cpu);
@@ -368,7 +371,7 @@ static inline int filter_has_cpu(struct filter* f, int cpu)
 
 static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
 {
-	if(!f->filter_task_length)
+	if(!f || !f->filter_task_length)
 		return 1;
 
 	return (duration >= f->min_task_length &&
@@ -377,7 +380,7 @@ static inline int filter_has_task_duration(struct filter* f, uint64_t duration)
 
 static inline int filter_has_comm_size(struct filter* f, uint64_t size)
 {
-	if(!f->filter_comm_size)
+	if(!f || !f->filter_comm_size)
 		return 1;
 
 	return (size >= f->min_comm_size &&
@@ -388,6 +391,9 @@ static inline int filter_has_state_event(struct filter* f, struct state_event* s
 {
 	uint64_t duration = 0;
 	int valid = 1;
+
+	if(!f)
+		return 1;
 
 	if(f->filter_task_length) {
 		if(se->active_task->addr != 0)
@@ -412,6 +418,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 	struct event_set* src_cpu_es;
 	int dst_cpu_idx;
 	int src_cpu_idx;
+
+	if(!f)
+		return 1;
 
 	if(!filter_has_comm_size(f, ce->size))
 		return 0;
@@ -479,6 +488,9 @@ static inline int filter_has_comm_event(struct filter* f, struct multi_event_set
 
 static inline int filter_has_single_event(struct filter* f, struct single_event* se)
 {
+	if(!f)
+		return 1;
+
 	if(!filter_has_single_event_type(f, se->type) ||
 	   !filter_has_task(f, se->active_task) ||
 	   !filter_has_frame(f, se->active_frame) ||
