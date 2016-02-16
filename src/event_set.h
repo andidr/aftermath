@@ -91,6 +91,16 @@ struct single_event* event_set_find_next_texec_start_for_frame(struct event_set*
 	    (ce >= &((es)->comm_events[0]) && ce < &((es)->comm_events[(es)->num_comm_events])) && ce->time < end; \
 	    ce++)
 
+#define for_each_state_event(es, se)				\
+	for((se) = &(es)->state_events[0];			\
+	    (se) < &(es)->state_events[(es)->num_state_events]; \
+	    (se)++)
+
+#define for_each_state_event_i(es, se, i)			\
+	for((se) = &(es)->state_events[0], (i) = 0;		\
+	    (se) < &(es)->state_events[(es)->num_state_events]; \
+	    (se)++, (i)++)
+
 static inline int event_set_has_write_to_numa_nodes_in_interval(struct event_set* es, struct bitvector* b, uint64_t start, uint64_t end, int64_t minsize)
 {
 	struct comm_event* ce;
