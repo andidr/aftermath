@@ -1296,6 +1296,39 @@ UNIT_TEST(get_last_single_event_in_interval_test)
 END_TEST()
 
 /*
+ * Checks event_set_has_state_in_interval on an event set with a single state
+ * event.
+ */
+UNIT_TEST(has_state_in_interval_test)
+{
+	struct event_set es;
+	struct state_event se;
+
+	event_set_init(&es, 0);
+
+	se.event_set = NULL;
+	se.start = 100;
+	se.end = 1000;
+	se.active_task = NULL;
+	se.active_frame = NULL;
+	se.state_id = 1;
+	se.texec_start = NULL;
+	se.texec_end = NULL;
+
+	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 0, 0), 0);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 0, 99), 0);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 0, 100), 1);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 0, 101), 1);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 100, 100), 1);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 99, 101), 1);
+	ASSERT_EQUALS(event_set_has_state_in_interval(&es, NULL, 0, 1001), 1);
+
+	event_set_destroy(&es);
+}
+END_TEST()
+
+/*
  * Checks event_set_get_first_single_event_in_interval_type on an
  * event set with four different types of single events.
  */
@@ -2837,6 +2870,8 @@ UNIT_TEST_SUITE(event_set_test)
 	ADD_TEST(get_last_single_event_in_interval_test);
 	ADD_TEST(get_first_single_event_in_interval_type_test);
 	ADD_TEST(get_last_single_event_in_interval_type_test);
+
+	ADD_TEST(has_state_in_interval_test);
 
 	ADD_TEST(add_single_annotation_test);
 	ADD_TEST(add_multi_annotation_test);
