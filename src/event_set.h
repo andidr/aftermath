@@ -75,6 +75,8 @@ int event_set_get_counter_event_set(struct event_set* es, int counter_idx);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
+int event_set_get_major_omp_chunk_set_part(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_id);
+int event_set_get_first_chunk_set_part_in_interval(struct event_set* es, int64_t interval_start, int64_t interval_end);
 int event_set_get_last_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
 int event_set_get_last_comm_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
