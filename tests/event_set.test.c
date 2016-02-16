@@ -285,6 +285,127 @@ UNIT_TEST(get_first_state_starting_in_interval_type_test)
 END_TEST()
 
 /*
+ * Tests event_set_get_state_durations on a set without state events
+ */
+UNIT_TEST(state_durations_empty_test)
+{
+	struct event_set es;
+	int num_states = 0;
+
+	event_set_init(&es, 0);
+
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 0, 1000, num_states, NULL, 0, 0), 0);
+
+	event_set_destroy(&es);
+}
+END_TEST()
+
+/*
+ * Tests event_set_get_state_durations on a set with a single state event.
+ */
+UNIT_TEST(get_state_durations_one_event_test)
+{
+	struct event_set es;
+	struct state_event se;
+	int num_states = 1;
+	uint64_t duration;
+
+	event_set_init(&es, 0);
+
+	se.event_set = NULL;
+	se.active_task = NULL;
+	se.active_frame = NULL;
+	se.texec_start = NULL;
+	se.texec_end = NULL;
+	se.start = 1000;
+	se.end = 1999;
+	se.state_id = 0;
+	se.state_id_seq = 0;
+	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
+
+	/* Exact match */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1000, 1999, num_states, &duration, 1, 0), 1);
+	ASSERT_EQUALS(duration, 999);
+
+	/* Exact match at the start, end somewhere in the middle */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1000, 1500, num_states, &duration, 1, 0), 1);
+	ASSERT_EQUALS(duration, 500);
+
+	/* Start and end somewhere in the middle */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1250, 1500, num_states, &duration, 1, 0), 1);
+	ASSERT_EQUALS(duration, 250);
+
+	/* Start before event, end after the event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 0, 3000, num_states, &duration, 1, 0), 1);
+	ASSERT_EQUALS(duration, 999);
+
+	/* Entirely before the event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 0, 999, num_states, &duration, 1, 0), 0);
+
+	/* Entirely after the event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 3000, 30000, num_states, &duration, 1, 0), 0);
+
+	event_set_destroy(&es);
+}
+END_TEST()
+
+/*
+ * Tests event_set_get_state_durations on a set with two state events.
+ */
+UNIT_TEST(get_state_durations_two_events_test)
+{
+	struct event_set es;
+	struct state_event se;
+	int num_states = 2;
+	uint64_t durations[2];
+
+	event_set_init(&es, 0);
+
+	se.event_set = NULL;
+	se.active_task = NULL;
+	se.active_frame = NULL;
+	se.texec_start = NULL;
+	se.texec_end = NULL;
+
+	se.start = 1000;
+	se.end = 1999;
+	se.state_id = 0;
+	se.state_id_seq = 0;
+	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
+
+	se.start = 2000;
+	se.end = 2999;
+	se.state_id = 1;
+	se.state_id_seq = 1;
+	ASSERT_EQUALS(event_set_add_state_event(&es, &se), 0);
+
+	/* Leave out just one cycle of the first event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1001, 2999, num_states, durations, 1, 0), 1);
+	ASSERT_EQUALS(durations[0], 998);
+	ASSERT_EQUALS(durations[1], 999);
+
+	/* Leave out just one cycle of the second event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1000, 2998, num_states, durations, 1, 0), 1);
+	ASSERT_EQUALS(durations[0], 999);
+	ASSERT_EQUALS(durations[1], 998);
+
+	/* Half of both events with one cycle more for the first
+	 * event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1499, 2499, num_states, durations, 1, 0), 1);
+	ASSERT_EQUALS(durations[0], 500);
+	ASSERT_EQUALS(durations[1], 499);
+
+	/* Half of both events with one cycle more for the second
+	 * event */
+	ASSERT_EQUALS(event_set_get_state_durations(&es, NULL, 1500, 2500, num_states, durations, 1, 0), 1);
+	ASSERT_EQUALS(durations[0], 499);
+	ASSERT_EQUALS(durations[1], 500);
+
+	event_set_destroy(&es);
+}
+END_TEST()
+
+/*
  * Adds multiple state events to an empty event set and checks if
  * get_next_state_event returns the correct index for different
  * intervals.
@@ -2690,6 +2811,11 @@ UNIT_TEST_SUITE(event_set_test)
 	ADD_TEST(get_first_state_starting_in_interval_test);
 	ADD_TEST(get_first_state_starting_in_interval_type_test);
 	ADD_TEST(get_next_state_event_test);
+
+	ADD_TEST(state_durations_empty_test);
+	ADD_TEST(get_state_durations_one_event_test);
+	ADD_TEST(get_state_durations_two_events_test);
+
 	ADD_TEST(get_major_state_empty_test);
 	ADD_TEST(get_major_state_one_event_test);
 	ADD_TEST(get_major_state_two_events_test);
