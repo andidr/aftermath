@@ -439,7 +439,7 @@ UNIT_TEST(get_major_state_two_events_test)
 	/* Half of both events with one cycle more for the first
 	 * event */
 	major_state_seq = -1;
-	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1499, 2500, num_states, &major_state_seq), 1);
+	ASSERT_EQUALS(event_set_get_major_state_seq(&es, NULL, 1499, 2499, num_states, &major_state_seq), 1);
 	ASSERT_EQUALS(major_state_seq, 0);
 
 	/* Half of both events with one cycle more for the second
