@@ -305,10 +305,19 @@ int event_set_get_major_state_seq(struct event_set* es, struct filter* f, uint64
 	uint64_t state_durations[num_states];
 	uint64_t max = 0;
 
-	if(!event_set_get_state_durations(es, f, start, end, num_states,
+	if(es->state_idx_valid) {
+		if(!state_index_get_state_durations(&es->state_idx, es,
+						    f, start, end,
+						    state_durations, 1, 1))
+		{
+			return 0;
+		}
+	} else {
+		if(!event_set_get_state_durations(es, f, start, end, num_states,
 					  state_durations, 1, 1))
-	{
-		return 0;
+		{
+			return 0;
+		}
 	}
 
 	for(int id_seq = 0; id_seq < num_states; id_seq++) {
@@ -1234,4 +1243,33 @@ int event_set_get_major_accessed_node_in_interval(struct event_set* es, struct f
 {
 	enum comm_event_type t[2] = { COMM_TYPE_DATA_READ, COMM_TYPE_DATA_WRITE };
 	return __event_set_get_major_accessed_node_in_interval(es, t, 2, f, start, end, max_numa_node_id, major_node);
+}
+
+/*
+ * Build the event set's state index. Returns 0 on success, otherwise 1.
+ */
+int event_set_init_state_index(struct event_set* es, size_t num_states)
+{
+	if(!es->state_idx_built) {
+		if(state_index_init(&es->state_idx, num_states, es,
+				    DEFAULT_STATE_INDEX_FACTOR))
+		{
+			return 1;
+		}
+
+		es->state_idx_built = 1;
+		es->state_idx_valid = 0;
+	}
+
+	return 0;
+}
+
+/*
+ * Update the event set's state index. The index must have been initialized
+ * before using event_set_init_state_index.
+ */
+void event_set_update_state_index(struct event_set* es, struct filter* f)
+{
+	state_index_update(&es->state_idx, es, f);
+	es->state_idx_valid = 1;
 }

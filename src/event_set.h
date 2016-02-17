@@ -24,6 +24,7 @@
 #include "events.h"
 #include "annotation.h"
 #include "bitvector.h"
+#include "state_index.h"
 
 #define COUNTER_EVENT_SET_PREALLOC 5
 #define ANNOTATION_PREALLOC 10
@@ -32,6 +33,10 @@ struct event_set {
 	struct state_event* state_events;
 	size_t num_state_events;
 	size_t num_state_events_free;
+
+	struct state_index state_idx;
+	int state_idx_valid;
+	int state_idx_built;
 
 	struct comm_event* comm_events;
 	size_t num_comm_events;
@@ -261,6 +266,8 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_state_events = 0;
 	es->num_state_events_free = 0;
 	es->state_events = NULL;
+	es->state_idx_valid = 0;
+	es->state_idx_built = 0;
 
 	es->num_comm_events = 0;
 	es->num_comm_events_free = 0;
@@ -299,6 +306,9 @@ static inline void event_set_destroy(struct event_set* es)
 
 	free(es->counter_event_sets);
 	free(es->annotations);
+
+	if(es->state_idx_built)
+		state_index_destroy(&es->state_idx);
 }
 
 /* Adds an annotation to the event set. The annotation passed as a
@@ -343,5 +353,7 @@ void event_set_dump_per_task_counter_values(struct event_set* es, struct filter*
 int event_set_counters_monotonously_increasing(struct event_set* es, struct filter* f, struct counter_description** cd);
 
 int event_set_has_counter(struct event_set* es, struct counter_description* cd);
+int event_set_init_state_index(struct event_set* es, size_t num_states);
+void event_set_update_state_index(struct event_set* es, struct filter* f);
 
 #endif
