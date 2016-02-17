@@ -571,6 +571,12 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		}
 	}
 
+	/* Create indexes for state events */
+	for_each_event_set(mes, es) {
+		event_set_init_state_index(es, mes->num_states);
+		event_set_update_state_index(es, NULL);
+	}
+
 	res = 0;
 
 out_trees:

@@ -62,6 +62,14 @@ void reset_zoom(void)
 	trace_bounds_changed(GTK_TRACE(g_trace_widget), (double)start, (double)end, NULL);
 }
 
+void update_indexes(void)
+{
+	struct event_set* es;
+
+	for_each_event_set(&g_mes, es)
+		event_set_update_state_index(es, &g_filter);
+}
+
 /**
  * Connected to the "toggled" signal of a checkbutton, widget_toggle()
  * enables / disables another widget specified as the data parameter.
@@ -1597,6 +1605,7 @@ G_MODULE_EXPORT void task_filter_update(void)
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void task_filter_button_clicked(GtkMenuItem *item, gpointer data)
@@ -1626,6 +1635,7 @@ G_MODULE_EXPORT void histogram_range_selection_changed(GtkHistogram *item, gdoub
 	filter_set_task_length_filtering(&g_filter, 1);
 
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void multi_histogram_range_selection_changed(GtkMultiHistogram *item, gdouble left, gdouble right, gpointer data)
@@ -1642,6 +1652,7 @@ G_MODULE_EXPORT void multi_histogram_range_selection_changed(GtkMultiHistogram *
 	filter_set_task_length_filtering(&g_filter, 1);
 
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void comm_filter_update(void)
@@ -1675,6 +1686,7 @@ G_MODULE_EXPORT void comm_filter_update(void)
 	numa_node_list_build_comm_filter(GTK_TREE_VIEW(g_comm_numa_node_treeview), &g_filter);
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
+	update_indexes();
 }
 
 G_MODULE_EXPORT void comm_size_length_entry_activated(GtkEntry *e, gpointer data)
@@ -1747,6 +1759,7 @@ G_MODULE_EXPORT void frame_filter_button_clicked(GtkMenuItem *item, gpointer dat
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void frame_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -1828,6 +1841,7 @@ G_MODULE_EXPORT void counter_filter_button_clicked(GtkMenuItem *item, gpointer d
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void counter_check_all_button_clicked(GtkMenuItem *item, gpointer data)
@@ -2052,6 +2066,7 @@ void cpu_filter_update(void)
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+	update_indexes();
 }
 
 G_MODULE_EXPORT void cpu_filter_button_clicked(GtkMenuItem *item, gpointer data)
@@ -2079,6 +2094,7 @@ G_MODULE_EXPORT void single_event_filter_button_clicked(GtkMenuItem *item, gpoin
 
 	gtk_trace_set_filter(g_trace_widget, &g_filter);
 	update_statistics();
+	update_indexes();
 }
 
 char* export_to_file_with_dialog(enum export_file_format format)
@@ -2412,6 +2428,7 @@ G_MODULE_EXPORT void menubar_evaluate_filter_expression(GtkMenuItem* item)
 
 			gtk_trace_set_filter(g_trace_widget, &g_filter);
 			update_statistics();
+			update_indexes();
 		} else {
 			show_error_message("Not a valid filter expression");
 		}
