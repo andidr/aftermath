@@ -68,6 +68,9 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 		of = &mes->omp_fors[i];
 		INIT_LIST_HEAD(&of->for_instances);
 		of->source_filename = NULL;
+		of->color_r = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][0];
+		of->color_g = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][1];
+		of->color_b = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][2];
 	}
 
 	for(int i = 0; i < mes->num_omp_for_instances; i++) {
@@ -77,6 +80,9 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 		free(ofi->ti_ofi);
 		ofi->for_loop = of;
 		list_add(&ofi->list, &of->for_instances);
+		ofi->color_r = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][0];
+		ofi->color_g = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][1];
+		ofi->color_b = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][2];
 	}
 
 	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++) {
@@ -86,6 +92,9 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 		free(ofc->ti_ofc);
 		ofc->for_instance = ofi;
 		list_add(&ofc->list, &ofi->for_chunk_sets);
+		ofc->color_r = ofi->color_r;
+		ofc->color_g = ofi->color_g;
+		ofc->color_b = ofi->color_b;
 	}
 
 	for(int i = 0; i < mes->num_sets; i++) {
@@ -97,6 +106,9 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 			free(ofcp->ti_ofcp);
 			ofcp->chunk_set = ofc;
 			list_add(&ofcp->list, &ofc->chunk_set_parts);
+			ofcp->color_r = ofc->color_r;
+			ofcp->color_g = ofc->color_g;
+			ofcp->color_b = ofc->color_b;
 		}
 	}
 

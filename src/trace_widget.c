@@ -959,6 +959,142 @@ void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
 	gtk_trace_paint_generic(g, cr, type_lane_pxfun, &ctx);
 }
 
+int omp_for_loops_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->for_instance->for_loop->color_r;
+		*g = ofcp->chunk_set->for_instance->for_loop->color_g;
+		*b = ofcp->chunk_set->for_instance->for_loop->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_loops(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_loops_lane_pxfun, &ctx);
+}
+
+int omp_for_instances_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->for_instance->color_r;
+		*g = ofcp->chunk_set->for_instance->color_g;
+		*b = ofcp->chunk_set->for_instance->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_instances(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_instances_lane_pxfun, &ctx);
+}
+
+int omp_for_chunk_sets_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->color_r;
+		*g = ofcp->chunk_set->color_g;
+		*b = ofcp->chunk_set->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_chunk_sets(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_chunk_sets_lane_pxfun, &ctx);
+}
+
+int omp_for_chunk_set_parts_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->color_r;
+		*g = ofcp->color_g;
+		*b = ofcp->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_chunk_set_parts(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_chunk_set_parts_lane_pxfun, &ctx);
+}
+
 struct heatmap_lane_pxfun_ctx {
 	struct multi_event_set* mes;
 	struct filter* filter;
@@ -2209,6 +2345,18 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 
 	if(g->map_mode == GTK_TRACE_MAP_MODE_TASK_TYPE)
 		gtk_trace_paint_task_type_map(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS)
+		gtk_trace_paint_omp_for_loops(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES)
+		gtk_trace_paint_omp_for_instances(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS)
+		gtk_trace_paint_omp_for_chunk_sets(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS)
+		gtk_trace_paint_omp_for_chunk_set_parts(g, cr);
 
 	if(g->draw_counters)
 		gtk_trace_paint_counters(g, cr);

@@ -20,6 +20,9 @@
 
 #include <gtk/gtk.h>
 #include "multi_event_set.h"
+#include "omp_for.h"
+#include "omp_for_instance.h"
+#include "omp_for_chunk_set.h"
 #include "filter.h"
 #include "export.h"
 #include "./contrib/linux-kernel/list.h"
@@ -67,6 +70,10 @@ enum gtk_trace_map_mode {
 	GTK_TRACE_MAP_MODE_NUMA_WRITES,
 	GTK_TRACE_MAP_MODE_TASK_TYPE,
 	GTK_TRACE_MAP_MODE_HEAT_NUMA,
+	GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS,
+	GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES,
+	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS,
+	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS
 };
 
 struct _GtkTrace {
