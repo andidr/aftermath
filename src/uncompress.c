@@ -119,8 +119,13 @@ int uncompress_pipe_open(struct uncompress_pipe* p, enum compression_type type, 
 		}
 		case COMPRESSION_TYPE_BZIP2:
 		{
-			const char* const args[] = {"bunzip2", "-k", "--stdout", filename, NULL};
-			return  uncompress_pipe_open_cmd(p, "bunzip2", args);
+			#if UNCOMPRESS_USE_PBZIP2
+				const char* const args[] = {"pbzip2", "-k", "-d", "--stdout", filename, NULL};
+				return  uncompress_pipe_open_cmd(p, "pbzip2", args);
+			#else
+				const char* const args[] = {"bunzip2", "-k", "--stdout", filename, NULL};
+				return  uncompress_pipe_open_cmd(p, "bunzip2", args);
+			#endif
 		}
 		case COMPRESSION_TYPE_XZ:
 		{

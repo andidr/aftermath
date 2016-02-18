@@ -29,6 +29,15 @@ AC_PROG_RANLIB
 CHECK_CUSTOM_PROG(mkdir)
 CHECK_CUSTOM_PROG(glib-genmarshal)
 
+# Use pbzip2 if present
+AC_CHECK_PROG(HAVE_PBZIP2, pbzip2, yes, no)
+if test "x$HAVE_PBZIP2" = "xyes"
+then
+	AC_DEFINE(UNCOMPRESS_USE_PBZIP2, 1)
+else
+	AC_DEFINE(UNCOMPRESS_USE_PBZIP2, 0)
+fi
+
 # Checks for libraries.
 CHECK_LIB_WITH(pthread, pthread, pthread_create)
 
