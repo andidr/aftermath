@@ -94,7 +94,9 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/state_index.h \
 		src/state_index.c \
 		src/intensity_matrix.h \
-		src/intensity_matrix.c
+		src/intensity_matrix.c \
+		src/statistics.h \
+		src/statistics.c
 
 libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
 
@@ -140,8 +142,6 @@ aftermath_SOURCES = src/aftermath.c \
 		src/cairo_extras.h \
 		src/cairo_extras.c \
 		src/export.h \
-		src/statistics.h \
-		src/statistics.c \
 		src/aftermath-debug-syms.sh \
 		doc/man/aftermath.1 \
 		$(UNIT_TEST_SOURCES)
