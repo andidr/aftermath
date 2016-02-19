@@ -2,7 +2,8 @@ ACLOCAL_AMFLAGS=-I m4
 VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
-noinst_LIBRARIES = libaftermath-core.a
+
+lib_LTLIBRARIES = libaftermath-core.la
 
 VALGRIND_FLAGS=--gen-suppressions=all \
 		--track-origins=yes \
@@ -14,7 +15,7 @@ VALGRIND_FLAGS=--gen-suppressions=all \
 		--run-libc-freeres=no \
 		--partial-loads-ok=yes
 
-libaftermath_core_a_SOURCES = src/buffer.h \
+libaftermath_core_la_SOURCES = src/buffer.h \
 		src/buffer.c \
 		src/color.h \
 		src/color.c \
@@ -98,7 +99,11 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/statistics.h \
 		src/statistics.c
 
-libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
+libaftermath_core_la_CFLAGS = @GLIB_CFLAGS@
+libaftermath_core_la_LIBADD = @GLIB_LIBS@ -lm
+
+libaftermath_coredir = $(includedir)/aftermath/core
+libaftermath_core_HEADERS = $(filter %.h,$(libaftermath_core_la_SOURCES))
 
 aftermath_SOURCES = src/aftermath.c \
 		src/trace_widget.h \
@@ -147,7 +152,7 @@ aftermath_SOURCES = src/aftermath.c \
 		$(UNIT_TEST_SOURCES)
 
 aftermath_CFLAGS = $(TESTS_CFLAGS) @GTK_CFLAGS@ @GLADE_CFLAGS@ -DDATA_PATH="\"${datarootdir}/aftermath\""
-aftermath_LDADD = libaftermath-core.a $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
+aftermath_LDADD = libaftermath-core.la $(TESTS_LDADD) @GTK_LIBS@ @GLADE_LIBS@
 aftermath_LDFLAGS = -export-dynamic
 aftermathdir=${datarootdir}/aftermath
 dist_aftermath_DATA = share/ui/aftermath.glade \
@@ -200,7 +205,8 @@ check-%: %
 valgrind-check-raw-%: %
 	@echo -n "[VALGRIND]"
 	@G_SLICE=always-malloc G_DEBUG=gc-friendly \
-	    $(VALGRIND) $(VALGRIND_FLAGS) ./$< 2> valgrind.$<.log ; \
+	    libtool --mode=execute \
+		$(VALGRIND) $(VALGRIND_FLAGS) ./$< 2> valgrind.$<.log ; \
 	if [ $$? != 0 ] ; \
 	then \
 		cat valgrind.$<.log; \
@@ -238,7 +244,7 @@ aftermath-debug-syms: src/aftermath-debug-syms.sh
 
 CLEANFILES = aftermath-debug-syms aftermath.1 scripts/check-header.sh
 
-TESTS_LDADD = -L. -lm -lpthread libaftermath-core.a
+TESTS_LDADD = -L. -lm -lpthread libaftermath-core.la
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
