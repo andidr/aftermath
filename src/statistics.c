@@ -17,14 +17,12 @@
 
 #include "statistics.h"
 #include <inttypes.h>
-#include "dialogs.h"
 #include <math.h>
-#include "globals.h"
 
-void state_statistics_init(struct state_statistics* s)
+void state_statistics_init(struct state_statistics* s, size_t num_states)
 {
-	s->state_cycles = malloc(sizeof(uint64_t) * g_mes.num_states);
-	memset(s->state_cycles, 0, sizeof(uint64_t) * g_mes.num_states);
+	s->state_cycles = malloc(sizeof(uint64_t) * num_states);
+	memset(s->state_cycles, 0, sizeof(uint64_t) * num_states);
 }
 
 void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end)
@@ -119,19 +117,15 @@ int multi_task_statistics_init(struct multi_task_statistics* ms, int num_tasks_s
 		goto out_err;
 
 	for(idx = 0; idx < num_tasks_stats; idx++) {
-		if(!(ms->stats[idx] = malloc(sizeof(struct task_statistics)))) {
-			show_error_message("Cannot allocate task statistics structure in multi task statistics\n");
+		if(!(ms->stats[idx] = malloc(sizeof(struct task_statistics))))
 			goto out_err_destroy;
-		}
 
 		if(task_statistics_init(ms->stats[idx], num_hist_bins))
 			goto out_err_free;
 	}
 
-	if(!(ms->task_ids = calloc(num_tasks_stats, sizeof(int)))) {
-		show_error_message("Cannot allocate task identifiers array in multi task statistics\n");
+	if(!(ms->task_ids = calloc(num_tasks_stats, sizeof(int))))
 		goto out_err_destroy;
-	}
 
 	return 0;
 
@@ -443,7 +437,6 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 {
 	struct counter_event_set* ces;
 	struct event_set* es;
-	char buffer[128];
 	int64_t value_start, value_end;
 	int start_idx;
 	uint64_t value;
@@ -459,12 +452,6 @@ void counter_statistics_gather(struct multi_event_set* mes, struct filter* f, st
 
 			if((start_idx = event_set_get_first_single_event_in_interval_type(es, start, end, SINGLE_TYPE_TEXEC_START)) == -1)
 				continue;
-
-			if(!counter_event_set_is_monotonously_increasing(ces)) {
-				snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", ces->desc->name, es->cpu);
-				gtk_label_set_text(GTK_LABEL(g_label_info_counter), buffer);
-			} else
-				gtk_label_set_text(GTK_LABEL(g_label_info_counter), "");
 
 			if(!filter_has_cpu(f, es->cpu))
 				continue;
@@ -576,22 +563,17 @@ int multi_histogram_init(struct multi_histogram* mh, int num_hists, unsigned int
 		goto out_err;
 
 	for(idx = 0; idx < num_hists; idx++) {
-		if(!(mh->histograms[idx] = malloc(sizeof(struct histogram)))) {
-			show_error_message("Cannot allocate histogram structure in multi histogram");
+		if(!(mh->histograms[idx] = malloc(sizeof(struct histogram))))
 			goto out_err_destroy;
-		}
 
 		if(histogram_init(mh->histograms[idx], num_bins, left, right))
 			goto out_err_free;
 	}
 
-	if(!(mh->task_ids = calloc(num_hists, sizeof(int)))) {
-		show_error_message("Cannot allocate task identifiers array in multi histogram");
+	if(!(mh->task_ids = calloc(num_hists, sizeof(int))))
 		goto out_err_destroy;
-	}
 
 	if(!(mh->max_values = calloc(num_bins, sizeof(long double)))) {
-		show_error_message("Cannot allocate maximum values array in multi histogram");
 		free(mh->task_ids);
 		goto out_err_destroy;
 	}

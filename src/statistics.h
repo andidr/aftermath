@@ -58,7 +58,7 @@ struct state_statistics {
 	uint64_t* state_cycles;
 };
 
-void state_statistics_init(struct state_statistics* s);
+void state_statistics_init(struct state_statistics* s, size_t num_states);
 void state_statistics_gather_cycles(struct multi_event_set* mes, struct filter* f, struct state_statistics* s, int64_t start, int64_t end);
 
 struct single_event_statistics {

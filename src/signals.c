@@ -1012,6 +1012,9 @@ void update_counter_statistics()
 	int64_t left, right;
 	struct task_statistics counter_stats;
 	int counter_idx;
+	struct event_set* es;
+	struct counter_event_set* ces;
+	char buffer[128];
 
 	gtk_widget_hide(g_multi_histogram_widget);
 	gtk_widget_show(g_histogram_widget);
@@ -1027,6 +1030,20 @@ void update_counter_statistics()
 	if(task_statistics_init(&counter_stats, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
 		show_error_message("Cannot allocate task statistics structure (for counters)");
 		return;
+	}
+
+	/* Check for each CPU that the counter is monotonously increasing */
+	for_each_event_set(&g_mes, es) {
+		ces = event_set_find_counter_event_set(es, &g_mes.counters[counter_idx]);
+
+		if(!ces)
+			continue;
+
+		if(!counter_event_set_is_monotonously_increasing(ces)) {
+			snprintf(buffer, sizeof(buffer), "Counter \"%s\" is not monotonously increasing on CPU %d\n", ces->desc->name, es->cpu);
+			gtk_label_set_text(GTK_LABEL(g_label_info_counter), buffer);
+		} else
+			gtk_label_set_text(GTK_LABEL(g_label_info_counter), "");
 	}
 
 	counter_statistics_gather(&g_mes, &g_filter, &counter_stats, &g_mes.counters[counter_idx], left, right);
@@ -1108,7 +1125,7 @@ void update_statistics(void)
 	if(right < 0)
 		right = 0;
 
-	state_statistics_init(&sts);
+	state_statistics_init(&sts, g_mes.num_states);
 	state_statistics_gather_cycles(&g_mes, &g_filter, &sts, left, right);
 
 	for_each_statedesc_i(&g_mes, sd, i) {
