@@ -92,7 +92,9 @@ libaftermath_core_a_SOURCES = src/buffer.h \
 		src/monotonic_index.h \
 		src/monotonic_index.c \
 		src/state_index.h \
-		src/state_index.c
+		src/state_index.c \
+		src/intensity_matrix.h \
+		src/intensity_matrix.c
 
 libaftermath_core_a_CFLAGS = @GLIB_CFLAGS@
 
@@ -105,8 +107,6 @@ aftermath_SOURCES = src/aftermath.c \
 		src/multi_histogram_widget.c \
 		src/matrix_widget.h \
 		src/matrix_widget.c \
-		src/intensity_matrix.h \
-		src/intensity_matrix.c \
 		src/signals.h \
 		src/signals.c \
 		src/globals.h \
