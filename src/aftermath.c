@@ -260,6 +260,9 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
 	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_min_size_entry);
+	IMPORT_GLADE_WIDGET(xml, omp_select_level);
+	IMPORT_GLADE_WIDGET(xml, omp_select_level_menu);
+	IMPORT_GLADE_WIDGET(xml, toggle_omp_for);
 
 	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_avg_task_length);
@@ -362,6 +365,8 @@ int main(int argc, char** argv)
 	g_toggle_tool_button_draw_data_writes = toggle_tool_button_draw_data_writes;
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 	g_writes_to_numa_nodes_min_size_entry = writes_to_numa_nodes_min_size_entry;
+	g_toggle_omp_for = toggle_omp_for;
+	g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS;
 
 	g_use_global_values_check = use_global_values_check;
 	g_global_values_min_entry = global_values_min_entry;
@@ -435,6 +440,8 @@ int main(int argc, char** argv)
 	gtk_entry_set_text(GTK_ENTRY(g_global_slopes_min_entry), buffer);
 	snprintf(buffer, sizeof(buffer), "%Lf", multi_event_get_max_counter_slope(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_slopes_max_entry), buffer);
+
+	gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(omp_select_level), omp_select_level_menu);
 
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "ybounds-changed", G_CALLBACK(trace_ybounds_changed), g_trace_widget);

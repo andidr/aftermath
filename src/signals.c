@@ -416,6 +416,12 @@ G_MODULE_EXPORT void tool_button_heatmap_numa_toggled(GtkToggleToolButton *butto
 		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_HEAT_NUMA);
 }
 
+G_MODULE_EXPORT void tool_button_omp_for_toggled(GtkToggleToolButton *button, gpointer data)
+{
+        /* Restore last OMP mode */
+        gtk_trace_set_map_mode(g_trace_widget, g_omp_map_mode);
+}
+
 G_MODULE_EXPORT void menubar_double_buffering_toggled(GtkCheckMenuItem *item, gpointer data)
 {
 	gtk_trace_set_double_buffering(g_trace_widget, gtk_check_menu_item_get_active(item));
@@ -1053,6 +1059,50 @@ void update_counter_statistics()
 	update_statistics_labels(counter_stats.cycles, counter_stats.min_cycles, counter_stats.max_cycles, counter_stats.max_hist, counter_stats.num_tasks);
 
 	task_statistics_destroy(&counter_stats);
+}
+
+G_MODULE_EXPORT void omp_map_mode_for_loops_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS);
+		g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS;
+	}
+}
+
+G_MODULE_EXPORT void omp_map_mode_for_instances_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES);
+		g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES;
+	}
+}
+
+G_MODULE_EXPORT void omp_map_mode_chunks_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS);
+		g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS;
+	}
+}
+
+G_MODULE_EXPORT void omp_map_mode_chunk_parts_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS);
+		g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS;
+	}
 }
 
 G_MODULE_EXPORT void global_hist_view_activated(GtkRadioButton *button, gpointer data)

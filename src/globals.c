@@ -50,6 +50,7 @@ GtkWidget* g_use_global_slopes_check;
 GtkWidget* g_global_slopes_min_entry;
 GtkWidget* g_global_slopes_max_entry;
 GtkWidget* g_writes_to_numa_nodes_min_size_entry;
+GtkWidget* g_toggle_omp_for;
 
 GtkWidget* g_label_hist_num_tasks;
 GtkWidget* g_label_hist_selection_length;
@@ -117,6 +118,7 @@ struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
 struct address_range_tree g_address_range_tree;
 struct color_scheme_set g_color_scheme_set;
 int g_address_range_tree_built;
+enum gtk_trace_map_mode g_omp_map_mode;
 
 int g_visuals_modified;
 char* g_visuals_filename;

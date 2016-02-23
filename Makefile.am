@@ -191,6 +191,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/fit_all_cpus.svg \
 		share/icons/fit_all_measurement_intervals.svg \
 		share/icons/draw_measurement_intervals.svg \
+		share/icons/omp_for.svg \
 		share/bitmap/splash.png
 
 man_MANS = doc/man/aftermath.1

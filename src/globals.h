@@ -55,6 +55,7 @@ extern GtkWidget* g_toggle_tool_button_draw_data_reads;
 extern GtkWidget* g_toggle_tool_button_draw_data_writes;
 extern GtkWidget* g_toggle_tool_button_draw_size;
 extern GtkWidget* g_writes_to_numa_nodes_min_size_entry;
+extern GtkWidget* g_toggle_omp_for;
 
 extern GtkWidget* g_use_global_values_check;
 extern GtkWidget* g_global_values_min_entry;
@@ -129,6 +130,7 @@ extern struct intensity_matrix g_comm_summary_matrix;
 extern struct address_range_tree g_address_range_tree;
 extern int g_address_range_tree_built;
 extern struct color_scheme_set g_color_scheme_set;
+extern enum gtk_trace_map_mode g_omp_map_mode;
 
 #define NUM_TRACE_MARKERS 6
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];
