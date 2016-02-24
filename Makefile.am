@@ -90,6 +90,7 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/omp_for_instance.h \
 		src/omp_for_chunk_set.h \
 		src/omp_for_chunk_set_part.h \
+		src/omp_for_chunk_set_part.c \
 		src/aux.h \
 		src/parser.h \
 		src/object_notation.h \

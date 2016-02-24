@@ -37,6 +37,23 @@ int filter_has_task(struct filter* f, struct task* t)
 		!= NULL);
 }
 
+void filter_sort_ofcps(struct filter* f)
+{
+	qsort(f->ofcps, f->num_ofcps,
+	      sizeof(struct omp_for_chunk_set_part*), compare_ofcpsp);
+}
+
+int filter_has_ofcp(struct filter* f, struct omp_for_chunk_set_part* ofcp)
+{
+	if(!f || !f->filter_ofcps)
+		return 1;
+
+	return (bsearch(&ofcp, f->ofcps,
+			f->num_ofcps, sizeof(struct omp_for_chunk_set_part*),
+			compare_ofcpsp)
+		!= NULL);
+}
+
 void filter_sort_frames(struct filter* f)
 {
 	qsort(f->frames, f->num_frames,

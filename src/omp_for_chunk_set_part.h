@@ -111,4 +111,5 @@ static inline int omp_for_chunk_set_part_has_part(struct event_set* es, struct o
 	return omp_for_chunk_set_part_find(es, ofcp->cpu, ofcp->start) != NULL;
 }
 
+int compare_ofcpsp(const void *po1, const void *po2);
 #endif
