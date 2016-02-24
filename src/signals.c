@@ -1349,7 +1349,7 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 			 se->end,
 			 buf_duration);
 
-		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), buffer);
+		gtk_label_set_markup(GTK_LABEL(g_task_selected_event_label), buffer);
 
 		task_length = task_length_of_active_frame(se, &valid);
 		if(valid) {
@@ -1600,11 +1600,98 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		gtk_label_set_markup(GTK_LABEL(g_active_task_label), buffer);
 		gtk_trace_set_markers(g_trace_widget, g_trace_markers, num_markers);
 	} else {
-		gtk_label_set_markup(GTK_LABEL(g_selected_event_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_task_selected_event_label), "");
 	}
 
 	if(g_draw_predecessors)
 		update_predecessors();
+}
+
+G_MODULE_EXPORT void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, gpointer pomp_chunk_set_part, int cpu, int worker, gpointer data)
+{
+	struct omp_for_chunk_set_part* ofcp = pomp_chunk_set_part;
+	struct omp_for_chunk_set* ofc;
+	struct omp_for_instance* ofi;
+	struct omp_for* of;
+	char buffer[4096];
+	char buf_duration[40];
+	char buf_first_iter[100];
+	char buf_last_iter[100];
+	char buf_start_iter[100];
+	char buf_end_iter[100];
+	char buf_inc[100];
+
+	if(ofcp) {
+		ofc = ofcp->chunk_set;
+		ofi = ofc->for_instance;
+		of = ofi->for_loop;
+		pretty_print_cycles(buf_duration, sizeof(buf_duration), ofcp->end - ofcp->start);
+
+		snprintf(buffer, sizeof(buffer),
+			 "CPU:\t\t%d\n"
+			 "From\t\t<a href=\"time://%"PRIu64"\">%"PRIu64"</a> to <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
+			 "Duration:\t%scycles\n",
+			 cpu,
+			 ofcp->start,
+			 ofcp->start,
+			 ofcp->end,
+			 ofcp->end,
+			 buf_duration);
+
+		gtk_label_set_markup(GTK_LABEL(g_openmp_selected_event_label), buffer);
+
+		if(ofi->flags & OMP_FOR_SIGNED_ITERATION_SPACE) {
+			snprintf(buf_first_iter, sizeof(buf_first_iter), "First iteration:\t%"PRId64, ofc->iter_start);
+			snprintf(buf_last_iter, sizeof(buf_last_iter), "Last iteration:\t%"PRId64, ofc->iter_end);
+			snprintf(buf_start_iter, sizeof(buf_start_iter), "Start iteration:\t%"PRId64, ofi->iter_start);
+			snprintf(buf_end_iter, sizeof(buf_end_iter), "End iteration:\t\t%"PRId64, ofi->iter_end);
+		} else {
+			snprintf(buf_first_iter, sizeof(buf_first_iter), "First iteration:\t%"PRIu64, ofc->iter_start);
+			snprintf(buf_last_iter, sizeof(buf_last_iter), "Last iteration:\t%"PRIu64, ofc->iter_end);
+			snprintf(buf_start_iter, sizeof(buf_start_iter), "Start iteration:\t%"PRIu64, ofi->iter_start);
+			snprintf(buf_end_iter, sizeof(buf_end_iter), "End iteration:\t\t%"PRIu64, ofi->iter_end);
+		}
+
+		if(ofi->flags & OMP_FOR_SIGNED_INCREMENT)
+			snprintf(buf_inc, sizeof(buf_inc), "Increment:\t\t%"PRId64, ofi->increment);
+		else
+			snprintf(buf_inc, sizeof(buf_inc), "Increment:\t\t%"PRIu64, ofi->increment);
+
+		snprintf(buffer, sizeof(buffer),
+			 "[Chunk part info]\n"
+			 "CPU:\t\t\t%d\n"
+			 "Start:\t\t\t%"PRIu64"\n"
+			 "End:\t\t\t%"PRIu64"\n"
+			 "\n[Chunk info]\n"
+			 "%s\n"
+			 "%s\n"
+			 "Nb Chunk:\t\t%d\n"
+			 "\n[For instance info]\n"
+			 "Nb Iterations:\t%d\n"
+			 "%s\n"
+			 "%s\n"
+			 "%s\n"
+			 "\n[For info]\n"
+			 "For addr:\t\t\t0X%"PRIX64"\n"
+			 "Nb instances:\t\t%d\n",
+			 ofcp->cpu,
+			 ofcp->start,
+			 ofcp->end,
+			 buf_first_iter,
+			 buf_last_iter,
+			 ofc->num_chunk_set_parts,
+			 ofi->num_chunk_sets,
+			 buf_start_iter,
+			 buf_end_iter,
+			 buf_inc,
+			 of->addr,
+			 of->num_instances);
+
+		gtk_label_set_markup(GTK_LABEL(g_active_for_label), buffer);
+	} else {
+		gtk_label_set_markup(GTK_LABEL(g_openmp_selected_event_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_active_for_label), "");
+	}
 }
 
 G_MODULE_EXPORT void hscrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)

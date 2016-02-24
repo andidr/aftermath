@@ -205,6 +205,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
                              G_TYPE_NONE, 3,
                              G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
 
+	gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED] =
+                g_signal_new("omp-chunk-set-part-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER_INT_INT,
+                             G_TYPE_NONE, 3,
+                             G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
+
 	gtk_trace_signals[GTK_TRACE_YBOUNDS_CHANGED] =
                 g_signal_new("ybounds-changed", G_OBJECT_CLASS_TYPE(object_class),
                              GTK_RUN_FIRST,
@@ -558,6 +567,8 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 
 				if(ofcp) {
 					g->highlight_omp_chunk_set_part = ofcp;
+					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED], 
+						      0, ofcp, cpu, worker);
 					gtk_widget_queue_draw(widget);
 				}
 			} else {
