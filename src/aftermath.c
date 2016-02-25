@@ -32,6 +32,7 @@
 #include "signals.h"
 #include "dialogs.h"
 #include "task_list.h"
+#include "omp_for_treeview.h"
 #include "frame_list.h"
 #include "numa_node_list.h"
 #include "counter_list.h"
@@ -236,6 +237,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, matrix_summary_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
+	IMPORT_GLADE_WIDGET(xml, omp_for_treeview);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
 	IMPORT_GLADE_WIDGET(xml, cpu_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
@@ -349,6 +351,7 @@ int main(int argc, char** argv)
 
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
+	g_omp_for_treeview = omp_for_treeview;
 	g_task_treeview = task_treeview;
 	g_cpu_treeview = cpu_treeview;
 	g_frame_treeview = frame_treeview;
@@ -461,6 +464,9 @@ int main(int argc, char** argv)
 
 	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);
 	g_signal_connect(G_OBJECT(g_matrix_summary_widget), "pair-under-pointer-changed", G_CALLBACK(comm_summary_matrix_pair_under_pointer_changed), g_matrix_summary_widget);
+
+	omp_for_treeview_init(GTK_TREE_VIEW(g_omp_for_treeview));
+	omp_for_treeview_fill(GTK_TREE_VIEW(g_omp_for_treeview), g_mes.omp_fors, g_mes.num_omp_fors);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);

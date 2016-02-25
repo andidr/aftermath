@@ -565,7 +565,7 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 			{
 				ofcp = gtk_trace_get_omp_chunk_set_part_at(widget, event->x, event->y, &cpu, &worker);
 
-				if(ofcp) {
+				if(ofcp && (filter_has_ofcp(g->filter, ofcp))) {
 					g->highlight_omp_chunk_set_part = ofcp;
 					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED], 
 						      0, ofcp, cpu, worker);
@@ -2005,7 +2005,8 @@ void gtk_trace_paint_highlighted_chunk_set_part(GtkTrace* g, cairo_t* cr)
 
 	int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, g->highlight_omp_chunk_set_part->cpu);
 
-	if(omp_for_chunk_set_part_has_part(&g->event_sets->sets[cpu_idx], g->highlight_omp_chunk_set_part))
+	if(omp_for_chunk_set_part_has_part(&g->event_sets->sets[cpu_idx], g->highlight_omp_chunk_set_part) &&
+	   (filter_has_ofcp(g->filter, g->highlight_omp_chunk_set_part)))
 	{
 		double x_start;
 		double x_end;
@@ -2019,6 +2020,9 @@ void gtk_trace_paint_highlighted_chunk_set_part(GtkTrace* g, cairo_t* cr)
 			cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, ofcp->cpu);
 
 			if(!(ofcp->start <= g->right && ofcp->end >= g->left))
+				continue;
+
+			if(!filter_has_ofcp(g->filter, ofcp))
 				continue;
 
 			cpu_start = gtk_trace_cpu_start(g, cpu_idx);

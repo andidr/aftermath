@@ -130,6 +130,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/dialogs.c \
 		src/task_list.h \
 		src/task_list.c \
+		src/omp_for_treeview.h \
+		src/omp_for_treeview.c \
 		src/frame_list.h \
 		src/frame_list.c \
 		src/counter_list.h \

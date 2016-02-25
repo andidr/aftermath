@@ -530,16 +530,18 @@ int event_set_get_major_omp_chunk_set_part(struct event_set* es, struct filter* 
 
 	for(int i = idx_start; i < es->num_omp_for_chunk_set_parts && es->omp_for_chunk_set_parts[i].start < end; i++) {
 		ofcp = &es->omp_for_chunk_set_parts[i];
-		istart = (start > ofcp->start)? start : ofcp->start;
-		iend = (end < ofcp->end)? end : ofcp->end;
-		itmp = iend - istart;
-		if(itmp > (end - start) / 2) {
-			*major_id = i;
-			return 1;
-		}
-		if (imajor < itmp) {
-			imajor = itmp;
-			*major_id = i;
+		if(filter_has_ofcp(f, ofcp)) {
+			istart = (start > ofcp->start)? start : ofcp->start;
+			iend = (end < ofcp->end)? end : ofcp->end;
+			itmp = iend - istart;
+			if(itmp > (end - start) / 2) {
+				*major_id = i;
+				return 1;
+			}
+			if (imajor < itmp) {
+				imajor = itmp;
+				*major_id = i;
+			}
 		}
 	}
 

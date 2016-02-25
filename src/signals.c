@@ -38,6 +38,8 @@
 #include "export.h"
 #include "address_range_tree.h"
 #include "filter_expression.h"
+#include "omp_for.h"
+#include "omp_for_treeview.h"
 #include <gtk/gtk.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -1723,7 +1725,9 @@ G_MODULE_EXPORT void task_filter_update(void)
 	int64_t min_write_to_node_size;
 
 	filter_clear_tasks(&g_filter);
+	filter_clear_ofcps(&g_filter);
 	task_list_build_filter(GTK_TREE_VIEW(g_task_treeview), &g_filter);
+	omp_for_treeview_build_filter(GTK_TREE_VIEW(g_omp_for_treeview), &g_filter);
 
 	filter_clear_writes_to_numa_nodes_nodes(&g_filter);
 	numa_node_list_build_writes_to_numa_nodes_filter(GTK_TREE_VIEW(g_writes_to_numa_nodes_treeview), &g_filter);
