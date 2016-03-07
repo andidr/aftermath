@@ -22,6 +22,13 @@
 #include "filter.h"
 #include "omp_for.h"
 
+G_BEGIN_DECLS
+
+#define GTK_IS_OMP_TREEVIEW(obj) GTK_CHECK_TYPE(obj, gtk_omp_treeview_get_type())
+
+typedef struct _GtkOmpTreeViewClass GtkOmpTreeViewClass;
+typedef struct _GtkOmpTreeViewType GtkOmpTreeViewType;
+
 enum omp_for_treeview_columns {
 	OMP_FOR_TREEVIEW_COL_FILTER = 0,
 	OMP_FOR_TREEVIEW_COL_COLOR,
@@ -37,8 +44,26 @@ enum omp_for_treeview_columns {
 	OMP_FOR_TREEVIEW_COL_NUM
 };
 
-void omp_for_treeview_init(GtkTreeView* omp_for_treeview);
+enum gtk_omp_for_treeview_signals {
+	GTK_OMP_FOR_TREEVIEW_UPDATE_HIGHLIGHTED_PART = 0,
+	GTK_OMP_FOR_TREEVIEW_MAX_SIGNALS
+};
+
+struct _GtkOmpTreeViewType {
+	GtkWidget dummy;
+};
+
+struct _GtkOmpTreeViewClass {
+	GtkWidgetClass parent_class;
+
+	void (* bounds_changed) (void);
+};
+
+GtkWidget* omp_for_treeview_init(GtkTreeView* omp_for_treeview);
 void omp_for_treeview_fill(GtkTreeView* omp_for_treeview, struct omp_for* omp_fors, int num_omp_fors);
 void omp_for_treeview_build_filter(GtkTreeView* omp_for_treeview, struct filter* filter);
+GtkType gtk_omp_treeview_get_type(void);
+void gtk_omp_treeview_class_init(GtkOmpTreeViewClass *class);
+void gtk_omp_treeview_type_init(GtkOmpTreeViewType *treeviewtype);
 
 #endif

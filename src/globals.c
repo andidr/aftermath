@@ -27,6 +27,7 @@ GtkWidget* g_matrix_summary_widget;
 GtkWidget* g_hscroll_bar;
 GtkWidget* g_vscroll_bar;
 GtkWidget* g_omp_for_treeview;
+GtkWidget* g_omp_for_treeview_type;
 GtkWidget* g_task_treeview;
 GtkWidget* g_cpu_treeview;
 GtkWidget* g_writes_to_numa_nodes_treeview;

@@ -1609,6 +1609,17 @@ G_MODULE_EXPORT void trace_state_event_selection_changed(GtkTrace* item, gpointe
 		update_predecessors();
 }
 
+G_MODULE_EXPORT void omp_update_highlighted_part(GtkTreeView* item, gpointer pomp_chunk_part, gpointer data)
+{
+	GtkTrace* trace = GTK_TRACE(g_trace_widget);
+	trace->highlight_omp_chunk_set_part = pomp_chunk_part;
+	gtk_widget_queue_draw(GTK_WIDGET(trace));
+	trace_omp_chunk_set_part_selection_changed(trace, pomp_chunk_part,
+						   ((struct omp_for_chunk_set_part*)pomp_chunk_part)->cpu,
+						   ((struct omp_for_chunk_set_part*)pomp_chunk_part)->cpu,
+						   NULL);
+}
+
 G_MODULE_EXPORT void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, gpointer pomp_chunk_set_part, int cpu, int worker, gpointer data)
 {
 	struct omp_for_chunk_set_part* ofcp = pomp_chunk_set_part;

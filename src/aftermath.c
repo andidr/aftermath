@@ -465,7 +465,8 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);
 	g_signal_connect(G_OBJECT(g_matrix_summary_widget), "pair-under-pointer-changed", G_CALLBACK(comm_summary_matrix_pair_under_pointer_changed), g_matrix_summary_widget);
 
-	omp_for_treeview_init(GTK_TREE_VIEW(g_omp_for_treeview));
+	g_omp_for_treeview_type = omp_for_treeview_init(GTK_TREE_VIEW(g_omp_for_treeview));
+	g_signal_connect(G_OBJECT(g_omp_for_treeview_type), "omp-update-highlighted-part", G_CALLBACK(omp_update_highlighted_part), g_trace_widget);
 	omp_for_treeview_fill(GTK_TREE_VIEW(g_omp_for_treeview), g_mes.omp_fors, g_mes.num_omp_fors);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));

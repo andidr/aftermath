@@ -22,6 +22,39 @@
 #include "cell_renderer_color_button.h"
 #include "util.h"
 #include "globals.h"
+#include "marshal.h"
+
+gint gtk_omp_for_treeview_signals[GTK_OMP_FOR_TREEVIEW_MAX_SIGNALS] = { 0 };
+
+void omp_for_treeview_row_selected(GtkTreeView* omp_treeview, GtkTreePath* path, GtkTreeViewColumn *col, gpointer user_data)
+{
+	GtkTrace* g = GTK_TRACE(g_trace_widget);
+	GtkTreeView* omp_for_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(omp_for_treeview);
+	GtkTreeIter iter;
+	struct omp_for_chunk_set_part* ofcp;
+	int level;
+
+	gchar* path_string = gtk_tree_path_to_string(path);
+
+	gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+
+	g_free(path_string);
+
+	gtk_tree_model_get(model, &iter,
+			   OMP_FOR_TREEVIEW_COL_LEVEL, &level,
+			   OMP_FOR_TREEVIEW_COL_POINTER, &ofcp,
+			   -1);
+
+	if(level != 3)
+		return;
+
+	if(ofcp && (filter_has_ofcp(g->filter, ofcp))) {
+		g_signal_emit(g_omp_for_treeview_type,
+			      gtk_omp_for_treeview_signals[GTK_OMP_FOR_TREEVIEW_UPDATE_HIGHLIGHTED_PART],
+			      0, ofcp);
+	}
+}
 
 void omp_for_treeview_color_changed(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer color, gpointer user_data)
 {
@@ -108,10 +141,11 @@ void omp_for_treeview_toggle(GtkCellRendererToggle* cell_renderer, gchar* path, 
 	omp_for_treeview_toggle_children(model, store, iter, current_state, 1);
 }
 
-void omp_for_treeview_init(GtkTreeView* omp_for_treeview)
+GtkWidget* omp_for_treeview_init(GtkTreeView* omp_for_treeview)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn* column;
+	GtkOmpTreeViewType *omp_tt = gtk_type_new(gtk_omp_treeview_get_type());
 
 	GtkTreeStore* store = gtk_tree_store_new(OMP_FOR_TREEVIEW_COL_NUM,
 						 G_TYPE_BOOLEAN,
@@ -123,7 +157,11 @@ void omp_for_treeview_init(GtkTreeView* omp_for_treeview)
 						 G_TYPE_STRING,
 						 G_TYPE_STRING,
 						 G_TYPE_STRING,
-						 G_TYPE_POINTER);
+						 G_TYPE_POINTER,
+						 G_TYPE_INT);
+
+	g_signal_connect((GtkWidget *)(omp_for_treeview), "row-activated",
+			 G_CALLBACK(omp_for_treeview_row_selected), omp_for_treeview);
 
 	renderer = gtk_cell_renderer_toggle_new();
 	column = gtk_tree_view_column_new_with_attributes("", renderer, "active", OMP_FOR_TREEVIEW_COL_FILTER, NULL);
@@ -171,6 +209,63 @@ void omp_for_treeview_init(GtkTreeView* omp_for_treeview)
 
 	gtk_tree_view_set_model(omp_for_treeview, GTK_TREE_MODEL(store));
 	g_object_unref(store);
+
+	return GTK_WIDGET(omp_tt);
+}
+
+GtkType gtk_omp_treeview_get_type(void)
+{
+	static GtkType gtk_omp_treeview_type = 0;
+
+	if (!gtk_omp_treeview_type) {
+		static const GtkTypeInfo gtk_omp_treeview_type_info = {
+			"GtkOmpTreeView",
+			sizeof(GtkOmpTreeViewType),
+			sizeof(GtkOmpTreeViewClass),
+			(GtkClassInitFunc) gtk_omp_treeview_class_init,
+			(GtkObjectInitFunc) gtk_omp_treeview_type_init,
+			NULL,
+			NULL,
+			(GtkClassInitFunc) NULL
+		};
+		gtk_omp_treeview_type = gtk_type_unique(GTK_TYPE_WIDGET, &gtk_omp_treeview_type_info);
+	}
+
+	return gtk_omp_treeview_type;
+}
+
+void gtk_omp_treeview_type_destroy(GtkObject *object)
+{
+	GtkOmpTreeViewClass *class;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(GTK_IS_OMP_TREEVIEW(object));
+
+	class = gtk_type_class(gtk_widget_get_type());
+
+	if (GTK_OBJECT_CLASS(class)->destroy) {
+		(* GTK_OBJECT_CLASS(class)->destroy)(object);
+	}
+}
+
+void gtk_omp_treeview_type_init(GtkOmpTreeViewType *treeviewtype)
+{
+}
+
+void gtk_omp_treeview_class_init(GtkOmpTreeViewClass *class)
+{
+	GtkObjectClass *object_class;
+
+	object_class = (GtkObjectClass *) class;
+
+	gtk_omp_for_treeview_signals[GTK_OMP_FOR_TREEVIEW_UPDATE_HIGHLIGHTED_PART] =
+                g_signal_new("omp-update-highlighted-part", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkOmpTreeViewClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER,
+                             G_TYPE_NONE, 1,
+                             G_TYPE_POINTER);
 }
 
 void omp_for_add_chunk_set_parts(GtkTreeStore* store, struct omp_for_chunk_set* ofc, GtkTreeIter* iter_chunk_set, GdkColor* color)
