@@ -3,7 +3,8 @@ VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
 
-lib_LTLIBRARIES = libaftermath-core.la
+lib_LTLIBRARIES = libaftermath-core.la \
+		libaftermath-trace.la
 
 VALGRIND_FLAGS=--gen-suppressions=all \
 		--track-origins=yes \
@@ -25,8 +26,8 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/filter.c \
 		src/filter_expression.h \
 		src/filter_expression.c \
-		src/trace_file.h \
-		src/trace_file.c \
+		src/trace/trace_file.h \
+		src/trace/trace_file.c \
 		src/debug.h \
 		src/debug.c \
 		src/color_scheme.h \
@@ -62,8 +63,8 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/annotation.c \
 		src/visuals_file.h \
 		src/visuals_file.c \
-		src/convert.h \
-		src/convert.c \
+		src/trace/convert.h \
+		src/trace/convert.c \
 		src/task_graph.h \
 		src/task_graph.c \
 		src/uncompress.h \
@@ -104,6 +105,17 @@ libaftermath_core_la_LIBADD = @GLIB_LIBS@ -lm
 
 libaftermath_coredir = $(includedir)/aftermath/core
 libaftermath_core_HEADERS = $(filter %.h,$(libaftermath_core_la_SOURCES))
+
+libaftermath_trace_la_SOURCES = src/trace/trace.h \
+				src/trace/trace.c \
+				src/trace/ansi_extras.h \
+				src/trace/convert.h \
+				src/trace/convert.c \
+				src/trace/trace_file.h \
+				src/trace/trace_file.c
+
+libaftermath_tracedir = $(includedir)/aftermath/trace
+libaftermath_trace_HEADERS = src/trace/trace.h
 
 aftermath_SOURCES = src/aftermath.c \
 		src/trace_widget.h \

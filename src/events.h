@@ -19,7 +19,7 @@
 #define EVENTS_H
 
 #include <stdint.h>
-#include "trace_file.h"
+#include "trace/trace_file.h"
 #include "task.h"
 #include "frame.h"
 

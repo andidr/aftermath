@@ -18,7 +18,6 @@
 #ifndef ANSI_EXTRAS_H
 #define ANSI_EXTRAS_H
 
-#include <endian.h>
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -29,55 +28,6 @@
 #include <ctype.h>
 #include <regex.h>
 #include <alloca.h>
-
-#define SWAP_BITS(val, ret, type)					\
-	do {								\
-		ret = 0;						\
-		for(unsigned int i = 0; i < 8*sizeof(type); i += 8)	\
-			ret |= ((val >> i) & 0xFF) << ((sizeof(type)*8-8) - i); \
-	} while(0)
-
-static inline int64_t int64_swap(int64_t val)
-{
-	int64_t ret;
-	SWAP_BITS(val, ret, int64_t);
-
-	return ret;
-}
-
-static inline int32_t int32_swap(int32_t val)
-{
-	int32_t ret;
-	SWAP_BITS(val, ret, int32_t);
-
-	return ret;
-}
-
-static inline int16_t int16_swap(int16_t val)
-{
-	int16_t ret;
-	SWAP_BITS(val, ret, int16_t);
-
-	return ret;
-}
-
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	#define int16_htole(val) val
-	#define int32_htole(val) val
-	#define int64_htole(val) val
-	#define int16_letoh(val) val
-	#define int32_letoh(val) val
-	#define int64_letoh(val) val
-#elif __BYTE_ORDER == __BIG_ENDIAN
-	#define int16_htole(val) int16_swap(val)
-	#define int32_htole(val) int32_swap(val)
-	#define int64_htole(val) int64_swap(val)
-	#define int16_letoh(val) int16_swap(val)
-	#define int32_letoh(val) int32_swap(val)
-	#define int64_letoh(val) int64_swap(val)
-#else
-	#error "Could not determine your system's endianness"
-#endif
 
 /* Very simple string replacement function.
  * haystack must contain enough space for all

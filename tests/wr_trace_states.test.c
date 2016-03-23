@@ -19,8 +19,8 @@
 #include <time.h>
 #include "common.h"
 #include "../src/events.h"
-#include "../src/trace_file.h"
-#include "../src/convert.h"
+#include "../src/trace/trace_file.h"
+#include "../src/trace/convert.h"
 #include "../src/multi_event_set.h"
 
 /* Fills a header structure with default data */

@@ -17,6 +17,7 @@
 
 #include <unit_tests.h>
 #include "../src/ansi_extras.h"
+#include "../src/trace/ansi_extras.h"
 #include "common.h"
 
 UNIT_TEST(int64_swap_test)

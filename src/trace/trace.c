@@ -1,0 +1,261 @@
+/**
+ * Copyright (C) 2016 Andi Drebes <andi.drebes@lip6.fr>
+ *
+ * Libaftermath-trace is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * version 2.1 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+#include "trace.h"
+#include "trace_file.h"
+#include "convert.h"
+#include <time.h>
+
+/**
+ * Initialize data buffer
+ * @param size Maximum size of the buffer
+ * @return 0 on success, otherwise 1
+ */
+int am_buffer_init(struct am_buffer* buf, size_t size)
+{
+	if(!(buf->data = malloc(size)))
+		return 1;
+
+	buf->size = size;
+	buf->used = 0;
+
+	return 0;
+}
+
+/**
+ * Free all resources of a data buffer
+ */
+void am_buffer_destroy(struct am_buffer* buf)
+{
+	free(buf->data);
+}
+
+/**
+ * Reserve n bytes in the data buffer of an event set. If less than n
+ * bytes are available the function returns NULL. Otherwise it returns
+ * the pointer to the beginning of the reserved memory region within
+ * the buffer.
+ */
+void* am_buffer_reserve_bytes(struct am_buffer* buf, size_t n)
+{
+	void* ret;
+
+	if(buf->size - buf->used < n)
+		return NULL;
+
+	ret = buf->data + buf->used;
+	buf->used += n;
+
+	return ret;
+}
+
+/**
+ * Dump all events of a data buffer set to the file fp.
+ * @return 0 on success, 1 on failure
+ */
+int am_buffer_dump_fp(struct am_buffer* buf, FILE* fp)
+{
+	if(buf->used == 0)
+		return 0;
+
+	if(fwrite(buf->data, buf->used, 1, fp) != 1)
+		return 1;
+
+	buf->used = 0;
+
+	return 0;
+}
+
+/**
+ * Initialize an in-memory trace for the writer.
+ * @return 0 on success, otherwise 1
+ */
+int am_trace_init(struct am_trace* trace, size_t data_size)
+{
+	if(am_buffer_init(&trace->data, data_size))
+		return 1;
+
+	trace->num_event_sets = 0;
+	trace->num_event_sets_free = 0;
+	trace->event_sets = NULL;
+
+	return 0;
+}
+
+/**
+ * Free all resources of a trace
+ */
+void am_trace_destroy(struct am_trace* trace)
+{
+	for(size_t i = 0; i < trace->num_event_sets; i++)
+		am_event_set_destroy(&trace->event_sets[i]);
+
+	free(trace->event_sets);
+	am_buffer_destroy(&trace->data);
+}
+
+/**
+ * Initialize an event set
+ * @param cpu Physical ID of the CPU to be added
+ * @param data_size Initial size in bytes of the data buffer
+ * @return 0 on success, 1 on failure
+ */
+int am_event_set_init(struct am_event_set* es, am_cpu_t cpu, size_t data_size)
+{
+	if(am_buffer_init(&es->data, data_size))
+		return 1;
+
+	es->cpu = cpu;
+
+	return 0;
+}
+
+/**
+ * Free all resources of an event set
+ */
+void am_event_set_destroy(struct am_event_set* es)
+{
+	am_buffer_destroy(&es->data);
+}
+
+/**
+ * Dump all events of an event set to the file fp.
+ * @return 0 on success, 1 on failure
+ */
+int am_event_set_dump_fp(struct am_event_set* es, FILE* fp)
+{
+	return am_buffer_dump_fp(&es->data, fp);
+}
+
+
+/**
+ * Add a CPU to a trace
+ * @param cpu Physical ID of the CPU to be added
+ * @param data_size Initial size in bytes of the data buffer of the event set
+ * @return 0 on success, 1 on failure
+ */
+int am_trace_register_cpu(struct am_trace* trace,
+			  am_cpu_t cpu, size_t data_size)
+{
+	struct am_event_set* tmp;
+
+	if(!trace->num_event_sets_free) {
+		if(!(tmp = realloc(trace->event_sets,
+				   sizeof(trace->event_sets[0]) *
+				   (trace->num_event_sets+1))))
+		{
+			return 1;
+		}
+
+		trace->event_sets = tmp;
+		trace->num_event_sets_free++;
+	}
+
+	if(am_event_set_init(&trace->event_sets[trace->num_event_sets],
+			     cpu, data_size))
+	{
+		return 1;
+	}
+
+	trace->num_event_sets_free--;
+	trace->num_event_sets++;
+
+	return 0;
+}
+
+/**
+ * Write the header of a trace file*
+ * @return 0 on success, otherwise 1
+ */
+static int am_trace_write_header_fp(struct am_trace* trace, FILE* fp)
+{
+	time_t t = time(NULL);
+	struct tm* now = localtime(&t);
+	struct trace_header dsk_header;
+
+	/* Write header */
+	dsk_header.magic = TRACE_MAGIC;
+	dsk_header.version = TRACE_VERSION;
+	dsk_header.day = now->tm_mday;
+	dsk_header.month = now->tm_mon+1;
+	dsk_header.year = now->tm_year+1900;
+	dsk_header.hour = now->tm_hour;
+	dsk_header.minute = now->tm_min;
+
+	return write_struct_convert(fp, &dsk_header, sizeof(dsk_header),
+				    trace_event_header_conversion_table, 0);
+}
+
+/**
+ * Write the contents of a trace to a file already opened
+ * @return 0 on sucess, 1 on failure
+ */
+int am_trace_dump_fp(struct am_trace* trace, FILE* fp)
+{
+	if(am_trace_write_header_fp(trace, fp))
+		return 1;
+
+	if(am_buffer_dump_fp(&trace->data, fp))
+		return 1;
+
+	for(size_t i = 0; i < trace->num_event_sets; i++)
+		if(am_event_set_dump_fp(&trace->event_sets[i], fp))
+			return 1;
+
+	return 0;
+}
+
+/**
+ * Write the contents of a trace to a file
+ * @return 0 on sucess, 1 on failure
+ */
+int am_trace_dump(struct am_trace* trace, const char* filename)
+{
+	FILE* fp;
+	int ret = 1;
+
+	if(!(fp = fopen(filename, "wb+")))
+		goto out;
+
+	if(am_trace_dump_fp(trace, fp))
+		goto out_fp;
+
+	ret = 0;
+out_fp:
+	fclose(fp);
+out:
+	return ret;
+}
+
+/**
+ * Retrieve the event set associated to a cpu. This function can only
+ * be called once all CPUs have been registered, as pointers to event
+ * sets previously returned by the function become invalid when a new
+ * CPU is registered.
+ *
+ * @return NULL on failure (e.g., if the CPU has not been registered),
+ * otherwise a pointer to the event set associated to the CPU
+ */
+struct am_event_set* am_trace_get_event_set(struct am_trace* trace,
+					    am_cpu_t cpu)
+{
+	for(size_t i = 0; i < trace->num_event_sets; i++)
+		if(trace->event_sets[i].cpu == cpu)
+			return &trace->event_sets[i];
+
+	return NULL;
+}

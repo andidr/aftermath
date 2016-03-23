@@ -16,7 +16,7 @@
  */
 
 #include "visuals_file.h"
-#include "convert.h"
+#include "trace/convert.h"
 
 int visuals_header_conversion_table[] = {
 	FIELD_SIZE(struct visuals_header, magic),

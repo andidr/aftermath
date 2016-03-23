@@ -18,7 +18,7 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include "trace_file.h"
+#include "trace/trace_file.h"
 #include "multi_event_set.h"
 #include "intensity_matrix.h"
 

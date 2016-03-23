@@ -19,7 +19,7 @@
 #include "filter.h"
 #include "task.h"
 #include "multi_event_set.h"
-#include "convert.h"
+#include "trace/convert.h"
 #include "uncompress.h"
 #include "color.h"
 #include <stdlib.h>
