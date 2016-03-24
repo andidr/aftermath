@@ -19,6 +19,7 @@
 #include "trace_file.h"
 #include "convert.h"
 #include <time.h>
+#include <string.h>
 
 /**
  * Initialize data buffer
@@ -133,6 +134,38 @@ void am_event_set_destroy(struct am_event_set* es)
 }
 
 /**
+ * Trace a state event
+ * @param state The ID of the state to be traced
+ * @param start Start of the state event
+ * @param end End of the state event
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_state(struct am_event_set* es, am_state_t state,
+			     am_timestamp_t start, am_timestamp_t end)
+{
+	struct trace_state_event* dsk_se;
+
+	if(!(dsk_se = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_se))))
+		return 1;
+
+	dsk_se->header.type = EVENT_TYPE_STATE;
+	dsk_se->header.time = start;
+	dsk_se->header.worker = 0;
+	dsk_se->header.cpu = es->cpu;
+	dsk_se->header.active_task = 0;
+	dsk_se->header.active_frame = 0;
+	dsk_se->end_time = end;
+	dsk_se->state = state;
+
+	convert_struct(dsk_se,
+		       trace_state_event_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Dump all events of an event set to the file fp.
  * @return 0 on success, 1 on failure
  */
@@ -173,6 +206,36 @@ int am_trace_register_cpu(struct am_trace* trace,
 
 	trace->num_event_sets_free--;
 	trace->num_event_sets++;
+
+	return 0;
+}
+
+/**
+ * Add a state to a trace
+ * @param state_id ID of the new state
+ * @param name Name of the state that is to be associated with the ID
+ * @return 0 on success, 1 on failure
+ */
+int am_trace_register_state(struct am_trace* trace, am_state_t state_id,
+			    const char* name)
+{
+	struct trace_state_description* dsk_sd;
+	size_t name_len = strlen(name);
+	size_t size = sizeof(*dsk_sd)+name_len;
+
+	if(!(dsk_sd = am_buffer_reserve_bytes(&trace->data, size)))
+		return 1;
+
+	dsk_sd->type = EVENT_TYPE_STATE_DESCRIPTION;
+	dsk_sd->state_id = state_id;
+	dsk_sd->name_len = name_len;
+
+	convert_struct(dsk_sd,
+		       trace_state_description_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	memcpy(dsk_sd+1, name, name_len);
 
 	return 0;
 }
