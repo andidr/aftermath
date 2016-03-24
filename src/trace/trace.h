@@ -18,6 +18,10 @@
 #ifndef AFTERMATH_TRACE_H
 #define AFTERMATH_TRACE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -90,5 +94,9 @@ int am_trace_dump(struct am_trace* trace, const char* filename);
 int am_trace_dump_fp(struct am_trace* trace, FILE* fp);
 struct am_event_set* am_trace_get_event_set(struct am_trace* trace,
 					    am_cpu_t cpu);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
