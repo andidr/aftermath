@@ -21,10 +21,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "arch.h"
 
 typedef uint32_t am_cpu_t;
 typedef uint32_t am_state_t;
 typedef uint64_t am_timestamp_t;
+
+static inline am_timestamp_t am_timestamp_now(void)
+{
+	return am_tsc();
+}
 
 struct am_buffer {
 	/* Buffer storing raw event data that will be dumped to the

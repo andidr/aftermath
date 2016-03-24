@@ -112,10 +112,12 @@ libaftermath_trace_la_SOURCES = src/trace/trace.h \
 				src/trace/convert.h \
 				src/trace/convert.c \
 				src/trace/trace_file.h \
-				src/trace/trace_file.c
+				src/trace/trace_file.c \
+				src/trace/arch.h
 
 libaftermath_tracedir = $(includedir)/aftermath/trace
-libaftermath_trace_HEADERS = src/trace/trace.h
+libaftermath_trace_HEADERS = src/trace/trace.h \
+			src/trace/arch.h
 
 aftermath_SOURCES = src/aftermath.c \
 		src/trace_widget.h \
