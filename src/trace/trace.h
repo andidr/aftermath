@@ -29,6 +29,8 @@ extern "C" {
 
 typedef uint32_t am_cpu_t;
 typedef uint32_t am_state_t;
+typedef uint32_t am_counter_t;
+typedef uint64_t am_counter_value_t;
 typedef uint64_t am_timestamp_t;
 
 static inline am_timestamp_t am_timestamp_now(void)
@@ -66,6 +68,8 @@ int am_event_set_init(struct am_event_set* es, uint32_t cpu, size_t data_size);
 void am_event_set_destroy(struct am_event_set* es);
 int am_event_set_trace_state(struct am_event_set* es, am_state_t state,
 			     am_timestamp_t start, am_timestamp_t end);
+int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
+			       am_timestamp_t time, am_counter_value_t value);
 int am_event_set_dump_fp(struct am_event_set* es, FILE* fp);
 
 /* Root data structure for an in-memory trace of the writer */
@@ -90,6 +94,8 @@ int am_trace_register_cpu(struct am_trace* trace, am_cpu_t cpu,
 			  size_t data_size);
 int am_trace_register_state(struct am_trace* trace, am_state_t state_id,
 			    const char* name);
+int am_trace_register_counter(struct am_trace* trace, am_counter_t counter_id,
+			      const char* name);
 int am_trace_dump(struct am_trace* trace, const char* filename);
 int am_trace_dump_fp(struct am_trace* trace, FILE* fp);
 struct am_event_set* am_trace_get_event_set(struct am_trace* trace,

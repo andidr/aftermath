@@ -166,6 +166,38 @@ int am_event_set_trace_state(struct am_event_set* es, am_state_t state,
 }
 
 /**
+ * Trace a counter event
+ * @param counter_id The ID of the counter to be traced
+ * @param time Timestamp of the counter sample
+ * @param value Value of the counter sample
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
+			       am_timestamp_t time, am_counter_value_t value)
+{
+	struct trace_counter_event* dsk_ce;
+
+	if(!(dsk_ce = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_ce))))
+		return 1;
+
+	dsk_ce->header.type = EVENT_TYPE_COUNTER;
+	dsk_ce->header.time = time;
+	dsk_ce->header.worker = 0;
+	dsk_ce->header.cpu = es->cpu;
+	dsk_ce->header.active_task = 0;
+	dsk_ce->header.active_frame = 0;
+	dsk_ce->counter_id = counter_id;
+	dsk_ce->value = value;
+
+	convert_struct(dsk_ce,
+		       trace_counter_event_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Dump all events of an event set to the file fp.
  * @return 0 on success, 1 on failure
  */
@@ -236,6 +268,36 @@ int am_trace_register_state(struct am_trace* trace, am_state_t state_id,
 		       CONVERT_HOST_TO_DSK);
 
 	memcpy(dsk_sd+1, name, name_len);
+
+	return 0;
+}
+
+/**
+ * Add a counter to a trace
+ * @param counter_id ID of the new counter
+ * @param name Name of the counter that is to be associated with the ID
+ * @return 0 on success, 1 on failure
+ */
+int am_trace_register_counter(struct am_trace* trace, am_counter_t counter_id,
+			      const char* name)
+{
+	struct trace_counter_description* dsk_cd;
+	size_t name_len = strlen(name);
+	size_t size = sizeof(*dsk_cd)+name_len;
+
+	if(!(dsk_cd = am_buffer_reserve_bytes(&trace->data, size)))
+		return 1;
+
+	dsk_cd->type = EVENT_TYPE_COUNTER_DESCRIPTION;
+	dsk_cd->counter_id = counter_id;
+	dsk_cd->name_len = name_len;
+
+	convert_struct(dsk_cd,
+		       trace_counter_description_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	memcpy(dsk_cd+1, name, name_len);
 
 	return 0;
 }
