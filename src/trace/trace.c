@@ -197,6 +197,51 @@ int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
 	return 0;
 }
 
+static int trace_global_single_event(struct am_trace* trace,
+				     enum global_single_event_type type,
+				     am_timestamp_t time)
+{
+	struct trace_global_single_event* dsk_gse;
+
+	if(!(dsk_gse = am_buffer_reserve_bytes(&trace->data, sizeof(*dsk_gse))))
+		return 1;
+
+	dsk_gse->type = EVENT_TYPE_GLOBAL_SINGLE_EVENT;
+	dsk_gse->time = time;
+	dsk_gse->single_type = type;
+
+	convert_struct(dsk_gse,
+		       trace_global_single_event_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
+ * Trace a measurement interval start event
+ * @param time The timestamp of the event
+ * @return 0 on success, 1 otherwise
+ */
+int am_trace_start_measurement_interval(struct am_trace* trace, am_timestamp_t time)
+{
+	return trace_global_single_event(trace,
+					 GLOBAL_SINGLE_TYPE_MEASURE_START,
+					 time);
+}
+
+/**
+ * Trace a measurement interval end event
+ * @param time The timestamp of the event
+ * @return 0 on success, 1 otherwise
+ */
+int am_trace_end_measurement_interval(struct am_trace* trace, am_timestamp_t time)
+{
+	return trace_global_single_event(trace,
+					 GLOBAL_SINGLE_TYPE_MEASURE_END,
+					 time);
+}
+
 /**
  * Dump all events of an event set to the file fp.
  * @return 0 on success, 1 on failure

@@ -96,6 +96,10 @@ int am_trace_register_state(struct am_trace* trace, am_state_t state_id,
 			    const char* name);
 int am_trace_register_counter(struct am_trace* trace, am_counter_t counter_id,
 			      const char* name);
+int am_trace_start_measurement_interval(struct am_trace* trace,
+					am_timestamp_t time);
+int am_trace_end_measurement_interval(struct am_trace* trace,
+					am_timestamp_t time);
 int am_trace_dump(struct am_trace* trace, const char* filename);
 int am_trace_dump_fp(struct am_trace* trace, FILE* fp);
 struct am_event_set* am_trace_get_event_set(struct am_trace* trace,
