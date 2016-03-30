@@ -22,16 +22,10 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "arch.h"
-
-typedef uint32_t am_cpu_t;
-typedef uint32_t am_state_t;
-typedef uint32_t am_counter_t;
-typedef uint64_t am_counter_value_t;
-typedef uint64_t am_timestamp_t;
+#include "types.h"
 
 static inline am_timestamp_t am_timestamp_now(void)
 {

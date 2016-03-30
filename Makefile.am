@@ -108,6 +108,7 @@ libaftermath_core_HEADERS = $(filter %.h,$(libaftermath_core_la_SOURCES))
 
 libaftermath_trace_la_SOURCES = src/trace/trace.h \
 				src/trace/trace.c \
+				src/trace/types.h \
 				src/trace/ansi_extras.h \
 				src/trace/convert.h \
 				src/trace/convert.c \
@@ -119,6 +120,7 @@ libaftermath_trace_la_SOURCES = src/trace/trace.h \
 
 libaftermath_tracedir = $(includedir)/aftermath/trace
 libaftermath_trace_HEADERS = src/trace/trace.h \
+			src/trace/types.h \
 			src/trace/arch.h \
 			src/trace/state_stack.h
 

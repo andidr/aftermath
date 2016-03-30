@@ -15,28 +15,15 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef AFTERMATH_ARCH_H
-#define AFTERMATH_ARCH_H
+#ifndef AFTERMATH_TYPES_H
+#define AFTERMATH_TYPES_H
 
 #include <stdint.h>
 
-#ifdef __i386
-	static inline uint64_t am_tsc(void)
-	{
-		uint64_t x;
-		__asm__ volatile ("rdtsc" : "=A" (x));
-		return x;
-	}
-
-#elif defined __amd64
-	static inline uint64_t am_tsc(void)
-	{
-		uint64_t a, d;
-		__asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
-		return (d<<32) | a;
-	}
-#else
-	#error "No timestamp counter function defined for your architecture"
-#endif
+typedef uint32_t am_cpu_t;
+typedef uint32_t am_state_t;
+typedef uint32_t am_counter_t;
+typedef uint64_t am_counter_value_t;
+typedef uint64_t am_timestamp_t;
 
 #endif
