@@ -47,13 +47,13 @@ void am_state_stack_destroy(struct am_state_stack* s)
  * @param state The ID of the newly entered state
  * @return 0 on success, 1 otherwise
  */
-int am_state_stack_push(struct am_state_stack* s, am_state_t state)
+int am_state_stack_push(struct am_state_stack* s, am_state_t state, am_timestamp_t tsc)
 {
 	if(s->top >= s->size)
 		return 1;
 
 	s->entries[s->top].state = state;
-	s->entries[s->top].start = am_timestamp_now();
+	s->entries[s->top].start = tsc;
 
 	s->top++;
 
@@ -75,13 +75,15 @@ int am_state_stack_push_trace(struct am_state_stack* s,
 			      struct am_event_set* es,
 			      am_state_t state)
 {
-	if(am_state_stack_push(s, state))
+	am_timestamp_t tsc = am_timestamp_now(es);
+
+	if(am_state_stack_push(s, state, tsc))
 		return 1;
 
 	if(s->top > 1) {
 		if(am_event_set_trace_state(es, s->entries[s->top-2].state,
 					    s->entries[s->top-2].start,
-					    am_timestamp_now()))
+					    tsc))
 		{
 			return 1;
 		}
@@ -94,7 +96,7 @@ int am_state_stack_push_trace(struct am_state_stack* s,
  * Pop a state from the stack.
  * @return 0 on success, 1 otherwise (e.g., if the stack is already empty)
  */
-int am_state_stack_pop(struct am_state_stack* s)
+int am_state_stack_pop(struct am_state_stack* s, am_timestamp_t tsc)
 {
 	if(s->top == 0)
 		return 1;
@@ -102,7 +104,7 @@ int am_state_stack_pop(struct am_state_stack* s)
 	s->top--;
 
 	if(s->top > 0)
-		s->entries[s->top-1].start = am_timestamp_now();
+		s->entries[s->top-1].start = tsc;
 
 	return 0;
 }
@@ -118,15 +120,17 @@ int am_state_stack_pop(struct am_state_stack* s)
  */
 int am_state_stack_pop_trace(struct am_state_stack* s, struct am_event_set* es)
 {
+	am_timestamp_t tsc = am_timestamp_now(es);
+
 	if(s->top == 0)
 		return 1;
 
 	if(am_event_set_trace_state(es, s->entries[s->top-1].state,
 				    s->entries[s->top-1].start,
-				    am_timestamp_now()))
+				    tsc))
 	{
 		return 1;
 	}
 
-	return am_state_stack_pop(s);
+	return am_state_stack_pop(s, tsc);
 }

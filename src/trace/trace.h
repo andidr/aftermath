@@ -26,11 +26,7 @@ extern "C" {
 #include <stdio.h>
 #include "arch.h"
 #include "types.h"
-
-static inline am_timestamp_t am_timestamp_now(void)
-{
-	return am_tsc();
-}
+#include "tsc.h"
 
 struct am_buffer {
 	/* Buffer storing raw event data that will be dumped to the
@@ -49,6 +45,8 @@ void am_buffer_destroy(struct am_buffer* buf);
 void* am_buffer_reserve_bytes(struct am_buffer* buf, size_t n);
 int am_buffer_dump_fp(struct am_buffer* buf, FILE* fp);
 
+struct am_trace;
+
 /* The set of events recorded for a CPU */
 struct am_event_set {
 	/* Buffer with the events occured on the associated CPU */
@@ -56,6 +54,9 @@ struct am_event_set {
 
 	/* Physical ID of the associated CPU */
 	am_cpu_t cpu;
+
+	/* Reference timestamp deduces from local timestamps */
+	am_timestamp_diff_t ts_offs;
 };
 
 int am_event_set_init(struct am_event_set* es, uint32_t cpu, size_t data_size);
@@ -65,6 +66,8 @@ int am_event_set_trace_state(struct am_event_set* es, am_state_t state,
 int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
 			       am_timestamp_t time, am_counter_value_t value);
 int am_event_set_dump_fp(struct am_event_set* es, FILE* fp);
+int am_event_set_sync_timestamp_offset(struct am_event_set* es,
+				       struct am_trace* trace);
 
 /* Root data structure for an in-memory trace of the writer */
 struct am_trace {
@@ -80,9 +83,13 @@ struct am_trace {
 	/* Trace global data, not associated to any specific worker
 	 * (e.g., event descriptions) */
 	struct am_buffer data;
+
+	/* Timestamp reference */
+	struct am_timestamp_reference ts_ref;
 };
 
 int am_trace_init(struct am_trace* trace, size_t data_size);
+int am_trace_set_reference_timestamp(struct am_trace* trace, am_cpu_t this_cpu);
 void am_trace_destroy(struct am_trace* trace);
 int am_trace_register_cpu(struct am_trace* trace, am_cpu_t cpu,
 			  size_t data_size);
@@ -98,6 +105,11 @@ int am_trace_dump(struct am_trace* trace, const char* filename);
 int am_trace_dump_fp(struct am_trace* trace, FILE* fp);
 struct am_event_set* am_trace_get_event_set(struct am_trace* trace,
 					    am_cpu_t cpu);
+
+static inline am_timestamp_t am_timestamp_now(struct am_event_set* es)
+{
+	return am_tsc() - es->ts_offs;
+}
 
 #ifdef __cplusplus
 }

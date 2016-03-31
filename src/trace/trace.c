@@ -94,6 +94,8 @@ int am_trace_init(struct am_trace* trace, size_t data_size)
 	trace->num_event_sets_free = 0;
 	trace->event_sets = NULL;
 
+	am_timestamp_reference_init(&trace->ts_ref);
+
 	return 0;
 }
 
@@ -107,6 +109,18 @@ void am_trace_destroy(struct am_trace* trace)
 
 	free(trace->event_sets);
 	am_buffer_destroy(&trace->data);
+}
+
+/**
+ * Set the timestamp reference
+ *
+ * @param this_cpu CPU identifier of the calling CPU
+ * @return 0 on success, 1 otherwise (e.g., if the reference has
+ * already been initialized)
+ */
+int am_trace_set_reference_timestamp(struct am_trace* trace, am_cpu_t this_cpu)
+{
+	return am_timestamp_reference_set(&trace->ts_ref, this_cpu);
 }
 
 /**
@@ -193,6 +207,44 @@ int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
 		       trace_counter_event_conversion_table,
 		       0,
 		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
+ * Synchronize the timestamp offset of an event set with the reference
+ * of a trace. The function must be called by the CPU associated to
+ * the event set.
+ *
+ * @param trace The trace to synchronize with
+ * @return 0 on success, 1 otherwise (e.g., if the reference timestamp
+ * of trace has not been initialized before)
+ */
+int am_event_set_sync_timestamp_offset(struct am_event_set* es,
+				       struct am_trace* trace)
+{
+	am_nanoseconds_t ns = am_current_nanoseconds();
+	am_timestamp_t ts = am_tsc();
+	am_nanoseconds_diff_t ns_diff;
+	am_timestamp_t ns_ts;
+
+	if(!trace->ts_ref.set)
+		return 1;
+
+	/* Difference in nanoseconds to reference */
+	ns_diff = (am_nanoseconds_diff_t)ns -
+		(am_nanoseconds_diff_t)trace->ts_ref.ref_ns;
+
+	/* Difference between this moment and reference nanoseconds in
+	 * timestamps */
+	ns_ts = (ns_diff * trace->ts_ref.tsps) / 1000000000;
+
+	/* What would the timestamp of this CPU have been at the
+	 * reference nanoseconds? */
+	am_timestamp_t norm_ts = ts - ns_ts;
+
+	/* Timestamp offset  */
+	es->ts_offs = (am_timestamp_diff_t)norm_ts;
 
 	return 0;
 }
