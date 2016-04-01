@@ -728,6 +728,7 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_widget_set_sensitive(g_button_clear_range, FALSE);
 	gtk_trace_clear_range_selection(g_trace_widget);
 	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), "<b>No range selected</b>");
+	gtk_label_set_markup(GTK_LABEL(g_label_range_selection_omp), "<b>No range selected</b>");
 
 	state_list_clear(GTK_TREE_VIEW(g_state_treeview));
 	state_list_fill_name(GTK_TREE_VIEW(g_state_treeview), g_mes.states, g_mes.num_states);
@@ -740,6 +741,14 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles), "MAX");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), "MAX");
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_chunk_parts), "0 chunk_parts considered");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length_omp), "0 cycles");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_avg_chunk_part_length), "0 cycles / chunk_part (avg)");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles_omp), "0");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles_omp), "MAX");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc_omp), "0");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc_omp), "MAX");
 
 	gtk_label_set_text(GTK_LABEL(g_label_comm_matrix), "\n");
 
@@ -927,6 +936,83 @@ void update_statistics_labels(uint64_t cycles, uint64_t min_cycles, uint64_t max
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0%");
 	snprintf(buffer, sizeof(buffer), "%.2f%%", 100.0*((double)max_hist / (double)num_tasks));
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), buffer);
+}
+
+void update_statistics_labels_omp(uint64_t cycles, uint64_t min_cycles, uint64_t max_cycles, unsigned int max_hist, unsigned int num_chunk_parts)
+{
+	char buffer[128];
+	char buffer2[128];
+
+	int num_cpus = 0;
+	double par_ratio;
+	struct event_set* es;
+
+	int64_t left, right;
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
+	if(left < 0)
+		left = 0;
+
+	if(right < 0)
+		right = 0;
+
+	for_each_event_set(&g_mes, es)
+		if(filter_has_cpu(&g_filter, es->cpu))
+			num_cpus++;
+
+	par_ratio = ((double)cycles) / ((double)(right - left) * num_cpus);
+
+	if(num_chunk_parts > 0) {
+		pretty_print_cycles(buffer, sizeof(buffer), cycles / num_chunk_parts);
+		snprintf(buffer2, sizeof(buffer2), "%s cycles / chunk_part (avg)", buffer);
+		gtk_label_set_text(GTK_LABEL(g_label_hist_avg_chunk_part_length), buffer2);
+	}
+
+	snprintf(buffer, sizeof(buffer), "%d chunk_parts considered || par ratio %lf", num_chunk_parts, par_ratio);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_chunk_parts), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), min_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles_omp), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), max_cycles);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles_omp), buffer);
+
+	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc_omp), "0%");
+	snprintf(buffer, sizeof(buffer), "%.2f%%", 100.0*((double)max_hist / (double)num_chunk_parts));
+	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc_omp), buffer);
+}
+
+void update_chunk_set_part_statistics(void)
+{
+	int64_t left, right;
+	struct chunk_set_part_statistics cps;
+
+	gtk_widget_show(g_histogram_widget_omp);
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &left, &right))
+		return;
+
+	if(left < 0)
+		left = 0;
+
+	if(right < 0)
+		right = 0;
+
+	if(chunk_set_part_statistics_init(&cps, HISTOGRAM_DEFAULT_NUM_BINS) != 0) {
+		show_error_message("Cannot allocate task statistics structure.");
+		return;
+	}
+
+	chunk_set_part_statistics_gather(&g_mes, &g_filter, &cps, left, right);
+
+	chunk_set_part_statistics_to_chunk_set_part_length_histogram(&cps, &g_task_histogram);
+	gtk_histogram_set_data(g_histogram_widget_omp, &g_task_histogram);
+
+	update_statistics_labels_omp(cps.cycles, cps.min_cycles, cps.max_cycles, cps.max_hist, cps.num_chunk_set_parts);
+
+	chunk_set_part_statistics_destroy(&cps);
 }
 
 void update_task_statistics(void)
@@ -1163,13 +1249,16 @@ void update_statistics(void)
 	length = right - left;
 
 	gtk_widget_set_sensitive(g_button_clear_range, TRUE);
+	gtk_widget_set_sensitive(g_button_clear_range_omp, TRUE);
 
 	snprintf(buffer, sizeof(buffer), "<b>%"PRId64" - %"PRId64"</b>", left, right);
 	gtk_label_set_markup(GTK_LABEL(g_label_range_selection), buffer);
+	gtk_label_set_markup(GTK_LABEL(g_label_range_selection_omp), buffer);
 
 	pretty_print_cycles(buffer, sizeof(buffer), right - left);
 	snprintf(buffer2, sizeof(buffer2), "%scycles selected", buffer);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length), buffer2);
+	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length_omp), buffer2);
 
 	if(left < 0)
 		left = 0;
@@ -1191,8 +1280,12 @@ void update_statistics(void)
 
 	snprintf(buffer, sizeof(buffer), "%"PRId64" task creation events", single_stats.num_tcreate_events);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_tcreate), buffer);
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_global_hist_radio_button)))
-		update_task_statistics();
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_global_hist_radio_button))) {
+		if(g_mes.num_omp_fors != 0)
+			update_chunk_set_part_statistics();
+		else
+			update_task_statistics();
+	}
 	else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_per_task_hist_radio_button)))
 		update_multi_task_statistics();
 	else

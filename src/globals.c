@@ -21,6 +21,7 @@
 GtkWidget* g_trace_widget;
 GtkWidget* g_histogram_widget;
 GtkWidget* g_multi_histogram_widget;
+GtkWidget* g_histogram_widget_omp;
 GtkWidget* g_counter_list_widget;
 GtkWidget* g_matrix_widget;
 GtkWidget* g_matrix_summary_widget;
@@ -57,16 +58,25 @@ GtkWidget* g_writes_to_numa_nodes_min_size_entry;
 GtkWidget* g_toggle_omp_for;
 
 GtkWidget* g_label_hist_num_tasks;
+GtkWidget* g_label_hist_num_chunk_parts;
 GtkWidget* g_label_hist_selection_length;
+GtkWidget* g_label_hist_selection_length_omp;
 GtkWidget* g_label_hist_avg_task_length;
+GtkWidget* g_label_hist_avg_chunk_part_length;
 GtkWidget* g_label_hist_num_tcreate;
 GtkWidget* g_label_hist_min_cycles;
 GtkWidget* g_label_hist_max_cycles;
 GtkWidget* g_label_hist_min_perc;
 GtkWidget* g_label_hist_max_perc;
+GtkWidget* g_label_hist_min_cycles_omp;
+GtkWidget* g_label_hist_max_cycles_omp;
+GtkWidget* g_label_hist_min_perc_omp;
+GtkWidget* g_label_hist_max_perc_omp;
 
 GtkWidget* g_label_range_selection;
+GtkWidget* g_label_range_selection_omp;
 GtkWidget* g_button_clear_range;
+GtkWidget* g_button_clear_range_omp;
 
 GtkWidget* g_use_task_length_check;
 GtkWidget* g_task_length_min_entry;

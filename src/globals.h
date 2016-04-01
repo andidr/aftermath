@@ -32,6 +32,7 @@
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
 extern GtkWidget* g_multi_histogram_widget;
+extern GtkWidget* g_histogram_widget_omp;
 extern GtkWidget* g_counter_list_widget;
 extern GtkWidget* g_matrix_widget;
 extern GtkWidget* g_matrix_summary_widget;
@@ -70,16 +71,25 @@ extern GtkWidget* g_global_slopes_min_entry;
 extern GtkWidget* g_global_slopes_max_entry;
 
 extern GtkWidget* g_label_hist_num_tasks;
+extern GtkWidget* g_label_hist_num_chunk_parts;
 extern GtkWidget* g_label_hist_selection_length;
+extern GtkWidget* g_label_hist_selection_length_omp;
 extern GtkWidget* g_label_hist_avg_task_length;
+extern GtkWidget* g_label_hist_avg_chunk_part_length;
 extern GtkWidget* g_label_hist_num_tcreate;
 extern GtkWidget* g_label_hist_min_cycles;
 extern GtkWidget* g_label_hist_max_cycles;
 extern GtkWidget* g_label_hist_min_perc;
 extern GtkWidget* g_label_hist_max_perc;
+extern GtkWidget* g_label_hist_min_cycles_omp;
+extern GtkWidget* g_label_hist_max_cycles_omp;
+extern GtkWidget* g_label_hist_min_perc_omp;
+extern GtkWidget* g_label_hist_max_perc_omp;
 
 extern GtkWidget* g_label_range_selection;
+extern GtkWidget* g_label_range_selection_omp;
 extern GtkWidget* g_button_clear_range;
+extern GtkWidget* g_button_clear_range_omp;
 
 extern GtkWidget* g_use_task_length_check;
 extern GtkWidget* g_task_length_min_entry;

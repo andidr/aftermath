@@ -233,6 +233,7 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, hist_box);
+	IMPORT_GLADE_WIDGET(xml, hist_box_omp);
 	IMPORT_GLADE_WIDGET(xml, matrix_box);
 	IMPORT_GLADE_WIDGET(xml, matrix_summary_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
@@ -269,13 +270,20 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toggle_omp_for);
 
 	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length);
+	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length_omp);
 	IMPORT_GLADE_WIDGET(xml, label_hist_avg_task_length);
+	IMPORT_GLADE_WIDGET(xml, label_hist_avg_chunk_part_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_num_tasks);
+	IMPORT_GLADE_WIDGET(xml, label_hist_num_chunk_parts);
 	IMPORT_GLADE_WIDGET(xml, label_hist_num_tcreate);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc);
 	IMPORT_GLADE_WIDGET(xml, label_hist_max_perc);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_perc_omp);
 
 	IMPORT_GLADE_WIDGET(xml, use_task_length_check);
 	IMPORT_GLADE_WIDGET(xml, task_length_min_entry);
@@ -286,7 +294,9 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, comm_size_max_entry);
 	IMPORT_GLADE_WIDGET(xml, comm_numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
+	IMPORT_GLADE_WIDGET(xml, button_clear_range_omp);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
+	IMPORT_GLADE_WIDGET(xml, label_range_selection_omp);
 
 	IMPORT_GLADE_WIDGET(xml, heatmap_min_cycles);
 	IMPORT_GLADE_WIDGET(xml, heatmap_max_cycles);
@@ -330,6 +340,9 @@ int main(int argc, char** argv)
 
 	g_multi_histogram_widget = gtk_multi_histogram_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(hist_box), g_multi_histogram_widget);
+
+	g_histogram_widget_omp = gtk_histogram_new();
+	gtk_container_add(GTK_CONTAINER(hist_box_omp), g_histogram_widget_omp);
 
 	g_counter_list_widget = counter_combo_box;
 
@@ -383,13 +396,20 @@ int main(int argc, char** argv)
 	g_global_slopes_max_entry = global_slopes_max_entry;
 
 	g_label_hist_selection_length = label_hist_selection_length;
+	g_label_hist_selection_length_omp = label_hist_selection_length_omp;
 	g_label_hist_avg_task_length = label_hist_avg_task_length;
+	g_label_hist_avg_chunk_part_length = label_hist_avg_chunk_part_length;
 	g_label_hist_num_tasks = label_hist_num_tasks;
+	g_label_hist_num_chunk_parts = label_hist_num_chunk_parts;
 	g_label_hist_num_tcreate = label_hist_num_tcreate;
 	g_label_hist_min_cycles = label_hist_min_cycles;
 	g_label_hist_max_cycles = label_hist_max_cycles;
 	g_label_hist_min_perc = label_hist_min_perc;
 	g_label_hist_max_perc = label_hist_max_perc;
+	g_label_hist_min_cycles_omp = label_hist_min_cycles_omp;
+	g_label_hist_max_cycles_omp = label_hist_max_cycles_omp;
+	g_label_hist_min_perc_omp = label_hist_min_perc_omp;
+	g_label_hist_max_perc_omp = label_hist_max_perc_omp;
 
 	g_use_task_length_check = use_task_length_check;
 	g_task_length_min_entry = task_length_min_entry;
@@ -401,7 +421,9 @@ int main(int argc, char** argv)
 	g_comm_numa_node_treeview = comm_numa_node_treeview;
 
 	g_button_clear_range = button_clear_range;
+	g_button_clear_range_omp = button_clear_range_omp;
 	g_label_range_selection = label_range_selection;
+	g_label_range_selection_omp = label_range_selection_omp;
 
 	g_heatmap_min_cycles = heatmap_min_cycles;
 	g_heatmap_max_cycles = heatmap_max_cycles;
