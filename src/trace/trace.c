@@ -257,6 +257,43 @@ int am_event_set_trace_omp_for_instance(struct am_event_set* es,
 }
 
 /**
+ * Trace an OpenMP for chunk set
+ * @param id The ID of the for chunk set
+ * @param for_id ID of the associated for loop instance
+ * @param first_lower Lower bound of the chunk_set's iteration space;
+ * raw 64-bit representation, including signed extension for signed
+ * loop bounds
+ * @param first_upper Upper bound of the chunk_set's iteration space;
+ * raw 64-bit representation, including signed extension for signed
+ * loop bounds
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_omp_for_chunk_set(struct am_event_set* es,
+					 am_omp_for_instance_id_t for_id,
+					 am_omp_for_chunk_set_id_t id,
+					 am_omp_for_iterator_t first_lower,
+					 am_omp_for_iterator_t first_upper)
+{
+	struct trace_omp_for_chunk_set* dsk_ofcs;
+
+	if(!(dsk_ofcs = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_ofcs))))
+		return 1;
+
+	dsk_ofcs->type = EVENT_TYPE_OMP_FOR_CHUNK_SET;
+	dsk_ofcs->id = id;
+	dsk_ofcs->for_id = for_id;
+	dsk_ofcs->first_lower = first_lower;
+	dsk_ofcs->first_upper = first_upper;
+
+	convert_struct(dsk_ofcs,
+		       trace_omp_for_chunk_set_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Synchronize the timestamp offset of an event set with the reference
  * of a trace. The function must be called by the CPU associated to
  * the event set.

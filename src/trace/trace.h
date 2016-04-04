@@ -73,6 +73,11 @@ int am_event_set_trace_omp_for_instance(struct am_event_set* es,
 					am_omp_for_iterator_t lower_bound,
 					am_omp_for_iterator_t upper_bound,
 					am_omp_worker_t num_workers);
+int am_event_set_trace_omp_for_chunk_set(struct am_event_set* es,
+					 am_omp_for_instance_id_t for_id,
+					 am_omp_for_chunk_set_id_t id,
+					 am_omp_for_iterator_t first_lower,
+					 am_omp_for_iterator_t first_upper);
 int am_event_set_dump_fp(struct am_event_set* es, FILE* fp);
 int am_event_set_sync_timestamp_offset(struct am_event_set* es,
 				       struct am_trace* trace);
