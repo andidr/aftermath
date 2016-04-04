@@ -212,6 +212,51 @@ int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
 }
 
 /**
+ * Trace an OpenMP for instance
+ * @param id The ID of the for loop instance
+ * @param addr The address of the for loop (e.g., the address of the
+ * instruction calling the run-time to determine the bounds of a
+ * chunk)
+ * @param flags A set of flags from enum omp_for_flag
+ * @param increment Loop increment; raw 64-bit representation,
+ * including signed extension for signed increments
+ * @param upper_bound Upper bound of the iteration space; raw 64-bit
+ * representation, including signed extension for signed loop bounds
+ * @param num_workers Number of workers executing the loop
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_omp_for_instance(struct am_event_set* es,
+					am_omp_for_instance_id_t id,
+					am_omp_for_address_t addr,
+					am_omp_for_flags_t flags,
+					am_omp_for_increment_t increment,
+					am_omp_for_iterator_t lower_bound,
+					am_omp_for_iterator_t upper_bound,
+					am_omp_worker_t num_workers)
+{
+	struct trace_omp_for_instance* dsk_ofi;
+
+	if(!(dsk_ofi = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_ofi))))
+		return 1;
+
+	dsk_ofi->type = EVENT_TYPE_OMP_FOR;
+	dsk_ofi->id = id;
+	dsk_ofi->addr = addr;
+	dsk_ofi->flags = flags;
+	dsk_ofi->increment = increment;
+	dsk_ofi->lower_bound = lower_bound;
+	dsk_ofi->upper_bound = upper_bound;
+	dsk_ofi->num_workers = num_workers;
+
+	convert_struct(dsk_ofi,
+		       trace_omp_for_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Synchronize the timestamp offset of an event set with the reference
  * of a trace. The function must be called by the CPU associated to
  * the event set.

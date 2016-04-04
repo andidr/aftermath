@@ -65,6 +65,14 @@ int am_event_set_trace_state(struct am_event_set* es, am_state_t state,
 			     am_timestamp_t start, am_timestamp_t end);
 int am_event_set_trace_counter(struct am_event_set* es, am_counter_t counter_id,
 			       am_timestamp_t time, am_counter_value_t value);
+int am_event_set_trace_omp_for_instance(struct am_event_set* es,
+					am_omp_for_instance_id_t id,
+					am_omp_for_address_t addr,
+					am_omp_for_flags_t flags,
+					am_omp_for_increment_t increment,
+					am_omp_for_iterator_t lower_bound,
+					am_omp_for_iterator_t upper_bound,
+					am_omp_worker_t num_workers);
 int am_event_set_dump_fp(struct am_event_set* es, FILE* fp);
 int am_event_set_sync_timestamp_offset(struct am_event_set* es,
 				       struct am_trace* trace);

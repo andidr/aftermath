@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "types.h"
 
 /**
  * OpenStream trace format:
@@ -88,16 +89,6 @@ enum global_single_event_type {
 	GLOBAL_SINGLE_TYPE_MEASURE_END = 1
 };
 
-enum omp_for_flag {
-	OMP_FOR_SCHEDULE_STATIC = (1 << 0),
-	OMP_FOR_SCHEDULE_DYNAMIC = (1 << 1),
-	OMP_FOR_SCHEDULE_GUIDED = (1 << 2),
-	OMP_FOR_SCHEDULE_AUTO = (1 << 3),
-	OMP_FOR_SCHEDULE_RUNTIME = (1 << 4),
-	OMP_FOR_SIGNED_INCREMENT = (1 << 5),
-	OMP_FOR_SIGNED_ITERATION_SPACE = (1 << 6),
-	OMP_FOR_MULTI_CHUNK_SETS = (1 << 7)
-};
 /* File header */
 struct trace_header {
 	/* Magic number */
