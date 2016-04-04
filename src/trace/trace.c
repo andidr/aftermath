@@ -294,6 +294,37 @@ int am_event_set_trace_omp_for_chunk_set(struct am_event_set* es,
 }
 
 /**
+ * Trace an OpenMP for chunk set part
+ * @param chunk_set_id The ID of the for chunk set
+ * @param start Start of the execution of the chunk set part
+ * @param end End of the execution of the chunk set part
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_omp_for_chunk_set_part(struct am_event_set* es,
+					      am_omp_for_chunk_set_id_t chunk_set_id,
+					      am_timestamp_t start,
+					      am_timestamp_t end)
+{
+	struct trace_omp_for_chunk_set_part* dsk_ofcsp;
+
+	if(!(dsk_ofcsp = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_ofcsp))))
+		return 1;
+
+	dsk_ofcsp->type = EVENT_TYPE_OMP_FOR_CHUNK_SET_PART;
+	dsk_ofcsp->cpu = es->cpu;
+	dsk_ofcsp->chunk_set_id = chunk_set_id;
+	dsk_ofcsp->start = start;
+	dsk_ofcsp->end = end;
+
+	convert_struct(dsk_ofcsp,
+		       trace_omp_for_chunk_set_part_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Synchronize the timestamp offset of an event set with the reference
  * of a trace. The function must be called by the CPU associated to
  * the event set.

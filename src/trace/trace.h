@@ -78,6 +78,10 @@ int am_event_set_trace_omp_for_chunk_set(struct am_event_set* es,
 					 am_omp_for_chunk_set_id_t id,
 					 am_omp_for_iterator_t first_lower,
 					 am_omp_for_iterator_t first_upper);
+int am_event_set_trace_omp_for_chunk_set_part(struct am_event_set* es,
+					      am_omp_for_chunk_set_id_t chunk_set_id,
+					      am_timestamp_t start,
+					      am_timestamp_t end);
 int am_event_set_dump_fp(struct am_event_set* es, FILE* fp);
 int am_event_set_sync_timestamp_offset(struct am_event_set* es,
 				       struct am_trace* trace);
