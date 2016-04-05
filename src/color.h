@@ -39,6 +39,9 @@ extern double state_colors[NUM_STATE_COLORS][3];
 #define NUM_OMP_FOR_COLORS 10
 extern double omp_for_colors[NUM_OMP_FOR_COLORS][3];
 
+#define NUM_OMP_TASK_COLORS 10
+extern double omp_task_colors[NUM_OMP_TASK_COLORS][3];
+
 static inline void get_node_color_dbl(unsigned int node, unsigned int max_node, double* r, double* g, double* b)
 {
 	int max_node_wraps = max_node / NUM_NODE_COLORS;

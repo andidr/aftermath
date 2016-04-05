@@ -118,6 +118,70 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 	return 0;
 }
 
+int has_artifical_task_instances(struct multi_event_set* mes)
+{
+	for(int i = 0; i < mes->num_omp_task_instances; i++)
+		if(mes->omp_task_instances[i].ti_oti->artificial)
+			return 1;
+
+	return 0;
+}
+
+int has_nonexecuted_task_instances(struct multi_event_set* mes)
+{
+	for(int i = 0; i < mes->num_omp_task_instances; i++)
+		if(mes->omp_task_instances[i].num_task_parts == 0)
+			return 1;
+
+	return 0;
+}
+
+int chain_omp_task_structs(struct multi_event_set* mes)
+{
+	struct omp_task* ot;
+	struct omp_task_instance* oti;
+	struct omp_task_part* otp;
+	struct event_set* es;
+
+	for(int i = 0; i < mes->num_omp_tasks; i++) {
+		ot = &mes->omp_tasks[i];
+		INIT_LIST_HEAD(&ot->task_instances);
+		ot->source_filename = NULL;
+		ot->color_r = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][0];
+		ot->color_g = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][1];
+		ot->color_b = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][2];
+	}
+
+	for(int i = 0; i < mes->num_omp_task_instances; i++) {
+		oti = &mes->omp_task_instances[i];
+		INIT_LIST_HEAD(&oti->task_parts);
+		ot = &mes->omp_tasks[oti->ti_oti->task_id];
+		free(oti->ti_oti);
+		oti->task = ot;
+		list_add(&oti->list, &ot->task_instances);
+		oti->color_r = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][0];
+		oti->color_g = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][1];
+		oti->color_b = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][2];
+	}
+
+	for(int i = 0; i < mes->num_sets; i++) {
+		es = &mes->sets[i];
+
+		for(int j = 0; j < es->num_omp_task_parts; j++) {
+			otp = &es->omp_task_parts[j];
+			oti = &mes->omp_task_instances[otp->ti_otp->task_instance_id];
+			free(otp->ti_otp);
+			otp->task_instance = oti;
+			list_add(&otp->list, &oti->task_parts);
+			otp->color_r = oti->color_r;
+			otp->color_g = oti->color_g;
+			otp->color_b = oti->color_b;
+		}
+	}
+
+	return 0;
+}
+
 int trace_update_task_execution_bounds(struct event_set* es)
 {
 	struct single_event* ese;
@@ -232,6 +296,8 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct trace_omp_for_instance dsk_ofi;
 	struct trace_omp_for_chunk_set dsk_ofc;
 	struct trace_omp_for_chunk_set_part dsk_ofcp;
+	struct trace_omp_task_instance dsk_oti;
+	struct trace_omp_task_instance_part dsk_otp;
 
 	struct event_set* es;
 	struct state_event se;
@@ -246,6 +312,10 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct omp_for_chunk_set* ofc;
 	struct omp_for_chunk_set_part ofcp;
 	struct omp_for_chunk_set_part* ofcp_p;
+	struct omp_task* ot;
+	struct omp_task_instance* oti;
+	struct omp_task_part otp;
+	struct omp_task_part* otp_p;
 
 	struct task* last_task = NULL;
 	struct frame* last_frame = NULL;
@@ -418,6 +488,60 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 				return 1;
 
 			ofcp_p->ti_ofcp->chunk_set_id = ofc - &mes->omp_for_chunk_sets[0];
+
+		} else if(dsk_eh.type == EVENT_TYPE_OMP_TASK_INSTANCE) {
+			if(read_struct_convert(fp, &dsk_oti, sizeof(dsk_oti), trace_omp_task_instance_conversion_table, sizeof(dsk_eh.type)) != 0)
+				return 1;
+
+			(*bytes_read) += sizeof(dsk_oti) - sizeof(dsk_eh.type);
+
+			if(!(ot = omp_task_find(mes, dsk_oti.addr)))
+				if(!(ot = omp_task_alloc_ptr(mes, dsk_oti.addr)))
+					return 1;
+
+			if((oti = omp_task_instance_find(mes, dsk_oti.id))) {
+				if(oti->ti_oti->artificial != 1)
+					return 1;
+
+				oti->ti_oti->artificial = 0;
+				oti->ti_oti->oti_id = dsk_oti.id;
+			} else if(!(oti = omp_task_instance_alloc_ptr(mes, dsk_oti.id, dsk_oti.addr)))
+			{
+				return 1;
+			}
+
+			oti->ti_oti->next_task_instance_id = ot->ti_ot.first_task_instance_id;
+			ot->ti_ot.first_task_instance_id = oti - &mes->omp_task_instances[0];
+
+			ot->num_instances++;
+
+			oti->ti_oti->task_id = ot - &mes->omp_tasks[0];
+
+		} else if(dsk_eh.type == EVENT_TYPE_OMP_TASK_INSTANCE_PART) {
+			if(read_struct_convert(fp, &dsk_otp, sizeof(dsk_otp), trace_omp_task_instance_part_conversion_table, sizeof(dsk_eh.type)) != 0)
+				return 1;
+
+			(*bytes_read) += sizeof(dsk_otp) - sizeof(dsk_eh.type);
+
+			if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_otp.cpu)))
+				return 1;
+
+			otp.ti_otp = malloc(sizeof(struct omp_trace_info_otp));
+			otp.cpu = dsk_otp.cpu;
+			otp.start = dsk_otp.start;
+			otp.end = dsk_otp.end;
+			otp.ti_otp->task_instance_id = dsk_otp.task_instance_id;
+
+			if(omp_task_part_add(es, &otp))
+				return 1;
+
+			if(!(otp_p = omp_task_part_find(es, dsk_otp.cpu, dsk_otp.start)))
+				return 1;
+
+			if(!(oti = omp_task_instance_add_part(mes, &otp)))
+				return 1;
+
+			otp_p->ti_otp->task_instance_id = oti - &mes->omp_task_instances[0];
 
 		} else {
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -654,6 +778,15 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 		goto out_trees;
 
 	if(chain_omp_for_structs(mes))
+		goto out_trees;
+
+	if(has_artifical_task_instances(mes))
+		goto out_trees;
+
+	if(has_nonexecuted_task_instances(mes))
+		goto out_trees;
+
+	if(chain_omp_task_structs(mes))
 		goto out_trees;
 
 	if(multi_event_set_state_descriptions_artificial(mes) &&
