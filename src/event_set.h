@@ -58,6 +58,10 @@ struct event_set {
 	size_t num_omp_for_chunk_set_parts;
 	size_t num_omp_for_chunk_set_parts_free;
 
+	struct omp_task_part* omp_task_parts;
+	size_t num_omp_task_parts;
+	size_t num_omp_task_parts_free;
+
 	int cpu;
 	int numa_node;
 	uint64_t first_start;
@@ -294,6 +298,10 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_omp_for_chunk_set_parts = 0;
 	es->num_omp_for_chunk_set_parts_free = 0;
 	es->omp_for_chunk_set_parts = NULL;
+
+	es->num_omp_task_parts = 0;
+	es->num_omp_task_parts_free = 0;
+	es->omp_task_parts = NULL;
 
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;

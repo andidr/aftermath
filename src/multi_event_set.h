@@ -62,6 +62,14 @@ struct multi_event_set {
 	size_t num_omp_for_chunk_sets;
 	size_t num_omp_for_chunk_sets_free;
 
+	struct omp_task* omp_tasks;
+	size_t num_omp_tasks;
+	size_t num_omp_tasks_free;
+
+	struct omp_task_instance* omp_task_instances;
+	size_t num_omp_task_instances;
+	size_t num_omp_task_instances_free;
+
 	struct global_single_event* global_single_events;
 	size_t num_global_single_events;
 	size_t num_global_single_events_free;
@@ -400,6 +408,12 @@ static inline void multi_event_set_init(struct multi_event_set* mes)
 	mes->omp_for_chunk_sets = NULL;
 	mes->num_omp_for_chunk_sets = 0;
 	mes->num_omp_for_chunk_sets_free = 0;
+	mes->omp_tasks = NULL;
+	mes->num_omp_tasks = 0;
+	mes->num_omp_tasks_free = 0;
+	mes->omp_task_instances = NULL;
+	mes->num_omp_task_instances = 0;
+	mes->num_omp_task_instances_free = 0;
 	mes->max_numa_node_id = 0;
 	mes->max_write_size = 0;
 	mes->max_read_size = 0;
@@ -439,6 +453,8 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	free(mes->omp_fors);
 	free(mes->omp_for_instances);
 	free(mes->omp_for_chunk_sets);
+	free(mes->omp_tasks);
+	free(mes->omp_task_instances);
 }
 
 static inline int multi_event_set_state_description_alloc(struct multi_event_set* mes, uint32_t state_id, int name_len)
