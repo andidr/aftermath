@@ -66,7 +66,9 @@ enum event_type {
 	EVENT_TYPE_STATE_DESCRIPTION = 8,
 	EVENT_TYPE_OMP_FOR = 9,
 	EVENT_TYPE_OMP_FOR_CHUNK_SET = 10,
-	EVENT_TYPE_OMP_FOR_CHUNK_SET_PART = 11
+	EVENT_TYPE_OMP_FOR_CHUNK_SET_PART = 11,
+	EVENT_TYPE_OMP_TASK_INSTANCE = 12,
+	EVENT_TYPE_OMP_TASK_INSTANCE_PART = 13
 };
 
 enum comm_event_type {
@@ -373,6 +375,41 @@ struct trace_omp_for_chunk_set_part {
 } __attribute__((packed));
 
 extern int trace_omp_for_chunk_set_part_conversion_table[];
+
+/* Struct describing an OpenMP parallel for instance */
+struct trace_omp_task_instance {
+	/* Short header field */
+	uint32_t type;
+
+	/* Unique address of the task (e.g., address of its outlined
+	 * work function) */
+	uint64_t addr;
+
+	/* Unique id */
+	uint64_t id;
+} __attribute__((packed));
+
+extern int trace_omp_task_instance_conversion_table[];
+
+/* Struct describing a part of an OpenMP parallel for chunk_set */
+struct trace_omp_task_instance_part {
+	/* Short header field */
+	uint32_t type;
+
+	/* CPU identifier */
+	uint32_t cpu;
+
+	/* Identifier of the associated task instance */
+	uint64_t task_instance_id;
+
+	/* Start timestamp */
+	uint64_t start;
+
+	/* End timestamp */
+	uint64_t end;
+} __attribute__((packed));
+
+extern int trace_omp_task_instance_part_conversion_table[];
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);

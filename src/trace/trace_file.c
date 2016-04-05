@@ -139,6 +139,23 @@ int trace_omp_for_chunk_set_part_conversion_table[] = {
 	CONVERSION_TABLE_END
 };
 
+int trace_omp_task_instance_conversion_table[] = {
+	FIELD_SIZE(struct trace_omp_for_instance, type),
+	FIELD_SIZE(struct trace_omp_for_instance, flags),
+	FIELD_SIZE(struct trace_omp_for_instance, addr),
+	FIELD_SIZE(struct trace_omp_for_instance, id),
+	CONVERSION_TABLE_END
+};
+
+int trace_omp_task_instance_part_conversion_table[] = {
+	FIELD_SIZE(struct trace_omp_task_instance_part, type),
+	FIELD_SIZE(struct trace_omp_task_instance_part, cpu),
+	FIELD_SIZE(struct trace_omp_task_instance_part, task_instance_id),
+	FIELD_SIZE(struct trace_omp_task_instance_part, start),
+	FIELD_SIZE(struct trace_omp_task_instance_part, end),
+	CONVERSION_TABLE_END
+};
+
 int trace_verify_header(struct trace_header* header)
 {
 	return (header->magic == TRACE_MAGIC &&
