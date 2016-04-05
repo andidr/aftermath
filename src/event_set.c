@@ -18,6 +18,7 @@
 #include "event_set.h"
 #include "filter.h"
 #include "omp_for_chunk_set_part.h"
+#include "omp_task_part.h"
 #include <stdlib.h>
 #include <inttypes.h>
 
@@ -581,6 +582,86 @@ int event_set_get_first_chunk_set_part_in_interval(struct event_set* es, int64_t
 
 	if(es->omp_for_chunk_set_parts[center_idx].start > interval_end ||
 	   es->omp_for_chunk_set_parts[center_idx].end < interval_start)
+		return -1;
+
+	return center_idx;
+}
+
+/* Finds out which task part dominates the interval defined by
+ * [start; end]. If the time of two or more task parts is identical, the
+ * type with the lowest id takes precedence. The filter f is evaluated
+ * on each of the task parts that overlap into the interval. Task
+ * parts that are not filtered out are taken into account for the
+ * determination of the dominant task part. If there is a dominant task part,
+ * the function returns the id of the the task parts. If no task part overlaps
+ * with the interval, the function returns -1.
+ */
+int event_set_get_major_omp_task_part(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_id)
+{
+	int idx_start = event_set_get_first_omp_task_part_in_interval(es, start, end);
+	int64_t imajor = -1;
+	int64_t itmp;
+	uint64_t istart;
+	uint64_t iend;
+	struct omp_task_part* otp;
+	*major_id = -1;
+
+	if(idx_start == -1)
+		return 0;
+
+	for(int i = idx_start; i < es->num_omp_task_parts && es->omp_task_parts[i].start < end; i++) {
+		otp = &es->omp_task_parts[i];
+		if(filter_has_otp(f, otp)) {
+			istart = (start > otp->start)? start : otp->start;
+			iend = (end < otp->end)? end : otp->end;
+			itmp = iend - istart;
+			if(itmp > (end - start) / 2) {
+				*major_id = i;
+				return 1;
+			}
+			if (imajor < itmp) {
+				imajor = itmp;
+				*major_id = i;
+			}
+		}
+	}
+
+	return *major_id != -1;
+}
+
+ /*
+ * Returns the index of the first task part in es->omp_task_part that
+ * lies entirely within [interval_start; interval_end]. If no task part
+ * event exists that covers the specified interval, the function
+ * returns -1.
+ */
+int event_set_get_first_omp_task_part_in_interval(struct event_set* es, int64_t interval_start, int64_t interval_end)
+{
+	int start_idx = 0;
+	int end_idx = es->num_omp_task_parts - 1;
+	int center_idx = 0;
+
+	if(es->num_omp_task_parts == 0)
+		return -1;
+
+	while(end_idx - start_idx >= 0) {
+		center_idx = (start_idx + end_idx) / 2;
+
+		if(es->omp_task_parts[center_idx].start > interval_end)
+			end_idx = center_idx - 1;
+		else if(es->omp_task_parts[center_idx].end < interval_start)
+			start_idx = center_idx + 1;
+		else
+			break;
+	}
+
+	while(center_idx > 0 &&
+	      es->omp_task_parts[center_idx - 1].start < interval_end &&
+	      es->omp_task_parts[center_idx - 1].end > interval_start)
+		center_idx--;
+
+	if(es->omp_task_parts[center_idx].start > interval_end ||
+	   es->omp_task_parts[center_idx].end < interval_start)
 		return -1;
 
 	return center_idx;

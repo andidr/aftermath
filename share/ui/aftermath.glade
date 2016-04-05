@@ -49,6 +49,36 @@
         <signal name="toggled" handler="omp_map_mode_chunk_parts_selected"/>
       </widget>
     </child>
+    <child>
+      <widget class="GtkRadioMenuItem" id="omp_select_tasks">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Tasks</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">omp_select_loops</property>
+        <signal name="toggled" handler="omp_map_mode_tasks_selected"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkRadioMenuItem" id="omp_select_task_instances">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Task instances</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">omp_select_loops</property>
+        <signal name="toggled" handler="omp_map_mode_task_instances_selected"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkRadioMenuItem" id="omp_select_task_parts">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Task parts</property>
+        <property name="use_underline">True</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">omp_select_loops</property>
+        <signal name="toggled" handler="omp_map_mode_task_parts_selected"/>
+      </widget>
+    </child>
   </widget>
   <widget class="GtkWindow" id="toplevel_window">
     <property name="width_request">400</property>

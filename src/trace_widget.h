@@ -23,6 +23,8 @@
 #include "omp_for.h"
 #include "omp_for_instance.h"
 #include "omp_for_chunk_set.h"
+#include "omp_task.h"
+#include "omp_task_instance.h"
 #include "filter.h"
 #include "export.h"
 #include "./contrib/linux-kernel/list.h"
@@ -74,7 +76,10 @@ enum gtk_trace_map_mode {
 	GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS,
 	GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES,
 	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS,
-	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS
+	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS,
+	GTK_TRACE_MAP_MODE_OMP_TASKS,
+	GTK_TRACE_MAP_MODE_OMP_TASK_INSTANCES,
+	GTK_TRACE_MAP_MODE_OMP_TASK_PARTS
 };
 
 struct _GtkTrace {

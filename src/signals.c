@@ -1193,6 +1193,36 @@ G_MODULE_EXPORT void omp_map_mode_chunk_parts_selected(GtkRadioButton *button, g
 	}
 }
 
+G_MODULE_EXPORT void omp_map_mode_tasks_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_TASKS);
+	}
+}
+
+G_MODULE_EXPORT void omp_map_mode_task_instances_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_TASK_INSTANCES);
+	}
+}
+
+G_MODULE_EXPORT void omp_map_mode_task_parts_selected(GtkRadioButton *button, gpointer data)
+{
+	int active = gtk_check_menu_item_get_active((GtkCheckMenuItem*)(button));
+
+	if(active) {
+		gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(g_toggle_omp_for), true);
+		gtk_trace_set_map_mode(g_trace_widget, GTK_TRACE_MAP_MODE_OMP_TASK_PARTS);
+	}
+}
+
 G_MODULE_EXPORT void global_hist_view_activated(GtkRadioButton *button, gpointer data)
 {
 	int active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
