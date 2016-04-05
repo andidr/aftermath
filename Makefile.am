@@ -95,6 +95,7 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/omp_task.h \
 		src/omp_task_instance.h \
 		src/omp_task_part.h \
+		src/omp_task_part.c \
 		src/aux.h \
 		src/parser.h \
 		src/object_notation.h \

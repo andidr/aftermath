@@ -54,6 +54,23 @@ int filter_has_ofcp(struct filter* f, struct omp_for_chunk_set_part* ofcp)
 		!= NULL);
 }
 
+void filter_sort_otps(struct filter* f)
+{
+	qsort(f->otps, f->num_otps,
+	      sizeof(struct omp_task_part*), compare_otpsp);
+}
+
+int filter_has_otp(struct filter* f, struct omp_task_part* otp)
+{
+	if(!f || !f->filter_otps)
+		return 1;
+
+	return (bsearch(&otp, f->otps,
+			f->num_otps, sizeof(struct omp_task_part*),
+			compare_otpsp)
+		!= NULL);
+}
+
 void filter_sort_frames(struct filter* f)
 {
 	qsort(f->frames, f->num_frames,

@@ -111,4 +111,5 @@ static inline int omp_task_part_has_part(struct event_set* es, struct omp_task_p
 	return omp_task_part_find(es, otp->cpu, otp->start) != NULL;
 }
 
+int compare_otpsp(const void *po1, const void *po2);
 #endif
