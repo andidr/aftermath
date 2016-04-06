@@ -109,6 +109,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->highlight_task_texec_start = NULL;
 	g->highlight_annotation = NULL;
 	g->highlight_omp_chunk_set_part = NULL;
+	g->highlight_omp_task_part = NULL;
 
 	g->markers = NULL;
 	g->num_markers = 0;
@@ -549,6 +550,7 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 {
 	struct state_event* se;
 	struct omp_for_chunk_set_part* ofcp;
+	struct omp_task_part* otp;
 	int worker, cpu;
 	GtkTrace* g = GTK_TRACE(widget);
 
@@ -569,6 +571,15 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 					g->highlight_omp_chunk_set_part = ofcp;
 					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED], 
 						      0, ofcp, cpu, worker);
+					gtk_widget_queue_draw(widget);
+				}
+			} else if (g->map_mode >= GTK_TRACE_MAP_MODE_OMP_TASKS &&
+				 g->map_mode <= GTK_TRACE_MAP_MODE_OMP_TASK_PARTS)
+			{
+				otp = gtk_trace_get_omp_task_part_at(widget, event->x, event->y, &cpu, &worker);
+
+				if(otp && (filter_has_otp(g->filter, otp))) {
+					g->highlight_omp_task_part = otp;
 					gtk_widget_queue_draw(widget);
 				}
 			} else {
@@ -2172,6 +2183,78 @@ void gtk_trace_paint_highlighted_chunk_set_part(GtkTrace* g, cairo_t* cr)
 	}
 }
 
+void gtk_trace_paint_highlighted_task_part(GtkTrace* g, cairo_t* cr)
+{
+	if(!g->highlight_omp_task_part)
+		return;
+
+	int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, g->highlight_omp_task_part->cpu);
+
+	if(omp_task_part_has_part(&g->event_sets->sets[cpu_idx], g->highlight_omp_task_part) &&
+	   (filter_has_otp(g->filter, g->highlight_omp_task_part)))
+	{
+		double x_start;
+		double x_end;
+		struct list_head* iter;
+		double width;
+		struct omp_task_part* otp;
+		double cpu_start;
+		double cpu_height = gtk_trace_cpu_height(g);
+		list_for_each(iter, &g->highlight_omp_task_part->task_instance->task_parts) {
+			otp = list_entry(iter, struct omp_task_part, list);
+			cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, otp->cpu);
+
+			if(!(otp->start <= g->right && otp->end >= g->left))
+				continue;
+
+			if(!filter_has_otp(g->filter, otp))
+				continue;
+
+			cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			if(cpu_start + cpu_height < 0)
+				continue;
+
+			if(cpu_start > g->widget.allocation.height - g->axis_width)
+				continue;
+
+			x_start = gtk_trace_x_to_screen(g, otp->start);
+			x_end = gtk_trace_x_to_screen(g, otp->end);
+
+			if(x_start < g->axis_width)
+				x_start = g->axis_width;
+
+			if(x_end > g->widget.allocation.width)
+				x_end = g->widget.allocation.width;
+
+			width = x_end - x_start;
+
+			if(width < 1)
+				width = 1;
+
+			if(otp == g->highlight_omp_task_part) {
+				cairo_set_source_rgb(cr,
+						     highlight_omp_color[0][0],
+						     highlight_omp_color[0][1],
+						     highlight_omp_color[0][2]);
+				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+			} else {
+				cairo_set_source_rgb(cr,
+						     highlight_omp_color[1][0],
+						     highlight_omp_color[1][1],
+						     highlight_omp_color[1][2]);
+
+				cairo_set_line_width(cr, 2.0);
+				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+				cairo_stroke(cr);
+			}
+
+			cairo_fill(cr);
+		}
+		cairo_reset_clip(cr);
+	}
+}
+
 void gtk_trace_paint_measurement_intervals(GtkTrace* g, cairo_t* cr)
 {
 	double triangle_height = 15;
@@ -2581,6 +2664,11 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	{
 		if(g->highlight_omp_chunk_set_part)
 			gtk_trace_paint_highlighted_chunk_set_part(g, cr);
+	} else if(g->map_mode >= GTK_TRACE_MAP_MODE_OMP_TASKS &&
+		  g->map_mode <= GTK_TRACE_MAP_MODE_OMP_TASK_PARTS)
+	{
+		if(g->highlight_omp_task_part)
+			gtk_trace_paint_highlighted_task_part(g, cr);
 	} else {
 		if(g->highlight_state_event)
 			gtk_trace_paint_highlighted_state(g, cr);
@@ -2815,6 +2903,46 @@ struct omp_for_chunk_set_part* gtk_trace_get_omp_chunk_set_part_at(GtkWidget *wi
 			*cpu = g->event_sets->sets[worker_pointer].cpu;
 
 		return ofcp;
+	}
+
+	return NULL;
+}
+
+struct omp_task_part* gtk_trace_get_omp_task_part_at(GtkWidget *widget, int x, int y, int* cpu, int* worker)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int worker_pointer;
+	double cpu_height = gtk_trace_cpu_height(g);
+	long double start;
+	long double end;
+	struct omp_task_part* otp;
+	int otp_id;
+	int has_major;
+
+	if(x < g->axis_width || y > widget->allocation.height - g->axis_width)
+		return NULL;
+
+	worker_pointer = (y+cpu_height*g->cpu_offset) / cpu_height;
+
+	if(worker_pointer >= g->event_sets->num_sets)
+		return NULL;
+
+	start = gtk_trace_get_time_at(widget, x);
+	end = gtk_trace_get_time_at(widget, x+1);
+
+	has_major = event_set_get_major_omp_task_part(&(g->event_sets->sets[worker_pointer]), g->filter, start, end, &otp_id);
+	if(has_major)
+		otp = &g->event_sets->sets[worker_pointer].omp_task_parts[otp_id];
+	else
+		return NULL;
+
+	if(otp) {
+		if(worker)
+			*worker = worker_pointer;
+		if(cpu)
+			*cpu = g->event_sets->sets[worker_pointer].cpu;
+
+		return otp;
 	}
 
 	return NULL;

@@ -129,6 +129,7 @@ struct _GtkTrace {
 	struct single_event* highlight_task_texec_start;
 	struct annotation* highlight_annotation;
 	struct omp_for_chunk_set_part* highlight_omp_chunk_set_part;
+	struct omp_task_part* highlight_omp_task_part;
 	struct trace_marker* markers;
 
 	struct list_head* highlight_predecessor_inst;
@@ -191,6 +192,7 @@ void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_ma
 int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
 struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
 struct omp_for_chunk_set_part* gtk_trace_get_omp_chunk_set_part_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
+struct omp_task_part* gtk_trace_get_omp_task_part_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
 int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 void gtk_trace_fit_all_cpus(GtkWidget *widget);
 
