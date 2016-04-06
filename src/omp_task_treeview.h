@@ -24,6 +24,11 @@
 
 G_BEGIN_DECLS
 
+#define GTK_IS_OMP_TASK_TREEVIEW(obj) GTK_CHECK_TYPE(obj, gtk_omp_task_treeview_get_type())
+
+typedef struct _GtkOmpTaskTreeViewClass GtkOmpTaskTreeViewClass;
+typedef struct _GtkOmpTaskTreeViewType GtkOmpTaskTreeViewType;
+
 enum omp_task_treeview_columns {
 	OMP_TASK_TREEVIEW_COL_FILTER = 0,
 	OMP_TASK_TREEVIEW_COL_COLOR,
@@ -39,9 +44,27 @@ enum omp_task_treeview_columns {
 	OMP_TASK_TREEVIEW_COL_NUM
 };
 
+enum gtk_omp_task_treeview_signals {
+	GTK_OMP_TASK_UPDATE_HIGHLIGHTED_PART = 0,
+	GTK_OMP_TASK_MAX_SIGNALS
+};
+
+struct _GtkOmpTaskTreeViewType {
+	GtkWidget dummy;
+};
+
+struct _GtkOmpTaskTreeViewClass {
+	GtkWidgetClass parent_class;
+
+	void (* bounds_changed) (void);
+};
+
 GtkWidget* omp_task_treeview_init(GtkTreeView* omp_task_treeview);
 void omp_task_treeview_fill(GtkTreeView* omp_task_treeview, struct omp_task* omp_tasks, int num_omp_tasks);
 void omp_task_treeview_build_filter(GtkTreeView* omp_task_treeview, struct filter* filter);
+GtkType gtk_omp_task_treeview_get_type(void);
+void gtk_omp_task_treeview_class_init(GtkOmpTaskTreeViewClass *class);
+void gtk_omp_task_treeview_type_init(GtkOmpTaskTreeViewType *treeviewtype);
 
 G_END_DECLS
 

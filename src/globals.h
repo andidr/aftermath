@@ -41,6 +41,7 @@ extern GtkWidget* g_vscroll_bar;
 extern GtkWidget* g_omp_for_treeview;
 extern GtkWidget* g_omp_for_treeview_type;
 extern GtkWidget* g_omp_task_treeview;
+extern GtkWidget* g_omp_task_treeview_type;
 extern GtkWidget* g_task_treeview;
 extern GtkWidget* g_cpu_treeview;
 extern GtkWidget* g_frame_treeview;

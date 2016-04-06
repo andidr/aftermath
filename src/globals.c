@@ -30,6 +30,7 @@ GtkWidget* g_vscroll_bar;
 GtkWidget* g_omp_for_treeview;
 GtkWidget* g_omp_for_treeview_type;
 GtkWidget* g_omp_task_treeview;
+GtkWidget* g_omp_task_treeview_type;
 GtkWidget* g_task_treeview;
 GtkWidget* g_cpu_treeview;
 GtkWidget* g_writes_to_numa_nodes_treeview;

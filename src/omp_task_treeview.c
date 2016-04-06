@@ -24,6 +24,38 @@
 #include "globals.h"
 #include "marshal.h"
 
+gint gtk_omp_task_treeview_signals[GTK_OMP_TASK_MAX_SIGNALS] = { 0 };
+
+void omp_task_treeview_row_selected(GtkTreeView* omp_treeview, GtkTreePath* path, GtkTreeViewColumn *col, gpointer user_data)
+{
+	GtkTrace* g = GTK_TRACE(g_trace_widget);
+	GtkTreeView* omp_task_treeview = user_data;
+	GtkTreeModel* model = gtk_tree_view_get_model(omp_task_treeview);
+	GtkTreeIter iter;
+	struct omp_task_part* otp;
+	int level;
+
+	gchar* path_string = gtk_tree_path_to_string(path);
+
+	gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+
+	g_free(path_string);
+
+	gtk_tree_model_get(model, &iter,
+			   OMP_TASK_TREEVIEW_COL_LEVEL, &level,
+			   OMP_TASK_TREEVIEW_COL_POINTER, &otp,
+			   -1);
+
+	if(level != 2)
+		return;
+
+	if(otp && (filter_has_otp(g->filter, otp))) {
+		g_signal_emit(g_omp_task_treeview_type,
+			      gtk_omp_task_treeview_signals[GTK_OMP_TASK_UPDATE_HIGHLIGHTED_PART],
+			      0, otp);
+	}
+}
+
 void omp_task_treeview_color_changed(GtkCellRendererToggle* cell_renderer, gchar* path, gpointer color, gpointer user_data)
 {
 	GtkTreeView* omp_task_treeview = user_data;
@@ -104,6 +136,7 @@ GtkWidget* omp_task_treeview_init(GtkTreeView* omp_task_treeview)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn* column;
+	GtkOmpTaskTreeViewType *omp_tt = gtk_type_new(gtk_omp_task_treeview_get_type());
 
 	GtkTreeStore* store = gtk_tree_store_new(OMP_TASK_TREEVIEW_COL_NUM,
 						 G_TYPE_BOOLEAN,
@@ -117,6 +150,9 @@ GtkWidget* omp_task_treeview_init(GtkTreeView* omp_task_treeview)
 						 G_TYPE_STRING,
 						 G_TYPE_POINTER,
 						 G_TYPE_INT);
+
+	g_signal_connect((GtkWidget *)(omp_task_treeview), "row-activated",
+			 G_CALLBACK(omp_task_treeview_row_selected), omp_task_treeview);
 
 	renderer = gtk_cell_renderer_toggle_new();
 	column = gtk_tree_view_column_new_with_attributes("", renderer, "active", OMP_TASK_TREEVIEW_COL_FILTER, NULL);
@@ -165,7 +201,62 @@ GtkWidget* omp_task_treeview_init(GtkTreeView* omp_task_treeview)
 	gtk_tree_view_set_model(omp_task_treeview, GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	return NULL;
+	return GTK_WIDGET(omp_tt);
+}
+
+GtkType gtk_omp_task_treeview_get_type(void)
+{
+	static GtkType gtk_omp_task_treeview_type = 0;
+
+	if (!gtk_omp_task_treeview_type) {
+		static const GtkTypeInfo gtk_omp_task_treeview_type_info = {
+			"GtkOmpTaskTreeView",
+			sizeof(GtkOmpTaskTreeViewType),
+			sizeof(GtkOmpTaskTreeViewClass),
+			(GtkClassInitFunc) gtk_omp_task_treeview_class_init,
+			(GtkObjectInitFunc) gtk_omp_task_treeview_type_init,
+			NULL,
+			NULL,
+			(GtkClassInitFunc) NULL
+		};
+		gtk_omp_task_treeview_type = gtk_type_unique(GTK_TYPE_WIDGET, &gtk_omp_task_treeview_type_info);
+	}
+
+	return gtk_omp_task_treeview_type;
+}
+
+void gtk_omp_task_treeview_type_destroy(GtkObject *object)
+{
+	GtkOmpTaskTreeViewClass *class;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(GTK_IS_OMP_TASK_TREEVIEW(object));
+
+	class = gtk_type_class(gtk_widget_get_type());
+
+	if (GTK_OBJECT_CLASS(class)->destroy) {
+		(* GTK_OBJECT_CLASS(class)->destroy)(object);
+	}
+}
+
+void gtk_omp_task_treeview_type_init(GtkOmpTaskTreeViewType *treeviewtype)
+{
+}
+
+void gtk_omp_task_treeview_class_init(GtkOmpTaskTreeViewClass *class)
+{
+	GtkObjectClass *object_class;
+
+	object_class = (GtkObjectClass *) class;
+
+	gtk_omp_task_treeview_signals[GTK_OMP_TASK_UPDATE_HIGHLIGHTED_PART] =
+                g_signal_new("omp-task-update-highlighted-part", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkOmpTaskTreeViewClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER,
+                             G_TYPE_NONE, 1,
+                             G_TYPE_POINTER);
 }
 
 void omp_task_add_task_parts(GtkTreeStore* store, struct omp_task_instance* oti, GtkTreeIter* iter_task_instance, GdkColor* color)
