@@ -32,6 +32,8 @@ void trace_state_event_under_pointer_changed(GtkTrace* item, gpointer pstate_eve
 void trace_state_event_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, gpointer pstate_event, int cpu, int worker, gpointer data);
 void omp_update_highlighted_part(GtkTreeView* item, gpointer pomp_chunk_part, gpointer data);
+void trace_omp_task_part_selection_changed(GtkTrace* item, gpointer pomp_task_part, int cpu, int worker, gpointer data);
+void omp_task_update_highlighted_part(GtkTreeView* item, gpointer pomp_task_part, gpointer data);
 void trace_range_selection_changed(GtkTrace *item, gdouble left, gdouble right, gpointer data);
 void histogram_range_selection_changed(GtkHistogram *item, gdouble left, gdouble right, gpointer data);
 void multi_histogram_range_selection_changed(GtkMultiHistogram *item, gdouble left, gdouble right, gpointer data);

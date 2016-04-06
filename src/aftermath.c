@@ -255,6 +255,8 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, active_task_label);
 	IMPORT_GLADE_WIDGET(xml, openmp_selected_event_label);
 	IMPORT_GLADE_WIDGET(xml, active_for_label);
+	IMPORT_GLADE_WIDGET(xml, openmp_task_selected_event_label);
+	IMPORT_GLADE_WIDGET(xml, active_omp_task_label);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
@@ -382,6 +384,8 @@ int main(int argc, char** argv)
 	g_active_task_label = active_task_label;
 	g_openmp_selected_event_label = openmp_selected_event_label;
 	g_active_for_label = active_for_label;
+	g_openmp_task_selected_event_label = openmp_task_selected_event_label;
+	g_active_omp_task_label = active_omp_task_label;
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
@@ -480,6 +484,7 @@ int main(int argc, char** argv)
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "omp-chunk-set-part-selection-changed", G_CALLBACK(trace_omp_chunk_set_part_selection_changed), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "omp-task-part-selection-changed", G_CALLBACK(trace_omp_task_part_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "range-selection-changed", G_CALLBACK(trace_range_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "create-annotation", G_CALLBACK(trace_create_annotation), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "edit-annotation", G_CALLBACK(trace_edit_annotation), g_trace_widget);

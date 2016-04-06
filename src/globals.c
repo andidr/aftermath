@@ -44,6 +44,8 @@ GtkWidget* g_task_selected_event_label;
 GtkWidget* g_active_task_label;
 GtkWidget* g_openmp_selected_event_label;
 GtkWidget* g_active_for_label;
+GtkWidget* g_openmp_task_selected_event_label;
+GtkWidget* g_active_omp_task_label;
 GtkWidget* g_toggle_tool_button_draw_steals;
 GtkWidget* g_toggle_tool_button_draw_pushes;
 GtkWidget* g_toggle_tool_button_draw_data_reads;

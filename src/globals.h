@@ -55,6 +55,8 @@ extern GtkWidget* g_task_selected_event_label;
 extern GtkWidget* g_active_task_label;
 extern GtkWidget* g_openmp_selected_event_label;
 extern GtkWidget* g_active_for_label;
+extern GtkWidget* g_openmp_task_selected_event_label;
+extern GtkWidget* g_active_omp_task_label;
 extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;

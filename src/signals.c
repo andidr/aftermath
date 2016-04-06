@@ -1831,6 +1831,72 @@ G_MODULE_EXPORT void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, 
 	}
 }
 
+G_MODULE_EXPORT void omp_task_update_highlighted_part(GtkTreeView* item, gpointer pomp_task_part, gpointer data)
+{
+	GtkTrace* trace = GTK_TRACE(g_trace_widget);
+	trace->highlight_omp_task_part = pomp_task_part;
+	gtk_widget_queue_draw(GTK_WIDGET(trace));
+	trace_omp_task_part_selection_changed(trace, pomp_task_part,
+						   ((struct omp_task_part*)pomp_task_part)->cpu,
+						   ((struct omp_task_part*)pomp_task_part)->cpu,
+						   NULL);
+}
+
+G_MODULE_EXPORT void trace_omp_task_part_selection_changed(GtkTrace* item, gpointer pomp_task_part, int cpu, int worker, gpointer data)
+{
+	struct omp_task_part* otp = pomp_task_part;
+	struct omp_task_instance* oti;
+	struct omp_task* ot;
+	char buffer[4096];
+	char buf_duration[40];
+
+	if(otp) {
+		int n = 0;
+		oti = otp->task_instance;
+		ot = oti->task;
+		pretty_print_cycles(buf_duration, sizeof(buf_duration), otp->end - otp->start);
+
+		snprintf(buffer, sizeof(buffer),
+			 "CPU:\t\t%d\n"
+			 "From\t\t<a href=\"time://%"PRIu64"\">%"PRIu64"</a> to <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
+			 "Duration:\t%scycles\n",
+			 cpu,
+			 otp->start,
+			 otp->start,
+			 otp->end,
+			 otp->end,
+			 buf_duration);
+
+		gtk_label_set_markup(GTK_LABEL(g_openmp_task_selected_event_label), buffer);
+
+		n = snprintf(buffer, sizeof(buffer),
+			     "[Task part info]\n"
+			     "CPU:\t\t\t%d\n"
+			     "Start:\t\t\t%"PRIu64"\n"
+			     "End:\t\t\t%"PRIu64"\n",
+			     otp->cpu,
+			     otp->start,
+			     otp->end);
+
+		n += snprintf(buffer+n, sizeof(buffer),
+			      "\n[Task instance info]\n"
+			      "nb task part %d\n",
+			      oti->num_task_parts);
+
+		n += snprintf(buffer+n, sizeof(buffer),
+			      "\n[Task info]\n"
+			      "Task addr:\t\t\t0X%"PRIX64"\n"
+			      "nb instances:\t\t%d\n",
+			      ot->addr,
+			      ot->num_instances);
+
+		gtk_label_set_markup(GTK_LABEL(g_active_omp_task_label), buffer);
+	} else {
+		gtk_label_set_markup(GTK_LABEL(g_openmp_task_selected_event_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_active_omp_task_label), "");
+	}
+}
+
 G_MODULE_EXPORT void hscrollbar_value_changed(GtkHScrollbar *item, gdouble value, gpointer data)
 {
 	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(item));
