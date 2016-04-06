@@ -113,16 +113,16 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 	return 0;
 }
 
-int has_artifical_task_instances(struct multi_event_set* mes)
+int has_empty_omp_tasks(struct multi_event_set* mes)
 {
-	for(int i = 0; i < mes->num_omp_task_instances; i++)
-		if(mes->omp_task_instances[i].ti_oti->artificial)
+	for(int i = 0; i < mes->num_omp_tasks; i++)
+		if(mes->omp_tasks[i].num_instances == 0)
 			return 1;
 
 	return 0;
 }
 
-int has_nonexecuted_task_instances(struct multi_event_set* mes)
+int has_nonexecuted_omp_task_instances(struct multi_event_set* mes)
 {
 	for(int i = 0; i < mes->num_omp_task_instances; i++)
 		if(mes->omp_task_instances[i].num_task_parts == 0)
@@ -138,40 +138,35 @@ int chain_omp_task_structs(struct multi_event_set* mes)
 	struct omp_task_part* otp;
 	struct event_set* es;
 
-	for(int i = 0; i < mes->num_omp_tasks; i++) {
-		ot = &mes->omp_tasks[i];
-		INIT_LIST_HEAD(&ot->task_instances);
-		ot->source_filename = NULL;
-		ot->color_r = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][0];
-		ot->color_g = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][1];
-		ot->color_b = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][2];
-	}
-
-	for(int i = 0; i < mes->num_omp_task_instances; i++) {
-		oti = &mes->omp_task_instances[i];
-		INIT_LIST_HEAD(&oti->task_parts);
-		ot = &mes->omp_tasks[oti->ti_oti->task_id];
-		free(oti->ti_oti);
-		oti->task = ot;
-		list_add(&oti->list, &ot->task_instances);
-		oti->color_r = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][0];
-		oti->color_g = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][1];
-		oti->color_b = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][2];
-	}
-
 	for(int i = 0; i < mes->num_sets; i++) {
 		es = &mes->sets[i];
 
 		for(int j = 0; j < es->num_omp_task_parts; j++) {
 			otp = &es->omp_task_parts[j];
-			oti = &mes->omp_task_instances[otp->ti_otp->task_instance_id];
+			if((oti = multi_event_set_find_omp_task_instance_by_id(mes, otp->ti_otp->task_instance_id)) == NULL)
+				return 1;
 			free(otp->ti_otp);
 			otp->task_instance = oti;
+			if(oti->task_parts.next == NULL)
+				INIT_LIST_HEAD(&oti->task_parts);
 			list_add(&otp->list, &oti->task_parts);
+			oti->num_task_parts++;
 			otp->color_r = oti->color_r;
 			otp->color_g = oti->color_g;
 			otp->color_b = oti->color_b;
 		}
+	}
+
+	for(int i = 0; i < mes->num_omp_task_instances; i++) {
+		oti = &mes->omp_task_instances[i];
+		if((ot = multi_event_set_find_omp_task_by_addr(mes, oti->ti_oti->addr)) == NULL)
+			return 1;
+		free(oti->ti_oti);
+		oti->task = ot;
+		if(ot->task_instances.next == NULL)
+			INIT_LIST_HEAD(&ot->task_instances);
+		list_add(&oti->list, &ot->task_instances);
+		ot->num_instances++;
 	}
 
 	return 0;
@@ -278,7 +273,7 @@ int trace_update_task_execution_bounds(struct event_set* es)
 
 int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct frame_tree* ft, 
 		       struct omp_for_chunk_set_tree* ofcst, struct omp_for_instance_tree* ofit, struct omp_for_tree* oft,
-		       FILE* fp, off_t* bytes_read)
+		       struct omp_task_instance_tree* otit, struct omp_task_tree* ott, FILE* fp, off_t* bytes_read)
 {
 	struct trace_event_header dsk_eh;
 	struct trace_state_event dsk_se;
@@ -311,7 +306,6 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct omp_task* ot;
 	struct omp_task_instance* oti;
 	struct omp_task_part otp;
-	struct omp_task_part* otp_p;
 
 	struct task* last_task = NULL;
 	struct frame* last_frame = NULL;
@@ -439,27 +433,15 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 			(*bytes_read) += sizeof(dsk_oti) - sizeof(dsk_eh.type);
 
-			if(!(ot = omp_task_find(mes, dsk_oti.addr)))
-				if(!(ot = omp_task_alloc_ptr(mes, dsk_oti.addr)))
+			if((ot = omp_task_tree_find_or_add(ott, dsk_oti.addr)) == NULL)
 					return 1;
 
-			if((oti = omp_task_instance_find(mes, dsk_oti.id))) {
-				if(oti->ti_oti->artificial != 1)
+			omp_task_init(ot, dsk_oti.addr);
+
+			if((oti = omp_task_instance_tree_find_or_add(otit, dsk_oti.id)) == NULL)
 					return 1;
 
-				oti->ti_oti->artificial = 0;
-				oti->ti_oti->oti_id = dsk_oti.id;
-			} else if(!(oti = omp_task_instance_alloc_ptr(mes, dsk_oti.id, dsk_oti.addr)))
-			{
-				return 1;
-			}
-
-			oti->ti_oti->next_task_instance_id = ot->ti_ot.first_task_instance_id;
-			ot->ti_ot.first_task_instance_id = oti - &mes->omp_task_instances[0];
-
-			ot->num_instances++;
-
-			oti->ti_oti->task_id = ot - &mes->omp_tasks[0];
+			omp_task_instance_init(oti, dsk_oti.id, dsk_oti.addr);
 
 		} else if(dsk_eh.type == EVENT_TYPE_OMP_TASK_INSTANCE_PART) {
 			if(read_struct_convert(fp, &dsk_otp, sizeof(dsk_otp), trace_omp_task_instance_part_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -470,22 +452,11 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_otp.cpu)))
 				return 1;
 
-			otp.ti_otp = malloc(sizeof(struct omp_trace_info_otp));
-			otp.cpu = dsk_otp.cpu;
-			otp.start = dsk_otp.start;
-			otp.end = dsk_otp.end;
-			otp.ti_otp->task_instance_id = dsk_otp.task_instance_id;
+			omp_task_part_init(&otp, dsk_otp.task_instance_id, dsk_otp.cpu, dsk_otp.start,
+					   dsk_otp.end);
 
 			if(omp_task_part_add(es, &otp))
 				return 1;
-
-			if(!(otp_p = omp_task_part_find(es, dsk_otp.cpu, dsk_otp.start)))
-				return 1;
-
-			if(!(oti = omp_task_instance_add_part(mes, &otp)))
-				return 1;
-
-			otp_p->ti_otp->task_instance_id = oti - &mes->omp_task_instances[0];
 
 		} else {
 			if(read_struct_convert(fp, &dsk_eh, sizeof(dsk_eh), trace_event_header_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -675,6 +646,8 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	struct omp_for_chunk_set_tree ofcst;
 	struct omp_for_instance_tree ofit;
 	struct omp_for_tree oft;
+	struct omp_task_tree ott;
+	struct omp_task_instance_tree otit;
 	enum compression_type compression_type;
 	struct uncompress_pipe pipe;
 	struct event_set* es;
@@ -714,8 +687,10 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	omp_for_tree_init(&oft);
 	omp_for_instance_tree_init(&ofit);
 	omp_for_chunk_set_tree_init(&ofcst);
+	omp_task_instance_tree_init(&otit);
+	omp_task_tree_init(&ott);
 
-	if(read_trace_samples(mes, &tt, &ft, &ofcst, &ofit, &oft, fp, bytes_read) != 0)
+	if(read_trace_samples(mes, &tt, &ft, &ofcst, &ofit, &oft, &otit, &ott, fp, bytes_read) != 0)
 		goto out_trees;
 
 	if(omp_for_tree_to_array(&oft, &mes->omp_fors) != 0)
@@ -745,13 +720,23 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	if(has_nonexecuted_omp_for_chunk_sets(mes))
 		goto out_trees;
 
-	if(has_artifical_task_instances(mes))
+	if(omp_task_tree_to_array(&ott, &mes->omp_tasks) != 0)
 		goto out_trees;
 
-	if(has_nonexecuted_task_instances(mes))
+	mes->num_omp_tasks = ott.num_omp_tasks;
+
+	if(omp_task_instance_tree_to_array(&otit, &mes->omp_task_instances) != 0)
 		goto out_trees;
+
+	mes->num_omp_task_instances = otit.num_omp_task_instances;
 
 	if(chain_omp_task_structs(mes))
+		goto out_trees;
+
+	if(has_empty_omp_tasks(mes))
+		goto out_trees;
+
+	if(has_nonexecuted_omp_task_instances(mes))
 		goto out_trees;
 
 	if(multi_event_set_state_descriptions_artificial(mes) &&
@@ -894,6 +879,8 @@ out_trees:
 	omp_for_tree_destroy(&oft);
 	omp_for_instance_tree_destroy(&ofit);
 	omp_for_chunk_set_tree_destroy(&ofcst);
+	omp_task_instance_tree_destroy(&otit);
+	omp_task_tree_destroy(&ott);
 out_fp:
 	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED) {
 		fclose(fp);

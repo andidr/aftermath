@@ -18,28 +18,18 @@
 #ifndef OMP_TASK_H
 #define OMP_TASK_H
 
-#define OMP_TASK_PREALLOC 8
-
 #include <stdint.h>
-#include "multi_event_set.h"
 #include "omp_task_instance.h"
+#include "color.h"
 
-struct omp_trace_info_ot {
-	uint32_t first_task_instance_id;
-};
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct omp_task {
 	struct list_head task_instances;
 	uint64_t addr;
 	uint32_t num_instances;
-	union {
-		/* The field ti_of is only use at loading time and 
-		 * later freed to be replaced by a pointer to 
-		 * the string giving the source file's name */
-		char* source_filename;
-		struct omp_trace_info_ot ti_ot;
-	};
 
+	char* source_filename;
 	char* symbol_name;
 	int source_line;
 
@@ -48,50 +38,83 @@ struct omp_task {
 	double color_b;
 };
 
+struct omp_task_tree {
+	void* root;
+	int num_omp_tasks;
+};
+
+static inline void omp_task_tree_init(struct omp_task_tree* ott)
+{
+	ott->root = NULL;
+	ott->num_omp_tasks = 0;
+}
+
+int compare_omp_tasks(const void *pt1, const void *pt2);
+int compare_omp_tasksp(const void *pt1, const void *pt2);
+
+static inline struct omp_task* omp_task_tree_find(struct omp_task_tree* ott, uint64_t addr)
+{
+	struct omp_task key;
+	key.addr = addr;
+	struct omp_task** pret = tfind(&key, &ott->root, compare_omp_tasks);
+
+	if(pret)
+		return *pret;
+
+	return NULL;
+}
+
+static inline struct omp_task* omp_task_tree_add(struct omp_task_tree* ott, uint64_t addr)
+{
+	struct omp_task* key = malloc(sizeof(struct omp_task));
+	struct omp_task** ot;
+
+	if(!key)
+		return NULL;
+
+	key->addr = addr;
+
+	if((ot = tsearch(key, &ott->root, compare_omp_tasks)) == NULL) {
+		free(key);
+		return NULL;
+	}
+
+	ott->num_omp_tasks++;
+
+	return key;
+}
+
+static inline struct omp_task* omp_task_tree_find_or_add(struct omp_task_tree* ott, uint64_t addr)
+{
+	struct omp_task* ret = omp_task_tree_find(ott, addr);
+
+	if(!ret)
+		return omp_task_tree_add(ott, addr);
+
+	return ret;
+}
+
+void omp_task_tree_walk(const void* p, const VISIT which, const int depth);
+int omp_task_tree_to_array(struct omp_task_tree* ott, struct omp_task** arr);
+
+static inline void omp_task_tree_destroy(struct omp_task_tree* ott)
+{
+	tdestroy(ott->root, free);
+}
+
 static inline int omp_task_init(struct omp_task* ot, uint64_t addr)
 {
 	ot->addr = addr;
 	ot->num_instances = 0;
 	ot->source_line = -1;
 	ot->symbol_name = NULL;
+	ot->task_instances.next = NULL;
+	ot->source_filename = NULL;
+	ot->color_r = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][0];
+	ot->color_g = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][1];
+	ot->color_b = omp_task_colors[ot->addr % NUM_OMP_TASK_COLORS][2];
 
 	return 0;
-}
-
-static inline struct omp_task* omp_task_find(struct multi_event_set* mes, uint64_t addr)
-{
-	for(int i = 0; i < mes->num_omp_tasks; i++)
-		if(mes->omp_tasks[i].addr == addr)
-			return &mes->omp_tasks[i];
-
-	return NULL;
-}
-
-static inline int omp_task_alloc(struct multi_event_set* mes, uint64_t addr)
-{
-	if(check_buffer_grow((void**)&mes->omp_tasks, sizeof(struct omp_task),
-			  mes->num_omp_tasks, &mes->num_omp_tasks_free,
-			     OMP_TASK_PREALLOC))
-	{
-		return 1;
-	}
-
-	if(omp_task_init(&mes->omp_tasks[mes->num_omp_tasks], addr) == 0) {
-		mes->num_omp_tasks_free--;
-		mes->num_omp_tasks++;
-
-		return 0;
-	}
-
-	return 1;
-}
-
-static inline struct omp_task* omp_task_alloc_ptr(struct multi_event_set* mes, uint64_t addr)
-{
-	if(omp_task_alloc(mes, addr) != 0)
-		return NULL;
-
-	return &mes->omp_tasks[mes->num_omp_tasks - 1];
 }
 
 #endif

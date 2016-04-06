@@ -96,7 +96,9 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/omp_for_chunk_set_part.h \
 		src/omp_for_chunk_set_part.c \
 		src/omp_task.h \
+		src/omp_task.c \
 		src/omp_task_instance.h \
+		src/omp_task_instance.c \
 		src/omp_task_part.h \
 		src/omp_task_part.c \
 		src/aux.h \

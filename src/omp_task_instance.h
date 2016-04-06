@@ -18,21 +18,16 @@
 #ifndef OMP_TASK_INSTANCE_H
 #define OMP_TASK_INSTANCE_H
 
-#define OMP_TASK_INSTANCE_PREALLOC 16
-
 #include <stdlib.h>
 #include <stdint.h>
-#include "multi_event_set.h"
 #include "omp_task_part.h"
+#include "color.h"
+
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct omp_trace_info_oti {
 	uint64_t addr;
-	uint64_t oti_id;
-	uint32_t artificial;
-
-	uint32_t next_task_instance_id;
-	uint32_t task_id;
-	uint32_t first_task_part_id;
+	uint64_t id;
 };
 
 struct omp_task_instance {
@@ -54,70 +49,88 @@ struct omp_task_instance {
 	double color_b;
 };
 
-static inline int omp_task_instance_init(struct omp_task_instance* oti, uint64_t dsk_id, uint64_t addr)
+struct omp_task_instance_tree {
+	void* root;
+	int num_omp_task_instances;
+};
+
+static inline void omp_task_instance_tree_init(struct omp_task_instance_tree* otit)
 {
-	if(!(oti->ti_oti = malloc(sizeof(struct omp_trace_info_oti))))
-		return 1;
-
-	oti->num_task_parts = 0;
-	oti->ti_oti->oti_id = dsk_id;
-	oti->ti_oti->artificial = 0;
-
-	return 0;
+	otit->root = NULL;
+	otit->num_omp_task_instances = 0;
 }
 
-static inline struct omp_task_instance* omp_task_instance_find(struct multi_event_set* mes, uint64_t dsk_id)
+int compare_omp_task_instances(const void *pt1, const void *pt2);
+int compare_omp_task_instancesp(const void *pt1, const void *pt2);
+
+static inline struct omp_task_instance* omp_task_instance_tree_find(struct omp_task_instance_tree* otit, uint64_t id)
 {
-	for(int i = 0; i < mes->num_omp_task_instances; i++)
-		if(mes->omp_task_instances[i].ti_oti->oti_id == dsk_id)
-			return &mes->omp_task_instances[i];
+	struct omp_task_instance key;
+	struct omp_trace_info_oti* key_ti = malloc(sizeof(struct omp_trace_info_oti));;
+	key.ti_oti = key_ti;
+	key.ti_oti->id = id;
+	struct omp_task_instance** pret = tfind(&key, &otit->root, compare_omp_task_instances);
+
+	if(pret)
+		return *pret;
+
+	free(key_ti);
 
 	return NULL;
 }
 
-static inline int omp_task_instance_alloc(struct multi_event_set* mes, uint64_t dsk_id, uint64_t addr)
-
+static inline struct omp_task_instance* omp_task_instance_tree_add(struct omp_task_instance_tree* otit, uint64_t id)
 {
-	if(check_buffer_grow((void**)&mes->omp_task_instances, sizeof(struct omp_task_instance),
-			  mes->num_omp_task_instances, &mes->num_omp_task_instances_free,
-			     OMP_TASK_INSTANCE_PREALLOC))
-	{
-		return 1;
-	}
+	struct omp_task_instance* key = malloc(sizeof(struct omp_task_instance));
+	struct omp_trace_info_oti* key_ti = malloc(sizeof(struct omp_trace_info_oti));;
+	struct omp_task_instance** oft;
 
-	if(omp_task_instance_init(&mes->omp_task_instances[mes->num_omp_task_instances], dsk_id, addr) == 0)
-	{
-		mes->num_omp_task_instances_free--;
-		mes->num_omp_task_instances++;
-
-		return 0;
-	}
-
-	return 1;
-}
-
-static inline struct omp_task_instance* omp_task_instance_alloc_ptr(struct multi_event_set* mes, uint64_t dsk_id, uint64_t addr)
-{
-	if(omp_task_instance_alloc(mes, dsk_id, addr) != 0)
+	if(!key || !key_ti)
 		return NULL;
 
-	return &mes->omp_task_instances[mes->num_omp_task_instances - 1];
-}
+	key->ti_oti = key_ti;
+	key->ti_oti->id = id;
 
-static inline struct omp_task_instance* omp_task_instance_add_part(struct multi_event_set* mes, struct omp_task_part* otp)
-{
-	struct omp_task_instance* oti;
-
-	if(!(oti = omp_task_instance_find(mes, otp->ti_otp->task_instance_id))) {
-		if(!(oti = omp_task_instance_alloc_ptr(mes, otp->ti_otp->task_instance_id, -1)))
-			return NULL;
-
-		oti->ti_oti->artificial = 1;
+	if((oft = tsearch(key, &otit->root, compare_omp_task_instances)) == NULL) {
+		free(key);
+		free(key_ti);
+		return NULL;
 	}
 
-	oti->num_task_parts++;
+	otit->num_omp_task_instances++;
 
-	return oti;
+	return key;
+}
+
+static inline struct omp_task_instance* omp_task_instance_tree_find_or_add(struct omp_task_instance_tree* otit, uint64_t id)
+{
+	struct omp_task_instance* ret = omp_task_instance_tree_find(otit, id);
+
+	if(!ret)
+		return omp_task_instance_tree_add(otit, id);
+
+	return ret;
+}
+
+void omp_task_instance_tree_walk(const void* p, const VISIT which, const int depth);
+int omp_task_instance_tree_to_array(struct omp_task_instance_tree* otit, struct omp_task_instance** arr);
+
+static inline void omp_task_instance_tree_destroy(struct omp_task_instance_tree* otit)
+{
+	tdestroy(otit->root, free);
+}
+
+static inline int omp_task_instance_init(struct omp_task_instance* oti, uint64_t dsk_id, uint64_t addr)
+{
+	oti->num_task_parts = 0;
+	oti->ti_oti->id = dsk_id;
+	oti->ti_oti->addr = addr;
+	oti->task_parts.next = NULL;
+	oti->color_r = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][0];
+	oti->color_g = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][1];
+	oti->color_b = omp_task_colors[((uintptr_t)oti >> sizeof(uintptr_t)) % NUM_OMP_TASK_COLORS][2];
+
+	return 0;
 }
 
 #endif

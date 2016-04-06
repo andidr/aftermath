@@ -23,6 +23,8 @@
 #include "omp_for.h"
 #include "omp_for_instance.h"
 #include "omp_for_chunk_set.h"
+#include "omp_task.h"
+#include "omp_task_instance.h"
 #include "event_set.h"
 #include "task.h"
 #include "color.h"
@@ -429,6 +431,36 @@ static inline struct omp_for_chunk_set* multi_event_set_find_omp_for_chunk_set_b
 	ofcs.ti_ofc = &ti_ofc;
 
 	return multi_event_set_find_omp_for_chunk_set(mes, &ofcs);
+}
+
+static inline struct omp_task* multi_event_set_find_omp_task(struct multi_event_set* mes,
+							     struct omp_task* ot)
+{
+	return bsearch(ot, mes->omp_tasks, mes->num_omp_tasks,
+		       sizeof(struct omp_task), compare_omp_tasks);
+}
+
+static inline struct omp_task* multi_event_set_find_omp_task_by_addr(struct multi_event_set* mes, uint64_t addr)
+{
+	struct omp_task ot = { .addr = addr };
+
+	return multi_event_set_find_omp_task(mes, &ot);
+}
+
+static inline struct omp_task_instance* multi_event_set_find_omp_task_instance(struct multi_event_set* mes,
+									       struct omp_task_instance* oti)
+{
+	return bsearch(oti, mes->omp_task_instances, mes->num_omp_task_instances,
+		       sizeof(struct omp_task_instance), compare_omp_task_instances);
+}
+
+static inline struct omp_task_instance* multi_event_set_find_omp_task_instance_by_id(struct multi_event_set* mes, uint64_t id)
+{
+	struct omp_task_instance oti;
+	struct omp_trace_info_oti ti_oti = { .id = id };
+	oti.ti_oti = &ti_oti;
+
+	return multi_event_set_find_omp_task_instance(mes, &oti);
 }
 
 static inline void multi_event_set_init(struct multi_event_set* mes)
