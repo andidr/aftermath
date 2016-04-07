@@ -325,6 +325,64 @@ int am_event_set_trace_omp_for_chunk_set_part(struct am_event_set* es,
 }
 
 /**
+ * Trace an OpenMP task instance
+ * @param id The ID of the task instance
+ * @param addr The address of the task
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_omp_task_instance(struct am_event_set* es,
+					 am_omp_task_instance_id_t id,
+					 am_omp_task_address_t addr)
+{
+	struct trace_omp_task_instance* dsk_oti;
+
+	if(!(dsk_oti = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_oti))))
+		return 1;
+
+	dsk_oti->type = EVENT_TYPE_OMP_TASK_INSTANCE;
+	dsk_oti->id = id;
+	dsk_oti->addr = addr;
+
+	convert_struct(dsk_oti,
+		       trace_omp_task_instance_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
+ * Trace an OpenMP task instance part
+ * @param task_instance_id The ID of the task instance
+ * @param start Start of the execution of the task instance part
+ * @param end End of the execution of the task instance part
+ * @return 0 on success, 1 otherwise
+ */
+int am_event_set_trace_omp_task_instance_part(struct am_event_set* es,
+					      am_omp_task_instance_id_t task_instance_id,
+					      am_timestamp_t start,
+					      am_timestamp_t end)
+{
+	struct trace_omp_task_instance_part* dsk_otip;
+
+	if(!(dsk_otip = am_buffer_reserve_bytes(&es->data, sizeof(*dsk_otip))))
+		return 1;
+
+	dsk_otip->type = EVENT_TYPE_OMP_TASK_INSTANCE_PART;
+	dsk_otip->cpu = es->cpu;
+	dsk_otip->task_instance_id = task_instance_id;
+	dsk_otip->start = start;
+	dsk_otip->end = end;
+
+	convert_struct(dsk_otip,
+		       trace_omp_task_instance_part_conversion_table,
+		       0,
+		       CONVERT_HOST_TO_DSK);
+
+	return 0;
+}
+
+/**
  * Synchronize the timestamp offset of an event set with the reference
  * of a trace. The function must be called by the CPU associated to
  * the event set.

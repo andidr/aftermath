@@ -36,6 +36,8 @@ typedef uint32_t am_omp_for_flags_t;
 typedef uint64_t am_omp_for_increment_t;
 typedef uint64_t am_omp_for_iterator_t;
 typedef uint64_t am_omp_for_chunk_set_id_t;
+typedef uint64_t am_omp_task_instance_id_t;
+typedef uint64_t am_omp_task_address_t;
 
 enum am_omp_for_flag {
 	OMP_FOR_SCHEDULE_STATIC = (1 << 0),
