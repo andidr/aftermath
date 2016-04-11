@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int has_nonexecuted_chunk_sets(struct multi_event_set* mes)
+int has_nonexecuted_omp_for_chunk_sets(struct multi_event_set* mes)
 {
 	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++)
 		if(mes->omp_for_chunk_sets[i].num_chunk_set_parts == 0)
@@ -41,19 +41,19 @@ int has_nonexecuted_chunk_sets(struct multi_event_set* mes)
 	return 0;
 }
 
-int has_artifical_chunk_sets(struct multi_event_set* mes)
+int has_empty_omp_for_instances(struct multi_event_set* mes)
 {
-	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++)
-		if(mes->omp_for_chunk_sets[i].ti_ofc->artificial)
+	for(int i = 0; i < mes->num_omp_for_instances; i++)
+		if(mes->omp_for_instances[i].num_chunk_sets == 0)
 			return 1;
 
 	return 0;
 }
 
-int has_artifical_for_instances(struct multi_event_set* mes)
+int has_empty_omp_for(struct multi_event_set* mes)
 {
-	for(int i = 0; i < mes->num_omp_for_instances; i++)
-		if(mes->omp_for_instances[i].ti_ofi->artificial)
+	for(int i = 0; i < mes->num_omp_fors; i++)
+		if(mes->omp_fors[i].num_instances == 0)
 			return 1;
 
 	return 0;
@@ -67,52 +67,47 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 	struct omp_for_chunk_set_part* ofcp;
 	struct event_set* es;
 
-	for(int i = 0; i < mes->num_omp_fors; i++) {
-		of = &mes->omp_fors[i];
-		INIT_LIST_HEAD(&of->for_instances);
-		of->source_filename = NULL;
-		of->color_r = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][0];
-		of->color_g = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][1];
-		of->color_b = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][2];
-	}
-
-	for(int i = 0; i < mes->num_omp_for_instances; i++) {
-		ofi = &mes->omp_for_instances[i];
-		INIT_LIST_HEAD(&ofi->for_chunk_sets);
-		of = &mes->omp_fors[ofi->ti_ofi->for_loop_id];
-		free(ofi->ti_ofi);
-		ofi->for_loop = of;
-		list_add(&ofi->list, &of->for_instances);
-		ofi->color_r = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][0];
-		ofi->color_g = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][1];
-		ofi->color_b = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][2];
-	}
-
-	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++) {
-		ofc = &mes->omp_for_chunk_sets[i];
-		INIT_LIST_HEAD(&ofc->chunk_set_parts);
-		ofi = &mes->omp_for_instances[ofc->ti_ofc->for_instance_id];
-		free(ofc->ti_ofc);
-		ofc->for_instance = ofi;
-		list_add(&ofc->list, &ofi->for_chunk_sets);
-		ofc->color_r = ofi->color_r;
-		ofc->color_g = ofi->color_g;
-		ofc->color_b = ofi->color_b;
-	}
-
 	for(int i = 0; i < mes->num_sets; i++) {
 		es = &mes->sets[i];
 
 		for(int j = 0; j < es->num_omp_for_chunk_set_parts; j++) {
 			ofcp = &es->omp_for_chunk_set_parts[j];
-			ofc = &mes->omp_for_chunk_sets[ofcp->ti_ofcp->chunk_set_id];
+			if((ofc = multi_event_set_find_omp_for_chunk_set_by_id(mes, ofcp->ti_ofcp->chunk_set_id)) == NULL)
+				return 1;
 			free(ofcp->ti_ofcp);
 			ofcp->chunk_set = ofc;
+			if(ofc->chunk_set_parts.next == NULL)
+				INIT_LIST_HEAD(&ofc->chunk_set_parts);
 			list_add(&ofcp->list, &ofc->chunk_set_parts);
+			ofc->num_chunk_set_parts++;
 			ofcp->color_r = ofc->color_r;
 			ofcp->color_g = ofc->color_g;
 			ofcp->color_b = ofc->color_b;
 		}
+	}
+
+	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++) {
+		ofc = &mes->omp_for_chunk_sets[i];
+		if((ofi = multi_event_set_find_omp_for_instance_by_id(mes, ofc->ti_ofc->for_instance_id)) == NULL)
+			return 1;
+		free(ofc->ti_ofc);
+		ofc->for_instance = ofi;
+		if(ofi->for_chunk_sets.next == NULL)
+			INIT_LIST_HEAD(&ofi->for_chunk_sets);
+		list_add(&ofc->list, &ofi->for_chunk_sets);
+		ofi->num_chunk_sets++;
+	}
+
+	for(int i = 0; i < mes->num_omp_for_instances; i++) {
+		ofi = &mes->omp_for_instances[i];
+		if((of = multi_event_set_find_omp_for_by_addr(mes, ofi->ti_ofi->addr)) == NULL)
+			return 1;
+		free(ofi->ti_ofi);
+		ofi->for_loop = of;
+		if(of->for_instances.next == NULL)
+			INIT_LIST_HEAD(&of->for_instances);
+		list_add(&ofi->list, &of->for_instances);
+		of->num_instances++;
 	}
 
 	return 0;
@@ -281,7 +276,9 @@ int trace_update_task_execution_bounds(struct event_set* es)
 	return 0;
 }
 
-int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct frame_tree* ft, FILE* fp, off_t* bytes_read)
+int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct frame_tree* ft, 
+		       struct omp_for_chunk_set_tree* ofcst, struct omp_for_instance_tree* ofit, struct omp_for_tree* oft,
+		       FILE* fp, off_t* bytes_read)
 {
 	struct trace_event_header dsk_eh;
 	struct trace_state_event dsk_se;
@@ -311,7 +308,6 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 	struct omp_for_instance* ofi;
 	struct omp_for_chunk_set* ofc;
 	struct omp_for_chunk_set_part ofcp;
-	struct omp_for_chunk_set_part* ofcp_p;
 	struct omp_task* ot;
 	struct omp_task_instance* oti;
 	struct omp_task_part otp;
@@ -397,33 +393,18 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 			(*bytes_read) += sizeof(dsk_ofi) - sizeof(dsk_eh.type);
 
-			if(!(of = omp_for_find(mes, dsk_ofi.addr)))
-				if(!(of = omp_for_alloc_ptr(mes, dsk_ofi.addr)))
+			if((of = omp_for_tree_find_or_add(oft, dsk_ofi.addr)) == NULL)
 					return 1;
 
-			if((ofi = omp_for_instance_find(mes, dsk_ofi.id))) {
-				if(ofi->ti_ofi->artificial != 1)
+			omp_for_init(of, dsk_ofi.addr);
+
+
+			if((ofi = omp_for_instance_tree_find_or_add(ofit, dsk_ofi.id)) == NULL)
 					return 1;
 
-				ofi->ti_ofi->artificial = 0;
-				ofi->ti_ofi->ofi_id = dsk_ofi.id;
-				ofi->flags = dsk_ofi.flags;
-				ofi->increment = dsk_ofi.increment;
-				ofi->iter_start = dsk_ofi.lower_bound;
-				ofi->iter_end = dsk_ofi.upper_bound;
-			} else if(!(ofi = omp_for_instance_alloc_ptr(mes, dsk_ofi.flags, dsk_ofi.id,
-								     dsk_ofi.increment, dsk_ofi.lower_bound,
-								     dsk_ofi.upper_bound, dsk_ofi.addr, dsk_ofi.num_workers)))
-			{
-				return 1;
-			}
-
-			ofi->ti_ofi->next_for_instance_id = of->ti_of.first_for_instance_id;
-			of->ti_of.first_for_instance_id = ofi - &mes->omp_for_instances[0];
-
-			of->num_instances++;
-
-			ofi->ti_ofi->for_loop_id = of - &mes->omp_fors[0];
+			omp_for_instance_init(ofi, dsk_ofi.flags, dsk_ofi.id,
+					      dsk_ofi.increment, dsk_ofi.lower_bound,
+					      dsk_ofi.upper_bound, dsk_ofi.addr, dsk_ofi.num_workers);
 
 		} else if(dsk_eh.type == EVENT_TYPE_OMP_FOR_CHUNK_SET) {
 			if(read_struct_convert(fp, &dsk_ofc, sizeof(dsk_ofc), trace_omp_for_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -431,37 +412,11 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 
 			(*bytes_read) += sizeof(dsk_ofc) - sizeof(dsk_eh.type);
 
-			if((ofc = omp_for_chunk_set_find(mes, dsk_ofc.id))) {
-				if(ofc->ti_ofc->artificial != 1)
+			if((ofc = omp_for_chunk_set_tree_find_or_add(ofcst, dsk_ofc.id)) == NULL)
 					return 1;
 
-				ofc->ti_ofc->artificial = 0;
-				ofc->ti_ofc->for_id = dsk_ofc.for_id;
-				ofc->iter_start = dsk_ofc.first_lower;
-				ofc->iter_end = dsk_ofc.first_upper;
-			} else if(!(ofc = omp_for_chunk_set_alloc_ptr(mes, dsk_ofc.for_id,
-								  dsk_ofc.id, dsk_ofc.first_lower,
-								  dsk_ofc.first_upper)))
-			{
-					return 1;
-			}
-
-			if(!(ofi = omp_for_instance_find(mes, dsk_ofc.for_id))) {
-				if(!(ofi = omp_for_instance_alloc_ptr(mes, -1, dsk_ofc.for_id, -1,
-								      -1, -1, -1, -1)))
-				{
-					return 1;
-				}
-
-				ofi->ti_ofi->artificial = 1;
-			}
-
-			ofc->ti_ofc->next_chunk_set_id = ofi->ti_ofi->first_chunk_set_id;
-			ofi->ti_ofi->first_chunk_set_id = ofc - &mes->omp_for_chunk_sets[0];
-
-			ofi->num_chunk_sets++;
-
-			ofc->ti_ofc->for_instance_id = ofi - &mes->omp_for_instances[0];
+			omp_for_chunk_set_init(ofc, dsk_ofc.for_id, dsk_ofc.id,
+					       dsk_ofc.first_lower, dsk_ofc.first_upper);
 
 		} else if(dsk_eh.type == EVENT_TYPE_OMP_FOR_CHUNK_SET_PART) {
 			if(read_struct_convert(fp, &dsk_ofcp, sizeof(dsk_ofcp), trace_omp_for_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -472,22 +427,11 @@ int read_trace_samples(struct multi_event_set* mes, struct task_tree* tt, struct
 			if(!(es = multi_event_set_find_alloc_cpu(mes, dsk_ofcp.cpu)))
 				return 1;
 
-			ofcp.ti_ofcp = malloc(sizeof(struct omp_trace_info_ofcp));
-			ofcp.cpu = dsk_ofcp.cpu;
-			ofcp.start = dsk_ofcp.start;
-			ofcp.end = dsk_ofcp.end;
-			ofcp.ti_ofcp->chunk_set_id = dsk_ofcp.chunk_set_id;
+			omp_for_chunk_set_part_init(&ofcp, dsk_ofcp.chunk_set_id, dsk_ofcp.cpu,
+						    dsk_ofcp.start, dsk_ofcp.end);
 
 			if(omp_for_chunk_set_part_add(es, &ofcp))
 				return 1;
-
-			if(!(ofcp_p = omp_for_chunk_set_part_find(es, dsk_ofcp.cpu, dsk_ofcp.start)))
-				return 1;
-
-			if(!(ofc = omp_for_chunk_set_add_part(mes, ofcp_p)))
-				return 1;
-
-			ofcp_p->ti_ofcp->chunk_set_id = ofc - &mes->omp_for_chunk_sets[0];
 
 		} else if(dsk_eh.type == EVENT_TYPE_OMP_TASK_INSTANCE) {
 			if(read_struct_convert(fp, &dsk_oti, sizeof(dsk_oti), trace_omp_task_instance_conversion_table, sizeof(dsk_eh.type)) != 0)
@@ -728,6 +672,9 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 	struct trace_header header;
 	struct task_tree tt;
 	struct frame_tree ft;
+	struct omp_for_chunk_set_tree ofcst;
+	struct omp_for_instance_tree ofit;
+	struct omp_for_tree oft;
 	enum compression_type compression_type;
 	struct uncompress_pipe pipe;
 	struct event_set* es;
@@ -764,20 +711,38 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 
 	task_tree_init(&tt);
 	frame_tree_init(&ft);
+	omp_for_tree_init(&oft);
+	omp_for_instance_tree_init(&ofit);
+	omp_for_chunk_set_tree_init(&ofcst);
 
-	if(read_trace_samples(mes, &tt, &ft, fp, bytes_read) != 0)
+	if(read_trace_samples(mes, &tt, &ft, &ofcst, &ofit, &oft, fp, bytes_read) != 0)
 		goto out_trees;
 
-	if(has_artifical_for_instances(mes))
+	if(omp_for_tree_to_array(&oft, &mes->omp_fors) != 0)
 		goto out_trees;
 
-	if(has_artifical_chunk_sets(mes))
+	mes->num_omp_fors = oft.num_omp_fors;
+
+	if(omp_for_instance_tree_to_array(&ofit, &mes->omp_for_instances) != 0)
 		goto out_trees;
 
-	if(has_nonexecuted_chunk_sets(mes))
+	mes->num_omp_for_instances = ofit.num_omp_for_instances;
+
+	if(omp_for_chunk_set_tree_to_array(&ofcst, &mes->omp_for_chunk_sets) != 0)
 		goto out_trees;
+
+	mes->num_omp_for_chunk_sets = ofcst.num_omp_for_chunk_sets;
 
 	if(chain_omp_for_structs(mes))
+		goto out_trees;
+
+	if(has_empty_omp_for(mes))
+		goto out_trees;
+
+	if(has_empty_omp_for_instances(mes))
+		goto out_trees;
+
+	if(has_nonexecuted_omp_for_chunk_sets(mes))
 		goto out_trees;
 
 	if(has_artifical_task_instances(mes))
@@ -926,6 +891,9 @@ int read_trace_sample_file(struct multi_event_set* mes, const char* file, off_t*
 out_trees:
 	task_tree_destroy(&tt);
 	frame_tree_destroy(&ft);
+	omp_for_tree_destroy(&oft);
+	omp_for_instance_tree_destroy(&ofit);
+	omp_for_chunk_set_tree_destroy(&ofcst);
 out_fp:
 	if(compression_type == COMPRESSION_TYPE_UNCOMPRESSED) {
 		fclose(fp);

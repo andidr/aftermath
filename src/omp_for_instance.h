@@ -18,21 +18,17 @@
 #ifndef OMP_FOR_INSTANCE_H
 #define OMP_FOR_INSTANCE_H
 
-#define OMP_FOR_INSTANCE_PREALLOC 16
-
 #include <stdlib.h>
 #include <stdint.h>
-#include "multi_event_set.h"
+#include <search.h>
 #include "omp_for_chunk_set.h"
+#include "color.h"
+
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct omp_trace_info_ofi {
 	uint64_t addr;
-	uint64_t ofi_id;
-	uint32_t artificial;
-
-	uint32_t next_for_instance_id;
-	uint32_t for_loop_id;
-	uint32_t first_chunk_set_id;
+	uint64_t id;
 };
 
 struct omp_for_instance {
@@ -59,13 +55,79 @@ struct omp_for_instance {
 	double color_b;
 };
 
+struct omp_for_instance_tree {
+	void* root;
+	int num_omp_for_instances;
+};
+
+static inline void omp_for_instance_tree_init(struct omp_for_instance_tree* ofit)
+{
+	ofit->root = NULL;
+	ofit->num_omp_for_instances = 0;
+}
+
+int compare_omp_for_instances(const void *pt1, const void *pt2);
+int compare_omp_for_instancesp(const void *pt1, const void *pt2);
+
+static inline struct omp_for_instance* omp_for_instance_tree_find(struct omp_for_instance_tree* ofit, uint64_t id)
+{
+	struct omp_for_instance key;
+	struct omp_trace_info_ofi* key_ti = malloc(sizeof(struct omp_trace_info_ofi));;
+	key.ti_ofi = key_ti;
+	key.ti_ofi->id = id;
+	struct omp_for_instance** pret = tfind(&key, &ofit->root, compare_omp_for_instances);
+
+	if(pret)
+		return *pret;
+
+	return NULL;
+}
+
+static inline struct omp_for_instance* omp_for_instance_tree_add(struct omp_for_instance_tree* ofit, uint64_t id)
+{
+	struct omp_for_instance* key = malloc(sizeof(struct omp_for_instance));
+	struct omp_trace_info_ofi* key_ti = malloc(sizeof(struct omp_trace_info_ofi));;
+	struct omp_for_instance** ofi;
+
+	if(!key || !key_ti)
+		return NULL;
+
+	key->ti_ofi = key_ti;
+	key->ti_ofi->id = id;
+
+	if((ofi = tsearch(key, &ofit->root, compare_omp_for_instances)) == NULL) {
+		free(key);
+		free(key_ti);
+		return NULL;
+	}
+
+	ofit->num_omp_for_instances++;
+
+	return key;
+}
+
+static inline struct omp_for_instance* omp_for_instance_tree_find_or_add(struct omp_for_instance_tree* ofit, uint64_t id)
+{
+	struct omp_for_instance* ret = omp_for_instance_tree_find(ofit, id);
+
+	if(!ret)
+		return omp_for_instance_tree_add(ofit, id);
+
+	return ret;
+}
+
+void omp_for_instance_tree_walk(const void* p, const VISIT which, const int depth);
+int omp_for_instance_tree_to_array(struct omp_for_instance_tree* ofit, struct omp_for_instance** arr);
+
+static inline void omp_for_instance_tree_destroy(struct omp_for_instance_tree* ofit)
+{
+	tdestroy(ofit->root, free);
+}
+
 static inline int omp_for_instance_init(struct omp_for_instance* ofi, uint32_t flags, uint64_t dsk_id,
 					uint64_t increment, uint64_t iter_start, uint64_t iter_end, uint64_t addr,
 					uint32_t num_workers)
 {
-	if(!(ofi->ti_ofi = malloc(sizeof(struct omp_trace_info_ofi))))
-		return 1;
-
 	ofi->num_chunk_sets = 0;
 	ofi->flags = flags;
 	ofi->increment = increment;
@@ -73,54 +135,13 @@ static inline int omp_for_instance_init(struct omp_for_instance* ofi, uint32_t f
 	ofi->iter_end = iter_end;
 	ofi->num_workers = num_workers;
 	ofi->ti_ofi->addr = addr;
-	ofi->ti_ofi->ofi_id = dsk_id;
-	ofi->ti_ofi->artificial = 0;
+	ofi->ti_ofi->id = dsk_id;
+	ofi->for_chunk_sets.next = NULL;
+	ofi->color_r = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][0];
+	ofi->color_g = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][1];
+	ofi->color_b = omp_for_colors[((uintptr_t)ofi >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][2];
 
 	return 0;
-}
-
-static inline struct omp_for_instance* omp_for_instance_find(struct multi_event_set* mes, uint64_t dsk_id)
-{
-	for(int i = 0; i < mes->num_omp_for_instances; i++)
-		if(mes->omp_for_instances[i].ti_ofi->ofi_id == dsk_id)
-			return &mes->omp_for_instances[i];
-
-	return NULL;
-}
-
-static inline int omp_for_instance_alloc(struct multi_event_set* mes, uint32_t flags, uint64_t dsk_id,
-					 uint64_t increment, uint64_t iter_start, uint64_t iter_end,
-					 uint64_t addr, uint32_t num_workers)
-
-{
-	if(check_buffer_grow((void**)&mes->omp_for_instances, sizeof(struct omp_for_instance),
-			  mes->num_omp_for_instances, &mes->num_omp_for_instances_free,
-			     OMP_FOR_INSTANCE_PREALLOC))
-	{
-		return 1;
-	}
-
-	if(omp_for_instance_init(&mes->omp_for_instances[mes->num_omp_for_instances], flags,
-				 dsk_id, increment, iter_start, iter_end, addr, num_workers) == 0)
-	{
-		mes->num_omp_for_instances_free--;
-		mes->num_omp_for_instances++;
-
-		return 0;
-	}
-
-	return 1;
-}
-
-static inline struct omp_for_instance* omp_for_instance_alloc_ptr(struct multi_event_set* mes, uint32_t flags, uint64_t dsk_id, uint64_t increment, uint64_t iter_start, uint64_t iter_end, uint64_t addr, uint32_t num_workers)
-{
-	if(omp_for_instance_alloc(mes, flags, dsk_id, increment,
-				  iter_start, iter_end, addr, num_workers) != 0)
-	{
-		return NULL;
-	}
-
-	return &mes->omp_for_instances[mes->num_omp_for_instances - 1];
 }
 
 #endif

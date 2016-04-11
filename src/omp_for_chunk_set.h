@@ -18,21 +18,17 @@
 #ifndef OMP_FOR_CHUNK_H
 #define OMP_FOR_CHUNK_H
 
-#define OMP_FOR_CHUNK_PREALLOC 16
-
 #include <stdint.h>
-#include "multi_event_set.h"
+#include <search.h>
 #include "omp_for_chunk_set_part.h"
+#include "color.h"
+
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct omp_trace_info_ofc {
-	uint64_t for_id;
+	uint64_t for_instance_id;
 	uint64_t id;
-	uint32_t artificial;
-
-	uint32_t next_chunk_set_id;
-	uint32_t for_instance_id;
 };
-
 
 struct omp_for_chunk_set {
 	union {
@@ -55,77 +51,91 @@ struct omp_for_chunk_set {
 	double color_b;
 };
 
-static inline int omp_for_chunk_set_init(struct omp_for_chunk_set* ofc, uint64_t dsk_for_id, uint64_t dsk_id,
-				     uint64_t iter_start, uint64_t iter_end)
+struct omp_for_chunk_set_tree {
+	void* root;
+	int num_omp_for_chunk_sets;
+};
+
+static inline void omp_for_chunk_set_tree_init(struct omp_for_chunk_set_tree* ofcst)
 {
-	if(!(ofc->ti_ofc = malloc(sizeof(struct omp_trace_info_ofc))))
-		return 1;
-
-	ofc->num_chunk_set_parts = 0;
-	ofc->ti_ofc->for_id = dsk_for_id;
-	ofc->ti_ofc->id = dsk_id;
-	ofc->iter_start = iter_start;
-	ofc->iter_end = iter_end;
-	ofc->ti_ofc->artificial = 0;
-
-	return 0;
+	ofcst->root = NULL;
+	ofcst->num_omp_for_chunk_sets = 0;
 }
 
-static inline struct omp_for_chunk_set* omp_for_chunk_set_find(struct multi_event_set* mes, uint64_t dsk_id)
+int compare_omp_for_chunk_sets(const void *pt1, const void *pt2);
+int compare_omp_for_chunk_setsp(const void *pt1, const void *pt2);
+
+static inline struct omp_for_chunk_set* omp_for_chunk_set_tree_find(struct omp_for_chunk_set_tree* ofcst, uint64_t id)
 {
-	for(int i = 0; i < mes->num_omp_for_chunk_sets; i++)
-		if(mes->omp_for_chunk_sets[i].ti_ofc->id == dsk_id)
-			return &mes->omp_for_chunk_sets[i];
+	struct omp_for_chunk_set key;
+	struct omp_trace_info_ofc* key_ti = malloc(sizeof(struct omp_trace_info_ofc));;
+	key.ti_ofc = key_ti;
+	key.ti_ofc->id = id;
+	struct omp_for_chunk_set** pret = tfind(&key, &ofcst->root, compare_omp_for_chunk_sets);
+
+	if(pret)
+		return *pret;
+
+	free(key_ti);
 
 	return NULL;
 }
 
-static inline int omp_for_chunk_set_alloc(struct multi_event_set* mes, uint64_t dsk_for_id,
-				      uint64_t dsk_id, uint64_t iter_start, uint64_t iter_end)
-
+static inline struct omp_for_chunk_set* omp_for_chunk_set_tree_add(struct omp_for_chunk_set_tree* ofcst, uint64_t id)
 {
-	if(check_buffer_grow((void**)&mes->omp_for_chunk_sets, sizeof(struct omp_for_chunk_set),
-			  mes->num_omp_for_chunk_sets, &mes->num_omp_for_chunk_sets_free,
-			     OMP_FOR_CHUNK_PREALLOC))
-	{
-		return 1;
-	}
+	struct omp_for_chunk_set* key = malloc(sizeof(struct omp_for_chunk_set));
+	struct omp_trace_info_ofc* key_ti = malloc(sizeof(struct omp_trace_info_ofc));;
+	struct omp_for_chunk_set** ofcs;
 
-	if(omp_for_chunk_set_init(&mes->omp_for_chunk_sets[mes->num_omp_for_chunk_sets], dsk_for_id,
-			      dsk_id, iter_start, iter_end) == 0)
-	{
-		mes->num_omp_for_chunk_sets_free--;
-		mes->num_omp_for_chunk_sets++;
-
-		return 0;
-	}
-
-	return 1;
-}
-
-static inline struct omp_for_chunk_set* omp_for_chunk_set_alloc_ptr(struct multi_event_set* mes, uint64_t dsk_for_id,
-							    uint64_t dsk_id, uint64_t iter_start, uint64_t iter_end)
-{
-	if(omp_for_chunk_set_alloc(mes, dsk_for_id, dsk_id, iter_start, iter_end) != 0)
+	if(!key || !key_ti)
 		return NULL;
 
-	return &mes->omp_for_chunk_sets[mes->num_omp_for_chunk_sets - 1];
-}
+	key->ti_ofc = key_ti;
+	key->ti_ofc->id = id;
 
-static inline struct omp_for_chunk_set* omp_for_chunk_set_add_part(struct multi_event_set* mes, struct omp_for_chunk_set_part* ofcp)
-{
-	struct omp_for_chunk_set* ofc;
-
-	if(!(ofc = omp_for_chunk_set_find(mes, ofcp->ti_ofcp->chunk_set_id))) {
-		if(!(ofc = omp_for_chunk_set_alloc_ptr(mes, -1, ofcp->ti_ofcp->chunk_set_id, -1, -1)))
-			return NULL;
-
-		ofc->ti_ofc->artificial = 1;
+	if((ofcs = tsearch(key, &ofcst->root, compare_omp_for_chunk_sets)) == NULL) {
+		free(key);
+		free(key_ti);
+		return NULL;
 	}
 
-	ofc->num_chunk_set_parts++;
+	ofcst->num_omp_for_chunk_sets++;
 
-	return ofc;
+	return key;
+}
+
+static inline struct omp_for_chunk_set* omp_for_chunk_set_tree_find_or_add(struct omp_for_chunk_set_tree* ofcst, uint64_t id)
+{
+	struct omp_for_chunk_set* ret = omp_for_chunk_set_tree_find(ofcst, id);
+
+	if(!ret)
+		return omp_for_chunk_set_tree_add(ofcst, id);
+
+	return ret;
+}
+
+void omp_for_chunk_set_tree_walk(const void* p, const VISIT which, const int depth);
+int omp_for_chunk_set_tree_to_array(struct omp_for_chunk_set_tree* ofcst, struct omp_for_chunk_set** arr);
+
+static inline void omp_for_chunk_set_tree_destroy(struct omp_for_chunk_set_tree* ofcst)
+{
+	tdestroy(ofcst->root, free);
+}
+
+static inline int omp_for_chunk_set_init(struct omp_for_chunk_set* ofc, uint64_t dsk_for_id, uint64_t dsk_id,
+				     uint64_t iter_start, uint64_t iter_end)
+{
+	ofc->num_chunk_set_parts = 0;
+	ofc->ti_ofc->for_instance_id = dsk_for_id;
+	ofc->ti_ofc->id = dsk_id;
+	ofc->iter_start = iter_start;
+	ofc->iter_end = iter_end;
+	ofc->chunk_set_parts.next = NULL;
+	ofc->color_r = omp_for_colors[((uintptr_t)ofc >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][0];
+	ofc->color_g = omp_for_colors[((uintptr_t)ofc >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][1];
+	ofc->color_b = omp_for_colors[((uintptr_t)ofc >> sizeof(uintptr_t)) % NUM_OMP_FOR_COLORS][2];
+
+	return 0;
 }
 
 #endif

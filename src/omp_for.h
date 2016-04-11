@@ -18,27 +18,18 @@
 #ifndef OMP_FOR_H
 #define OMP_FOR_H
 
-#define OMP_FOR_PREALLOC 8
-
 #include <stdint.h>
-#include "multi_event_set.h"
+#include <search.h>
 #include "omp_for_instance.h"
+#include "color.h"
 
-struct omp_trace_info_of {
-	uint32_t first_for_instance_id;
-};
+void tdestroy(void *root, void (*free_node)(void *nodep));
 
 struct omp_for {
 	struct list_head for_instances;
 	uint64_t addr;
 	uint32_t num_instances;
-	union {
-		/* The field ti_of is only use at loading time and 
-		 * later freed to be replaced by a pointer to 
-		 * the string giving the source file's name */
-		char* source_filename;
-		struct omp_trace_info_of ti_of;
-	};
+	char* source_filename;
 
 	char* symbol_name;
 	int source_line;
@@ -48,50 +39,82 @@ struct omp_for {
 	double color_b;
 };
 
+struct omp_for_tree {
+	void* root;
+	int num_omp_fors;
+};
+
+static inline void omp_for_tree_init(struct omp_for_tree* oft)
+{
+	oft->root = NULL;
+	oft->num_omp_fors = 0;
+}
+
 static inline int omp_for_init(struct omp_for* of, uint64_t addr)
 {
 	of->addr = addr;
 	of->num_instances = 0;
 	of->source_line = -1;
 	of->symbol_name = NULL;
+	of->source_filename = NULL;
+	of->for_instances.next = NULL;
+	of->color_r = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][0];
+	of->color_g = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][1];
+	of->color_b = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][2];
 
 	return 0;
 }
 
-static inline struct omp_for* omp_for_find(struct multi_event_set* mes, uint64_t addr)
+int compare_omp_fors(const void *pt1, const void *pt2);
+int compare_omp_forsp(const void *pt1, const void *pt2);
+
+static inline struct omp_for* omp_for_tree_find(struct omp_for_tree* oft, uint64_t addr)
 {
-	for(int i = 0; i < mes->num_omp_fors; i++)
-		if(mes->omp_fors[i].addr == addr)
-			return &mes->omp_fors[i];
+	struct omp_for key = { .addr = addr };
+	struct omp_for** pret = tfind(&key, &oft->root, compare_omp_fors);
+
+	if(pret)
+		return *pret;
 
 	return NULL;
 }
 
-static inline int omp_for_alloc(struct multi_event_set* mes, uint64_t addr)
+static inline struct omp_for* omp_for_tree_add(struct omp_for_tree* oft, uint64_t addr)
 {
-	if(check_buffer_grow((void**)&mes->omp_fors, sizeof(struct omp_for),
-			  mes->num_omp_fors, &mes->num_omp_fors_free,
-			     OMP_FOR_PREALLOC))
-	{
-		return 1;
-	}
+	struct omp_for* key = malloc(sizeof(struct omp_for));
+	struct omp_for** of;
 
-	if(omp_for_init(&mes->omp_fors[mes->num_omp_fors], addr) == 0) {
-		mes->num_omp_fors_free--;
-		mes->num_omp_fors++;
-
-		return 0;
-	}
-
-	return 1;
-}
-
-static inline struct omp_for* omp_for_alloc_ptr(struct multi_event_set* mes, uint64_t addr)
-{
-	if(omp_for_alloc(mes, addr) != 0)
+	if(!key)
 		return NULL;
 
-	return &mes->omp_fors[mes->num_omp_fors - 1];
+	key->addr = addr;
+
+	if((of = tsearch(key, &oft->root, compare_omp_fors)) == NULL) {
+		free(key);
+		return NULL;
+	}
+
+	oft->num_omp_fors++;
+
+	return key;
+}
+
+static inline struct omp_for* omp_for_tree_find_or_add(struct omp_for_tree* oft, uint64_t addr)
+{
+	struct omp_for* ret = omp_for_tree_find(oft, addr);
+
+	if(!ret)
+		return omp_for_tree_add(oft, addr);
+
+	return ret;
+}
+
+void omp_for_tree_walk(const void* p, const VISIT which, const int depth);
+int omp_for_tree_to_array(struct omp_for_tree* oft, struct omp_for** arr);
+
+static inline void omp_for_tree_destroy(struct omp_for_tree* oft)
+{
+	tdestroy(oft->root, free);
 }
 
 #endif

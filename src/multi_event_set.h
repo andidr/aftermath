@@ -20,6 +20,9 @@
 
 #include "counter_description.h"
 #include "state_description.h"
+#include "omp_for.h"
+#include "omp_for_instance.h"
+#include "omp_for_chunk_set.h"
 #include "event_set.h"
 #include "task.h"
 #include "color.h"
@@ -380,6 +383,52 @@ static inline struct frame* multi_event_set_find_frame_by_addr(struct multi_even
 {
 	struct frame f = { .addr = addr };
 	return multi_event_set_find_frame(mes, &f);
+}
+
+static inline struct omp_for* multi_event_set_find_omp_for(struct multi_event_set* mes,
+							   struct omp_for* of)
+{
+	return bsearch(of, mes->omp_fors, mes->num_omp_fors,
+		       sizeof(struct omp_for), compare_omp_fors);
+}
+
+static inline struct omp_for* multi_event_set_find_omp_for_by_addr(struct multi_event_set* mes, uint64_t addr)
+{
+	struct omp_for of = { .addr = addr };
+
+	return multi_event_set_find_omp_for(mes, &of);
+}
+
+static inline struct omp_for_instance* multi_event_set_find_omp_for_instance(struct multi_event_set* mes,
+									     struct omp_for_instance* ofi)
+{
+	return bsearch(ofi, mes->omp_for_instances, mes->num_omp_for_instances,
+		       sizeof(struct omp_for_instance), compare_omp_for_instances);
+}
+
+static inline struct omp_for_instance* multi_event_set_find_omp_for_instance_by_id(struct multi_event_set* mes, uint64_t id)
+{
+	struct omp_for_instance ofi;
+	struct omp_trace_info_ofi ti_ofi = { .id = id };
+	ofi.ti_ofi = &ti_ofi;
+
+	return multi_event_set_find_omp_for_instance(mes, &ofi);
+}
+
+static inline struct omp_for_chunk_set* multi_event_set_find_omp_for_chunk_set(struct multi_event_set* mes,
+									       struct omp_for_chunk_set* ofcs)
+{
+	return bsearch(ofcs, mes->omp_for_chunk_sets, mes->num_omp_for_chunk_sets,
+		       sizeof(struct omp_for_chunk_set), compare_omp_for_chunk_sets);
+}
+
+static inline struct omp_for_chunk_set* multi_event_set_find_omp_for_chunk_set_by_id(struct multi_event_set* mes, uint64_t id)
+{
+	struct omp_for_chunk_set ofcs;
+	struct omp_trace_info_ofc ti_ofc = { .id = id };
+	ofcs.ti_ofc = &ti_ofc;
+
+	return multi_event_set_find_omp_for_chunk_set(mes, &ofcs);
 }
 
 static inline void multi_event_set_init(struct multi_event_set* mes)
