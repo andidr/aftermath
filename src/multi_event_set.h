@@ -531,6 +531,7 @@ static inline void multi_event_set_destroy(struct multi_event_set* mes)
 	free(mes->cpu_idx_map);
 	free(mes->global_single_events);
 	free(mes->states);
+	free(mes->counters);
 	free(mes->omp_fors);
 	free(mes->omp_for_instances);
 	free(mes->omp_for_chunk_sets);
