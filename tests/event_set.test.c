@@ -1356,6 +1356,16 @@ UNIT_TEST(get_first_single_event_in_interval_type_test)
 	}
 
 	for(int i = 0; i < 1000; i++) {
+		/* No event in the interval */
+		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000+1, (i+1)*1000-1, i % 4), -1);
+	}
+
+	for(int i = 0; i < 1000; i++) {
+		/* No event in the interval */
+		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, 1000001, 1000001+1000*i, i % 4), -1);
+	}
+
+	for(int i = 0; i < 1000; i++) {
 		/* Exactly one event in the interval */
 		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+1)*1000+1, i % 4), i);
 	}
@@ -1368,9 +1378,9 @@ UNIT_TEST(get_first_single_event_in_interval_type_test)
 
 	for(int i = 0; i < 998; i++) {
 		/* Exactly three events in the interval */
-		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+2)*1000+1, i % 4), i);
-		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+2)*1000+1, (i + 1) % 4), i+1);
-		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+2)*1000+1, (i + 2) % 4), i+2);
+		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+3)*1000+1, i % 4), i);
+		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+3)*1000+1, (i + 1) % 4), i+1);
+		ASSERT_EQUALS(event_set_get_first_single_event_in_interval_type(&es, (i+1)*1000-1, (i+3)*1000+1, (i + 2) % 4), i+2);
 	}
 
 	event_set_destroy(&es);
