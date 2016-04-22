@@ -14,7 +14,8 @@ VALGRIND_FLAGS=--gen-suppressions=all \
 		--error-exitcode=1 \
 		--suppressions=./tests/valgrind-suppressions \
 		--run-libc-freeres=no \
-		--partial-loads-ok=yes
+		--partial-loads-ok=yes \
+		--fullpath-after=
 
 libaftermath_core_la_SOURCES = src/buffer.h \
 		src/buffer.c \
