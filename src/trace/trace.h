@@ -98,11 +98,8 @@ struct am_trace {
 	/* Number of event sets */
 	size_t num_event_sets;
 
-	/* Number of event sets */
-	size_t num_event_sets_free;
-
 	/* Array of event tables with one entry for each CPU. */
-	struct am_event_set* event_sets;
+	struct am_event_set** event_sets;
 
 	/* Trace global data, not associated to any specific worker
 	 * (e.g., event descriptions) */

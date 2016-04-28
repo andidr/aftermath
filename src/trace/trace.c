@@ -91,7 +91,6 @@ int am_trace_init(struct am_trace* trace, size_t data_size)
 		return 1;
 
 	trace->num_event_sets = 0;
-	trace->num_event_sets_free = 0;
 	trace->event_sets = NULL;
 
 	am_timestamp_reference_init(&trace->ts_ref);
@@ -104,8 +103,10 @@ int am_trace_init(struct am_trace* trace, size_t data_size)
  */
 void am_trace_destroy(struct am_trace* trace)
 {
-	for(size_t i = 0; i < trace->num_event_sets; i++)
-		am_event_set_destroy(&trace->event_sets[i]);
+	for(size_t i = 0; i < trace->num_event_sets; i++) {
+		am_event_set_destroy(trace->event_sets[i]);
+		free(trace->event_sets[i]);
+	}
 
 	free(trace->event_sets);
 	am_buffer_destroy(&trace->data);
@@ -484,27 +485,24 @@ int am_event_set_dump_fp(struct am_event_set* es, FILE* fp)
 int am_trace_register_cpu(struct am_trace* trace,
 			  am_cpu_t cpu, size_t data_size)
 {
-	struct am_event_set* tmp;
+	struct am_event_set** tmp;
+	size_t n = trace->num_event_sets;
+	tmp = realloc(trace->event_sets, sizeof(trace->event_sets[0]) * (n+1));
 
-	if(!trace->num_event_sets_free) {
-		if(!(tmp = realloc(trace->event_sets,
-				   sizeof(trace->event_sets[0]) *
-				   (trace->num_event_sets+1))))
-		{
-			return 1;
-		}
+	if(!tmp)
+		return 1;
 
-		trace->event_sets = tmp;
-		trace->num_event_sets_free++;
-	}
+	trace->event_sets = tmp;
 
-	if(am_event_set_init(&trace->event_sets[trace->num_event_sets],
+	if(!(trace->event_sets[n] = malloc(sizeof(*trace->event_sets[0]))))
+		return 1;
+
+	if(am_event_set_init(trace->event_sets[trace->num_event_sets],
 			     cpu, data_size))
 	{
 		return 1;
 	}
 
-	trace->num_event_sets_free--;
 	trace->num_event_sets++;
 
 	return 0;
@@ -606,7 +604,7 @@ int am_trace_dump_fp(struct am_trace* trace, FILE* fp)
 		return 1;
 
 	for(size_t i = 0; i < trace->num_event_sets; i++)
-		if(am_event_set_dump_fp(&trace->event_sets[i], fp))
+		if(am_event_set_dump_fp(trace->event_sets[i], fp))
 			return 1;
 
 	return 0;
@@ -647,8 +645,8 @@ struct am_event_set* am_trace_get_event_set(struct am_trace* trace,
 					    am_cpu_t cpu)
 {
 	for(size_t i = 0; i < trace->num_event_sets; i++)
-		if(trace->event_sets[i].cpu == cpu)
-			return &trace->event_sets[i];
+		if(trace->event_sets[i]->cpu == cpu)
+			return trace->event_sets[i];
 
 	return NULL;
 }
