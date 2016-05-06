@@ -46,6 +46,10 @@ struct omp_for_chunk_set {
 	uint64_t iter_start;
 	uint64_t iter_end;
 
+	uint64_t total_time;
+	uint64_t min_start;
+	uint64_t max_end;
+
 	double color_r;
 	double color_g;
 	double color_b;

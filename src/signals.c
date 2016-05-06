@@ -1781,12 +1781,18 @@ G_MODULE_EXPORT void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, 
 	char buf_start_iter[100];
 	char buf_end_iter[100];
 	char buf_inc[100];
+	char buf_total_time_ofc[100];
+	char buf_total_time_ofi[100];
+	char buf_wallclock_time[100];
 
 	if(ofcp) {
 		ofc = ofcp->chunk_set;
 		ofi = ofc->for_instance;
 		of = ofi->for_loop;
 		pretty_print_cycles(buf_duration, sizeof(buf_duration), ofcp->end - ofcp->start);
+		pretty_print_cycles(buf_total_time_ofc, sizeof(buf_total_time_ofc), ofc->total_time);
+		pretty_print_cycles(buf_total_time_ofi, sizeof(buf_total_time_ofi), ofi->total_time);
+		pretty_print_cycles(buf_wallclock_time, sizeof(buf_wallclock_time), ofi->real_loop_time);
 
 		snprintf(buffer, sizeof(buffer),
 			 "CPU:\t\t%d\n"
@@ -1829,42 +1835,56 @@ G_MODULE_EXPORT void trace_omp_chunk_set_part_selection_changed(GtkTrace* item, 
 				snprintf(buf_chunk_set_iter, sizeof(buf_chunk_set_iter),
 					 "[%"PRIu64", %"PRIu64"] ", ofc->iter_start, ofc->iter_end);
 
-			snprintf(buf_start_iter, sizeof(buf_start_iter), "Start iteration:\t%"PRIu64, ofi->iter_start);
-			snprintf(buf_end_iter, sizeof(buf_end_iter), "End iteration:\t\t%"PRIu64, ofi->iter_end);
+			snprintf(buf_start_iter, sizeof(buf_start_iter), "Start iteration: %"PRIu64, ofi->iter_start);
+			snprintf(buf_end_iter, sizeof(buf_end_iter), "End iteration: %"PRIu64, ofi->iter_end);
 		}
 
 		if(ofi->flags & OMP_FOR_SIGNED_INCREMENT)
-			snprintf(buf_inc, sizeof(buf_inc), "Increment:\t\t%"PRId64, ofi->increment);
+			snprintf(buf_inc, sizeof(buf_inc), "Increment: %"PRId64, ofi->increment);
 		else
-			snprintf(buf_inc, sizeof(buf_inc), "Increment:\t\t%"PRIu64, ofi->increment);
+			snprintf(buf_inc, sizeof(buf_inc), "Increment: %"PRIu64, ofi->increment);
 
 		snprintf(buffer, sizeof(buffer),
-			 "[Chunk part info]\n"
-			 "CPU:\t\t\t%d\n"
-			 "Start:\t\t\t%"PRIu64"\n"
-			 "End:\t\t\t%"PRIu64"\n"
-			 "\n[Chunk info]\n"
-			 "Iterations : %s\n"
-			 "Nb Chunk part:\t\t%d\n"
-			 "\n[For instance info]\n"
-			 "Nb Chunk:\t%d\n"
+			 "<b>Chunk part</b>\n"
+			 "CPU: %d\n"
+			 "Start: %"PRIu64"\n"
+			 "End: %"PRIu64"\n\n"
+
+			 "<b>Chunk</b>\n"
+			 "Iterations: %s\n"
+			 "#Chunk parts: %d\n"
+			 "Total time: %s\n\n"
+
+			 "<b>For loop instance</b>\n"
+			 "#Chunks: %d\n"
 			 "%s\n"
 			 "%s\n"
 			 "%s\n"
-			 "Num workers:\t\t%d\n"
-			 "\n[For info]\n"
-			 "For addr:\t\t\t0X%"PRIX64"\n"
-			 "Nb instances:\t\t%d\n",
+			 "#Workers: %d\n"
+			 "Total time: %s -- %"PRIu64"\n"
+			 "Chunk load balance: %f%%\n"
+			 "Parallelsim efficiency: %f%%\n"
+			 "Wall clock time: %s\n\n"
+
+			 "<b>For loop</b>\n"
+			 "For addr: 0x%"PRIx64"\n"
+			 "#Instances: %d\n",
 			 ofcp->cpu,
 			 ofcp->start,
 			 ofcp->end,
 			 buf_chunk_set_iter,
 			 ofc->num_chunk_set_parts,
+			 buf_total_time_ofc,
 			 ofi->num_chunk_sets,
 			 buf_start_iter,
 			 buf_end_iter,
 			 buf_inc,
 			 ofi->num_workers,
+			 buf_total_time_ofi,
+			 ofi->total_time,
+			 ofi->chunk_load_balance,
+			 ofi->parallelism_efficiency,
+			 buf_wallclock_time,
 			 of->addr,
 			 of->num_instances);
 

@@ -50,6 +50,11 @@ struct omp_for_instance {
 	uint64_t iter_end;
 	uint32_t num_workers;
 
+	uint64_t total_time;
+	double chunk_load_balance;
+	double parallelism_efficiency;
+	uint64_t real_loop_time;
+
 	double color_r;
 	double color_g;
 	double color_b;

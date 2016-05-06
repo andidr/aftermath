@@ -59,6 +59,62 @@ int has_empty_omp_for(struct multi_event_set* mes)
 	return 0;
 }
 
+void omp_for_chunk_set_compute_total_time(struct omp_for_chunk_set* ofc)
+{
+	struct list_head* l_iter_part;
+	struct omp_for_chunk_set_part* ofcp;
+	ofc->total_time = 0;
+	ofc->min_start = UINT64_MAX;
+	ofc->max_end = 0;
+
+	list_for_each(l_iter_part, &ofc->chunk_set_parts) {
+		ofcp = list_entry(l_iter_part, struct omp_for_chunk_set_part, list);
+		ofc->total_time += ofcp->end - ofcp->start;
+		
+		if(ofcp->start < ofc->min_start)
+			ofc->min_start = ofcp->start;
+
+		if(ofcp->end > ofc->max_end)
+			ofc->max_end = ofcp->end;
+	}
+}
+
+void omp_for_instance_compute_total_time(struct omp_for_instance* ofi, uint32_t nb_cpu)
+{
+	struct list_head* l_iter_chunk_set;
+	ofi->total_time = 0;
+	struct omp_for_chunk_set* ofc;
+	int N = 0;
+	uint64_t moy;
+	uint64_t min = UINT64_MAX;
+	uint64_t max = 0;
+	uint64_t mins = UINT64_MAX;
+	uint64_t maxe = 0;
+
+	list_for_each(l_iter_chunk_set, &ofi->for_chunk_sets) {
+		ofc = list_entry(l_iter_chunk_set, struct omp_for_chunk_set, list);
+		ofi->total_time += ofc->total_time;
+		if(ofc->total_time < min)
+			min = ofc->total_time;
+
+		if(ofc->total_time > max)
+			max = ofc->total_time;
+
+		if(ofc->min_start < mins)
+			mins = ofc->min_start;
+
+		if(ofc->max_end > maxe)
+			maxe = ofc->max_end;
+		N++;
+	}
+
+	moy = ofi->total_time / N;
+
+	ofi->chunk_load_balance = (1 - ((max - moy) / (double)max)) * 100;
+	ofi->parallelism_efficiency = (ofi->total_time / (double)((maxe - mins) * nb_cpu)) * 100;
+	ofi->real_loop_time = maxe - mins;
+}
+
 int chain_omp_for_structs(struct multi_event_set* mes)
 {
 	struct omp_for* of;
@@ -90,6 +146,7 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 		ofc = &mes->omp_for_chunk_sets[i];
 		if((ofi = multi_event_set_find_omp_for_instance_by_id(mes, ofc->ti_ofc->for_instance_id)) == NULL)
 			return 1;
+		omp_for_chunk_set_compute_total_time(ofc);
 		free(ofc->ti_ofc);
 		ofc->for_instance = ofi;
 		if(ofi->for_chunk_sets.next == NULL)
@@ -100,6 +157,7 @@ int chain_omp_for_structs(struct multi_event_set* mes)
 
 	for(int i = 0; i < mes->num_omp_for_instances; i++) {
 		ofi = &mes->omp_for_instances[i];
+		omp_for_instance_compute_total_time(ofi, mes->num_sets);
 		if((of = multi_event_set_find_omp_for_by_addr(mes, ofi->ti_ofi->addr)) == NULL)
 			return 1;
 		free(ofi->ti_ofi);
