@@ -36,7 +36,7 @@ extern double task_type_colors[NUM_TASK_TYPE_COLORS][3];
 #define NUM_STATE_COLORS 9
 extern double state_colors[NUM_STATE_COLORS][3];
 
-#define NUM_OMP_FOR_COLORS 10
+#define NUM_OMP_FOR_COLORS 23
 extern double omp_for_colors[NUM_OMP_FOR_COLORS][3];
 
 #define NUM_OMP_TASK_COLORS 10

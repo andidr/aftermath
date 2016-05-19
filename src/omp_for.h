@@ -58,9 +58,6 @@ static inline int omp_for_init(struct omp_for* of, uint64_t addr)
 	of->symbol_name = NULL;
 	of->source_filename = NULL;
 	of->for_instances.next = NULL;
-	of->color_r = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][0];
-	of->color_g = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][1];
-	of->color_b = omp_for_colors[of->addr % NUM_OMP_FOR_COLORS][2];
 
 	return 0;
 }

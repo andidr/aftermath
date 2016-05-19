@@ -51,6 +51,9 @@ void omp_for_tree_walk(const void* p, const VISIT which, const int depth)
 {
 	if(which == leaf || which == postorder) {
 		struct omp_for* t = *((struct omp_for**)p);
+		t->color_r = omp_for_colors[curr_oft_array_index % NUM_OMP_FOR_COLORS][0];
+		t->color_g = omp_for_colors[curr_oft_array_index % NUM_OMP_FOR_COLORS][1];
+		t->color_b = omp_for_colors[curr_oft_array_index % NUM_OMP_FOR_COLORS][2];
 		memcpy(&curr_oft_array[curr_oft_array_index++], t, sizeof(struct omp_for));
 	}
 }
