@@ -68,7 +68,7 @@ void pretty_print_bytes(char* buffer, int buffer_size, uint64_t bytes, const cha
 
 void pretty_print_cycles(char* buffer, int buffer_size, uint64_t cycles)
 {
-	const char* units[] = { " ", " K", " M", " G", " T", " P" };
+	const char* units[] = { "", " K", " M", " G", " T", " P" };
 
 	unsigned int unit_idx = pretty_print_get_power10(cycles, 0, (sizeof(units) / sizeof(char*))-1);
 	long double multiplier = powl(10.0, 3*unit_idx);
