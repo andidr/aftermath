@@ -23,6 +23,7 @@
 #include "color_scheme_list.h"
 #include "histogram_widget.h"
 #include "filter_expression.h"
+#include "util.h"
 #include <glade/glade.h>
 #include <math.h>
 #include <inttypes.h>
@@ -182,6 +183,61 @@ int show_goto_dialog(double start, double end, double curr_value, double* time)
 
 	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		*time = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin));
+		ret = 1;
+	}
+
+	gtk_widget_destroy(dialog);
+	g_object_unref(G_OBJECT(xml));
+
+	return ret;
+}
+
+int show_select_interval_dialog(uint64_t init_start,
+				uint64_t init_end,
+				uint64_t* start,
+				uint64_t* end)
+{
+	int ret = 0;
+	char buffer[64];
+
+	GladeXML* xml = glade_xml_new(DATA_PATH "/select_interval_dialog.glade",
+				      NULL, NULL);
+
+	const char* s_start;
+	const char* s_end;
+
+	glade_xml_signal_autoconnect(xml);
+	IMPORT_GLADE_WIDGET(xml, dialog);
+	IMPORT_GLADE_WIDGET(xml, entry_start);
+	IMPORT_GLADE_WIDGET(xml, entry_end);
+
+	pretty_print_cycles(buffer, sizeof(buffer), init_start);
+	gtk_entry_set_text(GTK_ENTRY(entry_start), buffer);
+
+	pretty_print_cycles(buffer, sizeof(buffer), init_end);
+	gtk_entry_set_text(GTK_ENTRY(entry_end), buffer);
+
+retry:
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		s_start = gtk_entry_get_text(GTK_ENTRY(entry_start));
+
+		if(pretty_read_cycles(s_start, start)) {
+			show_error_message("Start is not valid");
+			goto retry;
+		}
+
+		s_end = gtk_entry_get_text(GTK_ENTRY(entry_end));
+
+		if(pretty_read_cycles(s_end, end)) {
+			show_error_message("End is not valid");
+			goto retry;
+		}
+
+		if(*start >= *end) {
+			show_error_message("End must be after start");
+			goto retry;
+		}
+
 		ret = 1;
 	}
 

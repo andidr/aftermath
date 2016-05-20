@@ -200,6 +200,7 @@ aftermath_LDFLAGS = -export-dynamic
 aftermathdir=${datarootdir}/aftermath
 dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/ui/goto_dialog.glade \
+		share/ui/select_interval_dialog.glade \
 		share/ui/about_dialog.glade \
 		share/ui/settings.glade \
 		share/ui/progress_dialog.glade \

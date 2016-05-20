@@ -49,6 +49,10 @@ enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...);
 enum yes_no_cancel_dialog_response show_yes_no_dialog(char* format, ...);
 char* load_save_file_dialog(const char* title, GtkFileChooserAction mode, const char* filter_name, const char* filter_extension, const char* default_dir);
 int show_goto_dialog(double start, double end, double curr_value, double* time);
+int show_select_interval_dialog(uint64_t init_start,
+				uint64_t init_end,
+				uint64_t* start,
+				uint64_t* end);
 void show_about_dialog(void);
 int show_settings_dialog(struct settings* s);
 void show_progress_window_persistent(struct progress_window_widgets* widgets);

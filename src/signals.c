@@ -48,6 +48,7 @@
 #include <libgen.h>
 
 int build_address_range_tree(void);
+void update_statistics(void);
 
 enum comm_matrix_mode {
 	COMM_MATRIX_MODE_NODE = 0,
@@ -640,6 +641,30 @@ G_MODULE_EXPORT void menubar_goto_time(GtkMenuItem *item, gpointer data)
 
 	if(show_goto_dialog(start, end, (double)((left+right)/2.0), &time))
 		goto_time(time);
+}
+
+G_MODULE_EXPORT void menubar_select_interval(GtkMenuItem *item, gpointer data)
+{
+	int64_t init_start = 0;
+	int64_t init_end = 0;
+	uint64_t start;
+	uint64_t end;
+
+	if(!gtk_trace_get_range_selection(g_trace_widget, &init_start, &init_end)) {
+		init_start = 0;
+		init_end = 0;
+	}
+
+	if(init_start < 0)
+		init_start = 0;
+
+	if(init_end < 0)
+		init_end = 0;
+
+	if(show_select_interval_dialog((uint64_t)init_start, (uint64_t)init_end, &start, &end)) {
+		gtk_trace_set_range_selection(g_trace_widget, start, end);
+		update_statistics();
+	}
 }
 
 static int react_to_hscrollbar_change = 1;

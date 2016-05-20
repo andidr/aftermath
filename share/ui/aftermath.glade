@@ -457,6 +457,14 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="menuitem34">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select interval</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menubar_select_interval"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="menuitem33">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
