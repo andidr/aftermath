@@ -2581,6 +2581,33 @@ G_MODULE_EXPORT void menubar_export_task_histogram_svg(GtkMenuItem *item, gpoint
 	export_task_histogram(EXPORT_FORMAT_SVG);
 }
 
+void export_openmp_histogram(enum export_file_format format)
+{
+	char* filename = export_to_file_with_dialog(format);
+
+	if(filename) {
+		if(gtk_histogram_save_to_file(g_histogram_widget_omp, format, filename))
+			show_error_message("Could not export to file \"%s\".", filename);
+
+		free(filename);
+	}
+}
+
+G_MODULE_EXPORT void menubar_export_openmp_histogram_pdf(GtkMenuItem *item, gpointer data)
+{
+	export_openmp_histogram(EXPORT_FORMAT_PDF);
+}
+
+G_MODULE_EXPORT void menubar_export_openmp_histogram_png(GtkMenuItem *item, gpointer data)
+{
+	export_openmp_histogram(EXPORT_FORMAT_PNG);
+}
+
+G_MODULE_EXPORT void menubar_export_openmp_histogram_svg(GtkMenuItem *item, gpointer data)
+{
+	export_openmp_histogram(EXPORT_FORMAT_SVG);
+}
+
 void export_comm_matrix(enum export_file_format format)
 {
 	char* filename = export_to_file_with_dialog(format);

@@ -239,6 +239,47 @@
                                         </child>
                                       </widget>
                                     </child>
+				    <child>
+                                      <widget class="GtkMenuItem" id="menuitem36">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">_OpenMP</property>
+                                        <property name="use_underline">True</property>
+                                        <child>
+                                          <widget class="GtkMenu" id="menu12">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem37">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export P_NG</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_openmp_histogram_png" />
+                                              </widget>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem38">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export S_VG</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_openmp_histogram_svg" />
+                                              </widget>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem39">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export _PDF</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_openmp_histogram_pdf" />
+                                              </widget>
+                                            </child>
+                                          </widget>
+                                        </child>
+                                      </widget>
+                                    </child>
                                   </widget>
                                 </child>
                               </widget>
