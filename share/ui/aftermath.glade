@@ -199,30 +199,44 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <widget class="GtkMenuItem" id="menuitem21">
+                                      <widget class="GtkMenuItem" id="menuitem35">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Export _PDF</property>
+                                        <property name="label" translatable="yes">_Tasks</property>
                                         <property name="use_underline">True</property>
-                                        <signal name="activate" handler="menubar_export_histogram_pdf"/>
-                                      </widget>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkMenuItem" id="menuitem22">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Export S_VG</property>
-                                        <property name="use_underline">True</property>
-                                        <signal name="activate" handler="menubar_export_histogram_svg"/>
-                                      </widget>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkMenuItem" id="menuitem23">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Export P_NG</property>
-                                        <property name="use_underline">True</property>
-                                        <signal name="activate" handler="menubar_export_histogram_png"/>
+                                        <child>
+                                          <widget class="GtkMenu" id="menu11">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem23">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export P_NG</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_task_histogram_png" />
+                                              </widget>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem22">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export S_VG</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_task_histogram_svg" />
+                                              </widget>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkMenuItem" id="menuitem21">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Export _PDF</property>
+                                                <property name="use_underline">True</property>
+                                                <signal name="activate" handler="menubar_export_task_histogram_pdf" />
+                                              </widget>
+                                            </child>
+                                          </widget>
+                                        </child>
                                       </widget>
                                     </child>
                                   </widget>

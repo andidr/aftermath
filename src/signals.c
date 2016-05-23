@@ -2547,7 +2547,7 @@ G_MODULE_EXPORT void menubar_export_timeline_svg(GtkMenuItem *item, gpointer dat
 	export_timeline(EXPORT_FORMAT_SVG);
 }
 
-void export_histogram(enum export_file_format format)
+void export_task_histogram(enum export_file_format format)
 {
 	char* filename = export_to_file_with_dialog(format);
 
@@ -2566,19 +2566,19 @@ void export_histogram(enum export_file_format format)
 	}
 }
 
-G_MODULE_EXPORT void menubar_export_histogram_pdf(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_task_histogram_pdf(GtkMenuItem *item, gpointer data)
 {
-	export_histogram(EXPORT_FORMAT_PDF);
+	export_task_histogram(EXPORT_FORMAT_PDF);
 }
 
-G_MODULE_EXPORT void menubar_export_histogram_png(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_task_histogram_png(GtkMenuItem *item, gpointer data)
 {
-	export_histogram(EXPORT_FORMAT_PNG);
+	export_task_histogram(EXPORT_FORMAT_PNG);
 }
 
-G_MODULE_EXPORT void menubar_export_histogram_svg(GtkMenuItem *item, gpointer data)
+G_MODULE_EXPORT void menubar_export_task_histogram_svg(GtkMenuItem *item, gpointer data)
 {
-	export_histogram(EXPORT_FORMAT_SVG);
+	export_task_histogram(EXPORT_FORMAT_SVG);
 }
 
 void export_comm_matrix(enum export_file_format format)
