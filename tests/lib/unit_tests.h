@@ -56,7 +56,7 @@ extern int __unit_assert_cnt__;
 			__fail__(); \
 		} \
 		__unit_assert_cnt__++; \
-	} while(0);
+	} while(0)
 
 #define ASSERT_EQUALS(a, b) \
 	ASSERT_INTRO() \
