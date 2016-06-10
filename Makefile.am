@@ -80,6 +80,7 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/contrib/linux-kernel/stddef.h \
 		src/contrib/linux-kernel/types.h \
 		src/contrib/linux-kernel/userspace.h \
+		src/typed_list.h \
 		src/address_range_tree.h \
 		src/address_range_tree.c \
 		src/task_instance.h \
