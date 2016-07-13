@@ -263,6 +263,7 @@ UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
 TESTS = counter_event_set_index_test \
 	event_set_test \
 	wr_trace_states_test \
+	wr_trace2core_test \
 	ansi_extras_test \
 	parser_test \
 	object_notation_test \
@@ -291,6 +292,16 @@ wr_trace_states_test_SOURCES = tests/wr_trace_states.test.c \
 
 wr_trace_states_test_CFLAGS = $(TESTS_CFLAGS)
 wr_trace_states_test_LDADD = $(TESTS_LDADD)
+
+tests/wr_trace2core.test.c: ./tests/auto/scripts/rwspec.py \
+			./tests/auto/read-write/states.rwspec
+	./tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
+
+wr_trace2core_test_SOURCES = tests/wr_trace2core.test.c \
+	$(UNIT_TEST_SOURCES)
+
+wr_trace2core_test_CFLAGS = $(TESTS_CFLAGS) -Isrc
+wr_trace2core_test_LDADD = $(TESTS_LDADD) libaftermath-trace.la
 
 ansi_extras_test_SOURCES = tests/ansi_extras.test.c \
 	$(UNIT_TEST_SOURCES)
