@@ -300,7 +300,8 @@ wr_trace_states_test_LDADD = $(TESTS_LDADD)
 
 tests/wr_trace2core.test.c: ./tests/auto/scripts/rwspec.py \
 			./tests/auto/read-write/states.rwspec \
-			./tests/auto/read-write/counters.rwspec
+			./tests/auto/read-write/counters.rwspec \
+			./tests/auto/read-write/measurement_intervals.rwspec
 	./tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
 
 wr_trace2core_test_SOURCES = tests/wr_trace2core.test.c \
