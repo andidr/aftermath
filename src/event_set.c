@@ -508,7 +508,7 @@ uint64_t event_set_get_average_task_length_in_interval(struct event_set* es, str
 				length += length_in_interval;
 				lnum_tasks += ((long double)length_in_interval) /
 					((long double)task_length);
-			} else if(texec_start->time > start &&
+			} else if(texec_start->time >= start &&
 				  texec_start->next_texec_end->time > end)
 			{
 				length_in_interval = end - texec_start->time;
