@@ -279,7 +279,7 @@ CLEANFILES = aftermath-debug-syms aftermath.1 scripts/check-header.sh
 TESTS_LDADD = -L. -lm -lpthread libaftermath-core.la
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
-UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h
+UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h tests/common.h
 TESTS = counter_event_set_index_test \
 	event_set_test \
 	wr_trace_states_test \
