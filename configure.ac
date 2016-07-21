@@ -15,6 +15,7 @@ AM_INIT_AUTOMAKE([subdir-objects] serial_tests)
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 m4_include([m4/with_check.m4])
+m4_include([m4/python.m4])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -90,6 +91,14 @@ PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.0])
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.0])
 PKG_CHECK_MODULES(GLADE, [libglade-2.0 >= 2.0])
 
+CHECK_CUSTOM_PROG(python)
+AC_PYTHON_MODULE(sets, true)
+AC_PYTHON_MODULE(sys, true)
+AC_PYTHON_MODULE(shlex, true)
+AC_PYTHON_MODULE(re, true)
+AC_PYTHON_MODULE(os, true)
+AC_PYTHON_MODULE(numpy, true)
+
 CFLAGS="$CFLAGS -Wall"
 
 CONFIG_DATE=`date +%m/%d/%Y`
@@ -99,3 +108,5 @@ AC_OUTPUT([Makefile doc/man/aftermath.1])
 CHECK_HEADER_CFLAGS="$DEFS $GLIB_CFLAGS $CFLAGS $GTK_CFLAGS $GLADE_CFLAGS"
 AC_SUBST(CHECK_HEADER_CFLAGS)
 AC_OUTPUT([scripts/check-header.sh], [chmod +x scripts/check-header.sh])
+
+mkdir -p test-tmp

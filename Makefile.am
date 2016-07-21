@@ -225,6 +225,7 @@ man_MANS = doc/man/aftermath.1
 
 clean-local:
 	-find . -iname "*~" -delete
+	rm tests/wr_trace2core.test.c
 
 %-silent:
 	@$(MAKE) $* | EGREP="$(EGREP)" CC="$(CC)" SED="$(SED)" AR="$(AR)" ./scripts/build_silently_filter.sh
@@ -280,6 +281,14 @@ TESTS_LDADD = -L. -lm -lpthread libaftermath-core.la
 TESTS_CFLAGS = -g -O0 $(LIB_CFLAGS) -D_POSIX_C_SOURCE=200809 -I$(srcdir)/tests/lib -I$(srcdir)/src
 
 UNIT_TEST_SOURCES = tests/lib/unit_tests.c tests/lib/unit_tests.h tests/common.h
+UNIT_TEST_EXTRA_DIST = tests/auto/scripts/hdict.py \
+			tests/auto/scripts/rwspec_helpers.py \
+			tests/auto/scripts/rwspec_defs.py \
+			tests/auto/scripts/rwspec.py \
+			tests/auto/read-write/states.rwspec \
+			tests/auto/read-write/counters.rwspec \
+			tests/auto/read-write/measurement_intervals.rwspec
+
 TESTS = counter_event_set_index_test \
 	event_set_test \
 	wr_trace_states_test \
@@ -317,7 +326,7 @@ tests/wr_trace2core.test.c: ./tests/auto/scripts/rwspec.py \
 			./tests/auto/read-write/states.rwspec \
 			./tests/auto/read-write/counters.rwspec \
 			./tests/auto/read-write/measurement_intervals.rwspec
-	./tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
+	python ./tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
 
 wr_trace2core_test_SOURCES = tests/wr_trace2core.test.c \
 	$(UNIT_TEST_SOURCES)
@@ -372,3 +381,5 @@ state_index_test_SOURCES = tests/state_index.test.c \
 
 state_index_test_CFLAGS = $(TESTS_CFLAGS)
 state_index_test_LDADD = $(TESTS_LDADD)
+
+EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST)
