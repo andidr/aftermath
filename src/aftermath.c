@@ -24,6 +24,7 @@
 #include <math.h>
 #include <inttypes.h>
 #include "glade_extras.h"
+#include "gtk_extras.h"
 #include "trace_widget.h"
 #include "histogram_widget.h"
 #include "multi_histogram_widget.h"
@@ -128,6 +129,15 @@ gboolean update_progress(gpointer pdata)
 	ltd->last_bytes_read = ltd->bytes_read;
 
 	return TRUE;
+}
+
+void set_activate_link_handler_if_label(GtkWidget* widget, void* callback)
+{
+	if(GTK_IS_LABEL(widget)) {
+		g_signal_connect(G_OBJECT(widget), "activate-link",
+				 G_CALLBACK(callback),
+				 widget);
+	}
 }
 
 int main(int argc, char** argv)
@@ -502,6 +512,9 @@ int main(int argc, char** argv)
 	g_omp_task_treeview_type = omp_task_treeview_init(GTK_TREE_VIEW(g_omp_task_treeview));
 	g_signal_connect(G_OBJECT(g_omp_task_treeview_type), "omp-task-update-highlighted-part", G_CALLBACK(omp_task_update_highlighted_part), g_trace_widget);
 	omp_task_treeview_fill(GTK_TREE_VIEW(g_omp_task_treeview), g_mes.omp_tasks, g_mes.num_omp_tasks);
+
+	/* Set the same handler for links for all labels */
+	gtk_extra_for_each_descendant(GTK_WIDGET(toplevel_window), set_activate_link_handler_if_label, link_activated);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);
