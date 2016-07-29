@@ -18,6 +18,7 @@
 #ifndef AUX_H
 #define AUX_H
 
-#define ROUND_UP(N, S) ((((N) + (S) - 1) / (S)) * (S))
+#define DIV_ROUND_UP(N, S) (((N) + (S) - 1) / (S))
+#define ROUND_UP(N, S) (DIV_ROUND_UP(N, S) * (S))
 
 #endif
