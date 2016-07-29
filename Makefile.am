@@ -190,6 +190,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/cpu_list.c \
 		src/cairo_extras.h \
 		src/cairo_extras.c \
+		src/gtk_extras.h \
+		src/gtk_extras.c \
 		src/export.h \
 		src/aftermath-debug-syms.sh \
 		doc/man/aftermath.1 \
