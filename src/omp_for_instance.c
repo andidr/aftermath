@@ -66,3 +66,43 @@ int omp_for_instance_tree_to_array(struct omp_for_instance_tree* ofit, struct om
 	twalk(ofit->root, omp_for_instance_tree_walk);
 	return 0;
 }
+
+/* Returns the chunk set with the smallest start iteration. */
+struct omp_for_chunk_set*
+omp_for_instance_find_lowest_chunk_set(const struct omp_for_instance* ofi)
+{
+	struct omp_for_chunk_set* iter;
+	struct omp_for_chunk_set* lowest = NULL;
+
+	omp_for_instance_for_each_chunk_set(ofi, iter) {
+		if(ofi->flags & OMP_FOR_SIGNED_ITERATION_SPACE) {
+			if(!lowest ||
+			   (uint64_t)iter->iter_start <
+			   (uint64_t)lowest->iter_start)
+			{
+				lowest = iter;
+			}
+		} else {
+			if(!lowest ||
+			   (int64_t)iter->iter_start <
+			   (int64_t)lowest->iter_start)
+			{
+				lowest = iter;
+			}
+		}
+	}
+
+	return lowest;
+}
+
+/* Returns the chunk size for a loop instance with a static schedule. If the
+ * loop only has a single chunk set, the reported chunk size might be lower than
+ * the actual chunk size specified for the loop construct.
+ */
+uint64_t omp_for_instance_static_chunk_size(const struct omp_for_instance* ofi)
+{
+	struct omp_for_chunk_set* lowest =
+		omp_for_instance_find_lowest_chunk_set(ofi);
+
+	return lowest->iter_end - lowest->iter_start + 1;
+}

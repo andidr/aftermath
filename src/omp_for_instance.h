@@ -162,4 +162,8 @@ static inline int omp_for_instance_init(struct omp_for_instance* ofi, uint32_t f
 #define omp_for_instance_for_each_chunk_set_prev_safe(ofi, n, i) \
 	typed_list_for_each_prev_safe(ofi, for_chunk_sets, ofcs, i, list)
 
+struct omp_for_chunk_set*
+omp_for_instance_find_lowest_chunk_set(const struct omp_for_instance* ofi);
+uint64_t omp_for_instance_static_chunk_size(const struct omp_for_instance* ofi);
+
 #endif
