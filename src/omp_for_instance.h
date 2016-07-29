@@ -23,6 +23,7 @@
 #include <search.h>
 #include "omp_for_chunk_set.h"
 #include "color.h"
+#include "typed_list.h"
 
 void tdestroy(void *root, void (*free_node)(void *nodep));
 
@@ -148,5 +149,17 @@ static inline int omp_for_instance_init(struct omp_for_instance* ofi, uint32_t f
 
 	return 0;
 }
+
+#define omp_for_instance_for_each_chunk_set(ofi, ofcs) \
+	typed_list_for_each(ofi, for_chunk_sets, ofcs, list)
+
+#define omp_for_instance_for_each_chunk_set_prev(ofi, ofcs) \
+	typed_list_for_each_prev(ofi, for_chunk_sets, ofcs, list)
+
+#define omp_for_instance_for_each_chunk_set_safe(ofi, n, i) \
+	typed_list_for_each_safe(ofi, for_chunk_sets, ofcs, i, list)
+
+#define omp_for_instance_for_each_chunk_set_prev_safe(ofi, n, i) \
+	typed_list_for_each_prev_safe(ofi, for_chunk_sets, ofcs, i, list)
 
 #endif
