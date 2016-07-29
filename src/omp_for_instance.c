@@ -15,6 +15,7 @@
  */
 
 #include "omp_for_instance.h"
+#include "aux.h"
 #include <string.h>
 
 int compare_omp_for_instancesp(const void *pfi1, const void *pfi2)
@@ -105,4 +106,22 @@ uint64_t omp_for_instance_static_chunk_size(const struct omp_for_instance* ofi)
 		omp_for_instance_find_lowest_chunk_set(ofi);
 
 	return lowest->iter_end - lowest->iter_start + 1;
+}
+
+/* Returns the number of chunks of a for instance. */
+uint64_t omp_for_instance_num_chunks(const struct omp_for_instance* ofi)
+{
+	uint64_t chunk_size;
+	uint64_t num_iterations;
+	uint64_t num_chunks;
+
+	if(ofi->flags & OMP_FOR_SCHEDULE_STATIC) {
+		chunk_size = omp_for_instance_static_chunk_size(ofi);
+		num_iterations = ofi->iter_end - ofi->iter_start + 1;
+		num_chunks = DIV_ROUND_UP(num_iterations, chunk_size);
+	} else {
+		num_chunks = ofi->num_chunk_sets;
+	}
+
+	return num_chunks;
 }

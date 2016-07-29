@@ -166,4 +166,6 @@ struct omp_for_chunk_set*
 omp_for_instance_find_lowest_chunk_set(const struct omp_for_instance* ofi);
 uint64_t omp_for_instance_static_chunk_size(const struct omp_for_instance* ofi);
 
+uint64_t omp_for_instance_num_chunks(const struct omp_for_instance* ofi);
+
 #endif
