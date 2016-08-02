@@ -76,6 +76,110 @@ void single_event_statistics_gather(struct multi_event_set* mes, struct filter* 
 	}
 }
 
+int chunk_set_part_statistics_init(struct chunk_set_part_statistics* cps, unsigned int num_hist_bins)
+{
+	cps->num_hist_bins = num_hist_bins;
+
+	if(!(cps->cycles_hist = malloc(sizeof(cps->cycles_hist[0]) * num_hist_bins)))
+		return 1;
+
+	chunk_set_part_statistics_reset(cps);
+
+	return 0;
+}
+
+void chunk_set_part_statistics_reset(struct chunk_set_part_statistics* cps)
+{
+	cps->num_chunk_set_parts = 0;
+	cps->cycles = 0;
+	cps->max_hist = 0;
+	cps->max_cycles = 0;
+	cps->min_cycles = UINT64_MAX;
+
+	memset(cps->cycles_hist, 0, sizeof(cps->cycles_hist[0]) * cps->num_hist_bins);
+}
+
+void chunk_set_part_statistics_destroy(struct chunk_set_part_statistics* cps)
+{
+	free(cps->cycles_hist);
+}
+
+void chunk_set_part_statistics_gather(struct multi_event_set* mes, struct filter* f, struct chunk_set_part_statistics* cps, int64_t start, int64_t end)
+{
+	int ofcp_id;
+	struct omp_for_chunk_set_part* ofcp;
+	uint64_t curr_length;
+	int hist_bin;
+	struct event_set* es;
+
+	for(int histogram = 0; histogram < 2; histogram++) {
+		for_each_event_set(mes, es) {
+			if((ofcp_id = event_set_get_first_chunk_set_part_in_interval(es, start, end)) == -1)
+				continue;
+
+			ofcp = &es->omp_for_chunk_set_parts[ofcp_id];
+
+			if(!filter_has_cpu(f, es->cpu))
+				continue;
+
+			while((ofcp_id < es->num_omp_for_chunk_set_parts) && ofcp->end <= end) {
+
+				if(!filter_has_ofcp(f, ofcp)) {
+					ofcp_id++;
+					ofcp++;
+					continue;
+				}
+				curr_length = ofcp->end - ofcp->start;
+
+				if(histogram) {
+					if(cps->max_cycles - cps->min_cycles > 0)
+						hist_bin = ((uint64_t)(cps->num_hist_bins-1) * (curr_length - cps->min_cycles)) / (cps->max_cycles - cps->min_cycles);
+					else
+						hist_bin = 0;
+
+					cps->cycles_hist[hist_bin]++;
+				} else {
+					cps->cycles += curr_length;
+					cps->num_chunk_set_parts++;
+
+					if(curr_length > cps->max_cycles)
+						cps->max_cycles = curr_length;
+					if(curr_length < cps->min_cycles)
+						cps->min_cycles = curr_length;
+				}
+
+				ofcp_id++;
+				ofcp++;
+			}
+		}
+	}
+
+	for(int i = 0; i < cps->num_hist_bins; i++) {
+		if(cps->cycles_hist[i] > cps->max_hist)
+			cps->max_hist = cps->cycles_hist[i];
+	}
+}
+
+int chunk_set_part_statistics_to_chunk_set_part_length_histogram(struct chunk_set_part_statistics* cps, struct histogram* h)
+{
+	if(cps->num_hist_bins != h->num_bins)
+		return 1;
+
+	h->left = 0;
+	h->right = cps->max_cycles;
+	h->max_hist = cps->max_hist;
+	h->num_hist = cps->num_chunk_set_parts;
+
+	for(int i = 0; i < h->num_bins; i++) {
+		if(cps->max_hist > 0)
+			h->values[i] = (long double)cps->cycles_hist[i] / (long double)cps->max_hist;
+		else
+			h->values[i] = 0;
+	}
+
+	return 0;
+}
+
 void task_statistics_reset(struct task_statistics* s)
 {
 	s->num_tasks = 0;

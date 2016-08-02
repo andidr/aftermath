@@ -18,6 +18,7 @@
 #ifndef FILTER_H
 #define FILTER_H
 
+#include "omp_for_chunk_set_part.h"
 #include "events.h"
 #include "buffer.h"
 #include "bitvector.h"
@@ -26,6 +27,7 @@
 
 #define FILTER_TASK_PREALLOC 16
 #define FILTER_FRAME_PREALLOC 1024
+#define FILTER_OFCP_PREALLOC 512
 #define FILTER_COUNTER_BITS 64
 #define FILTER_NUMA_NODE_BITS 64
 
@@ -39,6 +41,11 @@ struct filter {
 	size_t num_frames;
 	size_t num_frames_free;
 	int filter_frames;
+
+	struct omp_for_chunk_set_part** ofcps;
+	size_t num_ofcps;
+	size_t num_ofcps_free;
+	int filter_ofcps;
 
 	struct bitvector counters;
 	int filter_counters;
@@ -88,8 +95,13 @@ static inline int filter_init(struct filter* f, int64_t min, int64_t max,
 	f->num_frames = 0;
 	f->num_frames_free = 0;
 
+	f->ofcps = NULL;
+	f->num_ofcps = 0;
+	f->num_ofcps_free = 0;
+
 	f->filter_tasks = 0;
 	f->filter_frames = 0;
+	f->filter_ofcps = 0;
 	f->filter_counters = 0;
 	f->filter_frame_numa_nodes = 0;
 	f->filter_comm_numa_nodes = 0;
@@ -158,6 +170,28 @@ static inline void filter_remove_task(struct filter* f, struct task* t)
 			f->num_tasks_free++;
 		}
 	}
+}
+
+static inline void filter_set_ofcp_filtering(struct filter* f, int b)
+{
+	f->filter_ofcps = b;
+}
+
+static inline void filter_clear_ofcps(struct filter* f)
+{
+	f->num_ofcps_free += f->num_ofcps;
+	f->num_ofcps = 0;
+
+	filter_set_ofcp_filtering(f, 0);
+}
+
+static inline int filter_add_ofcp(struct filter* f, struct omp_for_chunk_set_part* ofcp)
+{
+	filter_set_ofcp_filtering(f, 1);
+
+	return add_buffer_grow((void**)&f->ofcps, &ofcp, sizeof(ofcp),
+			&f->num_ofcps, &f->num_ofcps_free,
+			FILTER_OFCP_PREALLOC);
 }
 
 static inline void filter_set_single_event_type_filtering(struct filter* f, int b)
@@ -357,6 +391,9 @@ static inline void filter_set_writes_to_numa_nodes_filtering(struct filter* f, i
 
 void filter_sort_tasks(struct filter* f);
 int filter_has_task(struct filter* f, struct task* t);
+
+void filter_sort_ofcps(struct filter* f);
+int filter_has_ofcp(struct filter* f, struct omp_for_chunk_set_part* ofcp);
 
 void filter_sort_frames(struct filter* f);
 int filter_has_frame(struct filter* f, struct frame* fr);

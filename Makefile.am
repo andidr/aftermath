@@ -87,6 +87,11 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/task_instance_rw_tree.c \
 		src/task_instance_tree.h \
 		src/task_instance_tree.c \
+		src/omp_for.h \
+		src/omp_for_instance.h \
+		src/omp_for_chunk_set.h \
+		src/omp_for_chunk_set_part.h \
+		src/omp_for_chunk_set_part.c \
 		src/aux.h \
 		src/parser.h \
 		src/object_notation.h \
@@ -149,6 +154,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/dialogs.c \
 		src/task_list.h \
 		src/task_list.c \
+		src/omp_for_treeview.h \
+		src/omp_for_treeview.c \
 		src/frame_list.h \
 		src/frame_list.c \
 		src/counter_list.h \
@@ -211,6 +218,7 @@ dist_aftermath_DATA = share/ui/aftermath.glade \
 		share/icons/fit_all_cpus.svg \
 		share/icons/fit_all_measurement_intervals.svg \
 		share/icons/draw_measurement_intervals.svg \
+		share/icons/omp_for.svg \
 		share/bitmap/splash.png
 
 man_MANS = doc/man/aftermath.1

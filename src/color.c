@@ -46,3 +46,14 @@ double state_colors[][3] = {{COL_NORM(117.0), COL_NORM(195.0), COL_NORM(255.0)},
 			    {COL_NORM(  0.0), COL_NORM(255.0), COL_NORM(  0.0)},
 			    {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
 			    {COL_NORM(235.0), COL_NORM(  0.0), COL_NORM(  0.0)}};
+
+double omp_for_colors[NUM_OMP_FOR_COLORS][3] = {{COL_NORM(102.0), COL_NORM(  0.0), COL_NORM(255.0)},
+						{COL_NORM(136.0), COL_NORM( 66.0), COL_NORM( 29.0)},
+						{COL_NORM(240.0), COL_NORM(195.0), COL_NORM(  0.0)},
+						{COL_NORM(253.0), COL_NORM(108.0), COL_NORM(158.0)},
+						{COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(255.0)},
+						{COL_NORM(247.0), COL_NORM( 35.0), COL_NORM( 12.0)},
+						{COL_NORM( 22.0), COL_NORM(184.0), COL_NORM( 78.0)},
+						{COL_NORM(  9.0), COL_NORM(106.0), COL_NORM(  9.0)},
+						{COL_NORM(103.0), COL_NORM(113.0), COL_NORM(121.0)},
+						{COL_NORM( 37.0), COL_NORM(253.0), COL_NORM(233.0)}};

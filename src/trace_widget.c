@@ -59,6 +59,8 @@ static double comm_colors[][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  
 				  {COL_NORM( 47.0), COL_NORM(102.0), COL_NORM(255.0)}};
 
 static double highlight_color[3] = {COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)};
+static double highlight_omp_color[2][3] = {{COL_NORM(255.0), COL_NORM(255.0), COL_NORM(  0.0)},
+					   {COL_NORM(255.0), COL_NORM(  0.0), COL_NORM(  0.0)}};
 static double highlight_task_color[3] = {COL_NORM(255.0), COL_NORM(0.0), COL_NORM(0.0)};
 static double measurement_start_color[3] = { COL_NORM(0x00), COL_NORM(0xFF), COL_NORM(0x00) };
 static double measurement_end_color[3] = { COL_NORM(0xFF), COL_NORM(0x00), COL_NORM(0x00) };
@@ -106,6 +108,7 @@ GtkWidget* gtk_trace_new(struct multi_event_set* mes)
 	g->highlight_state_event = NULL;
 	g->highlight_task_texec_start = NULL;
 	g->highlight_annotation = NULL;
+	g->highlight_omp_chunk_set_part = NULL;
 
 	g->markers = NULL;
 	g->num_markers = 0;
@@ -195,6 +198,15 @@ void gtk_trace_class_init(GtkTraceClass *class)
 
 	gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED] =
                 g_signal_new("state-event-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
+                             GTK_RUN_FIRST,
+                             G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
+                             NULL, NULL,
+                             g_cclosure_user_marshal_VOID__POINTER_INT_INT,
+                             G_TYPE_NONE, 3,
+                             G_TYPE_POINTER, G_TYPE_INT, G_TYPE_INT);
+
+	gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED] =
+                g_signal_new("omp-chunk-set-part-selection-changed", G_OBJECT_CLASS_TYPE(object_class),
                              GTK_RUN_FIRST,
                              G_STRUCT_OFFSET(GtkTraceClass, bounds_changed),
                              NULL, NULL,
@@ -536,6 +548,7 @@ gint gtk_trace_button_press_event(GtkWidget* widget, GdkEventButton *event)
 gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 {
 	struct state_event* se;
+	struct omp_for_chunk_set_part* ofcp;
 	int worker, cpu;
 	GtkTrace* g = GTK_TRACE(widget);
 
@@ -547,12 +560,25 @@ gint gtk_trace_button_release_event(GtkWidget *widget, GdkEventButton* event)
 	} else {
 		/* Normal click? */
 		if(!g->moved_during_navigation) {
-			se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
+			if(g->map_mode >= GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS &&
+			   g->map_mode <= GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS)
+			{
+				ofcp = gtk_trace_get_omp_chunk_set_part_at(widget, event->x, event->y, &cpu, &worker);
 
-			if(se && filter_has_state_event(g->filter, se)) {
-				g->highlight_state_event = se;
-				g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
-				gtk_widget_queue_draw(widget);
+				if(ofcp && (filter_has_ofcp(g->filter, ofcp))) {
+					g->highlight_omp_chunk_set_part = ofcp;
+					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED], 
+						      0, ofcp, cpu, worker);
+					gtk_widget_queue_draw(widget);
+				}
+			} else {
+				se = gtk_trace_get_state_event_at(widget, event->x, event->y, &cpu, &worker);
+
+				if(se && filter_has_state_event(g->filter, se)) {
+					g->highlight_state_event = se;
+					g_signal_emit(widget, gtk_trace_signals[GTK_TRACE_STATE_EVENT_SELECTION_CHANGED], 0, se, cpu, worker);
+					gtk_widget_queue_draw(widget);
+				}
 			}
 		}
 	}
@@ -957,6 +983,142 @@ void gtk_trace_paint_task_type_map(GtkTrace* g, cairo_t* cr)
 	};
 
 	gtk_trace_paint_generic(g, cr, type_lane_pxfun, &ctx);
+}
+
+int omp_for_loops_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->for_instance->for_loop->color_r;
+		*g = ofcp->chunk_set->for_instance->for_loop->color_g;
+		*b = ofcp->chunk_set->for_instance->for_loop->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_loops(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_loops_lane_pxfun, &ctx);
+}
+
+int omp_for_instances_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->for_instance->color_r;
+		*g = ofcp->chunk_set->for_instance->color_g;
+		*b = ofcp->chunk_set->for_instance->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_instances(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_instances_lane_pxfun, &ctx);
+}
+
+int omp_for_chunk_sets_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->chunk_set->color_r;
+		*g = ofcp->chunk_set->color_g;
+		*b = ofcp->chunk_set->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_chunk_sets(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_chunk_sets_lane_pxfun, &ctx);
+}
+
+int omp_for_chunk_set_parts_lane_pxfun(void* data, int cpu_idx, uint64_t start, uint64_t end, double* r, double* g, double* b)
+{
+	struct pxfun_common_ctx* ctx = data;
+	struct omp_for_chunk_set_part* ofcp;
+
+	int has_major;
+	int major_id;
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(ctx->mes->sets[cpu_idx]),
+						       ctx->filter,
+						       start,
+						       end,
+						       &major_id);
+
+	if(has_major) {
+		ofcp = &ctx->mes->sets[cpu_idx].omp_for_chunk_set_parts[major_id];
+		*r = ofcp->color_r;
+		*g = ofcp->color_g;
+		*b = ofcp->color_b;
+	}
+
+	return has_major;
+}
+
+void gtk_trace_paint_omp_for_chunk_set_parts(GtkTrace* g, cairo_t* cr)
+{
+	struct pxfun_common_ctx ctx = {
+		.mes = g->event_sets,
+		.filter = g->filter
+	};
+
+	gtk_trace_paint_generic(g, cr, omp_for_chunk_set_parts_lane_pxfun, &ctx);
 }
 
 struct heatmap_lane_pxfun_ctx {
@@ -1836,6 +1998,78 @@ void gtk_trace_paint_annotations(GtkTrace* g, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
+void gtk_trace_paint_highlighted_chunk_set_part(GtkTrace* g, cairo_t* cr)
+{
+	if(!g->highlight_omp_chunk_set_part)
+		return;
+
+	int cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, g->highlight_omp_chunk_set_part->cpu);
+
+	if(omp_for_chunk_set_part_has_part(&g->event_sets->sets[cpu_idx], g->highlight_omp_chunk_set_part) &&
+	   (filter_has_ofcp(g->filter, g->highlight_omp_chunk_set_part)))
+	{
+		double x_start;
+		double x_end;
+		struct list_head* iter;
+		double width;
+		struct omp_for_chunk_set_part* ofcp;
+		double cpu_start;
+		double cpu_height = gtk_trace_cpu_height(g);
+		list_for_each(iter, &g->highlight_omp_chunk_set_part->chunk_set->chunk_set_parts) {
+			ofcp = list_entry(iter, struct omp_for_chunk_set_part, list);
+			cpu_idx = multi_event_set_find_cpu_idx(g->event_sets, ofcp->cpu);
+
+			if(!(ofcp->start <= g->right && ofcp->end >= g->left))
+				continue;
+
+			if(!filter_has_ofcp(g->filter, ofcp))
+				continue;
+
+			cpu_start = gtk_trace_cpu_start(g, cpu_idx);
+
+			if(cpu_start + cpu_height < 0)
+				continue;
+
+			if(cpu_start > g->widget.allocation.height - g->axis_width)
+				continue;
+
+			x_start = gtk_trace_x_to_screen(g, ofcp->start);
+			x_end = gtk_trace_x_to_screen(g, ofcp->end);
+
+			if(x_start < g->axis_width)
+				x_start = g->axis_width;
+
+			if(x_end > g->widget.allocation.width)
+				x_end = g->widget.allocation.width;
+
+			width = x_end - x_start;
+
+			if(width < 1)
+				width = 1;
+
+			if(ofcp == g->highlight_omp_chunk_set_part) {
+				cairo_set_source_rgb(cr,
+						     highlight_omp_color[0][0],
+						     highlight_omp_color[0][1],
+						     highlight_omp_color[0][2]);
+				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+			} else {
+				cairo_set_source_rgb(cr,
+						     highlight_omp_color[1][0],
+						     highlight_omp_color[1][1],
+						     highlight_omp_color[1][2]);
+
+				cairo_set_line_width(cr, 2.0);
+				cairo_rectangle(cr, x_start, cpu_start, width, cpu_height);
+				cairo_stroke(cr);
+			}
+
+			cairo_fill(cr);
+		}
+		cairo_reset_clip(cr);
+	}
+}
+
 void gtk_trace_paint_measurement_intervals(GtkTrace* g, cairo_t* cr)
 {
 	double triangle_height = 15;
@@ -2210,6 +2444,18 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	if(g->map_mode == GTK_TRACE_MAP_MODE_TASK_TYPE)
 		gtk_trace_paint_task_type_map(g, cr);
 
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS)
+		gtk_trace_paint_omp_for_loops(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES)
+		gtk_trace_paint_omp_for_instances(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS)
+		gtk_trace_paint_omp_for_chunk_sets(g, cr);
+
+	if(g->map_mode == GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS)
+		gtk_trace_paint_omp_for_chunk_set_parts(g, cr);
+
 	if(g->draw_counters)
 		gtk_trace_paint_counters(g, cr);
 
@@ -2219,8 +2465,15 @@ void gtk_trace_paint_context(GtkTrace* g, cairo_t* cr)
 	if(g->highlight_predecessor_inst)
 		gtk_trace_paint_highlighted_predecessor_instances(g, cr);
 
-	if(g->highlight_state_event)
-		gtk_trace_paint_highlighted_state(g, cr);
+	if(g->map_mode >= GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS &&
+	   g->map_mode <= GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS)
+	{
+		if(g->highlight_omp_chunk_set_part)
+			gtk_trace_paint_highlighted_chunk_set_part(g, cr);
+	} else {
+		if(g->highlight_state_event)
+			gtk_trace_paint_highlighted_state(g, cr);
+	}
 
 	if(g->highlight_task_texec_start)
 		gtk_trace_paint_highlighted_task(g, cr);
@@ -2411,6 +2664,46 @@ struct state_event* gtk_trace_get_state_event_at(GtkWidget *widget, int x, int y
 			*cpu = g->event_sets->sets[worker_pointer].cpu;
 
 		return &g->event_sets->sets[worker_pointer].state_events[idx];
+	}
+
+	return NULL;
+}
+
+struct omp_for_chunk_set_part* gtk_trace_get_omp_chunk_set_part_at(GtkWidget *widget, int x, int y, int* cpu, int* worker)
+{
+	GtkTrace* g = GTK_TRACE(widget);
+	int worker_pointer;
+	double cpu_height = gtk_trace_cpu_height(g);
+	long double start;
+	long double end;
+	struct omp_for_chunk_set_part* ofcp;
+	int ofcp_id;
+	int has_major;
+
+	if(x < g->axis_width || y > widget->allocation.height - g->axis_width)
+		return NULL;
+
+	worker_pointer = (y+cpu_height*g->cpu_offset) / cpu_height;
+
+	if(worker_pointer >= g->event_sets->num_sets)
+		return NULL;
+
+	start = gtk_trace_get_time_at(widget, x);
+	end = gtk_trace_get_time_at(widget, x+1);
+
+	has_major = event_set_get_major_omp_chunk_set_part(&(g->event_sets->sets[worker_pointer]), g->filter, start, end, &ofcp_id);
+	if(has_major)
+		ofcp = &g->event_sets->sets[worker_pointer].omp_for_chunk_set_parts[ofcp_id];
+	else
+		return NULL;
+
+	if(ofcp) {
+		if(worker)
+			*worker = worker_pointer;
+		if(cpu)
+			*cpu = g->event_sets->sets[worker_pointer].cpu;
+
+		return ofcp;
 	}
 
 	return NULL;

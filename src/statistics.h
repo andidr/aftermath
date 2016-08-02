@@ -68,6 +68,30 @@ struct single_event_statistics {
 void single_event_statistics_init(struct single_event_statistics* s);
 void single_event_statistics_gather(struct multi_event_set* mes, struct filter* f, struct single_event_statistics* s, int64_t start, int64_t end);
 
+struct chunk_set_part_statistics {
+	unsigned int num_chunk_set_parts;
+	uint64_t cycles;
+	uint64_t max_cycles;
+	uint64_t min_cycles;
+	unsigned int num_hist_bins;
+	uint64_t* cycles_hist;
+	unsigned int max_hist;
+};
+
+struct multi_chunk_set_part_statistics {
+	int num_chunk_set_part_stats;
+	uint64_t min_all;
+	uint64_t max_all;
+	int* chunk_set_part_ids;
+	struct chunk_set_part_statistics** stats;
+};
+
+int chunk_set_part_statistics_init(struct chunk_set_part_statistics* cps, unsigned int num_hist_bins);
+void chunk_set_part_statistics_reset(struct chunk_set_part_statistics* cps);
+void chunk_set_part_statistics_gather(struct multi_event_set* mes, struct filter* f, struct chunk_set_part_statistics* cps, int64_t start, int64_t end);
+int chunk_set_part_statistics_to_chunk_set_part_length_histogram(struct chunk_set_part_statistics* cps, struct histogram* h);
+void chunk_set_part_statistics_destroy(struct chunk_set_part_statistics* cps);
+
 struct task_statistics {
 	unsigned int num_tasks;
 	uint64_t cycles;

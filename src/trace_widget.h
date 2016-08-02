@@ -20,6 +20,9 @@
 
 #include <gtk/gtk.h>
 #include "multi_event_set.h"
+#include "omp_for.h"
+#include "omp_for_instance.h"
+#include "omp_for_chunk_set.h"
 #include "filter.h"
 #include "export.h"
 #include "./contrib/linux-kernel/list.h"
@@ -45,6 +48,7 @@ enum gtk_trace_signals {
 	GTK_TRACE_BOUNDS_CHANGED = 0,
 	GTK_TRACE_STATE_EVENT_UNDER_POINTER_CHANGED,
 	GTK_TRACE_STATE_EVENT_SELECTION_CHANGED,
+	GTK_TRACE_OMP_CHUNK_SET_PART_SELECTION_CHANGED,
 	GTK_TRACE_YBOUNDS_CHANGED,
 	GTK_TRACE_RANGE_SELECTION_CHANGED,
 	GTK_TRACE_CREATE_ANNOTATION,
@@ -67,6 +71,10 @@ enum gtk_trace_map_mode {
 	GTK_TRACE_MAP_MODE_NUMA_WRITES,
 	GTK_TRACE_MAP_MODE_TASK_TYPE,
 	GTK_TRACE_MAP_MODE_HEAT_NUMA,
+	GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS,
+	GTK_TRACE_MAP_MODE_OMP_FOR_INSTANCES,
+	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SETS,
+	GTK_TRACE_MAP_MODE_OMP_FOR_CHUNK_SET_PARTS
 };
 
 struct _GtkTrace {
@@ -115,6 +123,7 @@ struct _GtkTrace {
 	struct state_event* highlight_state_event;
 	struct single_event* highlight_task_texec_start;
 	struct annotation* highlight_annotation;
+	struct omp_for_chunk_set_part* highlight_omp_chunk_set_part;
 	struct trace_marker* markers;
 
 	struct list_head* highlight_predecessor_inst;
@@ -176,6 +185,7 @@ struct annotation* gtk_trace_get_nearest_annotation_at(GtkWidget *widget, int x,
 void gtk_trace_set_markers(GtkWidget *widget, struct trace_marker* m, int num_markers);
 int gtk_trace_get_cpu_at_y(GtkWidget *widget, int y);
 struct event_set* gtk_trace_get_event_set_at_y(GtkWidget *widget, int y);
+struct omp_for_chunk_set_part* gtk_trace_get_omp_chunk_set_part_at(GtkWidget *widget, int x, int y, int* cpu, int* worker);
 int gtk_trace_save_to_file(GtkWidget *widget, enum export_file_format format, const char* filename);
 void gtk_trace_fit_all_cpus(GtkWidget *widget);
 

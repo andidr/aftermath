@@ -32,11 +32,14 @@
 extern GtkWidget* g_trace_widget;
 extern GtkWidget* g_histogram_widget;
 extern GtkWidget* g_multi_histogram_widget;
+extern GtkWidget* g_histogram_widget_omp;
 extern GtkWidget* g_counter_list_widget;
 extern GtkWidget* g_matrix_widget;
 extern GtkWidget* g_matrix_summary_widget;
 extern GtkWidget* g_hscroll_bar;
 extern GtkWidget* g_vscroll_bar;
+extern GtkWidget* g_omp_for_treeview;
+extern GtkWidget* g_omp_for_treeview_type;
 extern GtkWidget* g_task_treeview;
 extern GtkWidget* g_cpu_treeview;
 extern GtkWidget* g_frame_treeview;
@@ -47,14 +50,17 @@ extern GtkWidget* g_state_treeview;
 extern GtkWidget* g_code_view;
 extern GtkWidget* g_main_notebook;
 extern GtkWidget* g_statusbar;
-extern GtkWidget* g_selected_event_label;
+extern GtkWidget* g_task_selected_event_label;
 extern GtkWidget* g_active_task_label;
+extern GtkWidget* g_openmp_selected_event_label;
+extern GtkWidget* g_active_for_label;
 extern GtkWidget* g_toggle_tool_button_draw_steals;
 extern GtkWidget* g_toggle_tool_button_draw_pushes;
 extern GtkWidget* g_toggle_tool_button_draw_data_reads;
 extern GtkWidget* g_toggle_tool_button_draw_data_writes;
 extern GtkWidget* g_toggle_tool_button_draw_size;
 extern GtkWidget* g_writes_to_numa_nodes_min_size_entry;
+extern GtkWidget* g_toggle_omp_for;
 
 extern GtkWidget* g_use_global_values_check;
 extern GtkWidget* g_global_values_min_entry;
@@ -65,16 +71,25 @@ extern GtkWidget* g_global_slopes_min_entry;
 extern GtkWidget* g_global_slopes_max_entry;
 
 extern GtkWidget* g_label_hist_num_tasks;
+extern GtkWidget* g_label_hist_num_chunk_parts;
 extern GtkWidget* g_label_hist_selection_length;
+extern GtkWidget* g_label_hist_selection_length_omp;
 extern GtkWidget* g_label_hist_avg_task_length;
+extern GtkWidget* g_label_hist_avg_chunk_part_length;
 extern GtkWidget* g_label_hist_num_tcreate;
 extern GtkWidget* g_label_hist_min_cycles;
 extern GtkWidget* g_label_hist_max_cycles;
 extern GtkWidget* g_label_hist_min_perc;
 extern GtkWidget* g_label_hist_max_perc;
+extern GtkWidget* g_label_hist_min_cycles_omp;
+extern GtkWidget* g_label_hist_max_cycles_omp;
+extern GtkWidget* g_label_hist_min_perc_omp;
+extern GtkWidget* g_label_hist_max_perc_omp;
 
 extern GtkWidget* g_label_range_selection;
+extern GtkWidget* g_label_range_selection_omp;
 extern GtkWidget* g_button_clear_range;
+extern GtkWidget* g_button_clear_range_omp;
 
 extern GtkWidget* g_use_task_length_check;
 extern GtkWidget* g_task_length_min_entry;
@@ -129,6 +144,7 @@ extern struct intensity_matrix g_comm_summary_matrix;
 extern struct address_range_tree g_address_range_tree;
 extern int g_address_range_tree_built;
 extern struct color_scheme_set g_color_scheme_set;
+extern enum gtk_trace_map_mode g_omp_map_mode;
 
 #define NUM_TRACE_MARKERS 6
 extern struct trace_marker g_trace_markers[NUM_TRACE_MARKERS];

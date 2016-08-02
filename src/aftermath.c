@@ -32,6 +32,7 @@
 #include "signals.h"
 #include "dialogs.h"
 #include "task_list.h"
+#include "omp_for_treeview.h"
 #include "frame_list.h"
 #include "numa_node_list.h"
 #include "counter_list.h"
@@ -232,10 +233,12 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, toplevel_window);
 	IMPORT_GLADE_WIDGET(xml, graph_box);
 	IMPORT_GLADE_WIDGET(xml, hist_box);
+	IMPORT_GLADE_WIDGET(xml, hist_box_omp);
 	IMPORT_GLADE_WIDGET(xml, matrix_box);
 	IMPORT_GLADE_WIDGET(xml, matrix_summary_box);
 	IMPORT_GLADE_WIDGET(xml, hscroll_bar);
 	IMPORT_GLADE_WIDGET(xml, vscroll_bar);
+	IMPORT_GLADE_WIDGET(xml, omp_for_treeview);
 	IMPORT_GLADE_WIDGET(xml, task_treeview);
 	IMPORT_GLADE_WIDGET(xml, cpu_treeview);
 	IMPORT_GLADE_WIDGET(xml, frame_treeview);
@@ -246,8 +249,10 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, code_view);
 	IMPORT_GLADE_WIDGET(xml, main_notebook);
 	IMPORT_GLADE_WIDGET(xml, statusbar);
-	IMPORT_GLADE_WIDGET(xml, selected_event_label);
+	IMPORT_GLADE_WIDGET(xml, task_selected_event_label);
 	IMPORT_GLADE_WIDGET(xml, active_task_label);
+	IMPORT_GLADE_WIDGET(xml, openmp_selected_event_label);
+	IMPORT_GLADE_WIDGET(xml, active_for_label);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
@@ -260,15 +265,25 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, global_slopes_min_entry);
 	IMPORT_GLADE_WIDGET(xml, global_slopes_max_entry);
 	IMPORT_GLADE_WIDGET(xml, writes_to_numa_nodes_min_size_entry);
+	IMPORT_GLADE_WIDGET(xml, omp_select_level);
+	IMPORT_GLADE_WIDGET(xml, omp_select_level_menu);
+	IMPORT_GLADE_WIDGET(xml, toggle_omp_for);
 
 	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length);
+	IMPORT_GLADE_WIDGET(xml, label_hist_selection_length_omp);
 	IMPORT_GLADE_WIDGET(xml, label_hist_avg_task_length);
+	IMPORT_GLADE_WIDGET(xml, label_hist_avg_chunk_part_length);
 	IMPORT_GLADE_WIDGET(xml, label_hist_num_tasks);
+	IMPORT_GLADE_WIDGET(xml, label_hist_num_chunk_parts);
 	IMPORT_GLADE_WIDGET(xml, label_hist_num_tcreate);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles);
 	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc);
 	IMPORT_GLADE_WIDGET(xml, label_hist_max_perc);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_cycles_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_cycles_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_min_perc_omp);
+	IMPORT_GLADE_WIDGET(xml, label_hist_max_perc_omp);
 
 	IMPORT_GLADE_WIDGET(xml, use_task_length_check);
 	IMPORT_GLADE_WIDGET(xml, task_length_min_entry);
@@ -279,7 +294,9 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, comm_size_max_entry);
 	IMPORT_GLADE_WIDGET(xml, comm_numa_node_treeview);
 	IMPORT_GLADE_WIDGET(xml, button_clear_range);
+	IMPORT_GLADE_WIDGET(xml, button_clear_range_omp);
 	IMPORT_GLADE_WIDGET(xml, label_range_selection);
+	IMPORT_GLADE_WIDGET(xml, label_range_selection_omp);
 
 	IMPORT_GLADE_WIDGET(xml, heatmap_min_cycles);
 	IMPORT_GLADE_WIDGET(xml, heatmap_max_cycles);
@@ -324,6 +341,9 @@ int main(int argc, char** argv)
 	g_multi_histogram_widget = gtk_multi_histogram_new(&g_mes);
 	gtk_container_add(GTK_CONTAINER(hist_box), g_multi_histogram_widget);
 
+	g_histogram_widget_omp = gtk_histogram_new();
+	gtk_container_add(GTK_CONTAINER(hist_box_omp), g_histogram_widget_omp);
+
 	g_counter_list_widget = counter_combo_box;
 
 	for_each_counterdesc(&g_mes, cd) {
@@ -344,6 +364,7 @@ int main(int argc, char** argv)
 
 	g_hscroll_bar = hscroll_bar;
 	g_vscroll_bar = vscroll_bar;
+	g_omp_for_treeview = omp_for_treeview;
 	g_task_treeview = task_treeview;
 	g_cpu_treeview = cpu_treeview;
 	g_frame_treeview = frame_treeview;
@@ -354,14 +375,18 @@ int main(int argc, char** argv)
 	g_code_view = code_view;
 	g_main_notebook = main_notebook;
 	g_statusbar = statusbar;
-	g_selected_event_label = selected_event_label;
+	g_task_selected_event_label = task_selected_event_label;
 	g_active_task_label = active_task_label;
+	g_openmp_selected_event_label = openmp_selected_event_label;
+	g_active_for_label = active_for_label;
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
 	g_toggle_tool_button_draw_data_writes = toggle_tool_button_draw_data_writes;
 	g_toggle_tool_button_draw_size = toggle_tool_button_draw_size;
 	g_writes_to_numa_nodes_min_size_entry = writes_to_numa_nodes_min_size_entry;
+	g_toggle_omp_for = toggle_omp_for;
+	g_omp_map_mode = GTK_TRACE_MAP_MODE_OMP_FOR_LOOPS;
 
 	g_use_global_values_check = use_global_values_check;
 	g_global_values_min_entry = global_values_min_entry;
@@ -371,13 +396,20 @@ int main(int argc, char** argv)
 	g_global_slopes_max_entry = global_slopes_max_entry;
 
 	g_label_hist_selection_length = label_hist_selection_length;
+	g_label_hist_selection_length_omp = label_hist_selection_length_omp;
 	g_label_hist_avg_task_length = label_hist_avg_task_length;
+	g_label_hist_avg_chunk_part_length = label_hist_avg_chunk_part_length;
 	g_label_hist_num_tasks = label_hist_num_tasks;
+	g_label_hist_num_chunk_parts = label_hist_num_chunk_parts;
 	g_label_hist_num_tcreate = label_hist_num_tcreate;
 	g_label_hist_min_cycles = label_hist_min_cycles;
 	g_label_hist_max_cycles = label_hist_max_cycles;
 	g_label_hist_min_perc = label_hist_min_perc;
 	g_label_hist_max_perc = label_hist_max_perc;
+	g_label_hist_min_cycles_omp = label_hist_min_cycles_omp;
+	g_label_hist_max_cycles_omp = label_hist_max_cycles_omp;
+	g_label_hist_min_perc_omp = label_hist_min_perc_omp;
+	g_label_hist_max_perc_omp = label_hist_max_perc_omp;
 
 	g_use_task_length_check = use_task_length_check;
 	g_task_length_min_entry = task_length_min_entry;
@@ -389,7 +421,9 @@ int main(int argc, char** argv)
 	g_comm_numa_node_treeview = comm_numa_node_treeview;
 
 	g_button_clear_range = button_clear_range;
+	g_button_clear_range_omp = button_clear_range_omp;
 	g_label_range_selection = label_range_selection;
+	g_label_range_selection_omp = label_range_selection_omp;
 
 	g_heatmap_min_cycles = heatmap_min_cycles;
 	g_heatmap_max_cycles = heatmap_max_cycles;
@@ -436,10 +470,13 @@ int main(int argc, char** argv)
 	snprintf(buffer, sizeof(buffer), "%Lf", multi_event_get_max_counter_slope(&g_mes));
 	gtk_entry_set_text(GTK_ENTRY(g_global_slopes_max_entry), buffer);
 
+	gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(omp_select_level), omp_select_level_menu);
+
 	g_signal_connect(G_OBJECT(g_trace_widget), "bounds-changed", G_CALLBACK(trace_bounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "ybounds-changed", G_CALLBACK(trace_ybounds_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-under-pointer-changed", G_CALLBACK(trace_state_event_under_pointer_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "state-event-selection-changed", G_CALLBACK(trace_state_event_selection_changed), g_trace_widget);
+	g_signal_connect(G_OBJECT(g_trace_widget), "omp-chunk-set-part-selection-changed", G_CALLBACK(trace_omp_chunk_set_part_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "range-selection-changed", G_CALLBACK(trace_range_selection_changed), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "create-annotation", G_CALLBACK(trace_create_annotation), g_trace_widget);
 	g_signal_connect(G_OBJECT(g_trace_widget), "edit-annotation", G_CALLBACK(trace_edit_annotation), g_trace_widget);
@@ -449,6 +486,10 @@ int main(int argc, char** argv)
 
 	g_signal_connect(G_OBJECT(g_matrix_widget), "pair-under-pointer-changed", G_CALLBACK(comm_matrix_pair_under_pointer_changed), g_matrix_widget);
 	g_signal_connect(G_OBJECT(g_matrix_summary_widget), "pair-under-pointer-changed", G_CALLBACK(comm_summary_matrix_pair_under_pointer_changed), g_matrix_summary_widget);
+
+	g_omp_for_treeview_type = omp_for_treeview_init(GTK_TREE_VIEW(g_omp_for_treeview));
+	g_signal_connect(G_OBJECT(g_omp_for_treeview_type), "omp-update-highlighted-part", G_CALLBACK(omp_update_highlighted_part), g_trace_widget);
+	omp_for_treeview_fill(GTK_TREE_VIEW(g_omp_for_treeview), g_mes.omp_fors, g_mes.num_omp_fors);
 
 	task_list_init(GTK_TREE_VIEW(g_task_treeview));
 	task_list_fill(GTK_TREE_VIEW(g_task_treeview), g_mes.tasks, g_mes.num_tasks);

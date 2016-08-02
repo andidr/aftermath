@@ -62,7 +62,10 @@ enum event_type {
 	EVENT_TYPE_FRAME_INFO = 5,
 	EVENT_TYPE_CPU_INFO = 6,
 	EVENT_TYPE_GLOBAL_SINGLE_EVENT = 7,
-	EVENT_TYPE_STATE_DESCRIPTION = 8
+	EVENT_TYPE_STATE_DESCRIPTION = 8,
+	EVENT_TYPE_OMP_FOR = 9,
+	EVENT_TYPE_OMP_FOR_CHUNK_SET = 10,
+	EVENT_TYPE_OMP_FOR_CHUNK_SET_PART = 11
 };
 
 enum comm_event_type {
@@ -85,6 +88,16 @@ enum global_single_event_type {
 	GLOBAL_SINGLE_TYPE_MEASURE_END = 1
 };
 
+enum omp_for_flag {
+	OMP_FOR_SCHEDULE_STATIC = (1 << 0),
+	OMP_FOR_SCHEDULE_DYNAMIC = (1 << 1),
+	OMP_FOR_SCHEDULE_GUIDED = (1 << 2),
+	OMP_FOR_SCHEDULE_AUTO = (1 << 3),
+	OMP_FOR_SCHEDULE_RUNTIME = (1 << 4),
+	OMP_FOR_SIGNED_INCREMENT = (1 << 5),
+	OMP_FOR_SIGNED_ITERATION_SPACE = (1 << 6),
+	OMP_FOR_MULTI_CHUNK_SETS = (1 << 7)
+};
 /* File header */
 struct trace_header {
 	/* Magic number */
@@ -289,6 +302,86 @@ struct trace_state_description {
 } __attribute__((packed));
 
 extern int trace_state_description_conversion_table[];
+
+/* Struct describing an OpenMP parallel for instance */
+struct trace_omp_for_instance {
+	/* Short header field */
+	uint32_t type;
+
+	/* Set of values from enum omp_for_flag */
+	uint32_t flags;
+
+	/* Unique address of the loop (e.g., instruction that calls
+	 * the runtime function determining the bounds for each
+	 * chunk_set) */
+	uint64_t addr;
+
+	/* Unique id */
+	uint64_t id;
+
+	/* Loop increment; raw 64-bit representation, including signed
+	 * extension for signed increments */
+	uint64_t increment;
+
+	/* Lower bound of the iteration space; raw 64-bit
+	 * representation, including signed extension for signed
+	 * loop bounds */
+	uint64_t lower_bound;
+
+	/* Upper bound of the iteration space; raw 64-bit
+	 * representation, including signed extension for signed loop
+	 * bounds */
+	uint64_t upper_bound;
+
+	/* Number of workers executing the loop */
+	uint32_t num_workers;
+} __attribute__((packed));
+
+extern int trace_omp_for_conversion_table[];
+
+/* Struct describing an OpenMP parallel for chunk_set */
+struct trace_omp_for_chunk_set {
+	/* Short header field */
+	uint32_t type;
+
+	/* Identifier of the associated for loop instance */
+	uint64_t for_id;
+
+	/* Unique chunk_set id */
+	uint64_t id;
+
+	/* Lower bound of the chunk_set's iteration space; raw 64-bit
+	 * representation, including signed extension for signed loop
+	 * bounds */
+	uint64_t first_lower;
+
+	/* Upper bound of the chunk_set's iteration space; raw 64-bit
+	 * representation, including signed extension for signed loop
+	 * bounds */
+	uint64_t first_upper;
+} __attribute__((packed));
+
+extern int trace_omp_for_chunk_set_conversion_table[];
+
+/* Struct describing a part of an OpenMP parallel for chunk_set */
+struct trace_omp_for_chunk_set_part {
+	/* Short header field */
+	uint32_t type;
+
+	/* Cpu */
+	uint32_t cpu;
+
+	/* Identifier of the associated chunk_set */
+	uint64_t chunk_set_id;
+
+	/* Start timestamp */
+	uint64_t start;
+
+	/* End timestamp */
+	uint64_t end;
+} __attribute__((packed));
+
+extern int trace_omp_for_chunk_set_part_conversion_table[];
 
 /* Performs an integrity check on a header in host format */
 int trace_verify_header(struct trace_header* header);

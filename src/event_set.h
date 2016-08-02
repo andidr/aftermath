@@ -54,6 +54,10 @@ struct event_set {
 	size_t num_annotations;
 	size_t num_annotations_free;
 
+	struct omp_for_chunk_set_part* omp_for_chunk_set_parts;
+	size_t num_omp_for_chunk_set_parts;
+	size_t num_omp_for_chunk_set_parts_free;
+
 	int cpu;
 	int numa_node;
 	uint64_t first_start;
@@ -71,6 +75,8 @@ int event_set_get_counter_event_set(struct event_set* es, int counter_idx);
 int event_set_get_first_comm_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_first_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
+int event_set_get_major_omp_chunk_set_part(struct event_set* es, struct filter* f, uint64_t start, uint64_t end, int* major_id);
+int event_set_get_first_chunk_set_part_in_interval(struct event_set* es, int64_t interval_start, int64_t interval_end);
 int event_set_get_last_single_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
 int event_set_get_last_single_event_in_interval_type(struct event_set* es, uint64_t start, uint64_t end, enum single_event_type type);
 int event_set_get_last_comm_event_in_interval(struct event_set* es, uint64_t start, uint64_t end);
@@ -284,6 +290,10 @@ static inline void event_set_init(struct event_set* es, int cpu)
 	es->num_annotations = 0;
 	es->num_annotations_free = 0;
 	es->annotations = NULL;
+
+	es->num_omp_for_chunk_set_parts = 0;
+	es->num_omp_for_chunk_set_parts_free = 0;
+	es->omp_for_chunk_set_parts = NULL;
 
 	es->cpu = cpu;
 	es->first_start = UINT64_MAX;
