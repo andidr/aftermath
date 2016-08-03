@@ -47,7 +47,7 @@ enum am_omp_for_flag {
 	OMP_FOR_SCHEDULE_RUNTIME = (1 << 4),
 	OMP_FOR_SIGNED_INCREMENT = (1 << 5),
 	OMP_FOR_SIGNED_ITERATION_SPACE = (1 << 6),
-	OMP_FOR_MULTI_CHUNK_SETS = (1 << 7)
+	OMP_FOR_CHUNKED = (1 << 7)
 };
 
 #endif

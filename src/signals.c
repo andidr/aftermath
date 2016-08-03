@@ -1783,17 +1783,17 @@ static void format_chunk_set_interval(const struct omp_for_chunk_set* ofc,
 	uint64_t uchunk_end;
 
 	uint64_t loop_chunk_size;
-	uint64_t stride;
+	uint64_t stride = ofi->num_workers;
 
 	size_t pos = 0;
 
-	if (ofi->flags & OMP_FOR_MULTI_CHUNK_SETS) {
+	if(ofi->flags & OMP_FOR_SCHEDULE_STATIC &&
+	   ofi->flags & OMP_FOR_CHUNKED)
+	{
 		loop_chunk_size = omp_for_instance_static_chunk_size(ofi);
 		stride = loop_chunk_size * ofi->num_workers;
-	}
 
-	if(ofi->flags & OMP_FOR_SIGNED_ITERATION_SPACE) {
-		if(ofi->flags & OMP_FOR_MULTI_CHUNK_SETS) {
+		if(ofi->flags & OMP_FOR_SIGNED_ITERATION_SPACE) {
 			schunk_size = (ofc->iter_end - ofc->iter_start) + 1;
 
 			for(schunk_start = ofc->iter_start;
@@ -1810,11 +1810,6 @@ static void format_chunk_set_interval(const struct omp_for_chunk_set* ofc,
 						schunk_start, schunk_end);
 			}
 		} else {
-			snprintf(buf, buf_size, "[%"PRId64", %"PRId64"]",
-				 ofc->iter_start, ofc->iter_end);
-		}
-	} else {
-		if (ofi->flags & OMP_FOR_MULTI_CHUNK_SETS) {
 			uchunk_size = (ofc->iter_end - ofc->iter_start) + 1;
 
 			for(uchunk_start = ofc->iter_start;
@@ -1830,6 +1825,11 @@ static void format_chunk_set_interval(const struct omp_for_chunk_set* ofc,
 						"[%"PRIu64", %"PRIu64"] ",
 						uchunk_start, uchunk_end);
 			}
+		}
+	} else {
+		if(ofi->flags & OMP_FOR_SIGNED_ITERATION_SPACE) {
+			snprintf(buf, buf_size, "[%"PRId64", %"PRId64"]",
+				 ofc->iter_start, ofc->iter_end);
 		} else {
 			snprintf(buf, buf_size, "[%"PRIu64", %"PRIu64"]",
 				 ofc->iter_start, ofc->iter_end);
