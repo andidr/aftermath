@@ -1842,6 +1842,22 @@ static void format_chunk_set_interval(const struct omp_for_chunk_set* ofc,
 	}
 }
 
+static const char* omp_for_schedule_name(uint32_t flags)
+{
+	if(flags & OMP_FOR_SCHEDULE_STATIC)
+		return "static";
+	else if(flags & OMP_FOR_SCHEDULE_DYNAMIC)
+		return "dynamic";
+	else if(flags & OMP_FOR_SCHEDULE_GUIDED)
+		return "guided";
+	else if(flags & OMP_FOR_SCHEDULE_RUNTIME)
+		return "runtime";
+	else if(flags & OMP_FOR_SCHEDULE_AUTO)
+		return "auto";
+
+	return "unknown";
+}
+
 G_MODULE_EXPORT void
 trace_omp_chunk_set_part_selection_changed(GtkTrace* item,
 					   gpointer pomp_chunk_set_part,
@@ -1898,9 +1914,13 @@ trace_omp_chunk_set_part_selection_changed(GtkTrace* item,
 
 		snprintf(buffer, sizeof(buffer),
 			 "For addr: 0x%"PRIx64"\n"
-			 "#Instances: %"PRIu32"\n",
+			 "#Instances: %"PRIu32"\n"
+			 "Schedule: %s\n"
+			 "Chunked: %s\n",
 			 of->addr,
-			 of->num_instances);
+			 of->num_instances,
+			 omp_for_schedule_name(ofi->flags),
+			 (ofi->flags & OMP_FOR_CHUNKED) ? "yes" : "no");
 
 		gtk_label_set_markup(GTK_LABEL(g_active_for_label), buffer);
 
