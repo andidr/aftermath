@@ -3,6 +3,56 @@ VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
 
+info_TEXINFOS = doc/texinfo/openmp-shortguide.texi
+
+TEXINFO_IMAGES = doc/texinfo/images/aftermath-omp-prime_naive_guided-tlzoom-constructs.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-stats.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-tlzoom-tasks.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-loop-construct-selection.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-loop-construct.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-cpu1.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-tlzoom-loops.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-tlzoom-constructs.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-tlzoom-itersets.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-cpu2.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_guided-tlzoom-itersets.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-cpu0.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_dynamic-detail.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-tlzoom-states-end.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-tlzoom-states.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-cpu3.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-tlzoom-constructs.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_dynamic-tlzoom-constructs.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_guided-detail.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_tasks-detail.png \
+	doc/texinfo/images/aftermath-omp-prime_naive-tlzoom-iterperiods.png \
+	doc/texinfo/images/aftermath-toolbar-loop-modes.png \
+	doc/texinfo/images/aftermath-omp-prime_naive_dynamic-tlzoom-itersets.png
+
+TEXINFO_EXTRA_DIST = doc/texinfo/images \
+	doc/texinfo/fdl.texi
+
+html-local:
+	$(MKDIR_P) doc/texinfo/openmp-shortguide.html/images
+	cp -ar doc/texinfo/images/* doc/texinfo/openmp-shortguide.html/images
+
+install-info-local:
+	echo " $(MKDIR_P) '$(DESTDIR)$(infodir)/images'"; \
+		$(MKDIR_P) '$(DESTDIR)$(infodir)/images' || exit 1;
+	for img in $(TEXINFO_IMAGES); \
+	do \
+		$(INSTALL_DATA) "$(srcdir)/$$img" '$(DESTDIR)$(infodir)/images/' || exit $$? ; \
+	done
+
+uninstall-local:
+	for img in $(TEXINFO_IMAGES); \
+	do \
+		rm -f "$(DESTDIR)$(infodir)/images/`basename $$img`" || exit $$? ; \
+	done
+
+dvi:
+	@echo "DVI output has been disabled. Please use the pdf or the html target"
+
 lib_LTLIBRARIES = libaftermath-core.la \
 		libaftermath-trace.la
 
@@ -398,4 +448,5 @@ state_index_test_SOURCES = tests/state_index.test.c \
 state_index_test_CFLAGS = $(TESTS_CFLAGS)
 state_index_test_LDADD = $(TESTS_LDADD)
 
-EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST)
+EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST) \
+	$(TEXINFO_EXTRA_DIST)

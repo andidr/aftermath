@@ -17,6 +17,8 @@ config.status
 config.sub
 config.guess
 configure
+mdate-sh
+texinfo.tex
 depcomp
 install-sh
 missing

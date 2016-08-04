@@ -29,6 +29,7 @@ AC_PROG_SED
 CHECK_CUSTOM_PROG(pkg-config)
 CHECK_CUSTOM_PROG(mkdir)
 CHECK_CUSTOM_PROG(glib-genmarshal)
+CHECK_CUSTOM_PROG(makeinfo)
 
 LT_INIT
 
