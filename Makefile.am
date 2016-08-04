@@ -241,7 +241,7 @@ man_MANS = doc/man/aftermath.1
 
 clean-local:
 	-find . -iname "*~" -delete
-	rm tests/wr_trace2core.test.c
+	rm -f tests/wr_trace2core.test.c
 
 %-silent:
 	@$(MAKE) $* | EGREP="$(EGREP)" CC="$(CC)" SED="$(SED)" AR="$(AR)" ./scripts/build_silently_filter.sh
