@@ -7,7 +7,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_loops">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Loops</property>
+        <property name="label" translatable="yes">Loop constructs</property>
         <property name="use_underline">True</property>
         <property name="active">True</property>
         <property name="draw_as_radio">True</property>
@@ -17,7 +17,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_instances">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Instances</property>
+        <property name="label" translatable="yes">Loop instances</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -27,7 +27,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_chunks">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Chunks</property>
+        <property name="label" translatable="yes">Iteration sets</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -37,7 +37,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_chunk_parts">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Chunk parts</property>
+        <property name="label" translatable="yes">Iteration periods</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -47,7 +47,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_tasks">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Tasks</property>
+        <property name="label" translatable="yes">Task constructs</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -57,7 +57,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_task_instances">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Task instances</property>
+        <property name="label" translatable="yes">Tasks</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -67,7 +67,7 @@
     <child>
       <widget class="GtkRadioMenuItem" id="omp_select_task_parts">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Task parts</property>
+        <property name="label" translatable="yes">Task periods</property>
         <property name="use_underline">True</property>
         <property name="draw_as_radio">True</property>
         <property name="group">omp_select_loops</property>
@@ -3267,7 +3267,7 @@
                                     <child>
                                       <widget class="GtkLabel" id="active_for_instance_frame_label">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Loop instance&lt;/b&gt;</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Loop&lt;/b&gt;</property>
                                         <property name="use_markup">True</property>
                                       </widget>
                                       <packing>
@@ -4397,7 +4397,7 @@ local</property>
                                                   <widget class="GtkLabel" id="label_hist_num_chunk_parts">
                                                     <property name="visible">True</property>
                                                     <property name="xalign">0</property>
-                                                    <property name="label" translatable="yes">0 chunk_parts considered</property>
+                                                    <property name="label" translatable="yes">0 iteration periods considered</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">1</property>
@@ -4407,7 +4407,7 @@ local</property>
                                                   <widget class="GtkLabel" id="label_hist_avg_chunk_part_length">
                                                     <property name="visible">True</property>
                                                     <property name="xalign">0</property>
-                                                    <property name="label" translatable="yes">0 cycles / chunk_part (avg)</property>
+                                                    <property name="label" translatable="yes">0 cycles / iteration period (avg)</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">2</property>
@@ -4438,7 +4438,7 @@ local</property>
                                                   <widget class="GtkLabel" id="label27">
                                                     <property name="visible">True</property>
                                                     <property name="xalign">0</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Chunk_parts length distribution&lt;/b&gt;</property>
+                                                    <property name="label" translatable="yes">&lt;b&gt;Iteration periods length distribution&lt;/b&gt;</property>
                                                     <property name="use_markup">True</property>
                                                   </widget>
                                                   <packing>

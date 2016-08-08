@@ -768,9 +768,9 @@ G_MODULE_EXPORT void clear_range_button_clicked(GtkMenuItem *item, gpointer data
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_perc), "MAX");
 
-	gtk_label_set_text(GTK_LABEL(g_label_hist_num_chunk_parts), "0 chunk_parts considered");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_num_chunk_parts), "0 iteration periods considered");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_selection_length_omp), "0 cycles");
-	gtk_label_set_text(GTK_LABEL(g_label_hist_avg_chunk_part_length), "0 cycles / chunk_part (avg)");
+	gtk_label_set_text(GTK_LABEL(g_label_hist_avg_chunk_part_length), "0 cycles / iteration period (avg)");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_cycles_omp), "0");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_max_cycles_omp), "MAX");
 	gtk_label_set_text(GTK_LABEL(g_label_hist_min_perc_omp), "0");
@@ -970,7 +970,6 @@ void update_statistics_labels_omp(uint64_t cycles, uint64_t min_cycles, uint64_t
 	char buffer2[128];
 
 	int num_cpus = 0;
-	double par_ratio;
 	struct event_set* es;
 
 	int64_t left, right;
@@ -988,15 +987,13 @@ void update_statistics_labels_omp(uint64_t cycles, uint64_t min_cycles, uint64_t
 		if(filter_has_cpu(&g_filter, es->cpu))
 			num_cpus++;
 
-	par_ratio = ((double)cycles) / ((double)(right - left) * num_cpus);
-
 	if(num_chunk_parts > 0) {
 		pretty_print_cycles(buffer, sizeof(buffer), cycles / num_chunk_parts);
-		snprintf(buffer2, sizeof(buffer2), "%s cycles / chunk_part (avg)", buffer);
+		snprintf(buffer2, sizeof(buffer2), "%s cycles / iteration period (avg)", buffer);
 		gtk_label_set_text(GTK_LABEL(g_label_hist_avg_chunk_part_length), buffer2);
 	}
 
-	snprintf(buffer, sizeof(buffer), "%d chunk_parts considered || par ratio %lf", num_chunk_parts, par_ratio);
+	snprintf(buffer, sizeof(buffer), "%d iteration periods considered", num_chunk_parts);
 	gtk_label_set_text(GTK_LABEL(g_label_hist_num_chunk_parts), buffer);
 
 	pretty_print_cycles(buffer, sizeof(buffer), min_cycles);
