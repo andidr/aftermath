@@ -1992,53 +1992,46 @@ G_MODULE_EXPORT void trace_omp_task_part_selection_changed(GtkTrace* item, gpoin
 	struct omp_task_part* otp = pomp_task_part;
 	struct omp_task_instance* oti;
 	struct omp_task* ot;
-	char buffer[4096];
+	char buffer[256];
 	char buf_duration[40];
 
 	if(otp) {
-		int n = 0;
 		oti = otp->task_instance;
 		ot = oti->task;
-		pretty_print_cycles(buf_duration, sizeof(buf_duration), otp->end - otp->start);
 
 		snprintf(buffer, sizeof(buffer),
-			 "CPU:\t\t%d\n"
-			 "From\t\t<a href=\"time://%"PRIu64"\">%"PRIu64"</a> to <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
-			 "Duration:\t%scycles\n",
+			 "Address: 0x%"PRIx64"\n"
+			 "#Instances: %"PRIu32,
+			 ot->addr,
+			 ot->num_instances);
+
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_construct_label),
+				     buffer);
+
+		snprintf(buffer, sizeof(buffer),
+			 "#Task periods: %"PRIu32,
+			 oti->num_task_parts);
+
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_label), buffer);
+
+		pretty_print_cycles(buf_duration, sizeof(buf_duration),
+				    otp->end - otp->start);
+
+		snprintf(buffer, sizeof(buffer),
+			 "CPU: %"PRIu32"\n"
+			 "Start: <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
+			 "End: <a href=\"time://%"PRIu64"\">%"PRIu64"</a>\n"
+			 "Duration: %scycles\n",
 			 cpu,
-			 otp->start,
-			 otp->start,
-			 otp->end,
-			 otp->end,
+			 otp->start, otp->start,
+			 otp->end, otp->end,
 			 buf_duration);
 
-		gtk_label_set_markup(GTK_LABEL(g_openmp_task_selected_event_label), buffer);
-
-		n = snprintf(buffer, sizeof(buffer),
-			     "[Task part info]\n"
-			     "CPU:\t\t\t%d\n"
-			     "Start:\t\t\t%"PRIu64"\n"
-			     "End:\t\t\t%"PRIu64"\n",
-			     otp->cpu,
-			     otp->start,
-			     otp->end);
-
-		n += snprintf(buffer+n, sizeof(buffer),
-			      "\n[Task instance info]\n"
-			      "nb task part %d\n",
-			      oti->num_task_parts);
-
-		n += snprintf(buffer+n, sizeof(buffer),
-			      "\n[Task info]\n"
-			      "Task addr:\t\t\t0X%"PRIX64"\n"
-			      "nb instances:\t\t%d\n",
-			      ot->addr,
-			      ot->num_instances);
-
-		gtk_label_set_markup(GTK_LABEL(g_active_omp_task_label), buffer);
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_part_label), buffer);
 	} else {
-		gtk_label_set_markup(GTK_LABEL(g_openmp_task_selected_event_label), "");
-		gtk_label_set_markup(GTK_LABEL(g_active_omp_task_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_construct_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_label), "");
+		gtk_label_set_markup(GTK_LABEL(g_omp_task_part_label), "");
 	}
 }
 

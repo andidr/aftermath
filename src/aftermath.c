@@ -267,8 +267,11 @@ int main(int argc, char** argv)
 	IMPORT_GLADE_WIDGET(xml, active_for_instance_label);
 	IMPORT_GLADE_WIDGET(xml, active_for_chunk_label);
 	IMPORT_GLADE_WIDGET(xml, active_for_chunk_part_label);
-	IMPORT_GLADE_WIDGET(xml, openmp_task_selected_event_label);
-	IMPORT_GLADE_WIDGET(xml, active_omp_task_label);
+
+	IMPORT_GLADE_WIDGET(xml, omp_task_label);
+	IMPORT_GLADE_WIDGET(xml, omp_task_part_label);
+	IMPORT_GLADE_WIDGET(xml, omp_task_construct_label);
+
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_steals);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_pushes);
 	IMPORT_GLADE_WIDGET(xml, toggle_tool_button_draw_data_reads);
@@ -400,8 +403,10 @@ int main(int argc, char** argv)
 	g_active_for_chunk_label = active_for_chunk_label;
 	g_active_for_chunk_part_label = active_for_chunk_part_label;
 
-	g_openmp_task_selected_event_label = openmp_task_selected_event_label;
-	g_active_omp_task_label = active_omp_task_label;
+	g_omp_task_label = omp_task_label;
+	g_omp_task_part_label = omp_task_part_label;
+	g_omp_task_construct_label = omp_task_construct_label;
+
 	g_toggle_tool_button_draw_steals = toggle_tool_button_draw_steals;
 	g_toggle_tool_button_draw_pushes = toggle_tool_button_draw_pushes;
 	g_toggle_tool_button_draw_data_reads = toggle_tool_button_draw_data_reads;
