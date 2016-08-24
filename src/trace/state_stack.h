@@ -52,6 +52,9 @@ int am_state_stack_push_trace(struct am_state_stack* s,
 			      struct am_event_set* es,
 			      am_state_t state);
 int am_state_stack_pop(struct am_state_stack* s, am_timestamp_t tsc);
+int am_state_stack_try_pop_trace(struct am_state_stack* s,
+				 struct am_event_set* es,
+				 int* err);
 int am_state_stack_pop_trace(struct am_state_stack* s, struct am_event_set* es);
 
 #ifdef __cplusplus

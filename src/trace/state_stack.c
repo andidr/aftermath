@@ -102,20 +102,29 @@ int am_state_stack_push_trace(struct am_state_stack* s,
 }
 
 /**
- * Pop a state from the stack.
- * @return 0 on success, 1 otherwise (e.g., if the stack is already empty)
+ * Try to pop a state from the stack.
+ * @return 1 if a state was popped, otherwise 0.
  */
-int am_state_stack_pop(struct am_state_stack* s, am_timestamp_t tsc)
+int am_state_stack_try_pop(struct am_state_stack* s, am_timestamp_t tsc)
 {
 	if(s->top == 0)
-		return 1;
+		return 0;
 
 	s->top--;
 
 	if(s->top > 0)
 		s->entries[s->top-1].start = tsc;
 
-	return 0;
+	return 1;
+}
+
+/**
+ * Pop a state from the stack.
+ * @return 0 on success, 1 otherwise (e.g., if the stack is already empty)
+ */
+int am_state_stack_pop(struct am_state_stack* s, am_timestamp_t tsc)
+{
+	return !am_state_stack_try_pop(s, tsc);
 }
 
 /**
@@ -142,4 +151,41 @@ int am_state_stack_pop_trace(struct am_state_stack* s, struct am_event_set* es)
 	}
 
 	return am_state_stack_pop(s, tsc);
+}
+
+/**
+ * Try to pop a state from the stack and create a new state event in an event
+ * set. The timestamp for the start of the event is the timestamp of the moment
+ * when the state on the top of the stack was entered. The timestamp for the end
+ * is the current timestamp.
+ *
+ * @param es The event set in which the event should be traced
+ * @param err Set to 1 if a state was present on the stack, but could not be traced
+ * or set to 0 if a state was popped and traced successfully. If no state is
+ * popped, the value remains unchanged. Can be NULL if no information on errors
+ * is needed by the caller.
+ * @return 1 if a state was present, otherwise 0
+ */
+int am_state_stack_try_pop_trace(struct am_state_stack* s, struct am_event_set* es, int* err)
+{
+	am_timestamp_t tsc = am_timestamp_now(es);
+
+	if(s->top == 0)
+		return 0;
+
+	if(am_event_set_trace_state(es, s->entries[s->top-1].state,
+				    s->entries[s->top-1].start,
+				    tsc) ||
+	   am_state_stack_pop(s, tsc))
+	{
+		if(err)
+			*err = 1;
+
+		return 1;
+	} else {
+		if(err)
+			*err = 0;
+	}
+
+	return 1;
 }
