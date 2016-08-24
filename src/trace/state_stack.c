@@ -42,6 +42,15 @@ void am_state_stack_destroy(struct am_state_stack* s)
 }
 
 /**
+ * Check if the stack is empty.
+ * @return true if the stack is empty, otherwise false.
+ */
+int am_state_stack_is_empty(struct am_state_stack* s)
+{
+	return s->top == 0;
+}
+
+/**
  * Push a new state onto the stack. The timestamp of the entry is the
  * current timestamp.
  * @param state The ID of the newly entered state

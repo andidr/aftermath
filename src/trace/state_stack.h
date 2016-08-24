@@ -46,6 +46,7 @@ struct am_state_stack {
 
 int am_state_stack_init(struct am_state_stack* s, size_t max_entries);
 void am_state_stack_destroy(struct am_state_stack* s);
+int am_state_stack_is_empty(struct am_state_stack* s);
 int am_state_stack_push(struct am_state_stack* s, am_state_t state, am_timestamp_t tsc);
 int am_state_stack_push_trace(struct am_state_stack* s,
 			      struct am_event_set* es,
