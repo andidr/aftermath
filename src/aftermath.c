@@ -586,6 +586,7 @@ int main(int argc, char** argv)
 
 	snprintf(title, sizeof(title), "Aftermath - %s", tracefile);
 	gtk_window_set_title(GTK_WINDOW(toplevel_window), title);
+	gtk_window_maximize(GTK_WINDOW(toplevel_window));
 
 	gtk_widget_show_all(toplevel_window);
 
