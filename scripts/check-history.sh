@@ -88,9 +88,9 @@ do
     [ ! -z "$VERBOSE" -a -z "$VERY_VERBOSE" ] &&  echo_verbose_n "[$i/$n] Checking $REV... "
     [ ! -z "$VERBOSE" -a ! -z "$VERY_VERBOSE" ] &&  echo_verbose "[$i/$n] Checking $REV... "
 
-    [ ! -z "$BUILD_PREFIX" ] && EXTRA_FLAGS="-d \"$BUILD_PREFIX/$REV/\""
+    [ ! -z "$BUILD_PREFIX" ] && EXTRA_FLAGS="-d '$BUILD_PREFIX/$REV/'"
 
-    ./scripts/check-revision.sh $FLAGS $EXTRA_FLAGS $REV || die "Check for $REV failed."
+    eval ./scripts/check-revision.sh $FLAGS $EXTRA_FLAGS $REV || die "Check for $REV failed."
 
     [ ! -z "$VERBOSE" -a -z "$VERY_VERBOSE" ] && echo_verbose "done."
     i=$(($i + 1))
