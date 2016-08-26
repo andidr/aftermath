@@ -112,7 +112,7 @@ make install >> build-log 2>&1 || die "Could not install project. Check $BUILD_D
 echo_verbose "done."
 
 echo_verbose_n "Making dist... "
-make distcheck >> build-log 2>&1 || die "Could not build from distribution archive. Check $BUILD_DIR/build-log."
+make distcheck $BUILDFLAGS >> build-log 2>&1 || die "Could not build from distribution archive. Check $BUILD_DIR/build-log."
 echo_verbose "done."
 
 echo_verbose "Revision built, tested and installed successfully."
