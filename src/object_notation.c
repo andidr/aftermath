@@ -235,7 +235,7 @@ static inline int object_notation_parse_group_body(struct parser* p, struct obje
 		if(!(member = object_notation_parse_member(p)))
 			return 1;
 
-		list_add_tail(&member->siblings, &node->members);
+		object_notation_node_group_add_member(node, (struct object_notation_node_member*)member);
 
 		parser_skip_ws(p);
 
