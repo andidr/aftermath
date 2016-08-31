@@ -166,23 +166,16 @@ static inline struct object_notation_node* object_notation_parse_string(struct p
 static inline struct object_notation_node* object_notation_parse_int(struct parser* p)
 {
 	struct parser_token t;
-	struct object_notation_node_int* node;
+	uint64_t val;
 
 	if(parser_read_next_int(p, &t))
 		return NULL;
 
-	if(!(node = malloc(sizeof(*node))))
+	if(atou64n(t.str, t.len, &val))
 		return NULL;
 
-	node->node.type = OBJECT_NOTATION_NODE_TYPE_INT;
-	INIT_LIST_HEAD(&node->node.siblings);
-
-	if(atou64n(t.str, t.len, &node->value)) {
-		free(node);
-		return NULL;
-	}
-
-	return (struct object_notation_node*)node;
+	return (struct object_notation_node*)
+		object_notation_node_int_create(val);
 }
 
 /* Parses an group member of the form "member_name: EXPR". Preceding

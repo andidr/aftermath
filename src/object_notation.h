@@ -280,6 +280,31 @@ struct object_notation_node_int {
 	uint64_t value;
 };
 
+/* Initialize an already allocated int node. Returns 0 on success, otherwise
+ * 1. */
+static inline void
+object_notation_node_int_init(struct object_notation_node_int* i, uint64_t value)
+{
+	object_notation_node_init(&i->node, OBJECT_NOTATION_NODE_TYPE_INT);
+	i->value = value;
+}
+
+/* Allocate and initialize a int node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+static inline struct object_notation_node_int*
+object_notation_node_int_create(uint64_t value)
+{
+	struct object_notation_node_int* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	object_notation_node_int_init(ret, value);
+
+	return ret;
+}
+
 #define object_notation_for_each_list_item(list_node, iter)		\
 	for(iter = list_entry((list_node)->items.next,			\
 			      struct object_notation_node,		\
