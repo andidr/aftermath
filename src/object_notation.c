@@ -117,7 +117,7 @@ static inline struct object_notation_node* object_notation_parse_list(struct par
 		if(!(item = object_notation_parse_node(p)))
 			goto out_err_destroy;
 
-		list_add_tail(&item->siblings, &node->items);
+		object_notation_node_list_add_item(node, item);
 
 		parser_skip_ws(p);
 

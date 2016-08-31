@@ -387,6 +387,14 @@ object_notation_node_group_add_member(struct object_notation_node_group* g,
 	list_add_tail(&m->node.siblings, &g->members);
 }
 
+/* Add an item n to a list l */
+static inline void
+object_notation_node_list_add_item(struct object_notation_node_list* l,
+				   struct object_notation_node* n)
+{
+	list_add_tail(&n->siblings, &l->items);
+}
+
 /* Returns the number of members of a group node. */
 static inline size_t object_notation_node_group_num_members(struct object_notation_node_group* node)
 {
