@@ -101,13 +101,8 @@ static inline struct object_notation_node* object_notation_parse_list(struct par
 	if(parser_read_next_char(p, &t, '['))
 		goto out_err;
 
-	if(!(node = malloc(sizeof(*node)))) {
+	if(!(node = object_notation_node_list_create()))
 		goto out_err;
-	}
-
-	node->node.type = OBJECT_NOTATION_NODE_TYPE_LIST;
-	INIT_LIST_HEAD(&node->node.siblings);
-	INIT_LIST_HEAD(&node->items);
 
 	/* Read items */
 	do {

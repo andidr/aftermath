@@ -180,6 +180,31 @@ struct object_notation_node_list {
 	struct list_head items;
 };
 
+/* Initialize an already allocated list node. Returns 0 on success, otherwise
+ * 1. */
+static inline void
+object_notation_node_list_init(struct object_notation_node_list* l)
+{
+	object_notation_node_init(&l->node, OBJECT_NOTATION_NODE_TYPE_LIST);
+	INIT_LIST_HEAD(&l->items);
+}
+
+/* Allocate and initialize a list node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+static inline struct object_notation_node_list*
+object_notation_node_list_create(void)
+{
+	struct object_notation_node_list* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	object_notation_node_list_init(ret);
+
+	return ret;
+}
+
 struct object_notation_node_string {
 	struct object_notation_node node;
 	char* value;
