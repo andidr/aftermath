@@ -294,4 +294,19 @@ static inline int strn1eq(const char* a, size_t len_a, const char* b)
 	return strnneq(a, len_a, b, strlen(b));
 }
 
+/* Writes the prefix nprefix times to fp before writing the string str
+ * to fp. */
+static inline int fputs_prefix(const char* str, const char* prefix, int nprefix,
+			       FILE* fp)
+{
+	for(int i = 0; i < nprefix; i++)
+		if(fputs(prefix, fp) < 0)
+			return 1;
+
+	if(fputs(str, fp) < 0)
+		return 1;
+
+	return 0;
+}
+
 #endif

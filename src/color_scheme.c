@@ -45,20 +45,6 @@ const char* color_scheme_rule_type_name(enum color_scheme_rule_type type)
 	return color_scheme_rule_type_names[type];
 }
 
-/* Writes the prefix nprefix times to fp before writing the string str
- * to fp. */
-static int fputs_prefix(const char* str, const char* prefix, int nprefix, FILE* fp)
-{
-	for(int i = 0; i < nprefix; i++)
-		if(fputs(prefix, fp) < 0)
-			return 1;
-
-	if(fputs(str, fp) < 0)
-		return 1;
-
-	return 0;
-}
-
 /* Checks whether the regular expression of a color scheme rule
  * matches the string str. The check uses POSIX extended regular
  * expressions and is case-sensitive. */
