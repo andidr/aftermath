@@ -217,29 +217,21 @@ static inline struct object_notation_node* object_notation_parse_member(struct p
 	if(parser_read_next_identifier(p, &t))
 		goto out_err;
 
-	if(!(node = malloc(sizeof(*node)))) {
+	if(!(node = object_notation_node_member_createn(t.str, t.len, NULL)))
 		goto out_err;
-	}
-
-	node->node.type = OBJECT_NOTATION_NODE_TYPE_MEMBER;
-	INIT_LIST_HEAD(&node->node.siblings);
-
-	if(!(node->name = strdupn(t.str, t.len)))
-		goto out_err_free;
 
 	parser_skip_ws(p);
 
 	if(parser_read_char(p, &t, ':'))
-		goto out_err_free2;
+		goto out_err_destroy;
 
 	if(!(node->def = object_notation_parse_node(p)))
-		goto out_err_free2;
+		goto out_err_destroy;
 
 	return (struct object_notation_node*)node;
 
-out_err_free2:
-	free(node->name);
-out_err_free:
+out_err_destroy:
+	object_notation_node_member_destroy(node);
 	free(node);
 out_err:
 	return NULL;

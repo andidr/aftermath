@@ -118,6 +118,63 @@ struct object_notation_node_member {
 	struct object_notation_node* def;
 };
 
+/* Initialize an already allocated member node using a non-zero-terminated string
+ * for the name. Returns 0 on success, otherwise 1. */
+static inline int
+object_notation_node_member_initn(struct object_notation_node_member* m,
+				  const char* name, size_t name_len,
+				  struct object_notation_node* def)
+{
+	object_notation_node_init(&m->node, OBJECT_NOTATION_NODE_TYPE_MEMBER);
+	m->def = def;
+
+	if(!(m->name = strdupn(name, name_len)))
+		return 1;
+
+	return 0;
+}
+
+/* Initialize an already allocated member node. Returns 0 on success, otherwise
+ * 1. */
+static inline int
+object_notation_node_member_init(struct object_notation_node_member* m,
+				 const char* name,
+				 struct object_notation_node* def)
+{
+	return object_notation_node_member_initn(m, name, strlen(name), def);
+}
+
+/* Allocate and initialize a member node using a non-zero-terminated string for
+ * the name. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+static inline struct object_notation_node_member*
+object_notation_node_member_createn(const char* name, size_t name_len,
+				    struct object_notation_node* def)
+{
+	struct object_notation_node_member* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(object_notation_node_member_initn(ret, name, name_len, def)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
+/* Allocate and initialize a member node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+static inline struct object_notation_node_member*
+object_notation_node_member_create(const char* name,
+				   struct object_notation_node* def)
+{
+	return object_notation_node_member_createn(name, strlen(name), def);
+}
+
 struct object_notation_node_list {
 	struct object_notation_node node;
 	struct list_head items;
