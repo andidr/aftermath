@@ -45,11 +45,72 @@ struct object_notation_node {
 	struct list_head siblings;
 };
 
+static inline void
+object_notation_node_init(struct object_notation_node* n,
+			  enum object_notation_node_type type)
+{
+	n->type = type;
+	INIT_LIST_HEAD(&n->siblings);
+}
+
 struct object_notation_node_group {
 	struct object_notation_node node;
 	char* name;
 	struct list_head members;
 };
+
+/* Initialize an already allocated group node using a non-zero-terminated string
+ * for the name. Returns 0 on success, otherwise 1. */
+static inline int
+object_notation_node_group_initn(struct object_notation_node_group* g,
+				const char* name, size_t name_len)
+{
+	object_notation_node_init(&g->node, OBJECT_NOTATION_NODE_TYPE_GROUP);
+	INIT_LIST_HEAD(&g->members);
+
+	if(!(g->name = strdupn(name, name_len)))
+		return 1;
+
+	return 0;
+}
+
+/* Initialize an already allocated group node. Returns 0 on success, otherwise
+ * 1. */
+static inline int
+object_notation_node_group_init(struct object_notation_node_group* g,
+				const char* name)
+{
+	return object_notation_node_group_initn(g, name, strlen(name));
+}
+
+/* Allocate and initialize a group node using a non-zero-terminated string for
+ * the name. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+static inline struct object_notation_node_group*
+object_notation_node_group_createn(const char* name, size_t name_len)
+{
+	struct object_notation_node_group* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(object_notation_node_group_initn(ret, name, name_len)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
+/* Allocate and initialize a group node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+static inline struct object_notation_node_group*
+object_notation_node_group_create(const char* name)
+{
+	return object_notation_node_group_createn(name, strlen(name));
+}
 
 struct object_notation_node_member {
 	struct object_notation_node node;

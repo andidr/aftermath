@@ -304,15 +304,8 @@ static inline struct object_notation_node* object_notation_parse_group(struct pa
 	if(parser_read_next_identifier(p, &t))
 		goto out_err;
 
-	if(!(node = malloc(sizeof(*node))))
+	if(!(node = object_notation_node_group_createn(t.str, t.len)))
 		goto out_err;
-
-	if(!(node->name = strdupn(t.str, t.len)))
-		goto out_err_free;
-
-	node->node.type = OBJECT_NOTATION_NODE_TYPE_GROUP;
-	INIT_LIST_HEAD(&node->node.siblings);
-	INIT_LIST_HEAD(&node->members);
 
 	if(object_notation_parse_group_body(p, node))
 		goto out_err_destroy;
@@ -321,8 +314,6 @@ static inline struct object_notation_node* object_notation_parse_group(struct pa
 
 out_err_destroy:
 	object_notation_node_group_destroy(node);
-out_err_free:
-	free(node);
 out_err:
 	return NULL;
 }
