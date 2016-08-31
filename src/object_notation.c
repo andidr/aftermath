@@ -151,27 +151,12 @@ out_err:
 static inline struct object_notation_node* object_notation_parse_string(struct parser* p)
 {
 	struct parser_token t;
-	struct object_notation_node_string* node;
 
 	if(parser_read_next_string(p, &t))
-		goto out_err;
+		return NULL;
 
-	if(!(node = malloc(sizeof(*node)))) {
-		goto out_err;
-	}
-
-	node->node.type = OBJECT_NOTATION_NODE_TYPE_STRING;
-	INIT_LIST_HEAD(&node->node.siblings);
-
-	if(!(node->value = unescape_stringn(t.str+1, t.len-2)))
-		goto out_err_free;
-
-	return (struct object_notation_node*)node;
-
-out_err_free:
-	free(node);
-out_err:
-	return NULL;
+	return (struct object_notation_node*)
+		object_notation_node_string_createn(t.str+1, t.len-2, 1);
 }
 
 /* Parses an integer literal. Preceding whitespace is ignored. The

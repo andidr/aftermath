@@ -210,6 +210,71 @@ struct object_notation_node_string {
 	char* value;
 };
 
+/* Initialize an already allocated string node using a non-zero-terminated
+ * string for the value. If unescape is non-zero, the value is unescaped after
+ * duplication. Returns 0 on success, otherwise 1. */
+static inline int
+object_notation_node_string_initn(struct object_notation_node_string* g,
+				  const char* value, size_t value_len,
+				  int unescape)
+{
+	object_notation_node_init(&g->node, OBJECT_NOTATION_NODE_TYPE_STRING);
+
+	if(unescape) {
+		if(!(g->value = unescape_stringn(value, value_len)))
+			return 1;
+	} else {
+		if(!(g->value = strdupn(value, value_len)))
+			return 1;
+	}
+
+	return 0;
+}
+
+/* Initialize an already allocated string node. If unescape is non-zero, the
+ * value is unescaped after duplication. Returns 0 on success, otherwise 1. */
+static inline int
+object_notation_node_string_init(struct object_notation_node_string* g,
+				 const char* value,
+				 int unescape)
+{
+	return object_notation_node_string_initn(g, value, strlen(value),
+						 unescape);
+}
+
+/* Allocate and initialize a string node using a non-zero-terminated string for
+ * the value. If unescape is non-zero, the value is unescaped after
+ * duplication. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+static inline struct object_notation_node_string*
+object_notation_node_string_createn(const char* value,
+				    size_t value_len,
+				    int unescape)
+{
+	struct object_notation_node_string* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(object_notation_node_string_initn(ret, value, value_len, unescape)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
+/* Allocate and initialize a string node. If unescape is non-zero, the value is
+ * unescaped after duplication. Returns a reference to the newly allocated node
+ * on success, otherwise NULL.
+ */
+static inline struct object_notation_node_string*
+object_notation_node_string_create(const char* value, int unescape)
+{
+	return object_notation_node_string_createn(value, strlen(value), unescape);
+}
+
 struct object_notation_node_int {
 	struct object_notation_node node;
 	uint64_t value;
