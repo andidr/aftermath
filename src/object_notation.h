@@ -396,6 +396,24 @@ static inline struct object_notation_node* object_notation_node_group_last_membe
 	return list_entry(node->members.prev, struct object_notation_node, siblings);
 }
 
+/* Checks if a member is the first member in a group */
+static inline int
+object_notation_node_group_is_first_member(struct object_notation_node_group* node,
+					   struct object_notation_node_member* member)
+{
+	return (member && (struct object_notation_node*)member ==
+		object_notation_node_group_first_member(node));
+}
+
+/* Checks if a member is the last member in a group */
+static inline int
+object_notation_node_group_is_last_member(struct object_notation_node_group* node,
+					  struct object_notation_node_member* member)
+{
+	return (member && (struct object_notation_node*)member ==
+		object_notation_node_group_last_member(node));
+}
+
 /* Finds the member node for a given name of a group node and returns
  * its definition. */
 static inline struct object_notation_node* object_notation_node_group_get_member_def(struct object_notation_node_group* node, const char* name)
