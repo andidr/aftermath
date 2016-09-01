@@ -19,6 +19,10 @@
 #include <stdarg.h>
 #include <alloca.h>
 #include <inttypes.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 static inline struct object_notation_node* object_notation_parse_group(struct parser* p);
 static inline struct object_notation_node* object_notation_parse_node(struct parser* p);
@@ -526,5 +530,35 @@ int object_notation_save(struct object_notation_node* node, const char* filename
 	ret = object_notation_save_fp(node, fp);
 	fclose(fp);
 
+	return ret;
+}
+
+/*
+ * Load the an object notation node from a file. Returns a newly created node or
+ * NULL if an error occurred.
+ */
+struct object_notation_node* object_notation_load(const char* filename)
+{
+	int fd;
+	char* str;
+	off_t size;
+	struct object_notation_node* ret = NULL;
+
+	if((size = file_size(filename)) == -1)
+		goto out;
+
+	if((fd = open(filename, O_RDONLY)) == -1)
+		goto out;
+
+	if((str = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
+		goto out_fd;
+
+	ret = object_notation_parse(str, size);
+
+	munmap(str, size);
+
+out_fd:
+	close(fd);
+out:
 	return ret;
 }

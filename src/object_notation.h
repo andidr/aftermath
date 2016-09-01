@@ -485,4 +485,6 @@ int object_notation_save_fp_indent(struct object_notation_node* node,
 int object_notation_save(struct object_notation_node* node, const char* filename);
 int object_notation_save_fp(struct object_notation_node* node, FILE* fp);
 
+struct object_notation_node* object_notation_load(const char* filename);
+
 #endif
