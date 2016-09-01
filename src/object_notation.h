@@ -334,7 +334,7 @@ void object_notation_node_destroy(struct object_notation_node* node);
 struct object_notation_node* object_notation_parse(const char* str, size_t len);
 
 /* Returns the first item of a list node. */
-static inline struct object_notation_node* object_notation_node_list_first_member(struct object_notation_node_list* node)
+static inline struct object_notation_node* object_notation_node_list_first_item(struct object_notation_node_list* node)
 {
 	if(list_empty(&node->items))
 		return NULL;
@@ -343,7 +343,7 @@ static inline struct object_notation_node* object_notation_node_list_first_membe
 }
 
 /* Returns the last item of a list node. */
-static inline struct object_notation_node* object_notation_node_list_last_member(struct object_notation_node_list* node)
+static inline struct object_notation_node* object_notation_node_list_last_item(struct object_notation_node_list* node)
 {
 	if(list_empty(&node->items))
 		return NULL;
@@ -356,7 +356,7 @@ static inline int
 object_notation_node_list_is_first_item(struct object_notation_node_list* node,
 					struct object_notation_node* item)
 {
-	return (item && item == object_notation_node_list_first_member(node));
+	return (item && item == object_notation_node_list_first_item(node));
 }
 
 /* Checks if an item is the last item in a list */
@@ -364,7 +364,7 @@ static inline int
 object_notation_node_list_is_last_item(struct object_notation_node_list* node,
 					struct object_notation_node* item)
 {
-	return (item && item == object_notation_node_list_last_member(node));
+	return (item && item == object_notation_node_list_last_item(node));
 }
 
 /* Returns the first member of a group. The node returned by the
