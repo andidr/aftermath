@@ -385,6 +385,17 @@ static inline struct object_notation_node* object_notation_node_group_first_memb
 	return list_entry(node->members.next, struct object_notation_node, siblings);
 }
 
+/* Returns the last member of a group. The node returned by the
+ * function is the member node, not the node corresponding to the
+ * definition of the member. */
+static inline struct object_notation_node* object_notation_node_group_last_member(struct object_notation_node_group* node)
+{
+	if(list_empty(&node->members))
+		return NULL;
+
+	return list_entry(node->members.prev, struct object_notation_node, siblings);
+}
+
 /* Finds the member node for a given name of a group node and returns
  * its definition. */
 static inline struct object_notation_node* object_notation_node_group_get_member_def(struct object_notation_node_group* node, const char* name)
