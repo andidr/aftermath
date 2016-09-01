@@ -470,4 +470,19 @@ static inline size_t object_notation_node_group_num_members(struct object_notati
 
 int object_notation_node_group_has_members(struct object_notation_node_group* node, int exact, ...);
 
+int object_notation_node_group_save(struct object_notation_node_group* node,
+				    FILE* fp, int indent, int next_indent);
+int object_notation_node_member_save(struct object_notation_node_member* node,
+				     FILE* fp, int indent, int next_indent);
+int object_notation_node_list_save(struct object_notation_node_list* node,
+				   FILE* fp, int indent, int next_indent);
+int object_notation_node_string_save(struct object_notation_node_string* node,
+				     FILE* fp, int indent);
+int object_notation_node_int_save(struct object_notation_node_int* node,
+				  FILE* fp, int indent);
+int object_notation_save_fp_indent(struct object_notation_node* node,
+				   FILE* fp, int indent, int next_indent);
+int object_notation_save(struct object_notation_node* node, const char* filename);
+int object_notation_save_fp(struct object_notation_node* node, FILE* fp);
+
 #endif

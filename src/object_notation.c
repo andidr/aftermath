@@ -18,6 +18,7 @@
 #include "object_notation.h"
 #include <stdarg.h>
 #include <alloca.h>
+#include <inttypes.h>
 
 static inline struct object_notation_node* object_notation_parse_group(struct parser* p);
 static inline struct object_notation_node* object_notation_parse_node(struct parser* p);
@@ -365,4 +366,165 @@ int object_notation_node_group_has_members(struct object_notation_node_group* no
 		return 0;
 
 	return 1;
+}
+
+/* Generate a textual representation of a group node and save it to a file. The
+ * indent represent the current indentation used as a prefix for the next
+ * character, while next_indent specifies by how many tabs the next line will be
+ * indented. Returns 0 on success, otherwise 1.*/
+int object_notation_node_group_save(struct object_notation_node_group* node,
+				    FILE* fp, int indent, int next_indent)
+{
+	struct object_notation_node_member* iter;
+
+	if(fprintf_prefix(fp, "\t", indent, "%s {\n", node->name) < 0)
+		return 1;
+
+	object_notation_for_each_group_member(node, iter) {
+		if(object_notation_node_member_save(iter, fp, next_indent+1, next_indent+2))
+			return 1;
+
+		if(!object_notation_node_group_is_last_member(node, iter)) {
+			if(fputs(",\n", fp) < 0)
+				return 1;
+		} else {
+			if(fputs("\n", fp) < 0)
+				return 1;
+		}
+	}
+
+	if(fputs_prefix("}", "\t", next_indent, fp) < 0)
+		return 1;
+
+	return 0;
+}
+
+/* Generate a textual representation of a member node and save it to a file. The
+ * indent represent the current indentation used as a prefix for the next
+ * character, while next_indent specifies by how many tabs the next line will be
+ * indented. Returns 0 on success, otherwise 1.*/
+int object_notation_node_member_save(struct object_notation_node_member* node,
+				     FILE* fp, int indent, int next_indent)
+{
+	if(fprintf_prefix(fp, "\t", indent, "%s: ", node->name) < 0)
+		return 1;
+
+	if(object_notation_save_fp_indent(node->def, fp, 0, next_indent))
+		return 1;
+
+	return 0;
+}
+
+/* Generate a textual representation of a list node and save it to a file. The
+ * indent represent the current indentation used as a prefix for the next
+ * character, while next_indent specifies by how many tabs the next line will be
+ * indented. Returns 0 on success, otherwise 1.*/
+int object_notation_node_list_save(struct object_notation_node_list* node,
+				   FILE* fp, int indent, int next_indent)
+{
+	struct object_notation_node* iter;
+
+	if(object_notation_node_list_is_empty(node)) {
+		if(fputs_prefix("[]", "\t", indent, fp) < 0)
+			return 1;
+
+		return 0;
+	}
+
+	if(fputs_prefix("[\n", "\t", indent, fp) < 0)
+		return 1;
+
+	object_notation_for_each_list_item(node, iter) {
+		if(object_notation_save_fp_indent(iter, fp, next_indent, next_indent+1))
+			return 1;
+
+		if(!object_notation_node_list_is_last_item(node, iter))
+			if(fputs(",\n", fp) < 0)
+				return 0;
+	}
+
+	if(fputs("\n", fp) < 0)
+		return 1;
+
+	if(fputs_prefix("]", "\t", next_indent, fp) < 0)
+		return 1;
+
+	return 0;
+}
+
+/* Generate a textual representation of a string node and save it to a file. The
+ * indent represent the current indentation used as a prefix for the first
+ * character. Returns 0 on success, otherwise 1.*/
+int object_notation_node_string_save(struct object_notation_node_string* node,
+				     FILE* fp, int indent)
+{
+	char* escaped;
+
+	if(!(escaped = escape_string(node->value)))
+		return 1;
+
+	if(fprintf_prefix(fp, "\t", indent, "\"%s\"", node->value) < 0) {
+		free(escaped);
+		return 1;
+	}
+
+	free(escaped);
+
+	return 0;
+}
+
+/* Generate a textual representation of an integer node and save it to a
+ * file. The indent represent the current indentation used as a prefix for the
+ * first character. Returns 0 on success, otherwise 1.*/
+int object_notation_node_int_save(struct object_notation_node_int* node,
+				  FILE* fp, int indent)
+{
+	return fprintf_prefix(fp, "\t", indent, "%"PRId64, node->value) < 0;
+}
+
+/* Generate a textual representation of a node and save it to a file. The indent
+ * represent the current indentation used as a prefix for the next character,
+ * while next_indent specifies by how many tabs the next line will be
+ * indented. Returns 0 on success, otherwise 1.*/
+int object_notation_save_fp_indent(struct object_notation_node* node,
+				   FILE* fp, int indent, int next_indent)
+{
+	switch(node->type) {
+		case OBJECT_NOTATION_NODE_TYPE_GROUP:
+			return object_notation_node_group_save((struct object_notation_node_group*)node, fp, indent, next_indent);
+		case OBJECT_NOTATION_NODE_TYPE_MEMBER:
+			return object_notation_node_member_save((struct object_notation_node_member*)node, fp, indent, next_indent);
+		case OBJECT_NOTATION_NODE_TYPE_LIST:
+			return object_notation_node_list_save((struct object_notation_node_list*)node, fp, indent, next_indent);
+		case OBJECT_NOTATION_NODE_TYPE_STRING:
+			return object_notation_node_string_save((struct object_notation_node_string*)node, fp, indent);
+		case OBJECT_NOTATION_NODE_TYPE_INT:
+			return object_notation_node_int_save((struct object_notation_node_int*)node, fp, indent);
+	}
+
+	return 1;
+}
+
+/* Generate a textual representation of a node and save it to a file. Returns 0
+ * on success, otherwise 1.*/
+int object_notation_save_fp(struct object_notation_node* node, FILE* fp)
+{
+	return object_notation_save_fp_indent(node, fp, 0, 0);
+}
+
+/* Generate a textual representation of a node and save it to a file. The file
+ * will be overwritten or created if necessary. Returns 0 on success, otherwise
+ * 1.*/
+int object_notation_save(struct object_notation_node* node, const char* filename)
+{
+	FILE* fp = fopen(filename, "w+");
+	int ret = 0;
+
+	if(!fp)
+		return 1;
+
+	ret = object_notation_save_fp(node, fp);
+	fclose(fp);
+
+	return ret;
 }
