@@ -333,10 +333,17 @@ object_notation_node_int_create(uint64_t value)
 void object_notation_node_destroy(struct object_notation_node* node);
 struct object_notation_node* object_notation_parse(const char* str, size_t len);
 
+/* Checks if a list does not have any items */
+static inline int
+object_notation_node_list_is_empty(struct object_notation_node_list* node)
+{
+	return list_empty(&node->items);
+}
+
 /* Returns the first item of a list node. */
 static inline struct object_notation_node* object_notation_node_list_first_item(struct object_notation_node_list* node)
 {
-	if(list_empty(&node->items))
+	if(object_notation_node_list_is_empty(node))
 		return NULL;
 
 	return list_entry(node->items.next, struct object_notation_node, siblings);
@@ -345,7 +352,7 @@ static inline struct object_notation_node* object_notation_node_list_first_item(
 /* Returns the last item of a list node. */
 static inline struct object_notation_node* object_notation_node_list_last_item(struct object_notation_node_list* node)
 {
-	if(list_empty(&node->items))
+	if(object_notation_node_list_is_empty(node))
 		return NULL;
 
 	return list_entry(node->items.prev, struct object_notation_node, siblings);
