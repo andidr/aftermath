@@ -20,10 +20,6 @@
 #include "color.h"
 #include "object_notation.h"
 #include <regex.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 /* Human-readable names for rule types */
 const char* color_scheme_rule_type_names[] = {
@@ -588,31 +584,21 @@ out_err:
  * of an error the function returns 1. */
 int color_scheme_set_load(struct color_scheme_set* css, const char* filename)
 {
-	int fd;
-	char* css_str;
-	off_t size;
+	struct object_notation_node* root;
 	int ret = 1;
 
-	if((size = file_size(filename)) == -1)
-		goto out;
+	if(!(root = object_notation_load(filename)))
+		goto out_err;
 
-	if((fd = open(filename, O_RDONLY)) == -1)
-		goto out;
-
-	css_str = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
-
-	if(css_str == MAP_FAILED)
-		goto out_fd;
-
-	ret = color_scheme_set_from_string(css, css_str, size);
-
-	munmap(css_str, size);
+	if(color_scheme_set_from_object_notation(css, root))
+		goto out_err_destroy;
 
 	ret = 0;
 
-out_fd:
-	close(fd);
-out:
+out_err_destroy:
+	object_notation_node_destroy(root);
+	free(root);
+out_err:
 	return ret;
 }
 
