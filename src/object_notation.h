@@ -342,6 +342,31 @@ static inline struct object_notation_node* object_notation_node_list_first_membe
 	return list_entry(node->items.next, struct object_notation_node, siblings);
 }
 
+/* Returns the last item of a list node. */
+static inline struct object_notation_node* object_notation_node_list_last_member(struct object_notation_node_list* node)
+{
+	if(list_empty(&node->items))
+		return NULL;
+
+	return list_entry(node->items.prev, struct object_notation_node, siblings);
+}
+
+/* Checks if an item is the first item in a list */
+static inline int
+object_notation_node_list_is_first_item(struct object_notation_node_list* node,
+					struct object_notation_node* item)
+{
+	return (item && item == object_notation_node_list_first_member(node));
+}
+
+/* Checks if an item is the last item in a list */
+static inline int
+object_notation_node_list_is_last_item(struct object_notation_node_list* node,
+					struct object_notation_node* item)
+{
+	return (item && item == object_notation_node_list_last_member(node));
+}
+
 /* Returns the first member of a group. The node returned by the
  * function is the member node, not the node corresponding to the
  * definition of the member. */
