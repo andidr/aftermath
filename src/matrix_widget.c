@@ -16,7 +16,7 @@
  */
 
 #include "matrix_widget.h"
-#include "marshal.h"
+#include "src/generated/marshal.h"
 #include <math.h>
 
 #if CAIRO_HAS_PDF_SURFACE

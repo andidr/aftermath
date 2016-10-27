@@ -16,7 +16,7 @@
  */
 
 #include <inttypes.h>
-#include "marshal.h"
+#include "src/generated/marshal.h"
 #include "histogram_widget.h"
 
 #if CAIRO_HAS_PDF_SURFACE

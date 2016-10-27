@@ -22,7 +22,7 @@
 #include "cell_renderer_color_button.h"
 #include "util.h"
 #include "globals.h"
-#include "marshal.h"
+#include "src/generated/marshal.h"
 
 gint gtk_omp_task_treeview_signals[GTK_OMP_TASK_MAX_SIGNALS] = { 0 };
 

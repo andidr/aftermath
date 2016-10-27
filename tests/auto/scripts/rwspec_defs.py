@@ -161,7 +161,7 @@ file_template = \
 """#include <unit_tests.h>
 #include <trace/trace.h>
 #include <multi_event_set.h>
-#include "common.h"
+#include "tests/common.h"
 
 #define DEFAULT_DATA_SIZE (1 << 20)
 

@@ -209,8 +209,8 @@ aftermath_SOURCES = src/aftermath.c \
 		src/globals.h \
 		src/globals.c \
 		src/marshal.in \
-		src/marshal.h \
-		src/marshal.c \
+		src/generated/marshal.h \
+		src/generated/marshal.c \
 		src/dialogs.h \
 		src/dialogs.c \
 		src/task_list.h \
@@ -328,14 +328,14 @@ valgrind-check-%: % check-%
 whitespace-cleanup:
 	@./scripts/whitespace_cleanup.sh
 
-src/marshal.h: src/marshal.in
+src/generated/marshal.h: src/marshal.in
 	glib-genmarshal --header $< > $@
 
-src/marshal.c: src/marshal.in
+src/generated/marshal.c: src/marshal.in
 	glib-genmarshal --body $< > $@
 
-src/trace_widget.c: src/marshal.h
-src/trace_widget.h: src/marshal.h
+src/trace_widget.c: src/generated/marshal.h
+src/trace_widget.h: src/generated/marshal.h
 
 aftermath-debug-syms: src/aftermath-debug-syms.sh
 	cp $< $@
@@ -392,7 +392,7 @@ tests/wr_trace2core.test.c: ./tests/auto/scripts/rwspec.py \
 			./tests/auto/read-write/states.rwspec \
 			./tests/auto/read-write/counters.rwspec \
 			./tests/auto/read-write/measurement_intervals.rwspec
-	python ./tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
+	python $(srcdir)/tests/auto/scripts/rwspec.py -o $@ $(filter %.rwspec,$^)
 
 wr_trace2core_test_SOURCES = tests/wr_trace2core.test.c \
 	$(UNIT_TEST_SOURCES)

@@ -16,7 +16,7 @@
  */
 
 #include "trace_widget.h"
-#include "marshal.h"
+#include "src/generated/marshal.h"
 #include "color.h"
 #include "task_instance.h"
 #include "cairo_extras.h"

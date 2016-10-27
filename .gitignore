@@ -32,8 +32,7 @@ aftermath-debug-syms
 stamp-h1
 TAGS
 test-driver
-src/marshal.h
-src/marshal.c
+src/generated
 .kdbgrc.*
 counter_event_set_index_test
 wr_trace_states_test
