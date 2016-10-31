@@ -3,6 +3,8 @@ VALGRIND=valgrind
 bin_PROGRAMS = aftermath
 bin_SCRIPTS = aftermath-debug-syms
 
+DISTRO_EXTRA_DIST = distros
+
 info_TEXINFOS = doc/texinfo/openmp-shortguide.texi
 
 TEXINFO_IMAGES = doc/texinfo/images/aftermath-omp-prime_naive_guided-tlzoom-constructs.png \
@@ -449,4 +451,17 @@ state_index_test_CFLAGS = $(TESTS_CFLAGS)
 state_index_test_LDADD = $(TESTS_LDADD)
 
 EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST) \
-	$(TEXINFO_EXTRA_DIST)
+	$(TEXINFO_EXTRA_DIST) \
+	$(DISTRO_EXTRA_DIST)
+
+
+UPSTREAM_VERSION=@PACKAGE_VERSION@
+
+deb:
+	$(MAKE) dist-gzip
+	rm -rf tmp/packaging/debian
+	$(MKDIR_P) tmp/packaging/debian
+	mv aftermath-$(UPSTREAM_VERSION).tar.gz tmp/packaging/debian/aftermath_$(UPSTREAM_VERSION).orig.tar.gz
+	cd tmp/packaging/debian ; tar xf aftermath_$(UPSTREAM_VERSION).orig.tar.gz
+	cp -ar $(srcdir)/distros/debian/build/debian tmp/packaging/debian/aftermath-$(UPSTREAM_VERSION)
+	cd tmp/packaging/debian/aftermath-$(UPSTREAM_VERSION) ; debuild -us -uc
