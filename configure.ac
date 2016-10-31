@@ -1,4 +1,4 @@
-AC_INIT([aftermath], [unreleased])
+AC_INIT([aftermath], [0.1])
 AC_CONFIG_SRCDIR([src/aftermath.c])
 
 m4_define([serial_tests], [
