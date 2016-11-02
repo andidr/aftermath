@@ -45,6 +45,7 @@ void show_error_message(char* format, ...)
 				GTK_DIALOG_DESTROY_WITH_PARENT,
 				GTK_MESSAGE_ERROR,
 				GTK_BUTTONS_CLOSE,
+				"%s",
 				buff);
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_destroy (dialog);
@@ -69,6 +70,7 @@ enum yes_no_cancel_dialog_response show_yes_no_cancel_dialog(char* format, ...)
 						    GTK_DIALOG_DESTROY_WITH_PARENT,
 						    GTK_MESSAGE_QUESTION,
 						    GTK_BUTTONS_YES_NO,
+						    "%s",
 						    buff);
 	/* FIXME: use a button from stock */
 	gtk_dialog_add_button(GTK_DIALOG(dialog),
@@ -113,6 +115,7 @@ enum yes_no_cancel_dialog_response show_yes_no_dialog(char* format, ...)
 						    GTK_DIALOG_DESTROY_WITH_PARENT,
 						    GTK_MESSAGE_QUESTION,
 						    GTK_BUTTONS_YES_NO,
+						    "%s",
 						    buff);
 
 	gint resp = gtk_dialog_run(GTK_DIALOG (dialog));
