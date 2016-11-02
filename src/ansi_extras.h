@@ -67,13 +67,6 @@ static inline char* strdupn(const char* s, size_t len)
 	return ret;
 }
 
-#if !HAVE_STRDUP
-static inline char* strdup(const char* s)
-{
-	return strdupn(s, strlen(s));
-}
-#endif
-
 static inline void print_short(char* buf, int max_len, const char* src)
 {
 	int rem_len = max_len - 3 - 1;

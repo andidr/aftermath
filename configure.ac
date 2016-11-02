@@ -79,8 +79,6 @@ AC_CHECK_HEADER(sys/types.h, , AC_ERROR([Could not find sys/types.h on your syst
 AC_CHECK_HEADER(sys/wait.h, , AC_ERROR([Could not find sys/wait.h on your system.]))
 AC_CHECK_HEADER(unistd.h, , AC_ERROR([Could not find unistd.h on your system.]))
 
-AC_CHECK_FUNCS(strdup)
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
