@@ -363,7 +363,7 @@ UNIT_TEST(atodbln_unit_test)
 	size_t len;
 	uint64_t mult = 0;
 
-	const char* vals[] = {
+	const char* vals_ok[] = {
 		"1234",
 		"1234.5",
 		"1234.56789",
@@ -413,17 +413,31 @@ UNIT_TEST(atodbln_unit_test)
 		"1234e+10 K",
 	};
 
-	for(int i = 0; i < ARRAY_SIZE(vals); i++) {
-		len = strlen(vals[i]);
+	const char* vals_nok[] = {
+		"K",
+		" K",
+		"   K",
+		".   K",
+		"A   K"
+	};
 
-		ASSERT_EQUALS(atodbln_unit(vals[i], len, &val), 0);
+	for(int i = 0; i < ARRAY_SIZE(vals_ok); i++) {
+		len = strlen(vals_ok[i]);
 
-		if(!isdigit(vals[i][len-1])) {
-			ASSERT_EQUALS(uint_multiplier(vals[i][len-1], &mult), 0);
-			ASSERT_EQUALS_LD(val, strtod(vals[i], NULL)*((double)mult));
+		ASSERT_EQUALS(atodbln_unit(vals_ok[i], len, &val), 0);
+
+		if(!isdigit(vals_ok[i][len-1])) {
+			ASSERT_EQUALS(uint_multiplier(vals_ok[i][len-1], &mult), 0);
+			ASSERT_EQUALS_LD(val, strtod(vals_ok[i], NULL)*((double)mult));
 		} else {
-			ASSERT_EQUALS_LD(val, strtod(vals[i], NULL));
+			ASSERT_EQUALS_LD(val, strtod(vals_ok[i], NULL));
 		}
+	}
+
+	for(int i = 0; i < ARRAY_SIZE(vals_nok); i++) {
+		len = strlen(vals_nok[i]);
+
+		ASSERT_EQUALS(atodbln_unit(vals_nok[i], len, &val), 1);
 	}
 }
 END_TEST()

@@ -243,6 +243,10 @@ static inline int atodbln_unit(const char* str, size_t len, double* val)
 	if(len == 0)
 		return 1;
 
+	/* If unit is used, there must be at least one digit */
+	if(!isdigit(str[len-1]) && len < 2)
+		return 1;
+
 	if(!isdigit(str[len-1])) {
 		if(uint_multiplier(str[len-1], &mult))
 			return 1;
@@ -250,8 +254,11 @@ static inline int atodbln_unit(const char* str, size_t len, double* val)
 		i = len-2;
 
 		/* Skip whitespace between unit and number */
-		while(isspace(str[i]) && i >= 0)
+		while(isspace(str[i]) && i > 0)
 			i--;
+
+		if(i == 0)
+			return 1;
 
 		if(atodbln(str, i+1, val))
 			return 1;
