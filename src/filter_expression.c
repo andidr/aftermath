@@ -302,7 +302,9 @@ int filter_eval_cpu_arg(struct filter* f,
 		parser_skip_ws(&p);
 
 		if(f) {
-			cpu = atou64n(t.str, t.len);
+			if(atou64n(t.str, t.len, &cpu))
+				return 1;
+
 			filter_mode_cpu_range(f, mes, mode, cpu, cpu);
 		}
 

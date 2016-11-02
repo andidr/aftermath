@@ -125,17 +125,38 @@ static inline int is_valid_regex(const char* sregex)
 }
 
 /* Converts the substring of the first len characters of str to an
- * integer */
-static inline uint64_t atou64n(const char* str, size_t len)
+ * integer. Returns 0 if the expression is valid, otherwise 1.
+ */
+static inline int atou64n(const char* str, size_t len, uint64_t* out)
 {
+	int digit_found = 0;
+	int ws_after_digit = 0;
+
 	uint64_t val = 0;
 
 	for(size_t i = 0; i < len; i++) {
 		val *= 10;
-		val += str[i]-'0';
+
+		if(isdigit(str[i])) {
+			/* Only leading and / or trailing whitespace is allowed,
+			 * but no whitespace in between digits */
+			if(ws_after_digit)
+				return 1;
+
+			val += str[i]-'0';
+			digit_found = 1;
+		} else if(isspace(str[i])) {
+			if(digit_found)
+				ws_after_digit = 1;
+		}
 	}
 
-	return val;
+	if(!digit_found)
+		return 1;
+
+	*out = val;
+
+	return 0;
 }
 
 /* Returns the multiplier for a unit prefix, e.g., 1000 for K, 1000000
@@ -167,6 +188,10 @@ static inline int atou64n_unit(const char* str, size_t len, uint64_t* val)
 	if(len == 0)
 		return 1;
 
+	/* If unit is used, there must be at least one digit */
+	if(!isdigit(str[len-1]) && len < 2)
+		return 1;
+
 	if(!isdigit(str[len-1])) {
 		if(uint_multiplier(str[len-1], &mult))
 			return 1;
@@ -174,13 +199,15 @@ static inline int atou64n_unit(const char* str, size_t len, uint64_t* val)
 		i = len-2;
 
 		/* Skip whitespace between unit and number */
-		while(isspace(str[i]) && i >= 0)
+		while(isspace(str[i]) && i > 0)
 			i--;
 
-		*val = atou64n(str, i+1);
+		if(atou64n(str, i+1, val))
+			return 1;
+
 		*val *= mult;
 	} else {
-		*val = atou64n(str, len);
+		return atou64n(str, len, val);
 	}
 
 	return 0;

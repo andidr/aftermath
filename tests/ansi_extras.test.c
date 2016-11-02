@@ -281,27 +281,48 @@ END_TEST()
 UNIT_TEST(atou64n_test)
 {
 	const char* str = "1234567890";
+	uint64_t val;
 
-	ASSERT_EQUALS(atou64n(str, 10), 1234567890);
-	ASSERT_EQUALS(atou64n(str, 9), 123456789);
-	ASSERT_EQUALS(atou64n(str, 8), 12345678);
-	ASSERT_EQUALS(atou64n(str, 7), 1234567);
-	ASSERT_EQUALS(atou64n(str, 6), 123456);
-	ASSERT_EQUALS(atou64n(str, 5), 12345);
-	ASSERT_EQUALS(atou64n(str, 4), 1234);
-	ASSERT_EQUALS(atou64n(str, 3), 123);
-	ASSERT_EQUALS(atou64n(str, 2), 12);
-	ASSERT_EQUALS(atou64n(str, 1), 1);
+	ASSERT_EQUALS(atou64n(str, 10, &val), 0);
+	ASSERT_EQUALS(val, 1234567890);
 
-	ASSERT_EQUALS(atou64n(str+1, 9), 234567890);
-	ASSERT_EQUALS(atou64n(str+2, 8), 34567890);
-	ASSERT_EQUALS(atou64n(str+3, 7), 4567890);
-	ASSERT_EQUALS(atou64n(str+4, 6), 567890);
-	ASSERT_EQUALS(atou64n(str+5, 5), 67890);
-	ASSERT_EQUALS(atou64n(str+6, 4), 7890);
-	ASSERT_EQUALS(atou64n(str+7, 3), 890);
-	ASSERT_EQUALS(atou64n(str+8, 2), 90);
-	ASSERT_EQUALS(atou64n(str+9, 1), 0);
+	ASSERT_EQUALS(atou64n(str, 9, &val), 0);
+	ASSERT_EQUALS(val, 123456789);
+	ASSERT_EQUALS(atou64n(str, 8, &val), 0);
+	ASSERT_EQUALS(val, 12345678);
+	ASSERT_EQUALS(atou64n(str, 7, &val), 0);
+	ASSERT_EQUALS(val, 1234567);
+	ASSERT_EQUALS(atou64n(str, 6, &val), 0);
+	ASSERT_EQUALS(val, 123456);
+	ASSERT_EQUALS(atou64n(str, 5, &val), 0);
+	ASSERT_EQUALS(val, 12345);
+	ASSERT_EQUALS(atou64n(str, 4, &val), 0);
+	ASSERT_EQUALS(val, 1234);
+	ASSERT_EQUALS(atou64n(str, 3, &val), 0);
+	ASSERT_EQUALS(val, 123);
+	ASSERT_EQUALS(atou64n(str, 2, &val), 0);
+	ASSERT_EQUALS(val, 12);
+	ASSERT_EQUALS(atou64n(str, 1, &val), 0);
+	ASSERT_EQUALS(val, 1);
+
+	ASSERT_EQUALS(atou64n(str+1, 9, &val), 0);
+	ASSERT_EQUALS(val, 234567890);
+	ASSERT_EQUALS(atou64n(str+2, 8, &val), 0);
+	ASSERT_EQUALS(val, 34567890);
+	ASSERT_EQUALS(atou64n(str+3, 7, &val), 0);
+	ASSERT_EQUALS(val, 4567890);
+	ASSERT_EQUALS(atou64n(str+4, 6, &val), 0);
+	ASSERT_EQUALS(val, 567890);
+	ASSERT_EQUALS(atou64n(str+5, 5, &val), 0);
+	ASSERT_EQUALS(val, 67890);
+	ASSERT_EQUALS(atou64n(str+6, 4, &val), 0);
+	ASSERT_EQUALS(val, 7890);
+	ASSERT_EQUALS(atou64n(str+7, 3, &val), 0);
+	ASSERT_EQUALS(val, 890);
+	ASSERT_EQUALS(atou64n(str+8, 2, &val), 0);
+	ASSERT_EQUALS(val, 90);
+	ASSERT_EQUALS(atou64n(str+9, 1, &val), 0);
+	ASSERT_EQUALS(val, 0);
 }
 END_TEST()
 
@@ -410,6 +431,15 @@ END_TEST()
 UNIT_TEST(atou64n_unit_test)
 {
 	uint64_t val = 0;
+
+	ASSERT_EQUALS(atou64n_unit("", 0, &val), 1);
+	ASSERT_EQUALS(atou64n_unit("K", 1, &val), 1);
+	ASSERT_EQUALS(atou64n_unit(" K", 2, &val), 1);
+	ASSERT_EQUALS(atou64n_unit("   K", 4, &val), 1);
+	ASSERT_EQUALS(atou64n_unit(". K", 3, &val), 1);
+
+	ASSERT_EQUALS(atou64n_unit("1", 1, &val), 0);
+	ASSERT_EQUALS(val, 1);
 
 	ASSERT_EQUALS(atou64n_unit("1234", 4, &val), 0);
 	ASSERT_EQUALS(val, 1234);
