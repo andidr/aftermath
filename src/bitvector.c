@@ -16,6 +16,7 @@
  */
 
 #include "bitvector.h"
+#include "aux.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -44,10 +45,7 @@ int bitvector_get_nth_set_bit(struct bitvector* bv, int n)
 
 int bitvector_init(struct bitvector* bv, int max_bits)
 {
-	int num_chunks = max_bits / BITS_PER_CHUNK;
-
-	if(max_bits % BITS_PER_CHUNK)
-		num_chunks++;
+	size_t num_chunks = DIV_ROUND_UP(max_bits, BITS_PER_CHUNK);
 
 	bv->max_bits = BITS_PER_CHUNK*num_chunks;
 	bv->min_set_bit = max_bits;
