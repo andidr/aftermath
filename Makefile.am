@@ -166,7 +166,9 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/intensity_matrix.h \
 		src/intensity_matrix.c \
 		src/statistics.h \
-		src/statistics.c
+		src/statistics.c \
+		src/hierarchy.h \
+		src/hierarchy.c
 
 libaftermath_core_la_CFLAGS = @GLIB_CFLAGS@
 libaftermath_core_la_LIBADD = @GLIB_LIBS@ -lm

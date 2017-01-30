@@ -28,6 +28,7 @@ typedef uint64_t am_timestamp_t;
 typedef uint64_t am_nanoseconds_t;
 typedef int64_t am_timestamp_diff_t;
 typedef int64_t am_nanoseconds_diff_t;
+typedef uint64_t am_hierarchy_id_t;
 
 typedef uint32_t am_omp_worker_t;
 typedef uint64_t am_omp_for_instance_id_t;
