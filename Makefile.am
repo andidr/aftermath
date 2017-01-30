@@ -370,7 +370,8 @@ TESTS = counter_event_set_index_test \
 	bitvector_test \
 	filter_expression_test \
 	monotonic_index_test \
-	state_index_test
+	state_index_test \
+	hierarchy_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -451,6 +452,12 @@ state_index_test_SOURCES = tests/state_index.test.c \
 
 state_index_test_CFLAGS = $(TESTS_CFLAGS)
 state_index_test_LDADD = $(TESTS_LDADD)
+
+hierarchy_test_SOURCES = tests/hierarchy.test.c \
+	$(UNIT_TEST_SOURCES)
+
+hierarchy_test_LDADD = $(TESTS_LDADD)
+hierarchy_test_CFLAGS = $(TESTS_CFLAGS)
 
 EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST) \
 	$(TEXINFO_EXTRA_DIST) \
