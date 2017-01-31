@@ -49,6 +49,7 @@ filter_expression_test
 monotonic_index_test
 state_index_test
 hierarchy_test
+typed_array_test
 scripts/check-header.sh
 *.pyc
 tmp
