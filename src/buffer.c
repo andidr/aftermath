@@ -17,20 +17,28 @@
 
 #include "buffer.h"
 
-int check_buffer_grow(void** buffer, size_t elem_size, size_t used, size_t* free, size_t prealloc_elems)
+int check_buffer_grow_n(void** buffer, size_t elem_size, size_t used, size_t* free, size_t n, size_t prealloc_elems)
 {
 	void* ptr;
+	size_t alloc;
 
-	if(*free == 0) {
-		if(!(ptr = realloc(*buffer, (used+prealloc_elems)*elem_size))) {
+	if(*free < n) {
+		alloc = (prealloc_elems < n-(*free)) ? n-(*free) : prealloc_elems;
+
+		if(!(ptr = realloc(*buffer, (used+alloc)*elem_size))) {
 			return 1;
 		} else {
-			*free = prealloc_elems;
+			*free = alloc;
 			*buffer = ptr;
 		}
 	}
 
 	return 0;
+}
+
+int check_buffer_grow(void** buffer, size_t elem_size, size_t used, size_t* free, size_t prealloc_elems)
+{
+	return check_buffer_grow_n(buffer, elem_size, used, free, 1, prealloc_elems);
 }
 
 int add_buffer_grow(void** buffer, void* elem, size_t elem_size, size_t* used, size_t* free, size_t prealloc_elems)

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+int check_buffer_grow_n(void** buffer, size_t elem_size, size_t used, size_t* free, size_t n, size_t prealloc_elems);
 int check_buffer_grow(void** buffer, size_t elem_size, size_t used, size_t* free, size_t prealloc_elems);
 int add_buffer_grow(void** buffer, void* elem, size_t elem_size, size_t* used, size_t* free, size_t prealloc_elems);
 
