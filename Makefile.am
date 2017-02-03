@@ -135,6 +135,7 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/typed_list.h \
 		src/typed_array.h \
 		src/bsearch.h \
+		src/interval.h \
 		src/address_range_tree.h \
 		src/address_range_tree.c \
 		src/task_instance.h \
