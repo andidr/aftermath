@@ -376,7 +376,8 @@ TESTS = counter_event_set_index_test \
 	state_index_test \
 	hierarchy_test \
 	typed_array_test \
-	bsearch_test
+	bsearch_test \
+	interval_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -475,6 +476,12 @@ bsearch_test_SOURCES = tests/bsearch.test.c \
 
 bsearch_test_LDADD = $(TESTS_LDADD)
 bsearch_test_CFLAGS = $(TESTS_CFLAGS)
+
+interval_test_SOURCES = tests/interval.test.c \
+	$(UNIT_TEST_SOURCES)
+
+interval_test_LDADD = $(TESTS_LDADD)
+interval_test_CFLAGS = $(TESTS_CFLAGS)
 
 EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST) \
 	$(TEXINFO_EXTRA_DIST) \
