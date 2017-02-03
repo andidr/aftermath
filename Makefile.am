@@ -374,7 +374,8 @@ TESTS = counter_event_set_index_test \
 	monotonic_index_test \
 	state_index_test \
 	hierarchy_test \
-	typed_array_test
+	typed_array_test \
+	bsearch_test
 
 noinst_PROGRAMS = $(TESTS)
 
@@ -467,6 +468,12 @@ typed_array_test_SOURCES = tests/typed_array.test.c \
 
 typed_array_test_LDADD = $(TESTS_LDADD)
 typed_array_test_CFLAGS = $(TESTS_CFLAGS)
+
+bsearch_test_SOURCES = tests/bsearch.test.c \
+	$(UNIT_TEST_SOURCES)
+
+bsearch_test_LDADD = $(TESTS_LDADD)
+bsearch_test_CFLAGS = $(TESTS_CFLAGS)
 
 EXTRA_DIST = $(UNIT_TEST_EXTRA_DIST) \
 	$(TEXINFO_EXTRA_DIST) \
