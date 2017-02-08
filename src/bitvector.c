@@ -65,7 +65,6 @@ int bitvector_init(struct bitvector* bv, int max_bits)
 
 void bitvector_clear(struct bitvector* bv)
 {
-	memset(bv->overview_chunks, 0, NUM_OVERVIEW_CHUNKS*BYTES_PER_CHUNK);
 	memset(bv->bits, 0, BYTES_PER_CHUNK*bv->num_chunks);
 }
 
@@ -79,11 +78,6 @@ void bitvector_set_bit(struct bitvector* bv, int bit)
 	int chunk = bit / BITS_PER_CHUNK;
 	int chunk_bit = bit % BITS_PER_CHUNK;
 
-	int ov_chunk_bit = (bit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits;
-	int ov_chunk = ov_chunk_bit / BITS_PER_CHUNK;
-
-	bv->overview_chunks[ov_chunk] |= (bitvector_chunk_t)1 << ov_chunk_bit % BITS_PER_CHUNK;
-
 	if(bit > bv->max_set_bit) {
 		bv->max_set_bit = bit;
 		bv->max_chunk = chunk;
@@ -95,29 +89,6 @@ void bitvector_set_bit(struct bitvector* bv, int bit)
 	}
 
 	bv->bits[chunk] |= (bitvector_chunk_t)1 << chunk_bit;
-}
-
-void bitvector_update_overview_for_bit(struct bitvector* bv, int bit)
-{
-	int ov_bit = (bit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits;
-	int ov_chunk_bit = ov_bit % BITS_PER_CHUNK;
-	int ov_chunk = ov_bit / BITS_PER_CHUNK;
-	int ibit;
-
-	bv->overview_chunks[ov_chunk] &= ~((bitvector_chunk_t)1 << ov_chunk_bit);
-
-	for(int dec = 0; dec < 2; dec++) {
-		ibit = bit;
-
-		while((ibit*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv->max_bits == ov_bit) {
-			if(bitvector_test_bit(bv, ibit)) {
-				bv->overview_chunks[ov_chunk] |= ((bitvector_chunk_t)1 << ov_chunk_bit);
-				return;
-			}
-
-			ibit += dec ? -1 : 1;
-		}
-	}
 }
 
 void bitvector_update_min(struct bitvector* bv)
@@ -166,8 +137,6 @@ void bitvector_clear_bit(struct bitvector* bv, int bit)
 
 	if(bit == bv->min_set_bit)
 		bitvector_update_min(bv);
-
-	bitvector_update_overview_for_bit(bv, bit);
 }
 
 int bitvector_test_bit(struct bitvector* bv, int bit)
@@ -197,11 +166,6 @@ int bitvector_is_subset(struct bitvector* superset, struct bitvector* subset)
 		return 0;
 	}
 
-	for(int i = 0; i < NUM_OVERVIEW_CHUNKS; ++i) {
-		if((superset->overview_chunks[i] & subset->overview_chunks[i]) != subset->overview_chunks[i])
-			return 0;
-	}
-
 	for(int i = subset->min_chunk; i <= subset->max_chunk; ++i) {
 		if((subset->bits[i] & superset->bits[i]) != subset->bits[i])
 			return 0;
@@ -214,10 +178,6 @@ void bitvector_merge(struct bitvector* dst, struct bitvector* src)
 {
 	int min_chunk = src->min_set_bit / BITS_PER_CHUNK;
 	int max_chunk = src->max_set_bit / BITS_PER_CHUNK;
-
-	for(int i = 0; i < NUM_OVERVIEW_CHUNKS; ++i) {
-		dst->overview_chunks[i] |= src->overview_chunks[i];
-	}
 
 	for(int i = min_chunk; i <= max_chunk; ++i)
 		dst->bits[i] |= src->bits[i];
@@ -261,8 +221,8 @@ struct bitvector* bitvector_copy(struct bitvector* bv)
 
 int bitvector_is_zero(struct bitvector* bv)
 {
-	for(int i = 0; i < NUM_OVERVIEW_CHUNKS; i++)
-		if(bv->overview_chunks[i])
+	for(int i = 0; i < bv->num_chunks; i++)
+		if(bv->bits[i])
 			return 0;
 
 	return 1;
@@ -270,7 +230,7 @@ int bitvector_is_zero(struct bitvector* bv)
 
 void bitvector_dump(struct bitvector* bv)
 {
-	printf("O=%d, MISB = %d, MASB = %d, C = ", (int)(bv->overview_chunks[0]), bv->min_set_bit, bv->max_set_bit);
+	printf("MISB = %d, MASB = %d, C = ", bv->min_set_bit, bv->max_set_bit);
 	for(int i = bv->min_set_bit; i <= bv->max_set_bit; ++i) {
 		if(bitvector_test_bit(bv, i))
 			printf("%d ", i);

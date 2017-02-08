@@ -202,57 +202,6 @@ UNIT_TEST(clear_bit_minmax_test)
 }
 END_TEST()
 
-UNIT_TEST(clear_bit_overview_chunks_test)
-{
-	struct bitvector bv;
-	int ov_bit;
-	int ov_chunk;
-	int ov_chunk_bit;
-	int check_num_bits[] = { 1, 15, 16, 31, 32, 63, 64, 512, 4095, 4096 };
-	int num_bits;
-
-	for(int nbindex = 0; nbindex < ARRAY_SIZE(check_num_bits); nbindex++) {
-		num_bits = check_num_bits[nbindex];
-
-		ASSERT_EQUALS(bitvector_init(&bv, num_bits), 0);
-
-		for(int i = 0; i < num_bits; i++)
-			bitvector_set_bit(&bv, i);
-
-		/* Clear from the lowest to highest bit */
-		for(int i = 0; i < num_bits; i++) {
-			bitvector_clear_bit(&bv, i);
-
-			for(int j = i+1; j < num_bits; j++) {
-				ov_bit = (j*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv.max_bits;
-				ov_chunk = ov_bit / BITS_PER_CHUNK;
-				ov_chunk_bit = ov_bit % BITS_PER_CHUNK;
-				ASSERT_TRUE(bv.overview_chunks[ov_chunk] & ((bitvector_chunk_t)1 << ov_chunk_bit));
-			}
-		}
-
-		bitvector_clear(&bv);
-
-		for(int i = 0; i < num_bits; i++)
-			bitvector_set_bit(&bv, i);
-
-		/* Clear from the highest to lowest bit */
-		for(int i = num_bits-1; i >= 0; i--) {
-			bitvector_clear_bit(&bv, i);
-
-			for(int j = i-1; j >= 0; j--) {
-				ov_bit = (j*NUM_OVERVIEW_CHUNKS*BITS_PER_CHUNK) / bv.max_bits;
-				ov_chunk = ov_bit / BITS_PER_CHUNK;
-				ov_chunk_bit = ov_bit % BITS_PER_CHUNK;
-				ASSERT_TRUE(bv.overview_chunks[ov_chunk] & ((bitvector_chunk_t)1 << ov_chunk_bit));
-			}
-		}
-
-		bitvector_destroy(&bv);
-	}
-}
-END_TEST()
-
 UNIT_TEST_SUITE(bitvector_test)
 	ADD_TEST(set_test);
 	ADD_TEST(count_test);
@@ -261,5 +210,4 @@ UNIT_TEST_SUITE(bitvector_test)
 	ADD_TEST(nth_bit_test);
 	ADD_TEST(clear_bit_test);
 	ADD_TEST(clear_bit_minmax_test);
-	ADD_TEST(clear_bit_overview_chunks_test);
 END_TEST_SUITE()

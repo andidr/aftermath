@@ -23,7 +23,6 @@
 typedef uint64_t bitvector_chunk_t;
 #define BYTES_PER_CHUNK sizeof(bitvector_chunk_t)
 #define BITS_PER_CHUNK (BYTES_PER_CHUNK*8)
-#define NUM_OVERVIEW_CHUNKS 5
 
 struct bitvector {
 	int max_bits;
@@ -33,7 +32,6 @@ struct bitvector {
 	int min_chunk;
 	int max_chunk;
 	bitvector_chunk_t* bits;
-	bitvector_chunk_t overview_chunks[NUM_OVERVIEW_CHUNKS];
 };
 
 int bitvector_init(struct bitvector* bv, int max_bits);
