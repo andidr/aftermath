@@ -237,3 +237,42 @@ void bitvector_dump(struct bitvector* bv)
 	}
 	puts("");
 }
+
+void bitvector_clear_range(struct bitvector* bv, int start_bit, int end_bit)
+{
+	size_t start_chunk = start_bit / BITS_PER_CHUNK;
+	size_t end_chunk = end_bit / BITS_PER_CHUNK;
+	bitvector_chunk_t mask = 0;
+	size_t startplus = 0;
+
+	if(start_bit % BITS_PER_CHUNK) {
+		for(size_t b = 0; b < start_bit % BITS_PER_CHUNK; b++)
+			mask |= ((bitvector_chunk_t)1 << b);
+
+		if(start_chunk == end_chunk) {
+			for(size_t b = end_bit; b < BITS_PER_CHUNK; b++)
+				mask |= ((bitvector_chunk_t)1 << b);
+		}
+
+		bv->bits[start_chunk] &= mask;
+		startplus = 1;
+	}
+
+	for(size_t c = start_chunk + startplus; c < end_chunk; c++)
+		bv->bits[c] = 0;
+
+	if(start_chunk != end_chunk && end_bit % BITS_PER_CHUNK) {
+		mask = 0;
+
+		for(size_t b = end_bit; b < BITS_PER_CHUNK; b++)
+			mask |= ((bitvector_chunk_t)1 << b);
+
+		bv->bits[end_chunk] &= mask;
+	}
+
+	if(start_bit < bv->min_set_bit)
+		bitvector_update_min(bv);
+
+	if(end_bit > bv->max_set_bit)
+		bitvector_update_max(bv);
+}

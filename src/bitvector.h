@@ -39,6 +39,7 @@ void bitvector_destroy(struct bitvector* bv);
 void bitvector_clear(struct bitvector* bv);
 void bitvector_set_bit(struct bitvector* bv, int bit);
 void bitvector_clear_bit(struct bitvector* bv, int bit);
+void bitvector_clear_range(struct bitvector* bv, int start_bit, int end_bit);
 int bitvector_test_bit(struct bitvector* bv, int bit);
 int bitvector_equals(struct bitvector* bv1, struct bitvector* bv2);
 int bitvector_is_subset(struct bitvector* superset, struct bitvector* subset);
