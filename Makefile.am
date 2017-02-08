@@ -308,6 +308,15 @@ valgrind-check: $(foreach TEST,$(TESTS),valgrind-check-$(TEST))
 check-%: %
 	@./$<
 
+valgrind-gdb-%: %
+	@echo -n "[VALGRIND]"
+	@G_SLICE=always-malloc G_DEBUG=gc-friendly \
+	    libtool --mode=execute \
+		$(VALGRIND) $(VALGRIND_FLAGS) --vgdb=yes --vgdb-error=1 ./$<
+
+connect-valgrind-gdb-%: %
+	libtool --mode=execute "gdb $$GDB_FLAGS" --eval-command="target remote | vgdb" ./$<
+
 valgrind-check-raw-%: %
 	@echo -n "[VALGRIND]"
 	@G_SLICE=always-malloc G_DEBUG=gc-friendly \
