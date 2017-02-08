@@ -35,6 +35,7 @@ struct bitvector {
 };
 
 int bitvector_init(struct bitvector* bv, int max_bits);
+int bitvector_resize(struct bitvector* bv, int max_bits, int shrink);
 void bitvector_destroy(struct bitvector* bv);
 void bitvector_clear(struct bitvector* bv);
 void bitvector_set_bit(struct bitvector* bv, int bit);

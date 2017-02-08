@@ -45,20 +45,16 @@ int bitvector_get_nth_set_bit(struct bitvector* bv, int n)
 
 int bitvector_init(struct bitvector* bv, int max_bits)
 {
-	size_t num_chunks = DIV_ROUND_UP(max_bits, BITS_PER_CHUNK);
-
-	bv->max_bits = BITS_PER_CHUNK*num_chunks;
+	bv->bits = NULL;
+	bv->num_chunks = 0;
+	bv->max_bits = 0;
 	bv->min_set_bit = max_bits;
 	bv->max_set_bit = 0;
-	bv->bits = malloc(BYTES_PER_CHUNK*num_chunks);
-	bv->num_chunks = num_chunks;
-	bv->min_chunk = num_chunks;
+	bv->min_chunk = 0;
 	bv->max_chunk = 0;
 
-	if(!bv->bits)
+	if(bitvector_resize(bv, max_bits, 0))
 		return 1;
-
-	bitvector_clear(bv);
 
 	return 0;
 }
@@ -66,6 +62,10 @@ int bitvector_init(struct bitvector* bv, int max_bits)
 void bitvector_clear(struct bitvector* bv)
 {
 	memset(bv->bits, 0, BYTES_PER_CHUNK*bv->num_chunks);
+	bv->min_set_bit = bv->max_bits;
+	bv->max_set_bit = 0;
+	bv->min_chunk = bv->num_chunks;
+	bv->max_chunk = 0;
 }
 
 void bitvector_destroy(struct bitvector* bv)
@@ -275,4 +275,41 @@ void bitvector_clear_range(struct bitvector* bv, int start_bit, int end_bit)
 
 	if(end_bit > bv->max_set_bit)
 		bitvector_update_max(bv);
+}
+
+int bitvector_resize(struct bitvector* bv, int new_max_bits, int shrink)
+{
+	size_t new_num_chunks = DIV_ROUND_UP(new_max_bits, BITS_PER_CHUNK);
+	int rounded_new_max_bits = new_num_chunks * BITS_PER_CHUNK;
+	int old_max_bits = bv->max_bits;
+	int old_num_chunks = bv->num_chunks;
+	void* tmp;
+
+	if(old_max_bits == new_max_bits)
+		return 0;
+
+	if((new_num_chunks > old_num_chunks) ||
+	   (new_num_chunks < old_num_chunks && shrink))
+	{
+		if(!(tmp = realloc(bv->bits, BYTES_PER_CHUNK*new_num_chunks)))
+			return 1;
+
+		bv->bits = tmp;
+	}
+
+	bv->num_chunks = new_num_chunks;
+	bv->max_bits = rounded_new_max_bits;
+
+	if(new_max_bits < old_max_bits)
+		bitvector_clear_range(bv, new_max_bits, rounded_new_max_bits);
+	else
+		bitvector_clear_range(bv, old_max_bits, rounded_new_max_bits);
+
+	if(new_max_bits < bv->min_set_bit)
+		bitvector_update_min(bv);
+
+	if(new_max_bits < bv->max_set_bit)
+		bitvector_update_max(bv);
+
+	return 0;
 }
