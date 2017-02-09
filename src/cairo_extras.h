@@ -22,4 +22,14 @@
 
 void cairo_extra_striped_rectangle(cairo_t* cr, double rect_left, double rect_top, double rect_width, double rect_height, double* dash, int num_dash);
 
+struct cairo_extra_rgba {
+	double r;
+	double g;
+	double b;
+	double a;
+};
+
+#define CAIRO_EXTRA_RGBA_ARGS(rgba) (rgba).r, (rgba).g, (rgba).b, (rgba).a
+#define CAIRO_EXTRA_PRGBA_ARGS(rgba) (rgba)->r, (rgba)->g, (rgba)->b, (rgba)->a
+
 #endif
