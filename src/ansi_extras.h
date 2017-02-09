@@ -30,6 +30,8 @@
 #include <alloca.h>
 #include <stdarg.h>
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
 /* Very simple string replacement function.
  * haystack must contain enough space for all
  * replacements*/

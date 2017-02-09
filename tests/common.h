@@ -17,8 +17,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#include "../src/ansi_extras.h"
 
 /* Creates a temporary file based on a template, opens it and returns
  * a pointer to the FILE structure.
