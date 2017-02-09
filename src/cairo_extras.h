@@ -32,4 +32,14 @@ struct cairo_extra_rgba {
 #define CAIRO_EXTRA_RGBA_ARGS(rgba) (rgba).r, (rgba).g, (rgba).b, (rgba).a
 #define CAIRO_EXTRA_PRGBA_ARGS(rgba) (rgba)->r, (rgba)->g, (rgba)->b, (rgba)->a
 
+struct cairo_extra_rect {
+	double x;
+	double y;
+	double width;
+	double height;
+};
+
+#define CAIRO_EXTRA_RECT_ARGS(r) (r).x, (r).y, (r).width, (r).height
+#define CAIRO_EXTRA_PRECT_ARGS(r) (r)->x, (r)->y, (r)->width, (r)->height
+
 #endif
