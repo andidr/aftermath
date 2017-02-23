@@ -18,6 +18,7 @@
 #ifndef TYPED_LIST_H
 #define TYPED_LIST_H
 
+#include "contrib/linux-kernel/list.h"
 #include "contrib/linux-kernel/kernel.h"
 
 #define typed_list_for_each(c, c_memb, i, i_memb)			\
