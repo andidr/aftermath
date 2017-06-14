@@ -318,6 +318,9 @@ valgrind-gdb-%: %
 connect-valgrind-gdb-%: %
 	libtool --mode=execute "gdb $$GDB_FLAGS" --eval-command="target remote | vgdb" ./$<
 
+gdb-%: %
+	libtool --mode=execute "gdb $$GDB_FLAGS" ./$<
+
 valgrind-check-raw-%: %
 	@echo -n "[VALGRIND]"
 	@G_SLICE=always-malloc G_DEBUG=gc-friendly \
