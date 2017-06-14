@@ -6,3 +6,20 @@
    fun:tzset_internal
    ...
 }
+
+{
+   _dl_init
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:_dl_init
+}
+
+{
+   _IO_doallocbuf
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:_IO_doallocbuf
+   ...
+}
