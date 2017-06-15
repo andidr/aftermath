@@ -53,6 +53,7 @@ typed_array_test
 interval_test
 bsearch_test
 interval_array_test
+typed_rbtree_test
 scripts/check-header.sh
 *.pyc
 tmp

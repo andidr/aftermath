@@ -390,6 +390,7 @@ TESTS = counter_event_set_index_test \
 	state_index_test \
 	hierarchy_test \
 	typed_array_test \
+	typed_rbtree_test \
 	bsearch_test \
 	interval_test \
 	interval_array_test
@@ -485,6 +486,13 @@ typed_array_test_SOURCES = tests/typed_array.test.c \
 
 typed_array_test_LDADD = $(TESTS_LDADD)
 typed_array_test_CFLAGS = $(TESTS_CFLAGS)
+
+typed_rbtree_test_SOURCES = tests/typed_rbtree.test.c \
+	$(UNIT_TEST_SOURCES)
+
+typed_rbtree_test_LDADD = $(TESTS_LDADD)
+typed_rbtree_test_CFLAGS = $(TESTS_CFLAGS)
+
 
 bsearch_test_SOURCES = tests/bsearch.test.c \
 	$(UNIT_TEST_SOURCES)
