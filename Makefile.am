@@ -134,6 +134,7 @@ libaftermath_core_la_SOURCES = src/buffer.h \
 		src/contrib/linux-kernel/userspace.h \
 		src/typed_list.h \
 		src/typed_array.h \
+		src/typed_rbtree.h \
 		src/bsearch.h \
 		src/interval.h \
 		src/interval_array.h \
