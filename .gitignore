@@ -2,6 +2,7 @@
 Makefile
 Makefile.in
 libaftermath-core.la
+libaftermath-core.a
 libaftermath-trace.la
 src/marshal.[ch]
 aclocal.m4
