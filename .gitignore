@@ -3,6 +3,7 @@ Makefile
 Makefile.in
 libaftermath-core.la
 libaftermath-trace.la
+src/marshal.[ch]
 aclocal.m4
 m4/libtool.m4
 m4/ltoptions.m4
@@ -53,7 +54,7 @@ typed_array_test
 interval_test
 bsearch_test
 interval_array_test
-typed_rbtree_test
+typed_rbtree_testGG
 scripts/check-header.sh
 *.pyc
 tmp
