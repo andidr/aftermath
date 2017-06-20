@@ -19,16 +19,40 @@
 #define AFTERMATH_TYPES_H
 
 #include <stdint.h>
+#include <inttypes.h>
 
 typedef uint32_t am_cpu_t;
+#define AM_CPU_T_FMT PRIu32
+
 typedef uint32_t am_state_t;
+#define AM_STATE_T_FMT PRIu32
+
 typedef uint32_t am_counter_t;
+#define AM_COUNTER_T_FMT PRIu32
+
 typedef uint64_t am_counter_value_t;
+#define AM_COUNTER_VALUE_T_FMT PRIu64
+
 typedef uint64_t am_timestamp_t;
+#define AM_TIMESTAMP_T_FMT PRIu64
+
 typedef uint64_t am_nanoseconds_t;
+#define AM_NANOSECONDS_T_FMT PRIu64
+
 typedef int64_t am_timestamp_diff_t;
+#define AM_TIMESTAMP_DIFF_T_FMT PRId64
+
 typedef int64_t am_nanoseconds_diff_t;
-typedef uint64_t am_hierarchy_id_t;
+#define AM_NANOSECONDS_DIFF_T_FMT PRId64
+
+typedef uint32_t am_hierarchy_id_t;
+#define AM_HIERARCHY_ID_T_FMT PRIu32
+
+typedef uint32_t am_hierarchy_node_id_t;
+#define AM_HIERARCHY_NODE_ID_T_FMT PRIu32
+
+typedef uint32_t am_event_collection_id_t;
+#define AM_EVENT_COLLECTION_ID_T_FMT PRIu32
 
 struct am_interval {
 	am_timestamp_t start;
@@ -36,14 +60,31 @@ struct am_interval {
 };
 
 typedef uint32_t am_omp_worker_t;
+#define AM_OMP_WORKER_T_FMT PRIu32
+
 typedef uint64_t am_omp_for_instance_id_t;
+#define AM_OMP_FOR_INSTANCE_ID_T_FMT PRIu64
+
 typedef uint64_t am_omp_for_address_t;
+#define AM_OMP_FOR_ADDRESS_T_FMT PRIu64
+
 typedef uint32_t am_omp_for_flags_t;
+#define AM_OMP_FOR_FLAGS_T_FMT PRIu32
+
 typedef uint64_t am_omp_for_increment_t;
+#define AM_OMP_FOR_INCREMENT_T_FMT PRIu64
+
 typedef uint64_t am_omp_for_iterator_t;
+#define AM_OMP_FOR_ITERATOR_T_FMT PRIu64
+
 typedef uint64_t am_omp_for_chunk_set_id_t;
+#define AM_OMP_FOR_CHUNK_SET_ID_T_FMT PRIu64
+
 typedef uint64_t am_omp_task_instance_id_t;
+#define AM_OMP_TASK_INSTANCE_ID_T_FMT PRIu64
+
 typedef uint64_t am_omp_task_address_t;
+#define AM_OMP_TASK_ADDRESS_T_FMT PRIu64
 
 enum am_omp_for_flag {
 	OMP_FOR_SCHEDULE_STATIC = (1 << 0),
