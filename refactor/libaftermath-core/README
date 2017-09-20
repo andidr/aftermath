@@ -1,0 +1,28 @@
+WHAT IS LIBAFTERMATH-CORE?
+
+  Libaftermath-core provides the functionality for the backend of the
+  Aftermath tool. This library contains code that to read trace files
+  and functions operating on the in-memory representation (e.g. to
+  generate statistics).
+
+LICENSE(S)
+
+  The vast majority of the code of Libaftermath-core is published
+  under the GNU General Public License (GPL), version 2. The terms of
+  this license are specified in the file COPYING.GPL2.
+
+  A part of the code, which is reused by libaftermath-trace, is
+  published under the GNU Lesser General Public License, version
+  2.1. The terms of this license are specified in the file
+  COPYING.LGPL. For each such file, there is an explicit comment at
+  the top referring to the differing License.
+
+  This means that the terms of the GNU Lesser General Public License,
+  version 2.1 apply if you include or distribute exclusively the
+  header files with the above-mentioned, explicit comment. All other
+  code is licensed under the GNU General Public License, version 2.
+
+COPYRIGHT
+
+  Copyright (C) Andi Drebes
+  Copyright (C) Antoniu Pop
