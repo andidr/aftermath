@@ -17,6 +17,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/contrib/linux-kernel/types.h \
 				src/contrib/linux-kernel/userspace.h \
 				src/convert.h \
+				src/io_error.c \
+				src/io_error.h \
 				src/typed_array.h \
 				src/typed_list.h \
 				src/typed_rbtree.h

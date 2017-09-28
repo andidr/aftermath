@@ -10,6 +10,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/contrib/linux-kernel/types.h \
 	aftermath/core/contrib/linux-kernel/userspace.h \
 	aftermath/core/convert.h \
+	aftermath/core/io_error.h \
 	aftermath/core/typed_array.h \
 	aftermath/core/typed_list.h \
 	aftermath/core/typed_rbtree.h
