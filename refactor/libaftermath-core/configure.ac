@@ -1,5 +1,5 @@
 AC_INIT([libaftermath-core], [0.1])
-AC_CONFIG_SRCDIR([src/dummy.c])
+AC_CONFIG_SRCDIR([src/ansi_extras.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
 AM_INIT_AUTOMAKE([subdir-objects tar-pax])
@@ -25,4 +25,4 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_VPRINTF
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([Makefile headers/Makefile])
