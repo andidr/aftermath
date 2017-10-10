@@ -31,6 +31,7 @@ AC_FUNC_VPRINTF
 # Check for python and python modules
 CHECK_CUSTOM_PROG(python)
 AC_PYTHON_MODULE(argparse, true)
+AC_PYTHON_MODULE(copy, true)
 AC_PYTHON_MODULE(sys, true)
 AC_PYTHON_MODULE(os, true)
 AC_PYTHON_MODULE(re, true)

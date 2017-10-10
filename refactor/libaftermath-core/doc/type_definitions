@@ -1,0 +1,324 @@
+AFTERMATH TYPE DEFINITIONS
+
+1. OVERVIEW
+
+  The purpose of type definitions in Aftermath is to simplify trace processing
+  and the extension of the file format by centralizing type information for
+  on-disk and in-memory data structures in a form that can easily be interpreted
+  by scripts and templates generating code that process these data
+  structures. There are three categories for types:
+
+    * Basic types (aliases for primitive C types)
+    * On-disk data types (types used in trace files)
+    * In-memory data types (types used for the in-memory representation of trace
+      data)
+
+  For each type category, a set of data types is defined as a python dictionary,
+  where the keys are the abstract names of the types and the values are
+  dictionaries whose keys and values represent attributes of the types. Which
+  attributes must / can be used depends on the type category and is described
+  below. In addition to the description of the data layout of a type, the
+  attributes also define how data structures are processed, e.g., when a trace
+  is loaded.
+
+  The actual C code defining the data structures and the associated functions is
+  generated using Jinja2 templates that access the type definitions through
+  template variables.
+
+  Thus, there are two views on a data type:
+
+    * The meta name: the name of the type within scripts and templates
+    * The implementation name: the name in the generated code
+
+  The name of a type can be different in these views. For example, an on-disk
+  type describing a string might have the name "string" in the meta definition,
+  while the implementation type might be "struct am_dsk_string". Also, the meta
+  definitions for on-disk types and in-memory types represent different name
+  spaces: an on-disk type string (composed of a field for the number of bytes of
+  the string and the characters themselves) is not the same as an in-memory
+  string (simply represented by a zero-terminated sequence of
+  characters).
+
+  However, since the generated code for both on-disk and in-memory data
+  structures is combined, the name space formed by the implementation names of
+  all defined types is unique. In practice, the implementation name of a type is
+  derived automatically from the meta name.
+
+2. TYPE ATTRIBUTES
+
+  The list below contains all attributes a type definition can / must define in
+  order to be valid. The annotation in brackets after the name of the attribute
+  follows the format [type, remark1, remark2, ...]. The type stands for the
+  Python type of the value for the attribute, such as Boolean or String. The
+  value of some of the attributes is derived from other attributes or from a
+  default value during an "expansion phase". The remarks indicate whether an
+  attribute must be set explicitly and under which conditions it must be set:
+
+    * optional: The attribute is not mandatory in the final list of attributes
+      after expansion
+
+    * mandatory: The attribute is mandatory in the final list after expansion.
+
+    * expanded: The attribute is derived automatically from a default value or
+      some other attribute, unless specified explicitly.
+
+    * <value> implies <attribute>: If the value of the attribute is <value>,
+      then the attribute <attribute> becomes mandatory.
+
+3. LIST OF TYPE ATTRIBUTES
+
+  The following listing indicates for each type category which attributes can /
+  must be defined. Entries are listed in alphabetical order.
+
+  ALL TYPES:
+
+   * c_type [string, mandatory, expanded]:
+
+       The name of the type within C (point 2 in above). If not specified
+       explicitly, the expansion function automatically sets this attribute.
+
+   * comment [string, optional]:
+
+       A human-redable description of the type
+
+   * compound [boolean, mandatory, expanded, true implies fields]:
+
+       If true, the definition describes a structure with one or more fields. The
+       fields must be defined using the "fields" attribute.
+
+   * defs [list[string], mandatory, expanded]:
+
+       A list of definitions to be generated. Depends on type category.
+
+   * destructor [string, mandatory, expanded]:
+
+       The name of a function that acts as a destructor at the end of the
+       lifetime of an instance. If no destructor is specified, this attribute is
+       expanded to None.
+
+   * fields [list[dict], optional]:
+
+       Mandatory for compound types. Contains a list of fields represented by a
+       dictionary with attributes for each field. These are:
+
+         - name [string, mandatory]: The name of the field
+         - type [string, mandatory]: The abstract name of the type of the field
+         - comment [string, optional]: A human-readable description of the field
+
+   * needs_constructor [boolean, mandatory, expanded]:
+
+       Indicates whether this type requires the invocation of a constructor when a
+       new instance is created. The name of the constructor and its arguments are
+       context-dependent. For example, when an instance of an on-disk data
+       structure is converted into the in-memory representation and the in-memory
+       type requires a constructor call, the generated code will contain a call to
+       a conversion function with two arguments: a pointer to the on-disk instance
+       and a pointer to an allocated, but not yet initialized instance of the
+       in-memory type.
+
+  BASE TYPES:
+
+   * c_def [String, mandatory]:
+
+       The C type the definition aliases
+
+   * defs [list[string], mandatory, expanded]:
+
+       A list of definitions to be generated. Either the empty list or ["type"],
+       which causes a typedef to be generated for the type.
+
+   IN-MEMORY TYPES
+
+     * defs [list[string], mandatory, expanded]:
+
+         Indicates which code generators are to be invoked for the type. Possible
+         values are:
+
+           - type: Generate a definition of a C structure if the type is a
+             compound type.
+
+           - destructor [expanded]: Generate a destructor function for the
+             type. This value is automatically added for compound data
+             structures that have a field that requires the invocation of a
+             destructor.
+
+   ON-DISK TYPES AND IN-MEMORY TYPES
+
+     * entity [string, mandatory]:
+
+        A human-readable string describing which entity this type
+        represents. The string is used in auto-generated comments.
+
+   ON-DISK TYPES
+
+     * assert [boolean, optional, expanded]:
+
+         If set to true, a function called am_dsk_assert_<meta-name> is called,
+         where <meta-name> is replaced with the name in the meta definition of
+         the type. The default value is False.
+
+     * defs [list[string], mandatory, expanded]:
+
+         Indicates which code generators are to be invoked for the type. Possible
+         values are:
+
+           - type: Generate a definition of a C structure if the type is a
+             compound type.
+
+           - destructor [expanded]: Generate a destructor function for the
+             type. This value is automatically added for compound data
+             structures that have a field that requires the invocation of a
+             destructor.
+
+	   - dsk_read: Generate a function that reads an instance of the type
+             from disk. This value is added by default for all on-disk types.
+
+	   - dsk_write: Generate a function that writes an instance of the type
+             to disk. This value is added by default for all on-disk types.
+
+	   - dsk_to_mem_copy_function: Generate a function that converts an
+             instance of the on-disk type into an in-memory type with the same
+             name. Requires the attribute to_mem_copy_fields to be set.
+
+     * is_frame [boolean, mandatory, expanded, true implies type_id]:
+
+         Indicates whether this data structure represents a frame. A frame is a
+         data structure in the trace file whose first field encodes the data
+         type of the structure. This information is required by the code loading
+         a trace file in order to determine how much data must be read and which
+         type must be instantiated.
+
+     * process [dict, optional]
+
+         Each on-disk data structure is associated to a processing function that
+         is called after the structure has been read from the trace file. If the
+         process attribute is not defined, it is assumed that the processing
+         function is provided with the rest of the source code. As many data
+         structures are processed in a similar way, it makes sense to generate
+         processing functions automatically. The process attribute indicates
+         that the processing function should be generated automatically. The
+         attribute is encoded as a dictionary, containing at leas the keys
+         "type" indicating which code generator should be used and "args",
+         defining which arguments should be passed to the code generator. The
+         available generators and their required arguments are listed below:
+
+           - per_trace_array
+
+               Converts the on-disk data structure into an in-memory data
+               structure by calling a conversion function and adds the in-memory
+               structure to a trace-wide, sorted, typed array (declared with a
+               macro from typed_array.h). The arguments are:
+
+                 - trace_array_field [string, mandatory]: The name of the field
+                   in the trace data structure representing the array to which
+                   the in-memory structure is added
+
+                 - trace_array_struct_name [string, mandatory]: The name of the
+                   structure representing the array as defined using the macro
+                   from typed_array.h
+
+                 - mem_struct_name [string, mandatory]: the meta name of the
+                   in-memory structure the the on-disk structure is converted
+                   into
+
+                 - dsk_struct_sort_field [string, mandatory]: the name of the
+                   field of the on-disk structure serving as the key for
+                   insertion into the ordered array
+
+                 - dsk_to_mem_function [string, mandatory]: The name of the
+                   conversion function used to convert the on-disk data
+                   structure into an in-memory structure
+
+           - per_event_collection_interval
+
+               Converts an on-disk data structure containing an interval into an
+               in-memory data structure by calling a conversion function and
+               inserts the in-memory structure at the end of a typed array of an
+               event collection, sorted by the beginning of the start timestamps
+               of the intervals. The array must be declared with a macro from
+               typed_array.h. The arguments are:
+
+                 - ecoll_array_type_id [string, mandatory]: numerical ID of the
+                   event array type (as defined in enum event_array_type) used
+                   to retrieve the array from the event collection.
+
+                 - ecoll_array_struct_name [string, mandatory]: The name of the
+                   structure representing the array as defined using the macro
+                   from typed_array.h
+
+                 - mem_struct_name [string, mandatory]: the meta name of the
+                   in-memory structure the the on-disk structure is converted
+                   into
+
+                 - mem_struct_interval_field [string, mandatory]: The name of
+                   the field of the in-memory data structure with the interval
+
+                 - dsk_struct_interval_field [string, mandatory]: The name of
+                   the field of the on-disk data structure with the interval
+
+                 - dsk_struct_ecoll_id_field [string, mandatory]: The name of
+                   the field of the on-disk data structure with the numerical ID
+                   of the event collection whose array should be used for
+                   insertion
+
+                 - dsk_to_mem_function [string, mandatory]: The name of the
+                   conversion function used to convert the on-disk data
+                   structure into an in-memory structure
+
+           - per_event_collection_per_id_timestamp:
+
+               Insertion of an event with two levels of array nesting. The first
+               array (referred to as ecoll array) is an array of arrays in an
+               event collection. This array is composed of arrays for the second
+               level of nesting. The arrays contained in the ecoll array are
+               referred to as ID arrays. These arrays are sorted by a timestamp
+
+               The code generator generates code for the insertion of a
+               structure at the end of the correct ID array according to the
+               event collection and ID specified in an on-disk data
+               structure. Conversion of the on-disk data structure into an
+               in-memory data structure is done using a conversion function.
+
+               The arguments for the generator are:
+
+                 - ecoll_array_type_id [string, mandatory]: numerical ID of the
+                   event array type (as defined in enum event_array_type) used
+                   to retrieve the array from the event collection.
+
+                 - ecoll_array_struct_name [string, mandatory]: The name of the
+                   ecoll array structure as defined using the macro from
+                   typed_array.h
+
+                 - id_array_struct_name [string, mandatory]: The name of the ID
+                   array structure as defined using the macro from typed_array.h
+
+                 - dsk_struct_ecoll_id_field [string, mandatory]: The name of
+                   the field of the on-disk data structure with the numerical ID
+                   of the event collection whose ecoll array should be used for
+                   insertion at the first level
+
+                 - dsk_struct_id_field [string, mandatory]: The name of the
+                   field of the on-disk data structure with the numerical ID of
+                   the id array that should be used for insertion at the second
+                   level
+
+                 - dsk_struct_timestamp_field [string, mandatory]:  The name of the
+                   field of the on-disk data structure with the time stamp
+
+                 - mem_struct_name [string, mandatory]: the meta name of the
+                   in-memory structure the the on-disk structure is converted
+                   into
+
+                 - dsk_to_mem_function [string, mandatory]: The name of the
+                   conversion function used to convert the on-disk data
+                   structure into an in-memory structure
+
+
+     * to_mem_copy_fields [list[string], optional]: If mem_copy_function is
+       specified in the defs attribute, this attribute indicates the fields of
+       the on-disk data structure that need to be copied to the in-memory data
+       structure.
+
+     * type_id [string, optional]:
+
+         The enum value of enum am_dsk_frame_type identifying the type.
