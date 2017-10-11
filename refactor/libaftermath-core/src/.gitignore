@@ -1,2 +1,6 @@
 base_types.h
+in_memory.c
+in_memory.h
+on_disk.c
+on_disk.h
 *.lo

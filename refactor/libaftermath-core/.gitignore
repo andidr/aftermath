@@ -1,1 +1,3 @@
 headers/aftermath/core/base_types.h
+headers/aftermath/core/in_memory.h
+headers/aftermath/core/on_disk.h
