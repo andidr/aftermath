@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS=-I m4
-AM_CPPFLAGS = -I$(srcdir)/src -I$(builddir)/src
+AM_CPPFLAGS = -I$(srcdir)/src -I$(builddir)/src -Wall -Werror
 
 lib_LTLIBRARIES = libaftermath-core.la
 
