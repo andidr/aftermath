@@ -89,7 +89,7 @@ TPL_DEPS=src/defs/am_base_types.py \
 
 src/base_types.h: src/templates/base_types.tpl.h \
 		$(TPL_DEPS)
-	$(MKDIR_P) src/generated
+	@$(MKDIR_P) src/generated
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/base_types.tpl.h \
@@ -97,7 +97,7 @@ src/base_types.h: src/templates/base_types.tpl.h \
 
 src/in_memory.c: src/templates/in_memory.tpl.c \
 		$(TPL_DEPS)
-	$(MKDIR_P) src/generated
+	@$(MKDIR_P) src/generated
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/in_memory.tpl.c \
@@ -105,7 +105,7 @@ src/in_memory.c: src/templates/in_memory.tpl.c \
 
 src/in_memory.h: src/templates/in_memory.tpl.h \
 		$(TPL_DEPS)
-	$(MKDIR_P) src/generated
+	@$(MKDIR_P) src/generated
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/in_memory.tpl.h \
@@ -113,7 +113,7 @@ src/in_memory.h: src/templates/in_memory.tpl.h \
 
 src/on_disk.c: src/templates/on_disk.tpl.c \
 		$(TPL_DEPS)
-	$(MKDIR_P) src/generated
+	@$(MKDIR_P) src/generated
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/on_disk.tpl.c \
@@ -121,7 +121,7 @@ src/on_disk.c: src/templates/on_disk.tpl.c \
 
 src/on_disk.h: src/templates/on_disk.tpl.h \
 		$(TPL_DEPS)
-	$(MKDIR_P) src/generated
+	@$(MKDIR_P) src/generated
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/on_disk.tpl.h \
