@@ -1,9 +1,11 @@
 ACLOCAL_AMFLAGS=-I m4
+AM_CPPFLAGS = -I$(srcdir)/src
 
 lib_LTLIBRARIES = libaftermath-core.la
 
 libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/ansi_extras.h \
+				src/base_types.h \
 				src/bsearch.h \
 				src/buffer.c \
 				src/buffer.h \
@@ -25,5 +27,28 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 
 libaftermath_core_la_CFLAGS =
 libaftermath_core_la_LIBADD =
+
+GENERATED_FILES=src/base_types.h
+
+template_verbose = $(template_verbose_@AM_V@)
+template_verbose_ = $(template_verbose_@AM_DEFAULT_V@)
+template_verbose_0 = @echo "  TEMPLATE" $@;
+
+TPL_DEPS=src/defs/am_base_types.py \
+	src/defs/am_type_aux.py
+	./scripts/template.py
+
+src/base_types.h: src/templates/base_types.tpl.h \
+		$(TPL_DEPS)
+	$(MKDIR_P) src/generated
+	$(template_verbose)$(PYTHON) ./scripts/template.py \
+		-m $(srcdir)/src/defs/am_types.py \
+		-t $(srcdir)/src/templates/base_types.tpl.h \
+		-o $@
+
+BUILT_SOURCES = $(GENERATED_FILES)
+
+clean-local:
+	rm -f $(GENERATED_FILES) src/defs/*.pyc
 
 SUBDIRS = headers
