@@ -5,8 +5,11 @@ lib_LTLIBRARIES = libaftermath-core.la
 
 libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/ansi_extras.h \
+				src/aux.h \
 				src/base_types.h \
 				src/bsearch.h \
+				src/bitvector.c \
+				src/bitvector.h \
 				src/buffer.c \
 				src/buffer.h \
 				src/contrib/linux-kernel/kernel.h \
