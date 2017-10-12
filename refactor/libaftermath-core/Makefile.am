@@ -46,6 +46,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/io_hierarchy_context.c \
 				src/io_hierarchy_context.h \
 				src/measurement_interval_array.h \
+				src/object_notation.c \
+				src/object_notation.h \
 				src/on_disk.c \
 				src/on_disk.h \
 				src/parser.h \
