@@ -2,6 +2,8 @@ AC_INIT([libaftermath-render], [0.1])
 AC_CONFIG_SRCDIR([src/dummy.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
+m4_include([m4/with-check.m4])
+
 AM_INIT_AUTOMAKE([subdir-objects tar-pax])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
@@ -24,5 +26,10 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_VPRINTF
+
+CHECK_LIB_AND_HEADER_WITH([aftermath-core], [aftermath-core],
+	[aftermath/core/base_types.h], [am_dsk_load_trace])
+
+PKG_CHECK_MODULES(CAIRO, [cairo >= 1.0])
 
 AC_OUTPUT([Makefile])
