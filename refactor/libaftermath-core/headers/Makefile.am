@@ -30,6 +30,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/io_hierarchy_context.h \
 	aftermath/core/measurement_interval_array.h \
 	aftermath/core/on_disk.h \
+	aftermath/core/parser.h \
 	aftermath/core/state_description_array.h \
 	aftermath/core/state_event_array.h \
 	aftermath/core/trace.h \
