@@ -2,12 +2,14 @@ bin_PROGRAMS = aftermath
 aftermath_SOURCES = src/main.cpp \
 	src/moc_MainWindow.cpp \
 	src/MainWindow.cpp \
-	src/MainWindow.h
+	src/MainWindow.h \
+	src/CairoWidget.cpp \
+	src/CairoWidget.h
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@
-aftermath_CXXFLAGS=$(MOCFLAGS) -fpermissive
+aftermath_CXXFLAGS=$(MOCFLAGS) -fpermissive @CAIRO_CFLAGS@
 
-aftermath_LDADD=@AFTERMATH_CORE_LIBS@
+aftermath_LDADD=@AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp
