@@ -9,13 +9,15 @@
 
 #include <stddef.h>
 
-#undef NULL
-#define NULL ((void *)0)
+#ifndef __cplusplus
+	#undef NULL
+	#define NULL ((void *)0)
 
-enum {
-	false	= 0,
-	true	= 1
-};
+	enum {
+		false	= 0,
+		true	= 1
+	};
+#endif
 
 #undef offsetof
 #ifdef __compiler_offsetof

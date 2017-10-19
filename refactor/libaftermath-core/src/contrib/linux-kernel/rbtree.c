@@ -64,22 +64,22 @@ static inline struct rb_node *rb_red_parent(struct rb_node *red)
 
 /*
  * Helper function for rotations:
- * - old's parent and color get assigned to new
- * - old gets assigned new as a parent and 'color' as a color.
+ * - old's parent and color get assigned to pnew
+ * - old gets assigned pnew as a parent and 'color' as a color.
  */
 static inline void
-__rb_rotate_set_parents(struct rb_node *old, struct rb_node *new,
+__rb_rotate_set_parents(struct rb_node *old, struct rb_node *pnew,
 			struct rb_root *root, int color)
 {
 	struct rb_node *parent = rb_parent(old);
-	new->__rb_parent_color = old->__rb_parent_color;
-	rb_set_parent_color(old, new, color);
-	__rb_change_child(old, new, parent, root);
+	pnew->__rb_parent_color = old->__rb_parent_color;
+	rb_set_parent_color(old, pnew, color);
+	__rb_change_child(old, pnew, parent, root);
 }
 
 static __always_inline void
 __rb_insert(struct rb_node *node, struct rb_root *root,
-	    void (*augment_rotate)(struct rb_node *old, struct rb_node *new))
+	    void (*augment_rotate)(struct rb_node *old, struct rb_node *pnew))
 {
 	struct rb_node *parent = rb_red_parent(node), *gparent, *tmp;
 
@@ -208,7 +208,7 @@ __rb_insert(struct rb_node *node, struct rb_root *root,
  */
 static __always_inline void
 ____rb_erase_color(struct rb_node *parent, struct rb_root *root,
-	void (*augment_rotate)(struct rb_node *old, struct rb_node *new))
+	void (*augment_rotate)(struct rb_node *old, struct rb_node *pnew))
 {
 	struct rb_node *node = NULL, *sibling, *tmp1, *tmp2;
 
@@ -370,7 +370,7 @@ ____rb_erase_color(struct rb_node *parent, struct rb_root *root,
 
 /* Non-inline version for rb_erase_augmented() use */
 void __rb_erase_color(struct rb_node *parent, struct rb_root *root,
-	void (*augment_rotate)(struct rb_node *old, struct rb_node *new))
+	void (*augment_rotate)(struct rb_node *old, struct rb_node *pnew))
 {
 	____rb_erase_color(parent, root, augment_rotate);
 }
@@ -384,8 +384,8 @@ EXPORT_SYMBOL(__rb_erase_color);
  */
 
 static inline void dummy_propagate(struct rb_node *node, struct rb_node *stop) {}
-static inline void dummy_copy(struct rb_node *old, struct rb_node *new) {}
-static inline void dummy_rotate(struct rb_node *old, struct rb_node *new) {}
+static inline void dummy_copy(struct rb_node *old, struct rb_node *pnew) {}
+static inline void dummy_rotate(struct rb_node *old, struct rb_node *pnew) {}
 
 static const struct rb_augment_callbacks dummy_callbacks = {
 	dummy_propagate, dummy_copy, dummy_rotate
@@ -414,7 +414,7 @@ EXPORT_SYMBOL(rb_erase);
  */
 
 void __rb_insert_augmented(struct rb_node *node, struct rb_root *root,
-	void (*augment_rotate)(struct rb_node *old, struct rb_node *new))
+	void (*augment_rotate)(struct rb_node *old, struct rb_node *pnew))
 {
 	__rb_insert(node, root, augment_rotate);
 }
@@ -510,20 +510,20 @@ struct rb_node *rb_prev(const struct rb_node *node)
 }
 EXPORT_SYMBOL(rb_prev);
 
-void rb_replace_node(struct rb_node *victim, struct rb_node *new,
+void rb_replace_node(struct rb_node *victim, struct rb_node *pnew,
 		     struct rb_root *root)
 {
 	struct rb_node *parent = rb_parent(victim);
 
 	/* Set the surrounding nodes to point to the replacement */
-	__rb_change_child(victim, new, parent, root);
+	__rb_change_child(victim, pnew, parent, root);
 	if (victim->rb_left)
-		rb_set_parent(victim->rb_left, new);
+		rb_set_parent(victim->rb_left, pnew);
 	if (victim->rb_right)
-		rb_set_parent(victim->rb_right, new);
+		rb_set_parent(victim->rb_right, pnew);
 
 	/* Copy the pointers/colour from the victim to the replacement */
-	*new = *victim;
+	*pnew = *victim;
 }
 EXPORT_SYMBOL(rb_replace_node);
 

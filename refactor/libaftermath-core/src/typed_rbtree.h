@@ -45,24 +45,24 @@
 	/* Insert a node n into a tree t. Returns 0 on success, otherwise 1.*/	\
 	static inline int PREFIX##_insert(TREE_T* t, NODE_T* n)		\
 	{									\
-		struct rb_node** new = &t->TREE_ROOTMEMB.rb_node;		\
+		struct rb_node** pnew = &t->TREE_ROOTMEMB.rb_node;		\
 		struct rb_node* parent = NULL;					\
 										\
-		/* Figure out where to put new node */				\
-		while(*new) {							\
-			NODE_T* this = container_of(*new, NODE_T, NODE_RBMEMB); \
-			parent = *new;						\
+		/* Figure out where to put pnew node */				\
+		while(*pnew) {							\
+			NODE_T* pthis = container_of(*pnew, NODE_T, NODE_RBMEMB); \
+			parent = *pnew;						\
 										\
-			if (KEYACC_EXPR(*n) < KEYACC_EXPR(*this))		\
-				new = &((*new)->rb_left);			\
-			else if (KEYACC_EXPR(*n) > KEYACC_EXPR(*this))		\
-				new = &((*new)->rb_right);			\
+			if (KEYACC_EXPR(*n) < KEYACC_EXPR(*pthis))		\
+				pnew = &((*pnew)->rb_left);			\
+			else if (KEYACC_EXPR(*n) > KEYACC_EXPR(*pthis))		\
+				pnew = &((*pnew)->rb_right);			\
 			else							\
 				return 1; /* Already in the tree */		\
 		}								\
 										\
-		/* Add new node and rebalance tree. */				\
-		rb_link_node(&n->NODE_RBMEMB, parent, new);			\
+		/* Add pnew node and rebalance tree. */				\
+		rb_link_node(&n->NODE_RBMEMB, parent, pnew);			\
 		rb_insert_color(&n->NODE_RBMEMB, &t->TREE_ROOTMEMB);		\
 										\
 		return 0;							\
@@ -123,16 +123,16 @@
 	{									\
 		struct rb_node* curr = t->TREE_ROOTMEMB.rb_node;		\
 										\
-		/* Figure out where to put new node */				\
+		/* Figure out where to put pnew node */				\
 		while(curr) {							\
-			NODE_T* this = container_of(curr, NODE_T, NODE_RBMEMB); \
+			NODE_T* pthis = container_of(curr, NODE_T, NODE_RBMEMB); \
 										\
-			if (needle < KEYACC_EXPR(*this))			\
+			if (needle < KEYACC_EXPR(*pthis))			\
 				curr = curr->rb_left;				\
-			else if (needle > KEYACC_EXPR(*this))			\
+			else if (needle > KEYACC_EXPR(*pthis))			\
 				curr = curr->rb_right;				\
 			else							\
-				return this;					\
+				return pthis;					\
 		}								\
 										\
 		return NULL;							\
