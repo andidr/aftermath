@@ -6,6 +6,8 @@ AM_CPPFLAGS = -Wall -Werror
 
 libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/cairo_extras.h \
+	src/timeline/common_layers.c \
+	src/timeline/common_layers.h \
 	src/timeline/layer.c \
 	src/timeline/layer.h \
 	src/timeline/layers/background.c \
