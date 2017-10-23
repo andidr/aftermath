@@ -10,6 +10,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layer.h \
 	src/timeline/layers/background.c \
 	src/timeline/layers/background.h \
+	src/timeline/layers/hierarchy.c \
+	src/timeline/layers/hierarchy.h \
 	src/timeline/renderer.c \
 	src/timeline/renderer.h
 
