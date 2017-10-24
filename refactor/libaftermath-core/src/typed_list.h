@@ -27,9 +27,23 @@
 	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);	\
 	    (i) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
 
+/* Same as am_typed_list_for_each, but starting point is a simple struct
+ * list_head* instead of a structure with an embedded struct list_head. */
+#define am_typed_list_for_each_genentry(c, i, i_memb)			\
+	for((i) = container_of((c)->next, typeof(*(i)), i_memb);	\
+	    &(i)->i_memb != (c);					\
+	    (i) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
+
 #define am_typed_list_for_each_prev(c, c_memb, i, i_memb)		\
 	for((i) = container_of((c)->c_memb.prev, typeof(*(i)), i_memb); \
 	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);	\
+	    (i) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
+
+/* Same as am_typed_list_for_each_prev, but starting point is a simple struct
+ * list_head* instead of a structure with an embedded struct list_head. */
+#define am_typed_list_for_each_prev_genentry(c, i, i_memb)		\
+	for((i) = container_of((c)->prev, typeof(*(i)), i_memb);	\
+	    &(i)->i_memb != (c);					\
 	    (i) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
 
 #define am_typed_list_for_each_safe(c, c_memb, i, j, i_memb)		  \
@@ -39,11 +53,30 @@
 	    (i) = (j),							  \
 	      (j) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
 
+/* Same as am_typed_list_for_each_safe, but starting point is a simple struct
+ * list_head* instead of a structure with an embedded struct list_head. */
+#define am_typed_list_for_each_safe_genentry(c, i, j, i_memb)		  \
+	for((i) = container_of((c)->next, typeof(*(i)), i_memb),	  \
+	      (j) = container_of((i)->i_memb.next, typeof(*(i)), i_memb); \
+	    &(i)->i_memb != (c);					  \
+	    (i) = (j),							  \
+	      (j) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
+
 #define am_typed_list_for_each_prev_safe(c, c_memb, i, j, i_memb)	  \
 	for((i) = container_of((c)->c_memb.prev, typeof(*(i)), i_memb),   \
 	      (j) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb); \
 	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);	  \
 	    (i) = (j),							  \
+	      (j) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
+
+/* Same as am_typed_list_for_each_prev_safe, but starting point is a simple
+ * struct list_head* instead of a structure with an embedded struct
+ * list_head. */
+#define am_typed_list_for_each_prev_safe_genentry(c, i, j, i_memb) \
+	for((i) = container_of((c)->prev, typeof(*(i)), i_memb),	   \
+	      (j) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb);  \
+	    &(i)->i_memb != (c);					   \
+	    (i) = (j),							   \
 	      (j) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
 
 #endif
