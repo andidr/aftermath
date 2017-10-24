@@ -21,6 +21,7 @@
 
 #include <cairo.h>
 #include <stddef.h>
+#include <math.h>
 
 void am_striped_rectangle(cairo_t* cr,
 			  double rect_left, double rect_top,
@@ -71,6 +72,17 @@ struct am_point {
 /* Builds two function arguments from a pointer to a point struct for a call of
  * a cairo function. */
 #define AM_PPOINT_ARGS(p) (p)->x, (p)->y
+
+/* Calculate the absolute euclidean distance between two points p1 and p2. */
+static inline double
+am_point_distance(const struct am_point* p1,
+		  const struct am_point* p2)
+{
+	double xdiff = p1->x - p2->x;
+	double ydiff = p1->y - p2->y;
+
+	return sqrt(xdiff*xdiff + ydiff*ydiff);
+}
 
 /* Structure representing rectangles. */
 struct am_rect {
