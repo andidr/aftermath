@@ -25,6 +25,7 @@
 struct am_timeline_renderer;
 struct am_timeline_render_layer;
 struct am_timeline_render_layer_type;
+struct am_timeline_entity;
 
 /* A time line render layer registry contains one entry per time line render
  * layer type, describing how to allocate, render and destroy a layer.
@@ -70,6 +71,17 @@ typedef struct am_timeline_render_layer*
 	(*am_timeline_render_layer_instantiate_fun_t)
 	(struct am_timeline_render_layer_type* t);
 
+typedef int
+	(*am_timeline_render_layer_identify_entities_fun_t)
+	(struct am_timeline_render_layer* l,
+	 struct list_head* lst,
+	 double x, double y);
+
+typedef void
+	(*am_timeline_render_layer_destroy_entity_fun_t)
+	(struct am_timeline_render_layer* l,
+	 struct am_timeline_entity* e);
+
 #define AM_TIMELINE_RENDER_LAYER_RENDER_FUN(x) \
 	((am_timeline_render_layer_render_fun_t)(x))
 
@@ -78,6 +90,12 @@ typedef struct am_timeline_render_layer*
 
 #define AM_TIMELINE_RENDER_LAYER_INSTANTIATE_FUN(x) \
 	((am_timeline_render_layer_instantiate_fun_t)(x))
+
+#define AM_TIMELINE_RENDER_LAYER_IDENTIFY_ENTITIES_FUN(x) \
+	((am_timeline_render_layer_identify_entities_fun_t)(x))
+
+#define AM_TIMELINE_RENDER_LAYER_DESTROY_ENTITY_FUN(x) \
+	((am_timeline_render_layer_destroy_entity_fun_t)(x))
 
 /* Description of a render layer type */
 struct am_timeline_render_layer_type {
@@ -89,6 +107,11 @@ struct am_timeline_render_layer_type {
 	am_timeline_render_layer_render_fun_t render;
 	am_timeline_render_layer_destroy_fun_t destroy;
 	am_timeline_render_layer_instantiate_fun_t instantiate;
+	am_timeline_render_layer_identify_entities_fun_t identify_entities;
+
+	/* Function for the destruction of an entity. The memory for the item
+	 * must be freed. */
+	am_timeline_render_layer_destroy_entity_fun_t destroy_entity;
 };
 
 #define AM_TIMELINE_RENDER_LAYER_TYPE(x) \
@@ -119,5 +142,27 @@ struct am_timeline_render_layer {
 void am_timeline_render_layer_init(struct am_timeline_render_layer* l,
 				   struct am_timeline_render_layer_type* t);
 void am_timeline_render_layer_destroy(struct am_timeline_render_layer* l);
+
+/* Base structure for a description of an entity defined by a render layer (e.g.,
+ * a button or an event at a certain position) */
+struct am_timeline_entity {
+	/* The instance of the layer that identified the item*/
+	struct am_timeline_render_layer* layer;
+
+	/* Layer-specific type */
+	int type;
+
+	/* Chaining of all items */
+	struct list_head list;
+};
+
+void am_timeline_entity_init(struct am_timeline_entity* e,
+			     struct am_timeline_render_layer* l,
+			     int type);
+
+void am_timeline_entity_destroy(struct am_timeline_entity* e);
+
+void am_timeline_entity_append(struct am_timeline_entity* e,
+			       struct list_head* lst);
 
 #endif

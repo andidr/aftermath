@@ -211,6 +211,13 @@ int am_timeline_renderer_expand_node_idx(struct am_timeline_renderer* r,
 int am_timeline_renderer_toggle_node_idx(struct am_timeline_renderer* r,
 					 unsigned int idx);
 
+int am_timeline_renderer_identify_entities(struct am_timeline_renderer* r,
+					   struct list_head* lst,
+					   double x, double y);
+
+void am_timeline_renderer_destroy_entities(struct am_timeline_renderer* r,
+					   struct list_head* lst);
+
 /* Calculates the X coordinate in pixels for a timestamp t relative to the left
  * of the rectangle for the lanes. */
 static inline double

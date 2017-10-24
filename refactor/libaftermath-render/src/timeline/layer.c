@@ -124,3 +124,23 @@ void am_timeline_render_layer_destroy(struct am_timeline_render_layer* l)
 	if(l->type->destroy)
 		l->type->destroy(l);
 }
+
+void am_timeline_entity_init(struct am_timeline_entity* e,
+			     struct am_timeline_render_layer* l,
+			     int type)
+{
+	e->layer = l;
+	e->type = type;
+	INIT_LIST_HEAD(&e->list);
+}
+
+void am_timeline_entity_destroy(struct am_timeline_entity* e)
+{
+}
+
+/* Add entity e at the end of the list lst. */
+void am_timeline_entity_append(struct am_timeline_entity* e,
+			       struct list_head* lst)
+{
+	list_add_tail(&e->list, lst);
+}

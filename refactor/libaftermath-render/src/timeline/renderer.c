@@ -388,3 +388,49 @@ int am_timeline_renderer_toggle_node_idx(struct am_timeline_renderer* r,
 
 	return 0;
 }
+
+/* Identifies the set of entities at pixel position (x, y) by traversing all
+ * layers. Initializes *e with a pointer to the first entity identified by the
+ * topmost layer (i.e., the layer rendered after all other layers). Entities are
+ * chained using the field "list" and are appended to *lst. Returns 0 on success
+ * (i.e., even if nothing failed, but no entities were identified) or 1 in case
+ * of an error. */
+int am_timeline_renderer_identify_entities(struct am_timeline_renderer* r,
+					   struct list_head* lst,
+					   double x, double y)
+{
+	struct am_timeline_render_layer* l;
+
+	INIT_LIST_HEAD(lst);
+
+	am_timeline_renderer_for_each_layer_prev(r, l) {
+		if(!l->type->identify_entities)
+			continue;
+
+		if(l->type->identify_entities(l, lst, x, y)) {
+			am_timeline_renderer_destroy_entities(r, lst);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/* Destroys a list of timeline entities by invoking the entity destructor of the
+ * layers associated to the entities. Memory for entities is freed. */
+void am_timeline_renderer_destroy_entities(struct am_timeline_renderer* r,
+					   struct list_head* lst)
+{
+	struct am_timeline_render_layer_type* t;
+	struct am_timeline_render_layer* l;
+	struct am_timeline_entity* e;
+	struct am_timeline_entity* i;
+
+	am_typed_list_for_each_safe_genentry(lst, e, i, list) {
+		l = e->layer;
+		t = l->type;
+		t->destroy_entity(l, e);
+	}
+
+	INIT_LIST_HEAD(lst);
+}
