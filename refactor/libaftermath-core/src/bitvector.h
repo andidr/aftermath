@@ -43,6 +43,7 @@ void am_bitvector_destroy(struct am_bitvector* bv);
 void am_bitvector_clear(struct am_bitvector* bv);
 void am_bitvector_set_bit(struct am_bitvector* bv, int bit);
 void am_bitvector_clear_bit(struct am_bitvector* bv, int bit);
+void am_bitvector_toggle_bit(struct am_bitvector* bv, int bit);
 void am_bitvector_clear_range(struct am_bitvector* bv, int start_bit, int end_bit);
 int am_bitvector_test_bit(struct am_bitvector* bv, int bit);
 int am_bitvector_equals(struct am_bitvector* bv1, struct am_bitvector* bv2);

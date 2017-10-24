@@ -101,6 +101,17 @@ void am_bitvector_set_bit(struct am_bitvector* bv, int bit)
 	bv->bits[chunk] |= (am_bitvector_chunk_t)1 << chunk_bit;
 }
 
+/* Sets or clears the bit at the zero-indexed position specified by the
+ * parameter "bit" depending on its current state. No bounds check is performed
+ * by the function. */
+void am_bitvector_toggle_bit(struct am_bitvector* bv, int bit)
+{
+	if(am_bitvector_test_bit(bv, bit))
+		am_bitvector_clear_bit(bv, bit);
+	else
+		am_bitvector_set_bit(bv, bit);
+}
+
 /* Updates the position of the first bit that is one. */
 void am_bitvector_update_min(struct am_bitvector* bv)
 {
