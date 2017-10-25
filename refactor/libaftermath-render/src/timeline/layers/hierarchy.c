@@ -552,6 +552,86 @@ instantiate(struct am_timeline_render_layer_type* t)
 	return (struct am_timeline_render_layer*)l;
 }
 
+struct collapse_button_callback_data {
+	/* Status of the last invocation of the callback function */
+	int last_status;
+
+	/* List passed to identify_entities() */
+	struct list_head* lst;
+
+	/* Location for which item identification takes place */
+	struct am_point p;
+};
+
+void identify_collapse_buttons_callback(struct hierarchy_layer* hl,
+					struct am_hierarchy_node* n,
+					unsigned int node_idx,
+					unsigned int lane,
+					unsigned int column,
+					unsigned int parent_lane,
+					int parent_visible,
+					struct collapse_button_callback_data* data)
+{
+	struct am_timeline_renderer* r = hl->super.renderer;
+	struct am_point pcircle;
+	struct am_timeline_hierarchy_layer_collapse_button* btn;
+	double distance;
+
+	circle_center(hl, lane, column, &pcircle);
+
+	distance = am_point_distance(&data->p, &pcircle);
+
+	if(distance < hl->params.circle_radius) {
+		if(!(btn = malloc(sizeof(*btn)))) {
+			data->last_status = 1;
+			return;
+		}
+
+		am_timeline_entity_init(&btn->super, &hl->super,
+			AM_TIMELINE_HIERARCHY_LAYER_ENTITY_COLLAPSE_BUTTON);
+
+		btn->node = n;
+		btn->node_idx = node_idx;
+		btn->state = (am_bitvector_test_bit(&r->collapsed_nodes, node_idx)) ?
+			AM_TIMELINE_HIERARCHY_LAYER_BUTTON_STATE_COLLAPSED :
+			AM_TIMELINE_HIERARCHY_LAYER_BUTTON_STATE_EXPANDED;
+
+		am_timeline_entity_append(&btn->super, data->lst);
+	}
+}
+
+static int identify_collapse_buttons(struct hierarchy_layer* hl,
+				     struct list_head* lst,
+				     double x, double y)
+{
+	struct collapse_button_callback_data cbdata = {
+		.last_status = 0,
+		.lst = lst,
+		.p = { .x = x, .y = y }
+	};
+
+	foreach_visible(hl,
+			(visible_node_fun_t)identify_collapse_buttons_callback,
+			NULL,
+			&cbdata);
+
+	return cbdata.last_status;
+}
+
+static int identify_entities(struct hierarchy_layer* hl,
+			     struct list_head* lst,
+			     double x, double y)
+{
+	return identify_collapse_buttons(hl, lst, x, y);
+}
+
+static void destroy_entity(struct hierarchy_layer* hl,
+			   struct am_timeline_entity* e)
+{
+	am_timeline_entity_destroy(e);
+	free(e);
+}
+
 struct am_timeline_render_layer_type*
 am_timeline_hierarchy_layer_instantiate_type(void)
 {
@@ -568,6 +648,8 @@ am_timeline_hierarchy_layer_instantiate_type(void)
 	t->render = AM_TIMELINE_RENDER_LAYER_RENDER_FUN(render);
 	t->destroy = AM_TIMELINE_RENDER_LAYER_DESTROY_FUN(destroy);
 	t->instantiate = AM_TIMELINE_RENDER_LAYER_INSTANTIATE_FUN(instantiate);
+	t->identify_entities = AM_TIMELINE_RENDER_LAYER_IDENTIFY_ENTITIES_FUN(identify_entities);
+	t->destroy_entity = AM_TIMELINE_RENDER_LAYER_DESTROY_ENTITY_FUN(destroy_entity);
 
 	return t;
 }

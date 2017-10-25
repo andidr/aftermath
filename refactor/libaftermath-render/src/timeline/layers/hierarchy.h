@@ -51,6 +51,23 @@
  *                      +--------O
  */
 
+enum am_timeline_hierarchy_layer_entity_type {
+	AM_TIMELINE_HIERARCHY_LAYER_ENTITY_COLLAPSE_BUTTON,
+};
+
+enum am_timeline_hierarchy_layer_button_state {
+	AM_TIMELINE_HIERARCHY_LAYER_BUTTON_STATE_COLLAPSED = 0,
+	AM_TIMELINE_HIERARCHY_LAYER_BUTTON_STATE_EXPANDED = 1
+};
+
+/* Circle of a node */
+struct am_timeline_hierarchy_layer_collapse_button {
+	struct am_timeline_entity super;
+	struct am_hierarchy_node* node;
+	unsigned int node_idx;
+	enum am_timeline_hierarchy_layer_button_state state;
+};
+
 struct am_timeline_render_layer_type*
 am_timeline_hierarchy_layer_instantiate_type(void);
 
