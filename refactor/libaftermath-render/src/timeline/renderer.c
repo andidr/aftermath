@@ -413,3 +413,60 @@ void am_timeline_renderer_destroy_entities(struct am_timeline_renderer* r,
 
 	INIT_LIST_HEAD(lst);
 }
+
+/* Sets the Y position of the horizontal axis. If the position cannot be set, to
+ * the exact Y coordinate, the function sets the minimum or maximum,
+ * respectively and returns 1. Otherwise, 0 is returned.
+ */
+int am_timeline_renderer_set_horizontal_axis_y(struct am_timeline_renderer* r,
+					       double y)
+{
+	int ret = 0;
+
+	if(y < 1) {
+		y = 1;
+		ret = 1;
+	} else if(y > r->height - 1) {
+		y = r->height - 1;
+		ret = 1;
+	}
+
+	r->rects.lanes.height = y - r->rects.lanes.y;
+	r->rects.xlegend.y = y;
+	r->xdesc_height = r->height - y;
+	r->rects.xlegend.height = r->xdesc_height;
+	r->rects.ylegend.height = y;
+
+	am_timeline_renderer_update_num_visible_lanes(r);
+
+	return ret;
+}
+
+/* Sets the X position of the horizontal axis. If the position cannot be set, to
+ * the exact X coordinate, the function sets the minimum or maximum,
+ * respectivelx and returns 1. Otherwise, 0 is returned.
+ */
+int am_timeline_renderer_set_vertical_axis_x(struct am_timeline_renderer* r,
+					     double x)
+{
+	int ret = 0;
+
+	if(x < 1) {
+		x = 1;
+		ret = 1;
+	} else if(x > r->width - 1) {
+		x = r->width - 1;
+		ret = 1;
+	}
+
+	r->rects.lanes.width = r->width - x;
+	r->rects.lanes.x = x;
+	r->rects.ylegend.width = x;
+	r->ydesc_width = r->rects.ylegend.width;
+	r->rects.xlegend.x = r->rects.lanes.x;
+	r->rects.xlegend.width = r->rects.lanes.width;
+
+	am_timeline_renderer_update_num_visible_lanes(r);
+
+	return ret;
+}

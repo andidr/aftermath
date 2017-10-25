@@ -196,6 +196,12 @@ void am_timeline_renderer_set_lane_height(struct am_timeline_renderer* r,
 void am_timeline_renderer_set_lane_offset(struct am_timeline_renderer* r,
 					  double offs);
 
+int am_timeline_renderer_set_horizontal_axis_y(struct am_timeline_renderer* r,
+						double y);
+
+int am_timeline_renderer_set_vertical_axis_x(struct am_timeline_renderer* r,
+					     double x);
+
 int am_timeline_renderer_collapse_node_idx(struct am_timeline_renderer* r,
 					   unsigned int idx);
 
