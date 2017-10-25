@@ -26,9 +26,6 @@ am_timeline_renderer_update_rects(struct am_timeline_renderer* r);
 static void
 am_timeline_renderer_update_num_visible_lanes(struct am_timeline_renderer* r);
 
-static void
-am_timeline_renderer_render_axes(struct am_timeline_renderer* r, cairo_t* cr);
-
 static inline void
 am_timeline_renderer_update_first_visible_lane(struct am_timeline_renderer* r);
 
@@ -36,7 +33,6 @@ int am_timeline_renderer_init(struct am_timeline_renderer* r)
 {
 	INIT_LIST_HEAD(&r->layers);
 	r->colors.bg = (struct am_rgba){ 0.0, 0.0, 0.0, 1.0 };
-	r->colors.axes = (struct am_rgba){ 0.8, 0.8, 0.0, 1.0 };
 
 	r->lane_height = 50;
 	r->lane_offset = 0;
@@ -182,21 +178,6 @@ int am_timeline_renderer_remove_layer(struct am_timeline_renderer* r,
 	return 0;
 }
 
-/* Render lines for the vertical and horizontal axes without labels) */
-static void
-am_timeline_renderer_render_axes(struct am_timeline_renderer* r, cairo_t* cr)
-{
-	cairo_set_source_rgba(cr, AM_RGBA_ARGS(r->colors.axes));
-	cairo_set_line_width(cr, r->axis_width);
-
-	cairo_move_to(cr, r->rects.lanes.x, r->rects.lanes.y);
-	cairo_line_to(cr, r->rects.lanes.x,
-		      r->rects.lanes.y + r->rects.lanes.height);
-	cairo_line_to(cr, r->rects.lanes.x + r->rects.lanes.width,
-		      r->rects.lanes.y + r->rects.lanes.height);
-	cairo_stroke(cr);
-}
-
 /* Renders all layers in order */
 void am_timeline_renderer_render(struct am_timeline_renderer* r,
 				 cairo_t* cr)
@@ -213,8 +194,6 @@ void am_timeline_renderer_render(struct am_timeline_renderer* r,
 
 	am_timeline_renderer_for_each_layer(r, l)
 		l->type->render(l, cr);
-
-	am_timeline_renderer_render_axes(r, cr);
 }
 
 /* Associate a hierarchy with the timeline */

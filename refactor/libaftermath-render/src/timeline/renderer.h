@@ -40,9 +40,6 @@ struct am_timeline_renderer {
 	 * "scrolled down" */
 	double lane_offset;
 
-	/* Width of lines for axes in pixels */
-	double axis_width;
-
 	/* Width in pixels of the left part of the timeline with the description
 	 * for each lane */
 	unsigned int ydesc_width;
@@ -66,9 +63,6 @@ struct am_timeline_renderer {
 	struct {
 		/* Background color rendered below all layers */
 		struct am_rgba bg;
-
-		/* Color for the lines for axes */
-		struct am_rgba axes;
 	} colors;
 
 	/* List of all render layers */

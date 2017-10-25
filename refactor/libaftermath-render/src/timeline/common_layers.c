@@ -17,11 +17,13 @@
  */
 
 #include "common_layers.h"
+#include "layers/axes.h"
 #include "layers/background.h"
 #include "layers/hierarchy.h"
 #include <aftermath/core/ansi_extras.h>
 
 static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {
+	am_timeline_axes_layer_instantiate_type,
 	am_timeline_background_layer_instantiate_type,
 	am_timeline_hierarchy_layer_instantiate_type
 };
