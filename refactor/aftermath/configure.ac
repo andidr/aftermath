@@ -28,6 +28,12 @@ CHECK_LIB_AND_HEADER_WITH([aftermath-core], [aftermath-core],
 	[aftermath/core/base_types.h], [am_dsk_load_trace])
 
 PKG_CHECK_MODULES(CAIRO, [cairo >= 1.0])
+CFLAGS="$CFLAGS $CAIRO_CFLAGS"
+CPPFLAGS="$CPPFLAGS $CAIRO_CFLAGS"
+LIBS="$LIBS $CAIRO_LIBS"
+
+CHECK_LIB_AND_HEADER_WITH([aftermath-render], [aftermath-render],
+	[aftermath/render/timeline/renderer.h], [am_timeline_renderer_init])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

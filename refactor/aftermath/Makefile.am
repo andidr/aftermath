@@ -4,12 +4,14 @@ aftermath_SOURCES = src/main.cpp \
 	src/MainWindow.cpp \
 	src/MainWindow.h \
 	src/CairoWidget.cpp \
-	src/CairoWidget.h
+	src/CairoWidget.h \
+	src/TimelineWidget.cpp \
+	src/TimelineWidget.h
 
-MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@
+MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
 aftermath_CXXFLAGS=$(MOCFLAGS) -fpermissive @CAIRO_CFLAGS@
 
-aftermath_LDADD=@AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
+aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp
