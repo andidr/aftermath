@@ -56,6 +56,17 @@ am_interval_extend(struct am_interval* a, const struct am_interval* b)
 		a->end = b->end;
 }
 
+/* Extends the interval a, such that the timestamp t is included in a. */
+static inline void
+am_interval_extend_timestamp(struct am_interval* a, am_timestamp_t t)
+{
+	if(t < a->start)
+		a->start = t;
+
+	if(t > a->end)
+		a->end = t;
+}
+
 /* Calculates the duration of an interval. */
 static inline am_timestamp_diff_t
 am_interval_duration(const struct am_interval* i)
