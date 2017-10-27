@@ -45,6 +45,17 @@ static inline int am_interval_intersection(const struct am_interval* a,
 	return 0;
 }
 
+/* Extends the interval a, such that the interval b is included in a. */
+static inline void
+am_interval_extend(struct am_interval* a, const struct am_interval* b)
+{
+	if(b->start < a->start)
+		a->start = b->start;
+
+	if(b->end > a->end)
+		a->end = b->end;
+}
+
 /* Calculates the duration of an interval. */
 static inline am_timestamp_diff_t
 am_interval_duration(const struct am_interval* i)
