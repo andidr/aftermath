@@ -26,6 +26,7 @@ int am_io_context_init(struct am_io_context* ctx)
 	ctx->trace = NULL;
 	ctx->filename = NULL;
 	ctx->fp = NULL;
+	ctx->bounds_valid = 0;
 
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
 
@@ -140,6 +141,8 @@ void am_io_context_reset(struct am_io_context* ctx)
 
 	am_io_hierarchy_context_destroy(&ctx->hierarchy_context);
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
+
+	ctx->bounds_valid = 0;
 }
 
 void am_io_fail(void)

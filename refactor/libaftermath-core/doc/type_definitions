@@ -319,6 +319,23 @@ AFTERMATH TYPE DEFINITIONS
        the on-disk data structure that need to be copied to the in-memory data
        structure.
 
+     * timestamp_min_max_update [dict, optional]:
+
+         Specifies how the minimum and maximum timestamp of the in-memory
+         representation of the trace file is to be updated when the data
+         structure is processed. The dictionary has two keys:
+
+           - type:
+
+               Either "interval", if there is an interval embedded in the
+               structure whose bounds should be used to update the minimum and
+               maximum timestamp of the trace, or "discrete", if there is a
+               single timestamp in the structure to be used for the update.
+
+           - field:
+
+	       Name of the field with the interval or timestamp.
+
      * type_id [string, optional]:
 
          The enum value of enum am_dsk_frame_type identifying the type.

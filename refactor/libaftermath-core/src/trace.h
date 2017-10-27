@@ -29,6 +29,9 @@
 struct am_trace {
 	char* filename;
 
+	/* Minimum and maximum timestamps encountered in the trace */
+	struct am_interval bounds;
+
 	struct am_hierarchyp_array hierarchies;
 	struct am_event_collection_array event_collections;
 	struct am_state_description_array state_descriptions;

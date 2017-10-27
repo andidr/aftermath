@@ -49,6 +49,10 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 {% include "dsk_to_mem_copy.tpl.fnproto.h" %}
 {%- endfor %}
 
+{% for t in am_types.filter_list_hasattrs(dsk.types_list, ["timestamp_min_max_update"]) -%}
+{% include "timestamp_min_max_update.tpl.fnproto.h" %}
+{% endfor %}
+
 /* Reads size bytes from the currently opened trace file. Returns 0 on success,
  * otherwise 1. Reads of size 0 always succeed. */
 static inline int am_dsk_read(struct am_io_context* ctx,
@@ -439,6 +443,11 @@ static inline int am_dsk_event_mapping_process(struct am_io_context* ctx,
 {% if t.is_frame %}
 {% include "dsk_load.tpl.c" %}
 {% endif %}
+{% endfor %}
+
+{% for t in am_types.filter_list_hasattrs(dsk.types_list, ["timestamp_min_max_update"]) -%}
+{% include "timestamp_min_max_update.tpl.c" %}
+{# #}
 {% endfor %}
 
 /* Reads and processes all frames of a trace file. The file pointer of the I/O

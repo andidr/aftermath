@@ -144,7 +144,11 @@ frames = {
                 "dsk_to_mem_function" : "am_dsk_state_event_to_mem"
             }
         },
-        "to_mem_copy_fields" : ["state", "interval"]
+        "to_mem_copy_fields" : ["state", "interval"],
+        "timestamp_min_max_update" : {
+            "type" : "interval",
+            "field" : "interval"
+        }
     },
 
     "am_dsk_counter_description" : {
@@ -201,7 +205,11 @@ frames = {
                 "dsk_to_mem_function" : "am_dsk_counter_event_to_mem"
             }
         },
-        "to_mem_copy_fields" : ["time", "value"]
+        "to_mem_copy_fields" : ["time", "value"],
+        "timestamp_min_max_update" : {
+            "type" : "discrete",
+            "field" : "time"
+        }
     },
 
     "am_dsk_event_collection" : {
@@ -236,7 +244,11 @@ frames = {
                 "dsk_to_mem_function" : "am_dsk_measurement_interval_to_mem"
             },
         },
-        "to_mem_copy_fields" : ["interval"]
+        "to_mem_copy_fields" : ["interval"],
+        "timestamp_min_max_update" : {
+            "type" : "interval",
+            "field" : "interval"
+        }
     },
 
     "am_dsk_event_mapping" : {

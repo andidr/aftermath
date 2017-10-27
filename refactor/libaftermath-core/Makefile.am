@@ -91,6 +91,8 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/per_event_collection_per_id_timestamp.tpl.c \
 	src/templates/per_trace_array.tpl.c \
 	src/templates/process.tpl.fnproto.h \
+	src/templates/timestamp_min_max_update.tpl.fnproto.h \
+	src/templates/timestamp_min_max_update.tpl.c \
 	./scripts/template.py
 
 src/base_types.h: src/templates/base_types.tpl.h \

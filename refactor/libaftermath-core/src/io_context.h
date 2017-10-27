@@ -34,6 +34,7 @@
 struct am_io_context {
 	struct am_io_error_stack error_stack;
 	struct am_trace* trace;
+	int bounds_valid;
 	char* filename;
 	FILE* fp;
 

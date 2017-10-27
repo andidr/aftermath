@@ -22,6 +22,11 @@ static inline int {{t.name}}_load(struct am_io_context* ctx)
 	if({{t.name}}_process(ctx, &f))
 		goto {{out_dest}};
 
+	{% if t.timestamp_min_max_update -%}
+	if({{t.name}}_timestamp_min_max_update(ctx, &f))
+		goto {{out_dest}};
+	{%- endif %}
+
 	ret = 0;
 {# #}
 	{%- if t.destructor %}
