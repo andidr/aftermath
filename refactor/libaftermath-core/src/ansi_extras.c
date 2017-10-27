@@ -285,3 +285,109 @@ char* am_unescape_string(const char* str)
 {
 	return am_unescape_stringn(str, strlen(str));
 }
+
+static const char si_prefixes[] =
+	{ '\0', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
+
+static const uint64_t si_values_u64[] = {
+	1,
+	1000,
+	1000000,
+	1000000000,
+	1000000000000,
+	1000000000000000,
+	100000000000000000
+};
+
+/* Formats a uint64_t using K, M, G, ... suffixes with max_sigd significant
+ * digits and writes the result to buf of size max_len characters. Returns 0 if
+ * the entire formatted string fitted into buf and 1 if characters were omitted.
+ */
+int am_siformat_u64(uint64_t value, size_t max_sigd, char* buf, size_t max_len)
+{
+	size_t si_idx;
+	size_t i = 0;
+	uint64_t pre_unit;
+	uint64_t tmp;
+	uint64_t f;
+	uint64_t digit;
+	int ret = 1;
+	int unit_digits;
+
+	/* Early exit if we don't even have the space for the terminating zero
+	 * byte */
+	if(max_len == 0)
+		goto out;
+
+	/* If just space for terminating 0, just write zero */
+	if(max_len == 1)
+		goto out_zero;
+
+	if(value > 0) {
+		/* Determine prefix */
+		for(si_idx = AM_ARRAY_SIZE(si_values_u64); si_idx != 0; si_idx--)
+			if(value / si_values_u64[si_idx-1] != 0)
+				break;
+
+		/* Adjust si_idx from loop condition */
+		si_idx--;
+	} else {
+		si_idx = 0;
+	}
+
+	pre_unit = value / si_values_u64[si_idx];
+
+	if(pre_unit >= 100) {
+		f = 100 * si_values_u64[si_idx];
+		unit_digits = 3;
+	} else if(pre_unit >= 10) {
+		f = 10 * si_values_u64[si_idx];
+		unit_digits = 2;
+	} else {
+		f = si_values_u64[si_idx];
+		unit_digits = 1;
+	}
+
+	tmp = value;
+
+	while(max_sigd--) {
+		digit = tmp / f;
+
+		if(unit_digits)
+			unit_digits--;
+
+		/* Write current digit */
+		if(i < max_len - 1)
+			buf[i++] = '0' + digit;
+		else
+			goto out_zero;
+
+		tmp = tmp % f;
+
+		/* All significant zeros written and further digits zero? */
+		if(tmp == 0 && !unit_digits)
+			break;
+
+		/* Write decimal dot (only if digits follow) */
+		if(f == si_values_u64[si_idx] && max_sigd > 0) {
+			if(i < max_len - 1)
+				buf[i++] = '.';
+			else
+				goto out_zero;
+		}
+
+		f /= 10;
+	}
+
+	/* Report omitted characters if we missed at least one digit before the
+	 * dot */
+	if(unit_digits == 0)
+		ret = 0;
+
+	if(i < max_len - 1 && si_idx != 0)
+		buf[i++] = si_prefixes[si_idx];
+out_zero:
+	buf[i] = '\0';
+out:
+	return ret;
+}

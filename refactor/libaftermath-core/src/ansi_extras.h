@@ -355,4 +355,6 @@ static inline int am_fprintf_prefix(FILE* fp, const char* prefix, int nprefix,
 	return nchar;
 }
 
+int am_siformat_u64(uint64_t value, size_t max_sigd, char* buf, size_t max_len);
+
 #endif
