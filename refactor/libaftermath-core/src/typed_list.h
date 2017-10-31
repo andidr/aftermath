@@ -27,6 +27,15 @@
 	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);	\
 	    (i) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
 
+/* Same as am_typed_list_for_each, but starts with the successor of a start node
+ * s. If s is NULL, traversal starts with the first node of the list. */
+#define am_typed_list_for_each_start(c, c_memb, i, i_memb, s)			\
+	for((i) = (s) ?							\
+		    container_of((s)->i_memb.next, typeof(*(i)), i_memb) :	\
+		    container_of((c)->c_memb.next, typeof(*(i)), i_memb);	\
+	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);		\
+	    (i) = container_of((i)->i_memb.next, typeof(*(i)), i_memb))
+
 /* Same as am_typed_list_for_each, but starting point is a simple struct
  * list_head* instead of a structure with an embedded struct list_head. */
 #define am_typed_list_for_each_genentry(c, i, i_memb)			\
@@ -37,6 +46,15 @@
 #define am_typed_list_for_each_prev(c, c_memb, i, i_memb)		\
 	for((i) = container_of((c)->c_memb.prev, typeof(*(i)), i_memb); \
 	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);	\
+	    (i) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
+
+/* Same as am_typed_list_for_each, but starts with the predecessor of a start
+ * node s. If s is NULL, traversal starts with the last node of the list. */
+#define am_typed_list_for_each_prev_start(c, c_memb, i, i_memb, s)		\
+	for((i) = (s) ?							\
+		    container_of((s)->i_memb.prev, typeof(*(i)), i_memb) :	\
+		    container_of((c)->c_memb.next, typeof(*(i)), i_memb);	\
+	    (i) != container_of(&(c)->c_memb, typeof(*(i)), i_memb);		\
 	    (i) = container_of((i)->i_memb.prev, typeof(*(i)), i_memb))
 
 /* Same as am_typed_list_for_each_prev, but starting point is a simple struct
