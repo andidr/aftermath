@@ -57,8 +57,14 @@ struct am_hierarchy_node {
 #define am_hierarchy_node_for_each_child(hnode, child) \
 	am_typed_list_for_each(hnode, children, child, siblings)
 
+#define am_hierarchy_node_for_each_child_start(hnode, child, start) \
+	am_typed_list_for_each_start(hnode, children, child, siblings, start)
+
 #define am_hierarchy_node_for_each_child_prev(hnode, child) \
 	am_typed_list_for_each_prev(hnode, children, child, siblings)
+
+#define am_hierarchy_node_for_each_child_prev_start(hnode, child, start) \
+	am_typed_list_for_each_prev_start(hnode, children, child, siblings, start)
 
 #define am_hierarchy_node_for_each_child_safe(hnode, n, i) \
 	am_typed_list_for_each_safe(hnode, children, n, i, siblings)
