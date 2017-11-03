@@ -100,4 +100,14 @@ struct am_rect {
  * call of a cairo function. */
 #define AM_PRECT_ARGS(r) (r)->x, (r)->y, (r)->width, (r)->height
 
+/* Returns true if the point p lies within the rect r (including values, where p
+ * lies on the borders of r). Otherwise, the function returns false. */
+static inline int
+am_point_in_rect(const struct am_point* p,
+		 const struct am_rect* r)
+{
+	return p->x >= r->x && p->x <= r->x + r->width &&
+		p->y >= r->y && p->y <= r->y + r->height;
+}
+
 #endif
