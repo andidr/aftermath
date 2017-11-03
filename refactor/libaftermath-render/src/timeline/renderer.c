@@ -470,3 +470,180 @@ int am_timeline_renderer_set_vertical_axis_x(struct am_timeline_renderer* r,
 
 	return ret;
 }
+
+/* Function that recursively traverses all visible lanes starting with n.
+ *
+ * r: the timeline renderer
+ * n: The current node
+ * node_idx: Index of n
+ * curr_lane: The 0-indexed lane starting from the top of the timeline for n
+ * cb: Callback function called for each visible lane
+ * data: Data to be passed verbatim to the callback functions
+ */
+static void am_timeline_renderer_foreach_visible_lane_down(
+	struct am_timeline_renderer* r,
+	struct am_hierarchy_node* n,
+	unsigned int node_idx,
+	unsigned int* curr_lane,
+	am_timeline_renderer_lane_fun_t cb,
+	void* data)
+{
+	struct am_hierarchy_node* child;
+	unsigned int child_idx = node_idx + 1;
+	unsigned int this_lane = *curr_lane;
+
+	if(*curr_lane > r->num_visible_lanes)
+		return;
+
+	if(!am_hierarchy_node_has_children(n) ||
+	   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
+	{
+		cb(r, n, node_idx, this_lane, data);
+	}
+
+	if(!am_bitvector_test_bit(&r->collapsed_nodes, node_idx)) {
+		am_hierarchy_node_for_each_child(n, child) {
+			am_timeline_renderer_foreach_visible_lane_down(r,
+								       child,
+								       child_idx,
+								       curr_lane,
+								       cb,
+								       data);
+
+			child_idx += child->num_descendants + 1;
+		}
+	}
+
+	if(!am_hierarchy_node_has_children(n) ||
+	   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
+	{
+		(*curr_lane)++;
+	}
+}
+
+/* Function that recursively traverses all visible lanes, starting with the lane
+ * of the first visible node.
+ *
+ * r: the timeline renderer
+ * n: The current node
+ * node_idx: Index of n
+ * calling_child: The child node of the last level of recursion (or null if n is
+ *                the first visible node). Only the remaining siblings, starting
+ *                with calling_child will be considered.
+ * calling_child_idx: Index of the calling child (only valid if calling_child !=
+ *                    NULL)
+ * curr_lane: The 0-indexed lane starting from the top of the timeline for the
+ *            next visible node
+ * lane_visible: Indicates whether the lane of n itself is visible
+ * cb: Callback function called for each visible lane
+ * data: Data to be passed verbatim to the callback function
+ */
+static void am_timeline_renderer_foreach_visible_lane_up(
+	struct am_timeline_renderer* r,
+	struct am_hierarchy_node* n,
+	unsigned int node_idx,
+	struct am_hierarchy_node* calling_child,
+	unsigned int calling_child_idx,
+	unsigned int* curr_lane,
+	int lane_visible,
+	am_timeline_renderer_lane_fun_t cb,
+	void* data)
+{
+	struct am_hierarchy_node* sibling;
+	struct am_hierarchy_node* child;
+	struct am_hierarchy_node* parent = n->parent;
+	unsigned int parent_idx;
+	unsigned int child_idx;
+	int parent_lane_visible;
+
+	/* The parent lane is only visible if identical with the lane of the
+	 * first visible node. */
+	parent_lane_visible = n->parent &&
+		lane_visible &&
+		am_hierarchy_node_is_first_child(parent, n);
+
+	/* Count this lane only if it is visible and if this is the first
+	 * invocation for this lane. */
+	if(lane_visible) {
+		if(!calling_child &&
+		   (!am_hierarchy_node_has_children(n) ||
+		    am_bitvector_test_bit(&r->collapsed_nodes, node_idx)))
+		{
+			cb(r, n, node_idx, *curr_lane, data);
+		}
+
+		/* The first child is rendered on the same column, so don't
+		 * increase lane number if node has children and is not
+		 * collapsed. */
+		if(!am_hierarchy_node_has_children(n) ||
+		   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
+		{
+			(*curr_lane)++;
+		}
+	}
+
+	/* Process all children starting with the calling child's successor or
+	 * the first child if this is the first visible node. */
+	if(*curr_lane <= r->num_visible_lanes &&
+	   !am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
+	{
+		if(calling_child) {
+			child_idx = calling_child_idx +
+				calling_child->num_descendants + 1;
+		} else {
+			child_idx = node_idx + 1;
+		}
+
+		am_hierarchy_node_for_each_child_start(n, child, calling_child) {
+			am_timeline_renderer_foreach_visible_lane_down(r,
+								       child,
+								       child_idx,
+								       curr_lane,
+								       cb,
+								       data);
+
+			child_idx += child->num_descendants + 1;
+		}
+	}
+
+	/* Render remaining siblings of n */
+	if(parent) {
+		/* Calculate parent index */
+		parent_idx = node_idx - 1;
+
+		am_hierarchy_node_for_each_child_prev_start(parent, sibling, n)
+			parent_idx -= sibling->num_descendants + 1;
+
+		am_timeline_renderer_foreach_visible_lane_up(r,
+							     n->parent,
+							     parent_idx,
+							     n,
+							     node_idx,
+							     curr_lane,
+							     parent_lane_visible,
+							     cb,
+							     data);
+	}
+}
+
+/* Calls cb for each visible lane. The data pointer is passed verbatim to the
+ * callback function. */
+void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
+					       am_timeline_renderer_lane_fun_t cb,
+					       void* data)
+{
+	unsigned int curr_lane = 0;
+
+	if(!r->first_lane.node)
+		return;
+
+	am_timeline_renderer_foreach_visible_lane_up(r,
+						     r->first_lane.node,
+						     r->first_lane.node_index,
+						     NULL,
+						     0,
+						     &curr_lane,
+						     1,
+						     cb,
+						     data);
+}

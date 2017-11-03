@@ -249,4 +249,14 @@ AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_offset)
 AM_DECL_TIMELINE_RENDERER_SETTER_FUN_STRUCT(visible_interval)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN_STRUCT(visible_interval)
 
+typedef void (*am_timeline_renderer_lane_fun_t)(struct am_timeline_renderer* r,
+						struct am_hierarchy_node* n,
+						unsigned int node_idx,
+						unsigned int lane,
+						void* data);
+
+void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
+					       am_timeline_renderer_lane_fun_t cb,
+					       void* data);
+
 #endif
