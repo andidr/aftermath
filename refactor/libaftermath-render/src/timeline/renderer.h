@@ -259,4 +259,8 @@ void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
 					       am_timeline_renderer_lane_fun_t cb,
 					       void* data);
 
+int am_timeline_renderer_lane_extents(struct am_timeline_renderer* r,
+				      struct am_rect* e,
+				      unsigned int lane);
+
 #endif

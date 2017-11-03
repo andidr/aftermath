@@ -647,3 +647,24 @@ void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
 						     cb,
 						     data);
 }
+
+/* Returns the coordinates of the lane-th lane in e. If the lane is invalid, the
+ * function returns 1, otherwise 0. */
+int am_timeline_renderer_lane_extents(struct am_timeline_renderer* r,
+				      struct am_rect* e,
+				      unsigned int lane)
+{
+	double lane_mod;
+
+	if(lane >= r->num_visible_lanes)
+		return 1;
+
+	lane_mod = r->lane_offset - (r->num_invisible_lanes * r->lane_height);
+
+	e->x = r->rects.lanes.x;
+	e->y = ((double)(lane * r->lane_height)) - lane_mod;
+	e->height = r->lane_height;
+	e->width = r->rects.lanes.width;
+
+	return 0;
+}
