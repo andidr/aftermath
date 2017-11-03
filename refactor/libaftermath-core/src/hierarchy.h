@@ -113,6 +113,22 @@ am_hierarchy_node_has_children(const struct am_hierarchy_node* hn)
 	return !list_empty(&hn->children);
 }
 
+/* Returns true if c is the first child of n, otherwise false. */
+static inline int
+am_hierarchy_node_is_first_child(const struct am_hierarchy_node* n,
+				 const struct am_hierarchy_node* c)
+{
+	return (n->children.next == &c->siblings);
+}
+
+/* Returns true if c is the second child of n, otherwise false. */
+static inline int
+am_hierarchy_node_is_second_child(const struct am_hierarchy_node* n,
+				 const struct am_hierarchy_node* c)
+{
+	return (n->children.next->next == &c->siblings);
+}
+
 int am_hierarchy_node_init(struct am_hierarchy_node* hn,
 			   am_hierarchy_node_id_t id,
 			   const char* name);
