@@ -122,5 +122,6 @@ void am_hierarchy_node_init_nodup(struct am_hierarchy_node* hn,
 void am_hierarchy_node_destroy(struct am_hierarchy_node* hn);
 void am_hierarchy_node_set_name_nodup(struct am_hierarchy_node* hn, char* name);
 int am_hierarchy_node_set_name(struct am_hierarchy_node* hn, const char* name);
+unsigned int am_hierarchy_node_depth(struct am_hierarchy_node* n);
 
 #endif

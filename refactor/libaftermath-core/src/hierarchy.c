@@ -154,3 +154,16 @@ int am_hierarchy_node_set_name(struct am_hierarchy_node* hn, const char* name)
 
 	return 0;
 }
+
+/* Returns the number of arcs from the root to n. */
+unsigned int am_hierarchy_node_depth(struct am_hierarchy_node* n)
+{
+	unsigned int depth = 0;
+
+	while(n->parent) {
+		depth++;
+		n = n->parent;
+	}
+
+	return depth;
+}
