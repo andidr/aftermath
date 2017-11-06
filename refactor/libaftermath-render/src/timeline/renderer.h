@@ -263,4 +263,11 @@ int am_timeline_renderer_lane_extents(struct am_timeline_renderer* r,
 				      struct am_rect* e,
 				      unsigned int lane);
 
+int am_timeline_renderer_is_leaf_lane(struct am_timeline_renderer* r,
+				      struct am_hierarchy_node* n,
+				      unsigned int node_idx);
+
+int am_timeline_renderer_parent_on_same_lane(struct am_timeline_renderer* r,
+					     struct am_hierarchy_node* n);
+
 #endif

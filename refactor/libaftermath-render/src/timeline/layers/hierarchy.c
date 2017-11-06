@@ -170,6 +170,9 @@ static void foreach_visible_down(struct hierarchy_layer* hl,
 			data);
 	}
 
+	if(am_timeline_renderer_is_leaf_lane(r, n, node_idx))
+		(*curr_lane)++;
+
 	if(!am_bitvector_test_bit(&r->collapsed_nodes, node_idx)) {
 		am_hierarchy_node_for_each_child(n, child) {
 			child_visible = (*curr_lane) <= r->num_visible_lanes;
@@ -199,12 +202,6 @@ static void foreach_visible_down(struct hierarchy_layer* hl,
 
 			child_idx += child->num_descendants + 1;
 		}
-	}
-
-	if(!am_hierarchy_node_has_children(n) ||
-	   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
-	{
-		(*curr_lane)++;
 	}
 }
 
@@ -250,11 +247,9 @@ static void foreach_visible_up(struct hierarchy_layer* hl,
 	int child_visible;
 
 	/* The parent is only visible if this node is the same lane as the first
-	 * visible node and if the parent is also on the same lane. The latter
-	 * is equivalent to n being the first child of the parent. */
-	parent_visible = n->parent &&
-		node_visible &&
-		am_hierarchy_node_is_first_child(parent, n);
+	 * visible node and if the parent is also on the same lane. */
+	parent_visible = node_visible &&
+		am_timeline_renderer_parent_on_same_lane(r, n);
 
 	/* Count n itself only if it is visible */
 	if(node_visible) {
@@ -284,11 +279,8 @@ static void foreach_visible_up(struct hierarchy_layer* hl,
 		/* The first child is rendered on the same column, so don't
 		 * increase lane number if node has children and is not
 		 * collapsed. */
-		if(!am_hierarchy_node_has_children(n) ||
-		   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
-		{
+		if(am_timeline_renderer_is_leaf_lane(r, n, node_idx))
 			(*curr_lane)++;
-		}
 	}
 
 	/* Process all children starting with the calling child's successor or

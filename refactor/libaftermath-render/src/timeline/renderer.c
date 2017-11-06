@@ -81,12 +81,11 @@ am_timeline_renderer_update_first_visible_lane_rec(
 	}
 
 	/* Current node in invisible region at the top */
-	if(!am_hierarchy_node_has_children(n) ||
-	   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
-	{
+	if(am_timeline_renderer_is_leaf_lane(r, n, node_idx))
 		(*lane_num)++;
+
+	if(am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
 		return 0;
-	}
 
 	am_hierarchy_node_for_each_child(n, child) {
 		if(am_timeline_renderer_update_first_visible_lane_rec(r,
@@ -271,12 +270,11 @@ am_timeline_renderer_num_visible_lanes_rec(struct am_timeline_renderer* r,
 {
 	struct am_hierarchy_node* child;
 
-	if(am_bitvector_test_bit(&r->collapsed_nodes, node_idx) ||
-	   !am_hierarchy_node_has_children(n))
-	{
+	if(am_timeline_renderer_is_leaf_lane(r, n, node_idx))
 		(*curr_lane)++;
+
+	if(am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
 		return;
-	}
 
 	am_hierarchy_node_for_each_child(n, child) {
 		if(*(curr_lane) >= r->num_invisible_lanes + r->max_visible_lanes)
@@ -667,4 +665,24 @@ int am_timeline_renderer_lane_extents(struct am_timeline_renderer* r,
 	e->width = r->rects.lanes.width;
 
 	return 0;
+}
+
+/* Returns true if the events of n should be rendered on their own lane or if
+ * the events of n and the events of *all* of its children should be rendered on
+ * the same lane. In all other cases, the function returns false. */
+int am_timeline_renderer_is_leaf_lane(struct am_timeline_renderer* r,
+				      struct am_hierarchy_node* n,
+				      unsigned int node_idx)
+{
+	return !am_hierarchy_node_has_children(n) ||
+		am_bitvector_test_bit(&r->collapsed_nodes, node_idx);
+
+}
+
+/* Returns true if the events of the parent of n should be rendered on the same
+ * lane as n. Otherwise returns false. */
+int am_timeline_renderer_parent_on_same_lane(struct am_timeline_renderer* r,
+					     struct am_hierarchy_node* n)
+{
+	return n->parent && am_hierarchy_node_is_first_child(n->parent, n);
 }
