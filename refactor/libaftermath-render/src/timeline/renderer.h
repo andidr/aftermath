@@ -25,6 +25,14 @@
 #include "../cairo_extras.h"
 #include "layer.h"
 
+enum am_timeline_renderer_lane_mode {
+	/* Always use a separate lane for a node */
+	AM_TIMELINE_RENDERER_LANE_MODE_ALWAYS_SEPARATE,
+
+	/* Collapse a node's lane with the lane of its first child */
+	AM_TIMELINE_RENDERER_LANE_MODE_COLLAPSE_FIRSTCHILD
+};
+
 struct am_timeline_renderer {
 	/* Width in pixels of the time line */
 	unsigned int width;
@@ -100,6 +108,10 @@ struct am_timeline_renderer {
 		/* Index of the first node on the first lane */
 		unsigned int node_index;
 	} first_lane;
+
+	/* Defines how lanes for parents and their children are rendered, e.g.,
+	 * if the lane of a parent should be collapsed with the first child. */
+	enum am_timeline_renderer_lane_mode lane_mode;
 };
 
 #define am_timeline_renderer_for_each_layer(r, layer) \
@@ -246,6 +258,7 @@ am_timeline_renderer_timestamp_to_x(struct am_timeline_renderer* r,
 
 AM_DECL_TIMELINE_RENDERER_SETCOLOR_FUN2(background, bg)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_offset)
+AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_mode)
 AM_DECL_TIMELINE_RENDERER_SETTER_FUN_STRUCT(visible_interval)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN_STRUCT(visible_interval)
 
@@ -269,5 +282,8 @@ int am_timeline_renderer_is_leaf_lane(struct am_timeline_renderer* r,
 
 int am_timeline_renderer_parent_on_same_lane(struct am_timeline_renderer* r,
 					     struct am_hierarchy_node* n);
+
+void am_timeline_renderer_set_lane_mode(struct am_timeline_renderer* r,
+					enum am_timeline_renderer_lane_mode m);
 
 #endif

@@ -59,6 +59,8 @@ int am_timeline_renderer_init(struct am_timeline_renderer* r)
 	r->first_lane.node = NULL;
 	r->first_lane.node_index = 0;
 
+	r->lane_mode = AM_TIMELINE_RENDERER_LANE_MODE_COLLAPSE_FIRSTCHILD;
+
 	return 0;
 }
 
@@ -674,9 +676,16 @@ int am_timeline_renderer_is_leaf_lane(struct am_timeline_renderer* r,
 				      struct am_hierarchy_node* n,
 				      unsigned int node_idx)
 {
-	return !am_hierarchy_node_has_children(n) ||
-		am_bitvector_test_bit(&r->collapsed_nodes, node_idx);
+	switch(r->lane_mode) {
+		case AM_TIMELINE_RENDERER_LANE_MODE_ALWAYS_SEPARATE:
+			return 1;
 
+		case AM_TIMELINE_RENDERER_LANE_MODE_COLLAPSE_FIRSTCHILD:
+			return !am_hierarchy_node_has_children(n) ||
+				am_bitvector_test_bit(&r->collapsed_nodes, node_idx);
+	}
+
+	return 0;
 }
 
 /* Returns true if the events of the parent of n should be rendered on the same
@@ -684,5 +693,24 @@ int am_timeline_renderer_is_leaf_lane(struct am_timeline_renderer* r,
 int am_timeline_renderer_parent_on_same_lane(struct am_timeline_renderer* r,
 					     struct am_hierarchy_node* n)
 {
-	return n->parent && am_hierarchy_node_is_first_child(n->parent, n);
+	switch(r->lane_mode) {
+		case AM_TIMELINE_RENDERER_LANE_MODE_ALWAYS_SEPARATE:
+			return 0;
+
+		case AM_TIMELINE_RENDERER_LANE_MODE_COLLAPSE_FIRSTCHILD:
+			return n->parent &&
+				am_hierarchy_node_is_first_child(n->parent, n);
+	}
+
+	return 0;
+}
+
+/* Set the lane mode of the renderer r */
+void am_timeline_renderer_set_lane_mode(struct am_timeline_renderer* r,
+					enum am_timeline_renderer_lane_mode m)
+{
+	r->lane_mode = m;
+
+	am_timeline_renderer_update_num_visible_lanes(r);
+	am_timeline_renderer_update_first_visible_lane(r);
 }
