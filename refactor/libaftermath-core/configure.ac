@@ -6,6 +6,7 @@ AM_INIT_AUTOMAKE([subdir-objects tar-pax])
 
 m4_include([m4/custom-program.m4])
 m4_include([m4/python.m4])
+m4_include([m4/int128.m4])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -24,6 +25,8 @@ AC_HEADER_STDC
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
+
+CHECK_INT128
 
 # Checks for library functions.
 AC_FUNC_VPRINTF
