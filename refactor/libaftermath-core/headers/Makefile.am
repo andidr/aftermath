@@ -35,6 +35,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/parser.h \
 	aftermath/core/state_description_array.h \
 	aftermath/core/state_event_array.h \
+	aftermath/core/timestamp.h \
 	aftermath/core/trace.h \
 	aftermath/core/typed_array.h \
 	aftermath/core/typed_list.h \

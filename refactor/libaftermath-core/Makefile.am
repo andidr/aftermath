@@ -54,6 +54,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/parser.h \
 				src/state_description_array.h \
 				src/state_event_array.h \
+				src/timestamp.h \
 				src/trace.c \
 				src/trace.h \
 				src/typed_array.h \
