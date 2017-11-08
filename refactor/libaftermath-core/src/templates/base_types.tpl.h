@@ -33,11 +33,19 @@ typedef {{t.c_def}} {{t.c_type}};
 {%- if re.match("u?int[0-9]+_t", t.c_def) %}
 {%- set nbits = re.match("(u?)int([0-9]+)_t", t.c_def) -%}
 {%- set signmod = "d" -%}
+{%- set minmaxprefix = "" -%}
 
 {%- if nbits.group(1) == "u" -%}
   {% set signmod = "u" -%}
+  {%- set minmaxprefix = "U" -%}
 {% endif %}
 #define {{t.c_type|upper}}_FMT PRI{{signmod}}{{nbits.group(2)}}
+{%- if nbits.group(1) == "i" -%}
+#define {{t.c_type|upper}}_MIN {{minmaxprefix}}INT{{nbits.group(2)}}_MIN
+{% else %}
+#define {{t.c_type|upper}}_MIN 0
+{%- endif %}
+#define {{t.c_type|upper}}_MAX {{minmaxprefix}}INT{{nbits.group(2)}}_MAX
 {%- endif %}
 {% endif -%}
 {% endfor -%}

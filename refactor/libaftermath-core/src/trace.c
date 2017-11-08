@@ -24,7 +24,7 @@ int am_trace_init(struct am_trace* t, const char* filename)
 	if(!(t->filename = strdup(filename)))
 		return 1;
 
-	t->bounds.start = UINT64_MAX;
+	t->bounds.start = AM_TIMESTAMP_T_MAX;
 	t->bounds.end = 0;
 
 	am_hierarchyp_array_init(&t->hierarchies);
