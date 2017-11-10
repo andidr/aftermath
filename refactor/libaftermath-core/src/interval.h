@@ -20,6 +20,7 @@
 #define AM_INTERVAL_H
 
 #include "in_memory.h"
+#include "timestamp.h"
 
 /* Checks if two intervals overlap. Returns true if this is the case, otherwise
  * false. */
@@ -67,11 +68,19 @@ am_interval_extend_timestamp(struct am_interval* a, am_timestamp_t t)
 		a->end = t;
 }
 
-/* Calculates the duration of an interval. */
-static inline am_timestamp_diff_t
-am_interval_duration(const struct am_interval* i)
+/* Calculates the duration of an interval. The return value indicates whether
+ * the result is saturated. */
+static inline enum am_arithmetic_status
+am_interval_duration(const struct am_interval* i, am_timestamp_diff_t* out)
 {
-	return i->end - i->start + 1;
+	am_timestamp_t udiff = i->end - i->start;
+
+	if(udiff <= AM_TIMESTAMP_DIFF_T_MAX)
+		*out = udiff;
+	else
+		*out = AM_TIMESTAMP_DIFF_T_MAX;
+
+	return am_timestamp_diff_add_sat_u64(out, 1);
 }
 
 #endif
