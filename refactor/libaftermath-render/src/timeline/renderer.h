@@ -23,6 +23,7 @@
 #include <aftermath/core/hierarchy.h>
 #include <aftermath/core/bitvector.h>
 #include <aftermath/core/arithmetic.h>
+#include <aftermath/core/timestamp.h>
 #include "../cairo_extras.h"
 #include "layer.h"
 
@@ -237,16 +238,26 @@ static inline double
 am_timeline_renderer_timestamp_to_relx(struct am_timeline_renderer* r,
 				       am_timestamp_t t)
 {
-	am_timestamp_diff_t d;
+	am_timestamp_t d;
+	am_timestamp_t dist;
+	double ret;
 
-	d = am_interval_duration(&r->visible_interval);
+	am_interval_duration_u(&r->visible_interval, &d);
 
 	if(d == 0 || r->rects.lanes.width == 0)
 		return 0;
 
-	return (double)(((long double)t - (long double)r->visible_interval.start) *
-			(long double)r->rects.lanes.width) /
-		(long double)d;
+	if(t >= r->visible_interval.start) {
+		dist = t - r->visible_interval.start;
+		am_timestamp_muldiv_sat(&dist, r->rects.lanes.width, d);
+		ret = (double)dist;
+	} else {
+		dist = r->visible_interval.start - t;
+		am_timestamp_muldiv_sat(&dist, r->rects.lanes.width, d);
+		ret = -((double)dist);
+	}
+
+	return ret;
 }
 
 /* Calculates the X coordinate in pixels for a timestamp t. */
@@ -257,9 +268,8 @@ am_timeline_renderer_timestamp_to_x(struct am_timeline_renderer* r,
 	return r->rects.lanes.x + am_timeline_renderer_timestamp_to_relx(r, t);
 }
 
-/* Calculates the duration corresponding to a width in pixels. Returns 0 if the
- * result fits into a am_timestamp_diff_t, otherwise 1. */
-static inline int
+/* Calculates the duration corresponding to a width in pixels. */
+static inline enum am_arithmetic_status
 am_timeline_renderer_width_to_duration(struct am_timeline_renderer* r,
 				       double w,
 				       am_timestamp_diff_t* out)
@@ -267,35 +277,55 @@ am_timeline_renderer_width_to_duration(struct am_timeline_renderer* r,
 	am_timestamp_diff_t d;
 
 	if(r->rects.lanes.width == 0)
-		return AM_ARITHMETIC_STATUS_EXACT;
+		return AM_ARITHMETIC_STATUS_OVERFLOW;
 
-	d = am_interval_duration(&r->visible_interval);
+	am_interval_duration(&r->visible_interval, &d);
 
-	return am_muldiv_safe_i64(w, d, r->rects.lanes.width, out);
+	return am_muldiv_sat_i64(w, d, r->rects.lanes.width, out);
 }
 
-/* Calculates the timestamp given the X coordinate of a pixel. Returns 0 if the
- * result fits into a am_timestamp_diff_t, otherwise 1. */
-static inline int
+/* Calculates the timestamp given the X coordinate of a pixel. */
+static inline enum am_arithmetic_status
+am_timeline_renderer_width_to_duration_u(struct am_timeline_renderer* r,
+					 double w,
+					 am_timestamp_t* out)
+{
+	am_timestamp_t d;
+
+	if(r->rects.lanes.width == 0 || w < 0)
+		return 0;
+
+	am_interval_duration_u(&r->visible_interval, &d);
+
+	return am_muldiv_sat_u64(w, d, r->rects.lanes.width, out);
+}
+
+/* Calculates the timestamp given the X coordinate of a pixel. The return value
+ * indicates whether the result has been saturated. */
+static inline enum am_arithmetic_status
 am_timeline_renderer_x_to_timestamp(struct am_timeline_renderer* r,
 				    double x,
 				    am_timestamp_t* out)
 {
-	am_timestamp_diff_t d;
-	int ret = 0;
+	am_timestamp_t d;
+	double rx;
 
 	if(r->rects.lanes.width == 0) {
 		*out = r->visible_interval.start;
-		return 0;
+		return AM_ARITHMETIC_STATUS_EXACT;
 	}
 
-	if(am_timeline_renderer_width_to_duration(r, x - r->rects.lanes.x, &d))
-		ret = 1;
+	*out = r->visible_interval.start;
 
-	if(am_add_safe_u64(r->visible_interval.start, d, out))
-		ret = 1;
+	rx = x - r->rects.lanes.x;
 
-	return ret;
+	if(rx < 0) {
+		am_timeline_renderer_width_to_duration_u(r, -rx, &d);
+		return am_timestamp_sub_sat(out, d);
+	} else {
+		am_timeline_renderer_width_to_duration_u(r, rx, &d);
+		return am_timestamp_add_sat(out, d);
+	}
 }
 
 AM_DECL_TIMELINE_RENDERER_SETCOLOR_FUN2(background, bg)
