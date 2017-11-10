@@ -243,4 +243,14 @@ static inline int am_interval_shift_left_u(struct am_interval* a, am_timestamp_t
 	return ret;
 }
 
+/* Calculates the timestamp corresponding to the middle of an interval */
+static inline am_timestamp_t am_interval_middle(const struct am_interval* i)
+{
+	am_timestamp_t dur;
+
+	am_interval_duration_u(i, &dur);
+
+	return i->start + dur / 2;
+}
+
 #endif
