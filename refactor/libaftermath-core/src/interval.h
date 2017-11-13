@@ -71,61 +71,12 @@ am_interval_extend_timestamp(struct am_interval* a, am_timestamp_t t)
 /* Calculates the duration of an interval. The return value indicates whether
  * the result is saturated. */
 static inline enum am_arithmetic_status
-am_interval_duration(const struct am_interval* i, am_timestamp_diff_t* out)
+am_interval_duration(const struct am_interval* i, struct am_time_offset* out)
 {
-	am_timestamp_t udiff = i->end - i->start;
+	out->abs = i->end - i->start;
+	out->sign = 0;
 
-	if(udiff <= AM_TIMESTAMP_DIFF_T_MAX)
-		*out = udiff;
-	else
-		*out = AM_TIMESTAMP_DIFF_T_MAX;
-
-	return am_timestamp_diff_add_sat_u64(out, 1);
-}
-
-/* Calculates the duration of an interval as an unsigned value. The return value
- * indicates whether the result is saturated. */
-static inline enum am_arithmetic_status
-am_interval_duration_u(const struct am_interval* i, am_timestamp_t* out)
-{
-	*out = i->end - i->start;
-	return am_timestamp_add_sat(out, 1);
-}
-
-/* Decreases the start of the interval by d and increases the end by d. If the
- * result would cause the start to move beyond the end, the interval is reduced
- * to an interval of size 1 at its middle.
- *
- * Returns 1 if the interval hasn't been extended entirely by d at both ends,
- * otherwise 0.
- */
-static inline int am_interval_widen(struct am_interval* i, am_timestamp_diff_t d)
-{
-	am_timestamp_diff_t dur;
-	int ret = 0;
-
-	am_interval_duration(i, &dur);
-
-	if(d < 0 && d < -(dur / 2)) {
-		am_timestamp_add_sat_diff(&i->start, dur / 2);
-		i->end = i->start;
-
-		ret = 1;
-	} else {
-		if(am_timestamp_sub_sat_diff(&i->start, d) !=
-		   AM_ARITHMETIC_STATUS_EXACT)
-		{
-			ret = 1;
-		}
-
-		if(am_timestamp_add_sat_diff(&i->end, d) !=
-		   AM_ARITHMETIC_STATUS_EXACT)
-		{
-			ret = 1;
-		}
-	}
-
-	return ret;
+	return am_timestamp_add_sat(&out->abs, 1);
 }
 
 /* Widens the interval i by an unsigned value d.
@@ -154,12 +105,12 @@ static inline int am_interval_widen_u(struct am_interval* i, am_timestamp_t d)
 static inline int am_interval_shrink_u(struct am_interval* i, am_timestamp_t d)
 {
 	int ret = 0;
-	am_timestamp_t dur;
+	struct am_time_offset dur;
 
-	am_interval_duration_u(i, &dur);
+	am_interval_duration(i, &dur);
 
-	if(d > dur / 2) {
-		i->end = i->start + dur / 2;
+	if(d > dur.abs / 2) {
+		i->end = i->start + dur.abs / 2;
 		i->start = i->end;
 		ret = 1;
 	} else {
@@ -176,31 +127,20 @@ static inline int am_interval_shrink_u(struct am_interval* i, am_timestamp_t d)
 	return ret;
 }
 
-/* Shifts the interval by d. If either the start or the end of the interval
- * reaches the minimum or maximum value, the interval is only shifted by the an
- * amount that does not cause an overflow / underflow.
+/* Decreases the start of the interval by d and increases the end by d. If the
+ * result would cause the start to move beyond the end, the interval is reduced
+ * to an interval of size 1 at its middle.
  *
- * Returns 1 if the interval couldn't be shifted by the entire value of d,
+ * Returns 1 if the interval hasn't been extended entirely by d at both ends,
  * otherwise 0.
  */
-static inline int am_interval_shift(struct am_interval* a, am_timestamp_diff_t d)
+static inline int am_interval_widen(struct am_interval* i,
+				    const struct am_time_offset* d)
 {
-	am_timestamp_t tmp;
-	int ret;
-
-	if(d >= 0) {
-		tmp = a->end;
-
-		ret = am_timestamp_add_sat_diff(&a->end, d);
-		am_timestamp_add_sat(&a->start, a->end - tmp);
-	} else {
-		tmp = a->start;
-
-		ret = am_timestamp_add_sat_diff(&a->start, d);
-		am_timestamp_add_sat(&a->end, tmp - a->start);
-	}
-
-	return ret;
+	if(d->sign)
+		return am_interval_shrink_u(i, d->abs);
+	else
+		return am_interval_widen_u(i, d->abs);
 }
 
 /* Shifts the interval by an unsigned value d to the right. If the end of the
@@ -243,14 +183,30 @@ static inline int am_interval_shift_left_u(struct am_interval* a, am_timestamp_t
 	return ret;
 }
 
+/* Shifts the interval by d. If either the start or the end of the interval
+ * reaches the minimum or maximum value, the interval is only shifted by the an
+ * amount that does not cause an overflow / underflow.
+ *
+ * Returns 1 if the interval couldn't be shifted by the entire value of d,
+ * otherwise 0.
+ */
+static inline int am_interval_shift(struct am_interval* a,
+				    const struct am_time_offset* d)
+{
+	if(d->sign)
+		return am_interval_shift_left_u(a, d->abs);
+	else
+		return am_interval_shift_right_u(a, d->abs);
+}
+
 /* Calculates the timestamp corresponding to the middle of an interval */
 static inline am_timestamp_t am_interval_middle(const struct am_interval* i)
 {
-	am_timestamp_t dur;
+	struct am_time_offset dur;
 
-	am_interval_duration_u(i, &dur);
+	am_interval_duration(i, &dur);
 
-	return i->start + dur / 2;
+	return i->start + dur.abs / 2;
 }
 
 #endif

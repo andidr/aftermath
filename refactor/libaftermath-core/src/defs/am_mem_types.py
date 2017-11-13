@@ -39,6 +39,26 @@ types = {
         "needs_constructor" : True
     },
 
+    "am_bool" : {
+        "compound" : False,
+        "entity" : "boolean",
+        "defs" : [],
+        "c_type" : "int"
+    },
+
+    "am_time_offset" : {
+        "comment" : "Difference between two timestamps",
+        "entity" : "timestamp difference",
+        "fields" : [
+            {"name" : "abs",
+             "type" : "am_timestamp_t",
+             "comment" : "Absolute difference"},
+            {"name" : "sign",
+             "type" : "am_bool",
+             "comment" : "If sign != 0 the difference is negative"}
+        ]
+    },
+
     "am_interval" : {
         "comment" : "An interval with a start and end timestamp.",
         "entity" : "interval",

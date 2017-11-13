@@ -59,16 +59,6 @@ types = {
         "c_def" : "uint64_t"
     },
 
-    "am_timestamp_diff_t" : {
-        "comment" : "Difference between two time stamps in cycles",
-        "c_def" : "int64_t"
-    },
-
-    "am_nanoseconds_diff_t" : {
-        "comment" : "Difference between two time stamps in nanoseconds",
-        "c_def" : "int64_t"
-    },
-
     "am_hierarchy_id_t" : {
         "comment" : "Numerical ID of a hierarchy",
         "c_def" : "uint32_t"

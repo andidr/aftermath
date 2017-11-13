@@ -135,7 +135,7 @@ static const struct axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
 static inline long double calculate_minor_tick_distance(struct axes_layer* ax)
 {
 	struct am_timeline_renderer* r = ax->super.renderer;
-	am_timestamp_t width_ud;
+	struct am_time_offset width_ud;
 	long double width_u;
 	long double width_px;
 	long double min_px;
@@ -144,8 +144,8 @@ static inline long double calculate_minor_tick_distance(struct axes_layer* ax)
 	long double dist_u;
 
 	width_px = r->rects.lanes.width;
-	am_interval_duration_u(&r->visible_interval, &width_ud);
-	width_u = width_ud;
+	am_interval_duration(&r->visible_interval, &width_ud);
+	width_u = width_ud.abs;
 
 	min_px = ax->params.min_minor_tick_distance;
 	min_u = (width_u * min_px) / width_px;
@@ -218,7 +218,7 @@ static void render(struct axes_layer* ax, cairo_t* cr)
 	struct axis_params* vp = &ax->params.axes.vertical;
 	struct axis_params* hp = &ax->params.axes.horizontal;
 	struct am_rect* lr = &r->rects.lanes;
-	am_timestamp_diff_t dur;
+	struct am_time_offset dur;
 	long double minor_time;
 	long double major_time;
 	long double vstart_time;
@@ -242,7 +242,7 @@ static void render(struct axes_layer* ax, cairo_t* cr)
 
 	am_interval_duration(&r->visible_interval, &dur);
 
-	if(dur == 0)
+	if(dur.abs == 0)
 		return;
 
 	cairo_rectangle(cr, AM_RECT_ARGS(r->rects.xlegend));
