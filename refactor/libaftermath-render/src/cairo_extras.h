@@ -22,6 +22,7 @@
 #include <cairo.h>
 #include <stddef.h>
 #include <math.h>
+#include <aftermath/core/ansi_extras.h>
 
 void am_striped_rectangle(cairo_t* cr,
 			  double rect_left, double rect_top,
@@ -99,6 +100,37 @@ struct am_rect {
 /* Builds four function arguments from a pointer to a rectangle struct for a
  * call of a cairo function. */
 #define AM_PRECT_ARGS(r) (r)->x, (r)->y, (r)->width, (r)->height
+
+/* Stores a rectangle describing the intersection of r and b in r if b and r
+ * overlap. Returns 1 if the rectangles overlap, otherwise 0. */
+static inline int
+am_rectangle_intersect(struct am_rect* r,
+		       const struct am_rect* b)
+{
+	double x1;
+	double x2;
+	double y1;
+	double y2;
+
+	if(b->x <= r->x + r->width && b->x + b->width >= r->x &&
+	   b->y <= r->y + r->height && b->y + b->height >= r->y)
+	{
+		x1 = am_max_double(b->x, r->x);
+		x2 = am_min_double(b->x + b->width, r->x + r->width);
+
+		y1 = am_max_double(b->y, r->y);
+		y2 = am_min_double(b->y + b->height, r->y + r->height);
+
+		r->x = x1;
+		r->width = x2 - x1;
+		r->y = y1;
+		r->height = y2 - y1;
+
+		return 1;
+	}
+
+	return 0;
+}
 
 /* Returns true if the point p lies within the rect r (including values, where p
  * lies on the borders of r). Otherwise, the function returns false. */
