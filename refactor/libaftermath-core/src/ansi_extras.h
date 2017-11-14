@@ -357,4 +357,16 @@ static inline int am_fprintf_prefix(FILE* fp, const char* prefix, int nprefix,
 
 int am_siformat_u64(uint64_t value, size_t max_sigd, char* buf, size_t max_len);
 
+/* Returns the maximum of a and b. */
+static inline double am_max_double(double a, double b)
+{
+	return a > b ? a : b;
+}
+
+/* Returns the minimum of a and b. */
+static inline double am_min_double(double a, double b)
+{
+	return a < b ? a : b;
+}
+
 #endif
