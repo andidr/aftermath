@@ -48,5 +48,6 @@ def definitions():
         "find_field" : am_type_aux.find_field,
         "filter_list_hasattrs" : am_type_aux.filter_list_hasattrs,
         "filter_list_hasdefs" : am_type_aux.filter_list_hasdefs,
-        "isinttype" : am_type_aux.isinttype
+        "isinttype" : am_type_aux.isinttype,
+        "istuple" : lambda x: isinstance(x, tuple)
     }

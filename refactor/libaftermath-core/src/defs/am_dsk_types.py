@@ -144,7 +144,7 @@ frames = {
                 "dsk_to_mem_function" : "am_dsk_state_event_to_mem"
             }
         },
-        "to_mem_copy_fields" : ["state", "interval"],
+        "to_mem_copy_fields" : [("state", "state_idx"), "interval"],
         "timestamp_min_max_update" : {
             "type" : "interval",
             "field" : "interval"

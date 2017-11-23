@@ -101,7 +101,7 @@ types = {
             {"name" : "interval",
              "type" : "am_interval",
              "comment" : "Interval during which the state was active"},
-            {"name" : "state",
+            {"name" : "state_idx",
              "type" : "am_state_t",
              "comment" : "ID of the state"}
         ]

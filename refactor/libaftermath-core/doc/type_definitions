@@ -314,10 +314,16 @@ AFTERMATH TYPE DEFINITIONS
                    structure into an in-memory structure
 
 
-     * to_mem_copy_fields [list[string], optional]: If mem_copy_function is
-       specified in the defs attribute, this attribute indicates the fields of
-       the on-disk data structure that need to be copied to the in-memory data
-       structure.
+     * to_mem_copy_fields [list[string / (string, string)], optional]:
+       If mem_copy_function is specified in the defs attribute, this
+       attribute indicates the fields of the on-disk data structure
+       that need to be copied to the in-memory data structure. Each
+       entry of the list might be either a string or a pair of
+       strings. In case of a string the same name is used for both the
+       field of the on-disk structure and the in-memory structure. In
+       case of a pair of strings the first entry is the name of the
+       field of the on-disk data structure and the second entry the
+       name of the in-memory data structure.
 
      * timestamp_min_max_update [dict, optional]:
 
