@@ -54,6 +54,8 @@
 	static inline int prefix##_prealloc(struct prefix* a);		\
 	static inline void prefix##_init(struct prefix* a);		\
 	static inline void prefix##_destroy(struct prefix* a);		\
+	static inline size_t prefix##_index(const struct prefix* a,	\
+					    const T* e);		\
 									\
 	static inline int prefix##_is_element_ptr(const struct prefix* a, \
 						  T* e);		\
@@ -64,6 +66,13 @@
 	{								\
 		return ((uintptr_t)e) >= ((uintptr_t)a->elements) &&	\
 			((uintptr_t)e) < ((uintptr_t)&a->elements[a->num_elements]); \
+	}								\
+									\
+	static inline size_t prefix##_index(const struct prefix* a,	\
+					    const T* e)		\
+	{								\
+		return (((uintptr_t)e) - ((uintptr_t)a->elements)) /	\
+			sizeof(a->elements[0]);			\
 	}								\
 									\
 	/* Reserves space for at least one element at position p. */	\
