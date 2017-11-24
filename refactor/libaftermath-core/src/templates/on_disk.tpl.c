@@ -53,6 +53,13 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 {% include "timestamp_min_max_update.tpl.fnproto.h" %}
 {% endfor %}
 
+{%- for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
+{%- for postprocess in memtype.postprocess %}
+{% include postprocess.type+".tpl.fnproto.h" %}
+static int {{memtype.name}}_postprocess(struct am_io_context* ctx);
+{% endfor -%}
+{% endfor %}
+
 /* Reads size bytes from the currently opened trace file. Returns 0 on success,
  * otherwise 1. Reads of size 0 always succeed. */
 static inline int am_dsk_read(struct am_io_context* ctx,
@@ -499,6 +506,36 @@ static int am_dsk_header_verify(struct am_io_context* ctx)
 	return 0;
 }
 
+{% for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
+{%- for postprocess in memtype.postprocess %}
+{% include postprocess.type+".tpl.c" %}
+{% endfor %}
+
+/* Performs postprocessing of all {{memtype.entity}}s. Returns 0 on success,
+ * otherwise 1. */
+static int {{memtype.name}}_postprocess(struct am_io_context* ctx)
+{
+	{%- for postprocess in memtype.postprocess %}
+	if({% include postprocess.type+".tpl.fname.h" %}(ctx))
+		return 1;
+	{%- endfor %}
+{# #}
+	return 0;
+}
+{%- endfor %}
+
+/* Performs postprocessing of a trace after loading it into memory. Returns 0 on
+ * success, otherwise 1. */
+int am_dsk_postprocess(struct am_io_context* ctx)
+{
+	{%- for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
+	if({{memtype.name}}_postprocess(ctx))
+		return 1;
+	{%- endfor %}
+{# #}
+	return 0;
+}
+
 /* Loads a trace from disk into memory. A pointer to the newly allocated trace
  * data structure is stored in *pt. Ctx is a pointer to an already initialized
  * I/O context. If an error occurs, the error stack of the I/O context is set
@@ -529,6 +566,11 @@ int am_dsk_load_trace(struct am_io_context* ctx, struct am_trace** pt)
 	if(am_dsk_read_frames(ctx)) {
 		AM_IOERR_GOTO_NA(ctx, out_err_trace_destroy, AM_IOERR_READ_FRAMES,
 				 "Could not read frames.");
+	}
+
+	if(am_dsk_postprocess(ctx)) {
+		AM_IOERR_GOTO_NA(ctx, out_err_trace_destroy,
+				 AM_IOERR_POSTPROCESS, "Postprocessing failed.");
 	}
 
 	*pt = ctx->trace;

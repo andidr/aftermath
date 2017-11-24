@@ -142,6 +142,23 @@ AFTERMATH TYPE DEFINITIONS
              structures that have a field that requires the invocation of a
              destructor.
 
+     * postprocess [list[dict], optional]:
+
+         In-memory types can be postprocessed after the trace was loaded. The
+         postprocess attribute defines a list of post-processing steps to perfom
+         in the specified order. Each definition of a step is a dictionary with
+         the two keys: "type" defines the postprocessing type and "args" the
+         step-dependent arguments.
+
+         A postprocessing step must provide 3 files:
+
+           - <type>.tpl.c containing the actual code of the step function
+	   - <type>.tpl.fnproto.h with the prototype of the step function
+	   - <type>.tpl.fname.h containing just the name of the step function
+
+         The step function must return an integer (0: success, 1: failure) and
+         takes a pointer to a struct am_io_context as its only argument.
+
    ON-DISK TYPES AND IN-MEMORY TYPES
 
      * entity [string, mandatory]:

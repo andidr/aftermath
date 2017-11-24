@@ -75,6 +75,9 @@ enum am_io_error_id {
 	/* Error in the main loop processing all frames of a trace file */
 	AM_IOERR_READ_FRAMES,
 
+	/* Error in during post-processing of a loaded trace */
+	AM_IOERR_POSTPROCESS,
+
 	/* Error in the function reading and processing a frame */
 	AM_IOERR_LOAD_FRAME,
 
