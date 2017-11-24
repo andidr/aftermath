@@ -153,11 +153,47 @@ AFTERMATH TYPE DEFINITIONS
          A postprocessing step must provide 3 files:
 
            - <type>.tpl.c containing the actual code of the step function
-	   - <type>.tpl.fnproto.h with the prototype of the step function
-	   - <type>.tpl.fname.h containing just the name of the step function
+           - <type>.tpl.fnproto.h with the prototype of the step function
+           - <type>.tpl.fname.h containing just the name of the step function
 
          The step function must return an integer (0: success, 1: failure) and
          takes a pointer to a struct am_io_context as its only argument.
+
+         The available post-processing steps are:
+
+           - id_to_index:
+
+               Modifies the field of all instances of an element type, such that
+               the field's value no longer refers to an ID, but to the index of
+               a description element for this ID in a sorted array of a
+               trace. The following step arguments are required:
+
+                 - element.type_name: name of the structure whose field is to be
+                   changed to an index
+
+                 - element.field: The name of the field that needs to is changed
+
+                 - element.field_fmt: Format string for the field type (either
+                   directly in quotes, such as \""%d"\" or the string constant from
+                   base_types.h, e.g., "AM_STATE_T_FMT"
+
+                 - element.field_entity: Human-redable name of the entity the
+                   field represents
+
+                 - element.ecoll_array_id: ID to retrieve the array with the
+                   elements from an event collection.
+
+                 - description.type_name: name of the structure representing a
+                   description in the description array of the trace
+
+                 - description.field: Name of the field that holds the ID of the
+                   referenced entity
+
+                 - description.entity: Human-readable name of the entity the
+                   description represents
+
+                 - description.trace_array_field: Name of the field of the trace
+                   with the array of descriptions
 
    ON-DISK TYPES AND IN-MEMORY TYPES
 

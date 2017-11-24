@@ -89,6 +89,9 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/dsk_write.tpl.fnproto.h \
 	src/templates/destructor.tpl.c \
 	src/templates/destructor.tpl.fnproto.h \
+	src/templates/id_to_index.tpl.c \
+	src/templates/id_to_index.tpl.fnproto.h \
+	src/templates/id_to_index.tpl.fname.h \
 	src/templates/per_event_collection_interval.tpl.c \
 	src/templates/per_event_collection_per_id_timestamp.tpl.c \
 	src/templates/per_trace_array.tpl.c \
