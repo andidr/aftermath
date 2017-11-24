@@ -103,7 +103,26 @@ types = {
              "comment" : "Interval during which the state was active"},
             {"name" : "state_idx",
              "type" : "am_state_t",
-             "comment" : "ID of the state"}
+             "comment" : "ID of the state"},
+        ],
+        "postprocess" : [
+            {"type" : "id_to_index",
+             "args" : {
+                 "element" : {
+                     "type_name" : "am_state_event",
+                     "field" : "state_idx",
+                     "field_fmt" : "AM_STATE_T_FMT",
+                     "field_entity" : "id",
+                     "ecoll_array_id" : "AM_EVENT_ARRAY_TYPE_STATE_EVENT",
+                 },
+                 "description" : {
+                     "type_name" : "am_state_description",
+                     "field" : "state_id",
+                     "entity" : "state description",
+                     "trace_array_field" : "state_descriptions"
+                 }
+             }
+            }
         ]
     },
 
