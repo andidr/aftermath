@@ -79,6 +79,26 @@ am_interval_duration(const struct am_interval* i, struct am_time_offset* out)
 	return am_timestamp_add_sat(&out->abs, 1);
 }
 
+/* Calculates the duration of the intersection of two intervals a and b and
+ * returns the result in *out. If the intervals do not intersect, the reported
+ * duration is 0. */
+static inline enum am_arithmetic_status
+am_interval_intersection_duration(const struct am_interval* a,
+				  const struct am_interval* b,
+				  struct am_time_offset* out)
+{
+	struct am_interval tmp;
+
+	if(am_interval_intersection(a, b, &tmp)) {
+		out->abs = 0;
+		out->sign = 0;
+
+		return AM_ARITHMETIC_STATUS_EXACT;
+	}
+
+	return am_interval_duration(&tmp, out);
+}
+
 /* Widens the interval i by an unsigned value d.
  *
  * Returns 1 if the interval hasn't been extended entirely by d at both ends,
