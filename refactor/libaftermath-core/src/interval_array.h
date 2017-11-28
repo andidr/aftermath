@@ -23,6 +23,8 @@
 #include "bsearch.h"
 #include "interval.h"
 #include "typed_array.h"
+#include "ptr.h"
+#include "ansi_extras.h"
 #include "contrib/linux-kernel/stddef.h"
 
 #define ACC_PINTERVAL_PIDENT(i) (&(i))
@@ -48,6 +50,169 @@ AM_DECL_VSTRIDED_BSEARCH_LAST_SUFFIX(am_interval_array_,
 				      ACC_PINTERVAL_PIDENT,
 				      ACC_PINTERVAL_OVERLAP_SMALLER_EXPR,
 				      ACC_PINTERVAL_OVERLAP_GREATER_EXPR)
+
+/* Internal use; Used as an iterator in for_each macros */
+struct am_interval_array_iterator {
+	struct am_interval* start;
+	struct am_interval* end;
+};
+
+/* Internal use; Returns a newly intialized interval array iterator and sets *i
+ * to the first interval or NULL if no such interval exists.
+ */
+static inline struct am_interval_array_iterator
+am_interval_array_iterator_start(struct am_typed_array_generic* arr,
+				 off_t stride,
+				 off_t field_offset,
+				 const struct am_interval* query,
+				 struct am_interval** i)
+{
+	struct am_interval_array_iterator it;
+	struct am_interval* first_field;
+
+	/* Address of the interval field of the first array element */
+	first_field = ((struct am_interval*)((arr->elements)+field_offset));
+
+	/* Address of the interval field of the first array element whose
+	 * interval overlaps with the query interval */
+	it.start = am_interval_array_bsearch_first_strided_overlapping(
+		first_field,
+		arr->num_elements,
+		stride,
+		query);
+
+	*i = it.start;
+
+	if(it.start) {
+		/* Address of the interval field of the last array element whose
+		 * interval overlaps with the query interval */
+		it.end = am_interval_array_bsearch_last_strided_overlapping(
+			first_field,
+			arr->num_elements,
+			stride,
+			query);
+	}
+
+	return it;
+}
+
+/* Internal use; Returns a newly intialized interval array iterator, sets *i to
+ * the first interval or NULL if no such interval exists and *uint_val to the
+ * value of the unsigned integer of uint_field_bits bits at the offset
+ * uint_field_offset. Uint_field_bits must be either 8, 16, 32 or 64. */
+static inline struct am_interval_array_iterator
+am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
+				      off_t stride,
+				      off_t interval_field_offset,
+				      off_t uint_field_offset,
+				      unsigned int uint_field_bits,
+				      const struct am_interval* query,
+				      struct am_interval** i,
+				      void* uint_val,
+				      unsigned int uint_val_bits)
+{
+	struct am_interval_array_iterator it;
+	void* uint_field;
+
+	it = am_interval_array_iterator_start(arr, stride, interval_field_offset,
+					      query, i);
+
+	if(!it.start)
+		return it;
+
+	uint_field = ((void*)it.start) - interval_field_offset +
+		uint_field_offset;
+
+	am_assign_uint(uint_val, uint_val_bits, uint_field, uint_field_bits);
+
+	return it;
+}
+
+/* Iterate over a typed array of elements that contain an interval, starting
+ * with the interval of the element that first overlaps with a query interval
+ * and ending with the interval of the last element that overlaps with the query
+ * interval. The argument parr must be a pointer to a typed array cast to struct
+ * am_typed_array_generic, pi a pointer to a struct am_interval that serves as
+ * an iterator, element_size is the size in bytes of an array element,
+ * field_offset is the offset of the interval field of an array element, and
+ * pquery is a pointer to the query interval.
+ */
+#define am_interval_array_for_each_overlapping_offs(parr, pi, element_size,	\
+						    field_offset, pquery)	\
+	for(struct am_interval_array_iterator __it =				\
+		    am_interval_array_iterator_start(				\
+			    parr,						\
+			    element_size,					\
+			    field_offset,					\
+			    pquery,						\
+			    &pi);						\
+	    (pi) && AM_PTR_LEQ(pi, __it.end);					\
+	    (pi) = ((void*)pi) + element_size)
+
+/* Iterate over a typed array of elements that contain an interval, starting
+ * with the interval of the element that first overlaps with a query interval
+ * and ending with the interval of the last element that overlaps with the query
+ * interval. The argument parr must be a pointer to a typed array cast to struct
+ * am_typed_array_generic, pi a pointer to a struct am_interval that serves as
+ * an iterator, field is the name of the interval field of an array element, and
+ * pquery is a pointer to the query interval.
+ */
+#define am_interval_array_for_each_overlapping(parr, pi, field, pquery) \
+	am_interval_array_for_each_overlapping_offs(			\
+		parr,							\
+		pi,							\
+		sizeof((parr)->elements[0]),				\
+		AM_OFFSETOF_PTR((parr)->elements[0], field),		\
+		pquery)
+
+/* Same as am_interval_array_for_each_overlapping_offs, but extracts an unsigned
+ * integer field at each iteration from the current array element and assigns
+ * the value to *puint. Uint_field_offset specifies the offset of the unsigned
+ * integer field in an element and uint_field_bits indicates the size of the
+ * unsigned integer in bits. The number of bits must be 8, 16, 32 or 64.
+ */
+#define am_interval_array_for_each_overlapping_uint_offs(parr, pi, puint,	\
+							 puint_bits,		\
+							 element_size,		\
+							 interval_field_offset, \
+							 uint_field_offset,	\
+							 uint_field_bits,	\
+							 pquery)		\
+	for(struct am_interval_array_iterator __it =				\
+		    am_interval_array_iterator_start_intn(			\
+			    parr,						\
+			    element_size,					\
+			    interval_field_offset,				\
+			    uint_field_offset,					\
+			    uint_field_bits,					\
+			    pquery,						\
+			    &pi,						\
+			    puint,						\
+			    puint_bits);					\
+	    (pi) && AM_PTR_LEQ(pi, __it.end);					\
+	    (pi) = ((void*)pi) + element_size,					\
+		    am_assign_uint(puint, puint_bits,				\
+				   ((void*)pi) - interval_field_offset +	\
+				   uint_field_offset, uint_field_bits))
+
+/* Same as am_interval_array_for_each_overlapping, but extracts the unsigned
+ * integer field specified by interval_field at each iteration from the current
+ * array element and assigns the value to *puint.
+ */
+#define am_interval_array_for_each_overlapping_uint(parr, pi, puint,	\
+						    interval_field,	\
+						    uint_field,	\
+						    pquery)		\
+	am_interval_array_for_each_overlapping_uint_offs(		\
+		parr,							\
+		pi,							\
+		puint,							\
+		sizeof((parr)->elements[0]),				\
+		AM_OFFSETOF_PTR((parr)->elements[0], interval_field),	\
+		AM_OFFSETOF_PTR(typeof((parr)->elements[0], uint_field),\
+		AM_SIZEOF_BITS((parr)->elements[0].uint_field),	\
+		AM_SIZEOF_BITS(*puint),				\
+		pquery)
 
 /* This macro provides a generic way to implement a binary search function for
  * arrays of an event type T with an interval. The declared function returns the
