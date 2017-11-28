@@ -25,6 +25,20 @@
 /* Default number of elements that is preallocated when space is insufficient */
 #define AM_DEFAULT_TYPED_ARRAY_PREALLOC 32
 
+/* Generic structure representing the metadata of a typed array. Each typed
+ * array can be cast into a struct am_typed_array_generic. Useful for generic
+ * code that processes a typed array without knowing the exact element type.
+ */
+struct am_typed_array_generic {
+	size_t num_elements;
+	size_t num_free;
+	size_t num_prealloc;
+	void* elements;
+};
+
+/* Casts an arbitrary typed array into a generic typed array */
+#define AM_TYPED_ARRAY_GENERIC(parr) ((struct am_typed_array_generic*)parr)
+
 /* Declare a new type of arrays. The macro parameter 'prefix' defines the prefix
  * for the type of the structure as well as for all operations. */
 #define AM_DECL_TYPED_ARRAY_EXTRA_FIELDS(prefix, T, extra_fields)	\
