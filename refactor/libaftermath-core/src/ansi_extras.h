@@ -32,6 +32,10 @@
 
 #define AM_ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
+/* Retrieves the offset of an array field from a pointer to an instance of the
+ * containing struct */
+#define AM_OFFSETOF_PTR(ptr, field) offsetof(typeof(*(ptr)), field)
+
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
 static inline void
