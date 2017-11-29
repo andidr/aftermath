@@ -369,4 +369,34 @@ static inline double am_min_double(double a, double b)
 	return a < b ? a : b;
 }
 
+/* Assigns the value of an unsigned integer of src_bits bits to an unsigned
+ * integer of dst_bits bits using their respective pointers. The number of bits
+ * must either be 64, 32, 16 or 8. */
+static inline void
+am_assign_uint(void* dst, unsigned int dst_bits,
+	       const void* src, unsigned int src_bits)
+{
+	if(dst_bits == 64) {
+		if(src_bits == 64)      *((uint64_t*)dst) = *((uint64_t*)src);
+		else if(src_bits == 32) *((uint64_t*)dst) = *((uint32_t*)src);
+		else if(src_bits == 16) *((uint64_t*)dst) = *((uint16_t*)src);
+		else if(src_bits == 8)  *((uint64_t*)dst) = *((uint8_t*)src);
+	} else if(dst_bits == 32) {
+		if(src_bits == 64)      *((uint32_t*)dst) = *((uint64_t*)src);
+		else if(src_bits == 32) *((uint32_t*)dst) = *((uint32_t*)src);
+		else if(src_bits == 16) *((uint32_t*)dst) = *((uint16_t*)src);
+		else if(src_bits == 8)  *((uint32_t*)dst) = *((uint8_t*)src);
+	} else if(dst_bits == 16) {
+		if(src_bits == 64)      *((uint16_t*)dst) = *((uint64_t*)src);
+		else if(src_bits == 32) *((uint16_t*)dst) = *((uint32_t*)src);
+		else if(src_bits == 16) *((uint16_t*)dst) = *((uint16_t*)src);
+		else if(src_bits == 8)  *((uint16_t*)dst) = *((uint8_t*)src);
+	} else if(dst_bits == 8) {
+		if(src_bits == 64)      *((uint8_t*)dst) = *((uint64_t*)src);
+		else if(src_bits == 32) *((uint8_t*)dst) = *((uint32_t*)src);
+		else if(src_bits == 16) *((uint8_t*)dst) = *((uint16_t*)src);
+		else if(src_bits == 8)  *((uint8_t*)dst) = *((uint8_t*)src);
+	}
+}
+
 #endif
