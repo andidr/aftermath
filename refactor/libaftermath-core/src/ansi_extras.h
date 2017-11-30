@@ -29,12 +29,16 @@
 #include <ctype.h>
 #include <regex.h>
 #include <stdarg.h>
+#include <limits.h>
 
 #define AM_ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 /* Retrieves the offset of an array field from a pointer to an instance of the
  * containing struct */
 #define AM_OFFSETOF_PTR(ptr, field) offsetof(typeof(*(ptr)), field)
+
+/* Returns the size of a in bits */
+#define AM_SIZEOF_BITS(a) ((sizeof(a) * CHAR_BIT))
 
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
