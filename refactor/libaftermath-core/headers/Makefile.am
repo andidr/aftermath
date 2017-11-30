@@ -33,6 +33,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
 	aftermath/core/parser.h \
+	aftermath/core/ptr.h \
 	aftermath/core/state_description_array.h \
 	aftermath/core/state_event_array.h \
 	aftermath/core/timestamp.h \
