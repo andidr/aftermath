@@ -21,7 +21,17 @@
 
 #include "typed_array.h"
 #include "in_memory.h"
+#include "bsearch.h"
+#include "interval_array.h"
 
 AM_DECL_TYPED_ARRAY(am_state_event_array, struct am_state_event)
+
+AM_DECL_INTERVAL_EVENT_ARRAY_BSEARCH_FIRST_OVERLAPPING(am_state_event_array,
+						       struct am_state_event,
+						       interval)
+
+AM_DECL_INTERVAL_EVENT_ARRAY_BSEARCH_LAST_OVERLAPPING(am_state_event_array,
+						      struct am_state_event,
+						      interval)
 
 #endif
