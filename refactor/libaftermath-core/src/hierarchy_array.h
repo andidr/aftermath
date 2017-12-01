@@ -32,9 +32,10 @@ AM_DECL_TYPED_ARRAY(am_hierarchyp_array, struct am_hierarchy*)
 	    (e)++)
 
 AM_DECL_TYPED_ARRAY_BSEARCH(am_hierarchyp_array,
-			 struct am_hierarchy*,
-			 am_hierarchy_id_t,
-			 HIERARCHYP_ACC_ID)
+			    struct am_hierarchy*,
+			    am_hierarchy_id_t,
+			    HIERARCHYP_ACC_ID,
+			    AM_VALCMP_EXPR)
 
 /* Finds a hierarchy by ID. Returns the address of the pointer to the hierarchy
  * or NULL if no such hierarchy could be found. */
@@ -59,7 +60,8 @@ am_hierarchyp_array_destroy_elements(struct am_hierarchyp_array* a)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_hierarchyp_array,
 			      struct am_hierarchy*,
 			      am_hierarchy_id_t,
-			      HIERARCHYP_ACC_ID)
+			      HIERARCHYP_ACC_ID,
+			      AM_VALCMP_EXPR)
 
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_hierarchyp_array,
 				   struct am_hierarchy*,

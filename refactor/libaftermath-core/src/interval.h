@@ -229,4 +229,15 @@ static inline am_timestamp_t am_interval_middle(const struct am_interval* i)
 	return i->start + dur.abs / 2;
 }
 
+/* Interval overlap comparison:
+ * If a ends before b the function returns -1, if a
+ * starts after b it returns 1 and if the two intervals overlap it returns 0.
+ */
+static inline int
+am_interval_overlap_cmp(const struct am_interval* a, const struct am_interval* b)
+{
+	return a->end < b->start ? -1 :
+		(a->start > b->end ? 1 : 0);
+}
+
 #endif

@@ -21,18 +21,21 @@
 
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/event_collection.h>
+#include <aftermath/core/bsearch.h>
 
 #define ACC_ID(x) (x).id
 
 AM_DECL_TYPED_ARRAY(am_event_collection_array, struct am_event_collection)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_event_collection_array,
-			 struct am_event_collection,
-			 am_event_collection_id_t,
-			 ACC_ID)
+			    struct am_event_collection,
+			    am_event_collection_id_t,
+			    ACC_ID,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_event_collection_array,
-			   struct am_event_collection,
-			   am_event_collection_id_t,
-			   ACC_ID)
+			      struct am_event_collection,
+			      am_event_collection_id_t,
+			      ACC_ID,
+			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_event_collection_array,
 				struct am_event_collection,
 				am_event_collection_id_t)

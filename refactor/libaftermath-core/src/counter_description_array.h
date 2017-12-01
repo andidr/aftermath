@@ -26,13 +26,15 @@
 
 AM_DECL_TYPED_ARRAY(am_counter_description_array, struct am_counter_description)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_counter_description_array,
-			 struct am_counter_description,
-			 am_counter_t,
-			 ACC_COUNTER_ID)
+			    struct am_counter_description,
+			    am_counter_t,
+			    ACC_COUNTER_ID,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_counter_description_array,
-			   struct am_counter_description,
-			   am_counter_t,
-			   ACC_COUNTER_ID)
+			      struct am_counter_description,
+			      am_counter_t,
+			      ACC_COUNTER_ID,
+			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_counter_description_array,
 				struct am_counter_description,
 				am_counter_t)

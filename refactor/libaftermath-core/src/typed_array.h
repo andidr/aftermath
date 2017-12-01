@@ -247,8 +247,11 @@ struct am_typed_array_generic {
  * the name of the declared function, without a leading underscore. NEEDLE_T is
  * the type of the search value passed to the search function. ACC_EXPR must be
  * a macro that takes one argument of type T and that returns the value that is
- * compared to the search value. */
-#define AM_DECL_TYPED_ARRAY_BSEARCH_SUFFIX(prefix, suffix, T, NEEDLE_T, ACC_EXPR)\
+ * compared to the search value. CMP_EXPR is an expression that returns 0 if the
+ * two arguments are equal, 1 if the first argument is greater than the second
+ * and -1 if the first argument is smaller than the second argument. */
+#define AM_DECL_TYPED_ARRAY_BSEARCH_SUFFIX(prefix, suffix, T, NEEDLE_T,	\
+					   ACC_EXPR, CMP_EXPR)			\
 	/* Finds the address of the element whose value is needle or NULL if */ \
 	/* no such element exists. */						\
 	static inline T* prefix##_bsearch##suffix(const struct prefix* a,	\
@@ -258,6 +261,7 @@ struct am_typed_array_generic {
 		size_t r;							\
 		size_t m;							\
 		NEEDLE_T curr;							\
+		int cmpres;							\
 										\
 		if(a->num_elements == 0)					\
 			return NULL;						\
@@ -267,13 +271,14 @@ struct am_typed_array_generic {
 		while(l <= r) {						\
 			m = (l + r) / 2;					\
 			curr = (ACC_EXPR(a->elements[m]));			\
+			cmpres = CMP_EXPR(curr, needle);			\
 										\
-			if(curr < needle) {					\
+			if(cmpres < 0) {					\
 				if(m == a->num_elements-1)			\
 					return NULL;				\
 				else						\
 					l = m + 1;				\
-			} else if(curr > needle) {				\
+			} else if(cmpres > 0) {				\
 				if(m == 0)					\
 					return NULL;				\
 				else						\
@@ -286,8 +291,9 @@ struct am_typed_array_generic {
 		return NULL;							\
 	}									\
 
-#define AM_DECL_TYPED_ARRAY_BSEARCH(prefix, T, NEEDLE_T, ACC_EXPR) \
-	AM_DECL_TYPED_ARRAY_BSEARCH_SUFFIX(prefix, , T, NEEDLE_T, ACC_EXPR)
+#define AM_DECL_TYPED_ARRAY_BSEARCH(prefix, T, NEEDLE_T, ACC_EXPR, CMP_EXPR)	\
+	AM_DECL_TYPED_ARRAY_BSEARCH_SUFFIX(prefix, , T, NEEDLE_T, ACC_EXPR,	\
+					   CMP_EXPR)
 
 /* Declare a binary seach function for a typed array with duplicate
  * values. prefix and T must be the same values as those used in
@@ -295,11 +301,11 @@ struct am_typed_array_generic {
  * function, without a leading underscore. NEEDLE_T is the type of the search
  * value passed to the search function. ACC_EXPR must be a macro that takes one
  * argument of type T and that returns the value that is compared to the search
- * value. SMALLER_EXPR and GREATER_EXPR must be macros with two parameters that
- * return true if the first parameter is smaller / greater than the second
- * parameter. */
+ * value. CMP_EXPR is an expression that returns 0 if the two arguments are
+ * equal, 1 if the first argument is greater than the second and -1 if the first
+ * argument is smaller than the second argument. */
 #define AM_DECL_TYPED_ARRAY_BSEARCH_FIRST_SUFFIX(prefix, suffix, T, NEEDLE_T,	\
-					      ACC_EXPR, SMALLER_EXPR, GREATER_EXPR) \
+					      ACC_EXPR, CMP_EXPR)		\
 	/* Finds the address of the first element whose value is needle or NULL */ \
 	/* if no such element exists. */					\
 	static inline T* prefix##_bsearch_first##suffix(const struct prefix* a, \
@@ -310,6 +316,7 @@ struct am_typed_array_generic {
 		size_t m;							\
 		T* ret = NULL;							\
 		NEEDLE_T curr;							\
+		int cmpres;							\
 										\
 		if(a->num_elements == 0)					\
 			return NULL;						\
@@ -319,13 +326,14 @@ struct am_typed_array_generic {
 		while(l <= r) {						\
 			m = (l + r) / 2;					\
 			curr = (ACC_EXPR(a->elements[m]));			\
+			cmpres = CMP_EXPR(curr, needle);			\
 										\
-			if(SMALLER_EXPR(curr, needle)) {			\
+			if(cmpres < 0) {					\
 				if(m == a->num_elements-1)			\
 					return ret;				\
 				else						\
 					l = m + 1;				\
-			} else if(GREATER_EXPR(curr, needle)) {		\
+			} else if(cmpres > 0) {				\
 				if(m == 0)					\
 					return ret;				\
 				else						\
@@ -375,8 +383,11 @@ struct am_typed_array_generic {
  * the name of the declared function, without a leading underscore. NEEDLE_T is
  * the type of the search value passed to the search function. ACC_EXPR must be
  * a macro that takes one argument of type T and that returns the value that is
- * compared to the needle. */
-#define AM_DECL_TYPED_ARRAY_INSERTPOS_SUFFIX(prefix, suffix, T, NEEDLE_T, ACC_EXPR)\
+ * compared to the needle. CMP_EXPR is an expression that returns 0 if the two
+ * arguments are equal, 1 if the first argument is greater than the second and
+ * -1 if the first argument is smaller than the second argument. */
+#define AM_DECL_TYPED_ARRAY_INSERTPOS_SUFFIX(prefix, suffix, T, NEEDLE_T,	\
+					     ACC_EXPR, CMP_EXPR)		\
 	/* Finds the insertion position of the element whose value is needle. */\
 	static inline size_t prefix##_insertpos##suffix(struct prefix* a,	\
 							const NEEDLE_T needle)	\
@@ -385,12 +396,14 @@ struct am_typed_array_generic {
 		size_t r = a->num_elements;					\
 		size_t m;							\
 		NEEDLE_T curr;							\
+		int cmpres;							\
 										\
 		while(l < r) {							\
 			m = (l + r) / 2;					\
 			curr = (ACC_EXPR(a->elements[m]));			\
+			cmpres = CMP_EXPR(curr, needle);			\
 										\
-			if(curr > needle)					\
+			if(cmpres > 0)						\
 				r = m;						\
 			else							\
 				l = m + 1;					\
@@ -399,8 +412,9 @@ struct am_typed_array_generic {
 		return l;							\
 	}
 
-#define AM_DECL_TYPED_ARRAY_INSERTPOS(prefix, T, NEEDLE_T, ACC_EXPR) \
-	AM_DECL_TYPED_ARRAY_INSERTPOS_SUFFIX(prefix, , T, NEEDLE_T, ACC_EXPR)
+#define AM_DECL_TYPED_ARRAY_INSERTPOS(prefix, T, NEEDLE_T, ACC_EXPR, CMP_EXPR)	\
+	AM_DECL_TYPED_ARRAY_INSERTPOS_SUFFIX(prefix, , T, NEEDLE_T, ACC_EXPR,	\
+					     CMP_EXPR)
 
 
 /* Declare a function that inserts a new element into the array at the correct

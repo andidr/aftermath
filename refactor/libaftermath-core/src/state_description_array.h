@@ -27,13 +27,15 @@
 AM_DECL_TYPED_ARRAY(am_state_description_array,
 		    struct am_state_description)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_state_description_array,
-			 struct am_state_description,
-			 am_state_t,
-			 ACC_STATE_ID)
+			    struct am_state_description,
+			    am_state_t,
+			    ACC_STATE_ID,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_state_description_array,
-			   struct am_state_description,
-			   am_state_t,
-			   ACC_STATE_ID)
+			      struct am_state_description,
+			      am_state_t,
+			      ACC_STATE_ID,
+			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_state_description_array,
 				struct am_state_description,
 				am_state_t)

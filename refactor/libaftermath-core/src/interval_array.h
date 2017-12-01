@@ -29,27 +29,19 @@
 
 #define ACC_PINTERVAL_PIDENT(i) (&(i))
 
-#define ACC_PINTERVAL_OVERLAP_SMALLER_EXPR(ia, ib)	\
-	((ia)->end < (ib)->start)
-
-#define ACC_PINTERVAL_OVERLAP_GREATER_EXPR(ia, ib)	\
-	((ia)->start > (ib)->end)
-
 AM_DECL_VSTRIDED_BSEARCH_FIRST_SUFFIX(am_interval_array_,
 				      _overlapping,
 				      struct am_interval,
 				      struct am_interval*,
 				      ACC_PINTERVAL_PIDENT,
-				      ACC_PINTERVAL_OVERLAP_SMALLER_EXPR,
-				      ACC_PINTERVAL_OVERLAP_GREATER_EXPR)
+				      am_interval_overlap_cmp)
 
 AM_DECL_VSTRIDED_BSEARCH_LAST_SUFFIX(am_interval_array_,
-				      _overlapping,
-				      struct am_interval,
-				      struct am_interval*,
-				      ACC_PINTERVAL_PIDENT,
-				      ACC_PINTERVAL_OVERLAP_SMALLER_EXPR,
-				      ACC_PINTERVAL_OVERLAP_GREATER_EXPR)
+				     _overlapping,
+				     struct am_interval,
+				     struct am_interval*,
+				     ACC_PINTERVAL_PIDENT,
+				     am_interval_overlap_cmp)
 
 /* Internal use; Used as an iterator in for_each macros */
 struct am_interval_array_iterator {

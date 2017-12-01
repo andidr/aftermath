@@ -58,11 +58,13 @@ AM_DECL_TYPED_ARRAY(am_event_array_collection, struct am_event_array_type_entry)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_event_array_collection,
 			    struct am_event_array_type_entry,
 			    enum am_event_array_type,
-			    ACC_TYPE)
+			    ACC_TYPE,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_event_array_collection,
 			      struct am_event_array_type_entry,
 			      enum am_event_array_type,
-			      ACC_TYPE)
+			      ACC_TYPE,
+			      AM_VALCMP_EXPR)
 
 void event_array_collection_destroy_elements(struct am_event_array_collection* a,
 					     struct am_event_array_registry* r);
@@ -82,11 +84,13 @@ AM_DECL_TYPED_ARRAY(am_event_array_registry,
 AM_DECL_TYPED_ARRAY_BSEARCH(am_event_array_registry,
 			    struct am_event_array_registry_entry,
 			    enum am_event_array_type,
-			    ACC_TYPE)
+			    ACC_TYPE,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_event_array_registry,
 			      struct am_event_array_registry_entry,
 			      enum am_event_array_type,
-			      ACC_TYPE)
+			      ACC_TYPE,
+			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_event_array_registry,
 				   struct am_event_array_registry_entry,
 				   enum am_event_array_type)

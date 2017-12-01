@@ -27,13 +27,15 @@
 AM_DECL_TYPED_ARRAY(am_measurement_interval_array,
 		    struct am_measurement_interval)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_measurement_interval_array,
-			 struct am_measurement_interval,
-			 am_timestamp_t,
-			 ACC_INTERVAL_START)
+			    struct am_measurement_interval,
+			    am_timestamp_t,
+			    ACC_INTERVAL_START,
+			    AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_measurement_interval_array,
-			   struct am_measurement_interval,
-			   am_timestamp_t,
-			   ACC_INTERVAL_START)
+			      struct am_measurement_interval,
+			      am_timestamp_t,
+			      ACC_INTERVAL_START,
+			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_measurement_interval_array,
 				struct am_measurement_interval,
 				am_timestamp_t)

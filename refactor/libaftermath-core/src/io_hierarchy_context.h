@@ -49,14 +49,16 @@ AM_DECL_TYPED_ARRAY(am_io_hierarchy_context_tree_array,
 #define IO_HIERARCHY_CONTEXT_TREE_ACC_ID(x) ((x).id)
 
 AM_DECL_TYPED_ARRAY_BSEARCH(am_io_hierarchy_context_tree_array,
-			 struct am_io_hierarchy_context_tree,
-			 am_hierarchy_id_t,
-			 IO_HIERARCHY_CONTEXT_TREE_ACC_ID)
+			    struct am_io_hierarchy_context_tree,
+			    am_hierarchy_id_t,
+			    IO_HIERARCHY_CONTEXT_TREE_ACC_ID,
+			    AM_VALCMP_EXPR)
 
 AM_DECL_TYPED_ARRAY_INSERTPOS(am_io_hierarchy_context_tree_array,
-			   struct am_io_hierarchy_context_tree,
-			   am_hierarchy_id_t,
-			   IO_HIERARCHY_CONTEXT_TREE_ACC_ID)
+			      struct am_io_hierarchy_context_tree,
+			      am_hierarchy_id_t,
+			      IO_HIERARCHY_CONTEXT_TREE_ACC_ID,
+			      AM_VALCMP_EXPR)
 
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_io_hierarchy_context_tree_array,
 				struct am_io_hierarchy_context_tree,
