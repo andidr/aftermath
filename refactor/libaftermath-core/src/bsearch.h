@@ -21,6 +21,7 @@
 
 #include <sys/types.h>
 #include <stdlib.h>
+#include <aftermath/core/ptr.h>
 
 /* Compares two expressions of primitive values a and b. Evaluates to -1 if a <
  * b, to 1 if a > b, otherwise to 0.
@@ -127,7 +128,7 @@ static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 										\
 		while(l <= r) {						\
 			m = am_bsearch_safe_center_idx(l, r);			\
-			pcurr = ((void*)a)+m*stride;				\
+			pcurr = AM_PTR_ADD(a, m*stride);			\
 			curr = (ACC_EXPR((*pcurr)));				\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
@@ -192,7 +193,7 @@ static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 										\
 		while(l <= r) {						\
 			m = am_bsearch_safe_center_idx(l, r);			\
-			pcurr = ((void*)a)+m*stride;				\
+			pcurr = AM_PTR_ADD(a, m*stride);			\
 			curr = (ACC_EXPR((*pcurr)));				\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\

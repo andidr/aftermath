@@ -1,6 +1,12 @@
 #ifndef _LINUX_POISON_H
 #define _LINUX_POISON_H
 
+/*
+ * File taken from the Linux kernel v3.14
+ * Slightly modified in order to avoid pointer arithmetic on void*.
+ */
+#include "../../ptr.h"
+
 /********** include/linux/list.h **********/
 
 /*
@@ -19,8 +25,8 @@
  * under normal circumstances, used to verify that nobody uses
  * non-initialized list entries.
  */
-#define LIST_POISON1  ((void *) 0x00100100 + POISON_POINTER_DELTA)
-#define LIST_POISON2  ((void *) 0x00200200 + POISON_POINTER_DELTA)
+#define LIST_POISON1  AM_PTR_ADD(0x00100100, POISON_POINTER_DELTA)
+#define LIST_POISON2  AM_PTR_ADD(0x00200200, POISON_POINTER_DELTA)
 
 /********** include/linux/timer.h **********/
 /*

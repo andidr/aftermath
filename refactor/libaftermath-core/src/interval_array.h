@@ -63,7 +63,7 @@ am_interval_array_iterator_start(struct am_typed_array_generic* arr,
 	struct am_interval* first_field;
 
 	/* Address of the interval field of the first array element */
-	first_field = ((struct am_interval*)((arr->elements)+field_offset));
+	first_field = AM_PTR_ADD(arr->elements, field_offset);
 
 	/* Address of the interval field of the first array element whose
 	 * interval overlaps with the query interval */
@@ -112,8 +112,8 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 	if(!it.start)
 		return it;
 
-	uint_field = ((void*)it.start) - interval_field_offset +
-		uint_field_offset;
+	uint_field = AM_PTR_ADD(it.start,
+				uint_field_offset - interval_field_offset);
 
 	am_assign_uint(uint_val, uint_val_bits, uint_field, uint_field_bits);
 
@@ -139,7 +139,7 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 			    pquery,						\
 			    &pi);						\
 	    (pi) && AM_PTR_LEQ(pi, __it.end);					\
-	    (pi) = ((void*)pi) + element_size)
+	    (pi) = AM_PTR_ADD(pi, element_size))
 
 /* Iterate over a typed array of elements that contain an interval, starting
  * with the interval of the element that first overlaps with a query interval
@@ -182,10 +182,11 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 			    puint,						\
 			    puint_bits);					\
 	    (pi) && AM_PTR_LEQ(pi, __it.end);					\
-	    (pi) = ((void*)pi) + element_size,					\
+	    (pi) = AM_PTR_ADD(pi, element_size),				\
 		    am_assign_uint(puint, puint_bits,				\
-				   ((void*)pi) - interval_field_offset +	\
-				   uint_field_offset, uint_field_bits))
+				   AM_PTR_ADD(pi, uint_field_offset -		\
+					      interval_field_offset),		\
+				   uint_field_bits))
 
 /* Same as am_interval_array_for_each_overlapping, but extracts the unsigned
  * integer field specified by interval_field at each iteration from the current
@@ -244,8 +245,7 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 	{									\
 		off_t offs = offsetof(T, member);				\
 		off_t stride = sizeof(T);					\
-		struct am_interval* base = (struct am_interval*)		\
-			(((void*)a->elements)+offs);				\
+		struct am_interval* base = AM_PTR_ADD(a->elements, offs);	\
 		struct am_interval* res;					\
 										\
 		res = am_interval_array_bsearch_first_strided_overlapping(base, \
@@ -253,7 +253,7 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 									stride, \
 									query); \
 										\
-		return (res) ? (((void*)res)-offsetof(T, member)) : NULL;	\
+		return (res) ? AM_PTR_SUB(res, offsetof(T, member)) : NULL;	\
 	}
 
 /* Same as AM_DECL_INTERVAL_EVENT_ARRAY_BSEARCH_FIRST_OVERLAPPING, but defines a
@@ -265,16 +265,15 @@ am_interval_array_iterator_start_intn(struct am_typed_array_generic* arr,
 	{									\
 		off_t offs = offsetof(T, member);				\
 		off_t stride = sizeof(T);					\
-		struct am_interval* base = (struct am_interval*)		\
-			(((void*)a->elements)+offs);				\
+		struct am_interval* base = AM_PTR_ADD(a->elements, offs);	\
 		struct am_interval* res;					\
 										\
-		res = am_interval_array_bsearch_last_strided_overlapping(base, \
+		res = am_interval_array_bsearch_last_strided_overlapping(base,	\
 									 a->num_elements, \
 									 stride,\
 									 query);\
 										\
-		return (res) ? (((void*)res)-offsetof(T, member)) : NULL;	\
+		return (res) ? AM_PTR_SUB(res, offsetof(T, member)) : NULL;	\
 	}
 
 #endif

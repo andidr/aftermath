@@ -27,4 +27,12 @@
 #define AM_PTR_GREATER(a, b) (((uintptr_t)(a)) > ((uintptr_t)(b)))
 #define AM_PTR_GEQ(a, b) (((uintptr_t)(a)) >= ((uintptr_t)(b)))
 
+/* Increases the address p by val bytes regardless of the type of p and returns
+ * the new pointer as void* */
+#define AM_PTR_ADD(p, val) ((void*)(((char*)p)+(val)))
+
+/* Decreases the address p by val bytes regardless of the type of p and returns
+ * the new pointer as void* */
+#define AM_PTR_SUB(p, val) ((void*)(((char*)p)-(val)))
+
 #endif
