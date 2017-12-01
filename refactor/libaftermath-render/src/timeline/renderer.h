@@ -291,15 +291,15 @@ am_timeline_renderer_width_to_duration(struct am_timeline_renderer* r,
 	return am_muldiv_sat_u64(w, d.abs, r->rects.lanes.width, &out->abs);
 }
 
-/* Calculates the timestamp given the X coordinate of a pixel. The return value
- * indicates whether the result has been saturated. */
+/* Calculates the timestamp given the X coordinate of a pixel relative to the
+ * beginning of the rectangle containing the lanes. The return value indicates
+ * whether the result has been saturated. */
 static inline enum am_arithmetic_status
-am_timeline_renderer_x_to_timestamp(struct am_timeline_renderer* r,
-				    double x,
-				    am_timestamp_t* out)
+am_timeline_renderer_relx_to_timestamp(struct am_timeline_renderer* r,
+				       double x,
+				       am_timestamp_t* out)
 {
 	struct am_time_offset d;
-	double rx;
 
 	if(r->rects.lanes.width == 0) {
 		*out = r->visible_interval.start;
@@ -308,14 +308,23 @@ am_timeline_renderer_x_to_timestamp(struct am_timeline_renderer* r,
 
 	*out = r->visible_interval.start;
 
-	rx = x - r->rects.lanes.x;
-
-	am_timeline_renderer_width_to_duration(r, rx, &d);
+	am_timeline_renderer_width_to_duration(r, x, &d);
 
 	if(d.sign)
 		return am_timestamp_sub_sat(out, d.abs);
 	else
 		return am_timestamp_add_sat(out, d.abs);
+}
+
+/* Calculates the timestamp given the X coordinate of a pixel. The return value
+ * indicates whether the result has been saturated. */
+static inline enum am_arithmetic_status
+am_timeline_renderer_x_to_timestamp(struct am_timeline_renderer* r,
+				    double x,
+				    am_timestamp_t* out)
+{
+	double rx = x - r->rects.lanes.x;
+	return am_timeline_renderer_relx_to_timestamp(r, rx, out);
 }
 
 AM_DECL_TIMELINE_RENDERER_SETCOLOR_FUN2(background, bg)
