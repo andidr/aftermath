@@ -67,7 +67,7 @@ static void def_am_counter_event_array_collection_destroy(void* a)
 int am_event_array_registry_add_default(struct am_event_array_registry* r)
 {
 	if(am_event_array_registry_add(r,
-				       AM_EVENT_ARRAY_TYPE_STATE_EVENT,
+				       "am::generic::state",
 				       def_am_state_event_array_allocate,
 				       def_am_state_event_array_free,
 				       def_am_state_event_array_init,
@@ -77,7 +77,7 @@ int am_event_array_registry_add_default(struct am_event_array_registry* r)
 	}
 
 	if(am_event_array_registry_add(r,
-				      AM_EVENT_ARRAY_TYPE_COUNTER_EVENT_ARRAY_COLLECTION,
+				      "am::generic::counter",
 				      def_am_counter_event_array_collection_allocate,
 				      def_am_counter_event_array_collection_free,
 				      def_am_counter_event_array_collection_init,

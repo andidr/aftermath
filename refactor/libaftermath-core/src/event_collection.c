@@ -44,7 +44,7 @@ static inline void set_int_if_not_null(int* i, int val)
  * no such entry exists the function returns NULL.  */
 struct am_event_array_registry_entry*
 am_event_array_registry_find(struct am_event_array_registry* r,
-			     enum am_event_array_type type)
+			     const char* type)
 {
 	return am_event_array_registry_bsearch(r, type);
 }
@@ -55,7 +55,7 @@ am_event_array_registry_find(struct am_event_array_registry* r,
  * *type_found is set to 1. Upon success, the new instance is returned and
  * *type_found is set to 1. */
 void* am_event_registry_allocate_array(struct am_event_array_registry* r,
-				       enum am_event_array_type type,
+				       const char* type,
 				       int* type_found)
 {
 	struct am_event_array_registry_entry* e;
@@ -73,7 +73,7 @@ void* am_event_registry_allocate_array(struct am_event_array_registry* r,
 /* Frees an instance of an event array. If the specified type is unknown to the
  * registry, *type_found is set to 0. */
 void am_event_registry_free_array(struct am_event_array_registry* r,
-				  enum am_event_array_type type,
+				  const char* type,
 				  int* type_found,
 				  void* a)
 {
@@ -94,7 +94,7 @@ void am_event_registry_free_array(struct am_event_array_registry* r,
  * found, but the initialization fails, 1 is returned and *type_found is set to
  * 1. Upon success, 0 is returned and *type_found is set to 1. */
 int am_event_registry_init_array(struct am_event_array_registry* r,
-				 enum am_event_array_type type,
+				 const char* type,
 				 int* type_found,
 				 void* a)
 {
@@ -116,7 +116,7 @@ int am_event_registry_init_array(struct am_event_array_registry* r,
  * returned and *type_found is set to 1. Upon success, the new instance is
  * returned and *type_found is set to 1. */
 void* am_event_registry_allocate_and_init_array(struct am_event_array_registry* r,
-						enum am_event_array_type type,
+						const char* type,
 						int* type_found)
 {
 	void* a;
@@ -135,7 +135,7 @@ void* am_event_registry_allocate_and_init_array(struct am_event_array_registry* 
 /* Destroys an instance of an event array. If the specified type is unknown to
  * the registry, *type_found is set to 0. */
 void am_event_registry_destroy_array(struct am_event_array_registry* r,
-				     enum am_event_array_type type,
+				     const char* type,
 				     int* type_found,
 				     void* a)
 {
@@ -154,7 +154,7 @@ void am_event_registry_destroy_array(struct am_event_array_registry* r,
 /* Destroys and frees an instance of an event array. If the specified type is
  * unknown to the registry, *type_found is set to 0. */
 void am_event_registry_destroy_and_free_array(struct am_event_array_registry* r,
-					      enum am_event_array_type type,
+					      const char* type,
 					      int* type_found,
 					      void* a)
 {
@@ -168,7 +168,7 @@ void am_event_registry_destroy_and_free_array(struct am_event_array_registry* r,
 
 /* Add a new type to the registry. Returns 0 on success, otherwise 1. */
 int am_event_array_registry_add(struct am_event_array_registry* r,
-				enum am_event_array_type type,
+				const char* type,
 				void* (*allocate)(void),
 				void (*free)(void* a),
 				int (*init)(void* a),
@@ -230,7 +230,7 @@ void am_event_collection_destroy(struct am_event_collection* e,
 /* Finds the event array of type t in an event collection e. If no such array
    exists, the function returns NULL. */
 void* am_event_collection_find_event_array(struct am_event_collection* e,
-					   enum am_event_array_type t)
+					   const char* t)
 {
 	struct am_event_array_type_entry* ead;
 
@@ -246,7 +246,7 @@ void* am_event_collection_find_event_array(struct am_event_collection* e,
  * function returns NULL. */
 void* am_event_collection_find_or_add_event_array(struct am_event_array_registry* r,
 						  struct am_event_collection* e,
-						  enum am_event_array_type t)
+						  const char* t)
 {
 	void* ret;
 
@@ -268,22 +268,29 @@ void* am_event_collection_find_or_add_event_array(struct am_event_array_registry
  * array of that type or if the array cannot be added, the function returns
  * 1. On success, the return value is 0. */
 int am_event_collection_add_event_array(struct am_event_collection* e,
-					enum am_event_array_type t,
+					const char* t,
 					void* array)
 {
 	size_t pos;
-	struct am_event_array_type_entry eate = {
-		.type = t,
-		.array = array
-	};
+	struct am_event_array_type_entry eate;
+
+	if(!(eate.type = strdup(t)))
+		goto out_err;
+
+	eate.array = array;
 
 	if(am_event_collection_find_event_array(e, t))
-		return 1;
+		goto out_err_free;
 
 	pos = am_event_array_collection_insertpos(&e->event_arrays, t);
 
 	if(am_event_array_collection_insert(&e->event_arrays, pos, eate))
-		return 1;
+		goto out_err_free;
 
 	return 0;
+
+out_err_free:
+	free(eate.type);
+out_err:
+	return 1;
 }

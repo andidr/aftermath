@@ -113,7 +113,7 @@ types = {
                      "field" : "state_idx",
                      "field_fmt" : "AM_STATE_T_FMT",
                      "field_entity" : "id",
-                     "ecoll_array_id" : "AM_EVENT_ARRAY_TYPE_STATE_EVENT",
+                     "ecoll_array_type_name" : "am::generic::state"
                  },
                  "description" : {
                      "type_name" : "am_state_description",

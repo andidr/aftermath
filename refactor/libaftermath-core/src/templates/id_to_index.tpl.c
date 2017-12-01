@@ -30,7 +30,7 @@ static int {% include postprocess.type+".tpl.fname.h" %}(struct am_io_context* c
 		/* Only check for the presence of a {{eltype.entity}} that does
 		 * not have a description */
 		am_trace_for_each_event_collection(t, coll) {
-			if(!(el_arr = am_event_collection_find_event_array(coll, {{pargs.element.ecoll_array_id}})))
+			if(!(el_arr = am_event_collection_find_event_array(coll, "{{pargs.element.ecoll_array_type_name}}")))
 				continue;
 
 			for(e = &el_arr->elements[0];
@@ -44,7 +44,7 @@ static int {% include postprocess.type+".tpl.fname.h" %}(struct am_io_context* c
 	} else {
 		/* Ids not already sequential, adjust every element */
 		am_trace_for_each_event_collection(t, coll) {
-			if(!(el_arr = am_event_collection_find_event_array(coll, {{pargs.element.ecoll_array_id}})))
+			if(!(el_arr = am_event_collection_find_event_array(coll, "{{pargs.element.ecoll_array_type_name}}")))
 				continue;
 
 			for(e = &el_arr->elements[0];

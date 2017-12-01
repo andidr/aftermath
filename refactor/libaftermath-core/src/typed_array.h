@@ -260,7 +260,6 @@ struct am_typed_array_generic {
 		size_t l = 0;							\
 		size_t r;							\
 		size_t m;							\
-		NEEDLE_T curr;							\
 		int cmpres;							\
 										\
 		if(a->num_elements == 0)					\
@@ -270,7 +269,7 @@ struct am_typed_array_generic {
 										\
 		while(l <= r) {						\
 			m = (l + r) / 2;					\
-			curr = (ACC_EXPR(a->elements[m]));			\
+			const NEEDLE_T curr = (ACC_EXPR(a->elements[m]));	\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
 			if(cmpres < 0) {					\
@@ -395,12 +394,11 @@ struct am_typed_array_generic {
 		size_t l = 0;							\
 		size_t r = a->num_elements;					\
 		size_t m;							\
-		NEEDLE_T curr;							\
 		int cmpres;							\
 										\
 		while(l < r) {							\
 			m = (l + r) / 2;					\
-			curr = (ACC_EXPR(a->elements[m]));			\
+			const NEEDLE_T curr = (ACC_EXPR(a->elements[m]));	\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
 			if(cmpres > 0)						\

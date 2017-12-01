@@ -179,9 +179,9 @@ AFTERMATH TYPE DEFINITIONS
 
                  - element.field_entity: Human-redable name of the entity the
                    field represents
-
-                 - element.ecoll_array_id: ID to retrieve the array with the
-                   elements from an event collection.
+                 - ecoll_array_type_name [string, mandatory]: string associated
+                   to the event array type used to retrieve the array from the
+                   event collection (e.g., am::generic::state).
 
                  - description.type_name: name of the structure representing a
                    description in the description array of the trace
@@ -291,9 +291,9 @@ AFTERMATH TYPE DEFINITIONS
                of the intervals. The array must be declared with a macro from
                typed_array.h. The arguments are:
 
-                 - ecoll_array_type_id [string, mandatory]: numerical ID of the
-                   event array type (as defined in enum event_array_type) used
-                   to retrieve the array from the event collection.
+                 - ecoll_array_type_name [string, mandatory]: string associated
+                   to the event array type used to retrieve the array from the
+                   event collection (e.g., am::generic::state).
 
                  - ecoll_array_struct_name [string, mandatory]: The name of the
                    structure representing the array as defined using the macro
@@ -334,9 +334,9 @@ AFTERMATH TYPE DEFINITIONS
 
                The arguments for the generator are:
 
-                 - ecoll_array_type_id [string, mandatory]: numerical ID of the
-                   event array type (as defined in enum event_array_type) used
-                   to retrieve the array from the event collection.
+                 - ecoll_array_type_name [string, mandatory]: string associated
+                   to the event array type used to retrieve the array from the
+                   event collection.
 
                  - ecoll_array_struct_name [string, mandatory]: The name of the
                    ecoll array structure as defined using the macro from

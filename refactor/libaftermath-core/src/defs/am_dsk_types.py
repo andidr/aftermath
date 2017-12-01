@@ -135,7 +135,7 @@ frames = {
         "process" : {
             "type" : "per_event_collection_interval",
             "args" : {
-                "ecoll_array_type_id" : "AM_EVENT_ARRAY_TYPE_STATE_EVENT",
+                "ecoll_array_type_name" : "am::generic::state",
                 "ecoll_array_struct_name" : "am_state_event_array",
                 "mem_struct_name" : "am_state_event",
                 "mem_struct_interval_field" : "interval",
@@ -194,7 +194,7 @@ frames = {
         "process" : {
             "type" : "per_event_collection_per_id_timestamp",
             "args" : {
-                "ecoll_array_type_id" : "AM_EVENT_ARRAY_TYPE_COUNTER_EVENT_ARRAY_COLLECTION",
+                "ecoll_array_type_name" : "am::generic::counter",
                 "ecoll_array_struct_name" : "am_counter_event_array_collection",
                 "id_array_struct_name" : "am_counter_event_array",
                 "dsk_struct_ecoll_id_field" : "collection_id",
