@@ -6,4 +6,5 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layers/background.h \
 	aftermath/render/timeline/layers/hierarchy.h \
 	aftermath/render/timeline/layers/lane.h \
+	aftermath/render/timeline/layers/interval.h \
 	aftermath/render/timeline/renderer.h

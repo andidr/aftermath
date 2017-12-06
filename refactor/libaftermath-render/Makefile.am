@@ -19,6 +19,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/hierarchy.h \
 	src/timeline/layers/lane.c \
 	src/timeline/layers/lane.h \
+	src/timeline/layers/interval.c \
+	src/timeline/layers/interval.h \
 	src/timeline/renderer.c \
 	src/timeline/renderer.h
 
