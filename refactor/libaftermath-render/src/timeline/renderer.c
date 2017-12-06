@@ -51,6 +51,7 @@ int am_timeline_renderer_init(struct am_timeline_renderer* r)
 	if(am_bitvector_init(&r->collapsed_nodes, AM_BV_BITS_PER_CHUNK))
 		return 1;
 
+	r->trace = NULL;
 	r->hierarchy = NULL;
 	r->num_visible_lanes = 0;
 	r->num_invisible_lanes = 0;
@@ -195,6 +196,15 @@ void am_timeline_renderer_render(struct am_timeline_renderer* r,
 
 	am_timeline_renderer_for_each_layer(r, l)
 		l->type->render(l, cr);
+}
+
+/* Associate a trace with the timeline. Returns 0 on success, 1 otherwise. */
+int am_timeline_renderer_set_trace(struct am_timeline_renderer* r,
+				   struct am_trace* t)
+{
+	r->trace = t;
+
+	return 0;
 }
 
 /* Associate a hierarchy with the timeline */

@@ -26,6 +26,7 @@
 #include <aftermath/core/timestamp.h>
 #include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/timeline/layer.h>
+#include <aftermath/core/trace.h>
 
 enum am_timeline_renderer_lane_mode {
 	/* Always use a separate lane for a node */
@@ -77,6 +78,9 @@ struct am_timeline_renderer {
 
 	/* List of all render layers */
 	struct list_head layers;
+
+	/* Trace whose events are displayed by the time line */
+	struct am_trace* trace;
 
 	/* Hierarchy whose events are displayed by the time line */
 	struct am_hierarchy* hierarchy;
@@ -196,6 +200,9 @@ int am_timeline_renderer_remove_layer(struct am_timeline_renderer* r,
 				      struct am_timeline_render_layer* l);
 void am_timeline_renderer_render(struct am_timeline_renderer* r,
 				 cairo_t* cr);
+
+int am_timeline_renderer_set_trace(struct am_timeline_renderer* r,
+				   struct am_trace* t);
 
 int am_timeline_renderer_set_hierarchy(struct am_timeline_renderer* r,
 				       struct am_hierarchy* h);
