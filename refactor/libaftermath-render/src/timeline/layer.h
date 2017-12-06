@@ -20,6 +20,7 @@
 #define AM_TIMELINE_RENDERER_LAYER_H
 
 #include <aftermath/core/typed_list.h>
+#include <aftermath/core/trace.h>
 #include <cairo.h>
 
 struct am_timeline_renderer;
@@ -82,6 +83,16 @@ typedef void
 	(struct am_timeline_render_layer* l,
 	 struct am_timeline_entity* e);
 
+typedef int
+	(*am_timeline_render_layer_trace_changed_fun_t)
+	(struct am_timeline_render_layer* l,
+	 struct am_trace* t);
+
+typedef int
+	(*am_timeline_render_layer_renderer_changed_fun_t)
+	(struct am_timeline_render_layer* l,
+	 struct am_timeline_renderer* r);
+
 #define AM_TIMELINE_RENDER_LAYER_RENDER_FUN(x) \
 	((am_timeline_render_layer_render_fun_t)(x))
 
@@ -97,6 +108,12 @@ typedef void
 #define AM_TIMELINE_RENDER_LAYER_DESTROY_ENTITY_FUN(x) \
 	((am_timeline_render_layer_destroy_entity_fun_t)(x))
 
+#define AM_TIMELINE_RENDER_LAYER_TRACE_CHANGED_FUN(x) \
+	((am_timeline_render_layer_trace_changed_fun_t)(x))
+
+#define AM_TIMELINE_RENDER_LAYER_RENDERER_CHANGED_FUN(x) \
+	((am_timeline_render_layer_renderer_changed_fun_t)(x))
+
 /* Description of a render layer type */
 struct am_timeline_render_layer_type {
 	/* Chanining of all types in the registry */
@@ -108,6 +125,8 @@ struct am_timeline_render_layer_type {
 	am_timeline_render_layer_destroy_fun_t destroy;
 	am_timeline_render_layer_instantiate_fun_t instantiate;
 	am_timeline_render_layer_identify_entities_fun_t identify_entities;
+	am_timeline_render_layer_trace_changed_fun_t trace_changed;
+	am_timeline_render_layer_renderer_changed_fun_t renderer_changed;
 
 	/* Function for the destruction of an entity. The memory for the item
 	 * must be freed. */

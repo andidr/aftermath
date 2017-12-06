@@ -165,6 +165,10 @@ void am_timeline_renderer_destroy(struct am_timeline_renderer* r)
 int am_timeline_renderer_add_layer(struct am_timeline_renderer* r,
 				   struct am_timeline_render_layer* l)
 {
+	if(l->type->renderer_changed)
+		if(l->type->renderer_changed(l, r))
+			return 1;
+
 	list_add_tail(&l->list, &r->layers);
 	l->renderer = r;
 
@@ -175,6 +179,10 @@ int am_timeline_renderer_add_layer(struct am_timeline_renderer* r,
 int am_timeline_renderer_remove_layer(struct am_timeline_renderer* r,
 				       struct am_timeline_render_layer* l)
 {
+	if(l->type->renderer_changed)
+		if(l->type->renderer_changed(l, NULL))
+			return 1;
+
 	list_del(&l->list);
 
 	return 0;
@@ -202,7 +210,20 @@ void am_timeline_renderer_render(struct am_timeline_renderer* r,
 int am_timeline_renderer_set_trace(struct am_timeline_renderer* r,
 				   struct am_trace* t)
 {
+	struct am_timeline_render_layer* l;
+
 	r->trace = t;
+
+	am_timeline_renderer_for_each_layer(r, l) {
+		if(l->type->trace_changed) {
+			if(l->type->trace_changed(l, t)) {
+				am_timeline_renderer_set_trace(r, NULL);
+				r->trace = NULL;
+
+				return 1;
+			}
+		}
+	}
 
 	return 0;
 }
