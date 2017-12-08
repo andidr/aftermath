@@ -19,7 +19,7 @@
 #ifndef AM_TIMELINE_AXES_LAYER_H
 #define AM_TIMELINE_AXES_LAYER_H
 
-#include "../layer.h"
+#include <aftermath/render/timeline/layer.h>
 
 /* The axes layer renders vertical lines for the horizontal and vertical axis
  * and displays the labels for the horizontal axis. */

@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 
 lib_LTLIBRARIES = libaftermath-render.la
 
-AM_CPPFLAGS = -Wall -Werror
+AM_CPPFLAGS = -I$(srcdir)/headers -I$(builddir)/headers -Wall -Werror
 
 libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/cairo_extras.h \

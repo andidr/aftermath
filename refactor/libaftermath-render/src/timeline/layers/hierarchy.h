@@ -19,7 +19,7 @@
 #ifndef AM_TIMELINE_HIERARCHY_LAYER_H
 #define AM_TIMELINE_HIERARCHY_LAYER_H
 
-#include "../layer.h"
+#include <aftermath/render/timeline/layer.h>
 
 /* The hierarchy render layer renders the hierarchy associated to a time line as
  * a tree-like structure in the left part of the time line, providing each lane

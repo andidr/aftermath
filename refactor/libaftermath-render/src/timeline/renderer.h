@@ -24,8 +24,8 @@
 #include <aftermath/core/bitvector.h>
 #include <aftermath/core/arithmetic.h>
 #include <aftermath/core/timestamp.h>
-#include "../cairo_extras.h"
-#include "layer.h"
+#include <aftermath/render/cairo_extras.h>
+#include <aftermath/render/timeline/layer.h>
 
 enum am_timeline_renderer_lane_mode {
 	/* Always use a separate lane for a node */

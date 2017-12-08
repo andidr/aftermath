@@ -19,7 +19,7 @@
 #ifndef AM_TIMELINE_BACKGROUND_LAYER_H
 #define AM_TIMELINE_BACKGROUND_LAYER_H
 
-#include "../layer.h"
+#include <aftermath/render/timeline/layer.h>
 
 /* The background layer renders a "lane" per visible hierarchy node with
  * alternating colors for each lane. */

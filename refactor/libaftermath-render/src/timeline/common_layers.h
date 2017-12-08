@@ -19,7 +19,7 @@
 #ifndef AM_TIMELINE_COMMON_LAYERS_H
 #define AM_TIMELINE_COMMON_LAYERS_H
 
-#include "layer.h"
+#include <aftermath/render/timeline/layer.h>
 
 int am_register_common_timeline_layer_types
 (struct am_timeline_render_layer_type_registry* tr);

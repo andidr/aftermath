@@ -23,7 +23,7 @@
  * by calculating the offsets and dimensions of each lane and by calling a
  * simplified rendering function. */
 
-#include "../layer.h"
+#include <aftermath/render/timeline/layer.h>
 #include <aftermath/core/hierarchy.h>
 
 struct am_timeline_lane_render_layer_type;

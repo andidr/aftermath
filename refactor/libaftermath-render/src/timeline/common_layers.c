@@ -16,10 +16,10 @@
  * USA.
  */
 
-#include "common_layers.h"
-#include "layers/axes.h"
-#include "layers/background.h"
-#include "layers/hierarchy.h"
+#include <aftermath/render/timeline/common_layers.h>
+#include <aftermath/render/timeline/layers/axes.h>
+#include <aftermath/render/timeline/layers/background.h>
+#include <aftermath/render/timeline/layers/hierarchy.h>
 #include <aftermath/core/ansi_extras.h>
 
 static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {

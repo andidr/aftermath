@@ -16,11 +16,11 @@
  * USA.
  */
 
-#include "axes.h"
-#include "../renderer.h"
-#include "../../cairo_extras.h"
-#include <math.h>
+#include <aftermath/render/timeline/layers/axes.h>
+#include <aftermath/render/timeline/renderer.h>
+#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
+#include <math.h>
 #include <aftermath/core/ansi_extras.h>
 
 struct tick_params {

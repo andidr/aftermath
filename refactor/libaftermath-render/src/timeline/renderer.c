@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "renderer.h"
+#include <aftermath/render/timeline/renderer.h>
 #include <aftermath/core/interval.h>
 #include <aftermath/core/aux.h>
 

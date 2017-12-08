@@ -16,9 +16,9 @@
  * USA.
  */
 
-#include "background.h"
-#include "../renderer.h"
-#include "../../cairo_extras.h"
+#include <aftermath/render/timeline/layers/background.h>
+#include <aftermath/render/timeline/renderer.h>
+#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
 
 struct bglayer_params {

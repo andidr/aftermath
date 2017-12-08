@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "cairo_extras.h"
+#include <aftermath/render/cairo_extras.h>
 
 /* Draws a striped rectangle at coordinates (rect_left, rect_top) of rect_width
  * x rect_height units. The array dash specifies the dash pattern with num_dash

@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "layer.h"
+#include <aftermath/render/timeline/layer.h>
 #include <stdlib.h>
 #include <string.h>
 

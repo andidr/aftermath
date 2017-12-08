@@ -16,9 +16,9 @@
  * USA.
  */
 
-#include "hierarchy.h"
-#include "../renderer.h"
-#include "../../cairo_extras.h"
+#include <aftermath/render/timeline/layers/hierarchy.h>
+#include <aftermath/render/timeline/renderer.h>
+#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
 #include <math.h>
 

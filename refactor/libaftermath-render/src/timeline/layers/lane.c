@@ -16,8 +16,8 @@
  * USA.
  */
 
-#include "lane.h"
-#include "../renderer.h"
+#include <aftermath/render/timeline/layers/lane.h>
+#include <aftermath/render/timeline/renderer.h>
 
 static struct am_timeline_lane_render_layer*
 instantiate(struct am_timeline_render_layer_type* t)
