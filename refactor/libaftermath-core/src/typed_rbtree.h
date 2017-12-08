@@ -19,7 +19,7 @@
 #ifndef AM_TYPED_RBTREE_H
 #define AM_TYPED_RBTREE_H
 
-#include "./contrib/linux-kernel/rbtree.h"
+#include <aftermath/core/contrib/linux-kernel/rbtree.h>
 
 /* Defines a set of functions for a types red-black tree.
  *

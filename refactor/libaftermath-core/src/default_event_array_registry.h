@@ -19,7 +19,7 @@
 #ifndef DEFAULT_EVENT_ARRAY_REGISTRY_H
 #define DEFAULT_EVENT_ARRAY_REGISTRY_H
 
-#include "event_collection.h"
+#include <aftermath/core/event_collection.h>
 
 int am_event_array_registry_add_default(struct am_event_array_registry* r);
 

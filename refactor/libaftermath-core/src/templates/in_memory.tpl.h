@@ -19,7 +19,7 @@
 #ifndef AM_IN_MEMORY_H
 #define AM_IN_MEMORY_H
 
-#include "base_types.h"
+#include <aftermath/core/base_types.h>
 
 {% set mem = am_types.mem %}
 

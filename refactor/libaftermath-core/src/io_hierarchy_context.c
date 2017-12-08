@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "io_hierarchy_context.h"
+#include <aftermath/core/io_hierarchy_context.h>
 
 void am_io_hierarchy_context_tree_destroy(struct am_io_hierarchy_context_tree* hct)
 {

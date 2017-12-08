@@ -19,8 +19,8 @@
 #ifndef AM_INTERVAL_H
 #define AM_INTERVAL_H
 
-#include "in_memory.h"
-#include "timestamp.h"
+#include <aftermath/core/in_memory.h>
+#include <aftermath/core/timestamp.h>
 
 /* Checks if two intervals overlap. Returns true if this is the case, otherwise
  * false. */

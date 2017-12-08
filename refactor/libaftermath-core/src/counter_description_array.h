@@ -19,8 +19,8 @@
 #ifndef AM_COUNTER_DESCRIPTION_ARRAY_H
 #define AM_COUNTER_DESCRIPTION_ARRAY_H
 
-#include "typed_array.h"
-#include "in_memory.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
 
 #define ACC_COUNTER_ID(x) (x).counter_id
 

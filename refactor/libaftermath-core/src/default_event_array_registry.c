@@ -16,9 +16,9 @@
  * USA.
  */
 
-#include "default_event_array_registry.h"
-#include "state_event_array.h"
-#include "counter_event_array_collection.h"
+#include <aftermath/core/default_event_array_registry.h>
+#include <aftermath/core/state_event_array.h>
+#include <aftermath/core/counter_event_array_collection.h>
 #include <stdlib.h>
 
 static void* def_am_state_event_array_allocate(void)

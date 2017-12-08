@@ -19,9 +19,9 @@
 #ifndef AM_OBJECT_NOTATION_H
 #define AM_OBJECT_NOTATION_H
 
-#include "parser.h"
-#include "ansi_extras.h"
-#include "contrib/linux-kernel/list.h"
+#include <aftermath/core/parser.h>
+#include <aftermath/core/ansi_extras.h>
+#include <aftermath/core/contrib/linux-kernel/list.h>
 
 /* The object notation used in aftermath is a very simple notation
  * similar to JSON, but less complex. It consists of:

@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "hierarchy.h"
+#include <aftermath/core/hierarchy.h>
 #include <stdio.h>
 
 /* Initialize a hierarchy without duplicating the string pointed to by "name" by

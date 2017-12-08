@@ -19,7 +19,7 @@
 #ifndef AM_TYPED_ARRAY_H
 #define AM_TYPED_ARRAY_H
 
-#include "buffer.h"
+#include <aftermath/core/buffer.h>
 #include <stdint.h>
 
 /* Default number of elements that is preallocated when space is insufficient */

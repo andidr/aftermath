@@ -19,10 +19,10 @@
 #ifndef AM_ON_DISK_H
 #define AM_ON_DISK_H
 
-#include "convert.h"
-#include "trace.h"
-#include "io_context.h"
-#include "base_types.h"
+#include <aftermath/core/convert.h>
+#include <aftermath/core/trace.h>
+#include <aftermath/core/io_context.h>
+#include <aftermath/core/base_types.h>
 #include <stdint.h>
 #include <stdio.h>
 

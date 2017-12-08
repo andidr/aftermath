@@ -25,11 +25,11 @@
  * structures.
  */
 
-#include "typed_rbtree.h"
-#include "typed_array.h"
-#include "bsearch.h"
-#include "base_types.h"
-#include "hierarchy.h"
+#include <aftermath/core/typed_rbtree.h>
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/bsearch.h>
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/hierarchy.h>
 
 /* Represents one hierarchy with its currently loaded nodes. Mappings for the
  * hierarchy nodes are organized in a red-black tree with instances of struct

@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "object_notation.h"
+#include <aftermath/core/object_notation.h>
 #include <stdarg.h>
 #include <alloca.h>
 #include <inttypes.h>

@@ -19,8 +19,8 @@
 #ifndef AM_HIERARCHY_ARRAY_H
 #define AM_HIERARCHY_ARRAY_H
 
-#include "typed_array.h"
-#include "hierarchy.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/hierarchy.h>
 
 #define HIERARCHYP_ACC_ID(x) (x)->id
 

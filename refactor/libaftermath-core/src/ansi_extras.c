@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "ansi_extras.h"
+#include <aftermath/core/ansi_extras.h>
 
 /* Resize a string to a size of new_len bytes. The new address of the
  * reallocated string is returned in *str. Returns 0 on success, otherwise 1. */

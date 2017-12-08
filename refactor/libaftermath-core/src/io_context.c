@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "io_context.h"
+#include <aftermath/core/io_context.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>

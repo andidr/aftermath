@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "in_memory.h"
+#include <aftermath/core/in_memory.h>
 #include <stdlib.h>
 {# #}
 

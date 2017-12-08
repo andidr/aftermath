@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "buffer.h"
+#include <aftermath/core/buffer.h>
 
 /* Checks if a buffer *buffer with used elements and free remaining elements of
  * size elem_size needs to be resized in order to store n additional

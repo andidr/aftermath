@@ -19,8 +19,8 @@
 #ifndef AM_MEASUREMENT_INTERVAL_ARRAY_H
 #define AM_MEASUREMENT_INTERVAL_ARRAY_H
 
-#include "typed_array.h"
-#include "in_memory.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
 
 #define ACC_INTERVAL_START(x) (x).interval.start
 

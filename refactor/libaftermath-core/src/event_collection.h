@@ -30,8 +30,8 @@
  * event array type.
  */
 
-#include "hierarchy.h"
-#include "typed_array.h"
+#include <aftermath/core/hierarchy.h>
+#include <aftermath/core/typed_array.h>
 
 struct am_event_array_registry;
 

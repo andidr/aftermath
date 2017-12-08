@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "io_error.h"
+#include <aftermath/core/io_error.h>
 #include <stdarg.h>
 #include <stdio.h>
 

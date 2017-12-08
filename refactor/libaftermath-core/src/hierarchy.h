@@ -19,9 +19,9 @@
 #ifndef AM_HIERARCHY_H
 #define AM_HIERARCHY_H
 
-#include "typed_list.h"
-#include "base_types.h"
-#include "event_mapping.h"
+#include <aftermath/core/typed_list.h>
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/event_mapping.h>
 #include <string.h>
 #include <stdlib.h>
 

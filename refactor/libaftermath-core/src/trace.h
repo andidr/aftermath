@@ -19,12 +19,12 @@
 #ifndef AM_TRACE_H
 #define AM_TRACE_H
 
-#include "hierarchy_array.h"
-#include "event_collection_array.h"
-#include "state_description_array.h"
-#include "counter_description_array.h"
-#include "event_collection.h"
-#include "measurement_interval_array.h"
+#include <aftermath/core/hierarchy_array.h>
+#include <aftermath/core/event_collection_array.h>
+#include <aftermath/core/state_description_array.h>
+#include <aftermath/core/counter_description_array.h>
+#include <aftermath/core/event_collection.h>
+#include <aftermath/core/measurement_interval_array.h>
 
 struct am_trace {
 	char* filename;

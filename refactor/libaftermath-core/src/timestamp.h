@@ -19,8 +19,8 @@
 #ifndef AM_TIMESTAMP_H
 #define AM_TIMESTAMP_H
 
-#include "base_types.h"
-#include "arithmetic.h"
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/arithmetic.h>
 
 /* Saturated computation of *d = (*d) * mul / div for a timestamp and two other
  * timestamps. The return value indicates if the result is exact or

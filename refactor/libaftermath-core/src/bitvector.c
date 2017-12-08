@@ -16,8 +16,8 @@
  * USA.
  */
 
-#include "bitvector.h"
-#include "aux.h"
+#include <aftermath/core/bitvector.h>
+#include <aftermath/core/aux.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

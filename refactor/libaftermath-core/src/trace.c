@@ -16,8 +16,8 @@
  * USA.
  */
 
-#include "trace.h"
-#include "default_event_array_registry.h"
+#include <aftermath/core/trace.h>
+#include <aftermath/core/default_event_array_registry.h>
 
 int am_trace_init(struct am_trace* t, const char* filename)
 {

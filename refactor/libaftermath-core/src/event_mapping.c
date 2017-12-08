@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "event_mapping.h"
+#include <aftermath/core/event_mapping.h>
 
 void am_event_mapping_init(struct am_event_mapping* m)
 {

@@ -19,9 +19,9 @@
 #ifndef COUNTER_EVENT_ARRAY_COLLECTION_H
 #define COUNTER_EVENT_ARRAY_COLLECTION_H
 
-#include "typed_array.h"
-#include "counter_event_array.h"
-#include "in_memory.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/counter_event_array.h>
+#include <aftermath/core/in_memory.h>
 
 #define ACC_COUNTER_ID(x) (x).counter_id
 

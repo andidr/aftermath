@@ -21,9 +21,9 @@
 
 #define _FILE_OFFSET_BITS 64
 #include <stdio.h>
-#include "io_error.h"
-#include "io_hierarchy_context.h"
-#include "trace.h"
+#include <aftermath/core/io_error.h>
+#include <aftermath/core/io_hierarchy_context.h>
+#include <aftermath/core/trace.h>
 
 /* An IO context serves as a compound structure for temporary data needed when
  * loading / writing a trace from / to disk. When an IO operation fails, the

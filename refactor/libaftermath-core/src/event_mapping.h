@@ -23,10 +23,10 @@
  * hierarchy node). Each mapping is a series of mapping elements, one for each
  * interval. */
 
-#include "base_types.h"
-#include "typed_array.h"
-#include "interval_array.h"
-#include "ptr.h"
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/interval_array.h>
+#include <aftermath/core/ptr.h>
 
 struct am_event_mapping_element {
 	struct am_interval interval;

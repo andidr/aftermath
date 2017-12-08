@@ -19,13 +19,13 @@
 #ifndef AM_INTERVAL_ARRAY_H
 #define AM_INTERVAL_ARRAY_H
 
-#include "base_types.h"
-#include "bsearch.h"
-#include "interval.h"
-#include "typed_array.h"
-#include "ptr.h"
-#include "ansi_extras.h"
-#include "contrib/linux-kernel/stddef.h"
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/bsearch.h>
+#include <aftermath/core/interval.h>
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/ptr.h>
+#include <aftermath/core/ansi_extras.h>
+#include <aftermath/core/contrib/linux-kernel/stddef.h>
 
 #define ACC_PINTERVAL_PIDENT(i) (&(i))
 

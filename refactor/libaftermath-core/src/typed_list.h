@@ -19,8 +19,8 @@
 #ifndef AM_TYPED_LIST_H
 #define AM_TYPED_LIST_H
 
-#include "contrib/linux-kernel/list.h"
-#include "contrib/linux-kernel/kernel.h"
+#include <aftermath/core/contrib/linux-kernel/list.h>
+#include <aftermath/core/contrib/linux-kernel/kernel.h>
 
 #define am_typed_list_for_each(c, c_memb, i, i_memb)			\
 	for((i) = container_of((c)->c_memb.next, typeof(*(i)), i_memb); \

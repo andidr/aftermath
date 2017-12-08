@@ -19,10 +19,10 @@
 #ifndef AM_STATE_ARRAY_H
 #define AM_STATE_ARRAY_H
 
-#include "typed_array.h"
-#include "in_memory.h"
-#include "bsearch.h"
-#include "interval_array.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
+#include <aftermath/core/bsearch.h>
+#include <aftermath/core/interval_array.h>
 
 AM_DECL_TYPED_ARRAY(am_state_event_array, struct am_state_event)
 

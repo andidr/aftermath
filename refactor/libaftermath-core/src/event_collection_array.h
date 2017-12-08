@@ -19,8 +19,8 @@
 #ifndef AM_EVENT_COLLECTION_ARRAY_H
 #define AM_EVENT_COLLECTION_ARRAY_H
 
-#include "typed_array.h"
-#include "event_collection.h"
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/event_collection.h>
 
 #define ACC_ID(x) (x).id
 

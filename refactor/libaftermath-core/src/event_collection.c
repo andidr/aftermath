@@ -16,7 +16,7 @@
  * USA.
  */
 
-#include "event_collection.h"
+#include <aftermath/core/event_collection.h>
 
 void am_event_array_type_entry_destroy(struct am_event_array_type_entry* e,
 				       struct am_event_array_registry* r)
