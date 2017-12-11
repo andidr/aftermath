@@ -40,6 +40,9 @@
 /* Returns the size of a in bits */
 #define AM_SIZEOF_BITS(a) ((sizeof(a) * CHAR_BIT))
 
+/* Protects macro arguments from evaluation */
+#define AM_MACRO_ARG_PROTECT(...) __VA_ARGS__
+
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
 static inline void
