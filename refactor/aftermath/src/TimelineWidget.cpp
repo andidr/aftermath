@@ -25,7 +25,9 @@ extern "C" {
 }
 
 TimelineWidget::TimelineWidget(QWidget* parent)
-	: super(parent), mouseMode(MOUSE_MODE_NONE)
+	: super(parent), mouseMode(MOUSE_MODE_NONE),
+	  zoom({1100, 1000}),
+	  ylegendScrollPx(20)
 {
 	this->dragStart.visibleInterval = { 0, 0 };
 
@@ -329,4 +331,105 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
 		this->setCursor(Qt::ArrowCursor);
 
 	this->mouseMode = MOUSE_MODE_NONE;
+}
+
+/* Handle a zoom event at X position x*/
+void TimelineWidget::handleZoomEvent(double x, enum zoomDirection direction)
+{
+	struct am_timeline_renderer* r = &this->renderer;
+
+	/* Timestamp at the mouse position */
+	am_timestamp_t t;
+
+	struct am_interval i_new = r->visible_interval;
+	struct am_interval i_old = r->visible_interval;
+
+	/* Duration of the visible interval before the zoom */
+	struct am_time_offset d;
+
+	/* Duration by which the interval is increased at both sides */
+	am_timestamp_t inc;
+
+	/* Offset by how much the widened interval is shifted in order to
+	 * preserve the timestamp under the cursor at the same pixel position */
+	am_timestamp_t offs;
+
+	am_timestamp_t tmp;
+
+	am_timeline_renderer_x_to_timestamp(r, x, &t);
+
+	am_interval_duration(&i_old, &d);
+
+	inc = d.abs;
+	am_timestamp_muldiv_sat(&inc,
+				this->zoom.value - this->zoom.multiplier,
+				this->zoom.multiplier);
+
+	/* Precision not high enough; manually adjust in order to prevent
+	 * blocking zoom */
+	if(inc == 0)
+		inc = 1;
+
+	if(direction == ZOOM_IN)
+		am_interval_shrink_u(&i_new, inc);
+	else
+		am_interval_widen_u(&i_new, inc);
+
+	if(t < am_interval_middle(&i_old)) {
+		/* Saturated calculation of:
+		 * offs = inc - 2 * inc * (t - old_i.start) / d
+		 */
+		tmp = 2;
+		am_timestamp_mul_sat(&tmp, inc);
+		am_timestamp_muldiv_sat(&tmp, t - i_old.start, d.abs);
+		offs = inc;
+		am_timestamp_sub_sat(&offs, tmp);
+
+		if(direction == ZOOM_IN)
+			am_interval_shift_left_u(&i_new, offs);
+		else
+			am_interval_shift_right_u(&i_new, offs);
+	} else {
+		/* Saturated calculation of:
+		 * offs = 2 * inc * (t - old_i.start) / d - inc
+		 */
+		offs = 2;
+		am_timestamp_mul_sat(&offs, inc);
+		am_timestamp_muldiv_sat(&offs, t - i_old.start, d.abs);
+		am_timestamp_sub_sat(&offs, inc);
+
+		if(direction == ZOOM_IN)
+			am_interval_shift_right_u(&i_new, offs);
+		else
+			am_interval_shift_left_u(&i_new, offs);
+	}
+
+	am_timeline_renderer_set_visible_interval(r, &i_new);
+
+	this->update();
+}
+
+void TimelineWidget::wheelEvent(QWheelEvent* event)
+{
+	struct am_timeline_renderer* r = &this->renderer;
+	struct am_point p = { .x = (double)event->x(), .y = (double)event->y() };
+	double offs;
+
+	if(am_point_in_rect(&p, &r->rects.ylegend)) {
+		/* Scrolling on left part with the legens for the Y axis: scroll
+		 * up / down the hierarchy */
+		offs = am_timeline_renderer_get_lane_offset(r);
+		offs -= (event->delta() / 100.0) * this->ylegendScrollPx;
+
+		am_timeline_renderer_set_lane_offset(r, offs);
+		this->update();
+	} else if(am_point_in_rect(&p, &r->rects.lanes)) {
+		/* Scrolling on the time line lanes: zoom in and out */
+		if(event->delta() > 0)
+			this->handleZoomEvent(p.x, ZOOM_IN);
+		else
+			this->handleZoomEvent(p.x, ZOOM_OUT);
+	} else {
+		event->ignore();
+	}
 }

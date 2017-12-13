@@ -43,11 +43,17 @@ class TimelineWidget : public CairoWidget {
 		void addLayer(struct am_timeline_render_layer* l);
 
 	protected:
+		enum zoomDirection {
+			ZOOM_IN,
+			ZOOM_OUT
+		};
+
 		virtual void cairoPaintEvent(cairo_t* cr);
 
 		virtual void mouseMoveEvent(QMouseEvent* event);
 		virtual void mousePressEvent(QMouseEvent* event);
 		virtual void mouseReleaseEvent(QMouseEvent* event);
+		virtual void wheelEvent(QWheelEvent* event);
 
 		virtual void handleMouseMoveHierarchyLayerItem(
 			QMouseEvent* event,
@@ -69,6 +75,7 @@ class TimelineWidget : public CairoWidget {
 		virtual void handleVerticalAxisDragEvent(double x);
 		virtual void handleLanesDragEvent(double x);
 		virtual void handleDragEvent(QMouseEvent* event);
+		virtual void handleZoomEvent(double x, enum zoomDirection);
 
 		struct am_timeline_renderer renderer;
 
@@ -83,6 +90,13 @@ class TimelineWidget : public CairoWidget {
 			QPoint pos;
 			struct am_interval visibleInterval;
 		} dragStart;
+
+		struct {
+			uint64_t value;
+			uint64_t multiplier;
+		} zoom;
+
+		double ylegendScrollPx;
 };
 
 #endif
