@@ -59,6 +59,18 @@ void TimelineWidget::setHierarchy(struct am_hierarchy* h)
 		throw TimelineWidgetException();
 }
 
+/* Sets the visible interval. If the interval is invalid, an exception is
+ * thrown. */
+void TimelineWidget::setVisibleInterval(const struct am_interval* i)
+{
+	if(i->end < i->start)
+		throw TimelineWidgetException();
+
+	am_timeline_renderer_set_visible_interval(&this->renderer, i);
+
+	this->update();
+}
+
 /**
  * Add a time line render layer to the time line renderer
  */

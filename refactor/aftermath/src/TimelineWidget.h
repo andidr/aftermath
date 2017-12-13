@@ -39,13 +39,21 @@ class TimelineWidget : public CairoWidget {
 		virtual void resizeEvent(QResizeEvent *event);
 		void setTrace(struct am_trace* t);
 		void setHierarchy(struct am_hierarchy* h);
+		void setVisibleInterval(const struct am_interval* i);
 		void addLayer(struct am_timeline_render_layer* l);
 
 	protected:
+		enum zoomDirection {
+			ZOOM_IN,
+			ZOOM_OUT
+		};
+
 		virtual void cairoPaintEvent(cairo_t* cr);
 
 		virtual void mouseMoveEvent(QMouseEvent* event);
 		virtual void mousePressEvent(QMouseEvent* event);
+		virtual void mouseReleaseEvent(QMouseEvent* event);
+		virtual void wheelEvent(QWheelEvent* event);
 
 		virtual void handleMouseMoveHierarchyLayerItem(
 			QMouseEvent* event,
