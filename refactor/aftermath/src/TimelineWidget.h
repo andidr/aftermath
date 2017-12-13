@@ -43,17 +43,11 @@ class TimelineWidget : public CairoWidget {
 		void addLayer(struct am_timeline_render_layer* l);
 
 	protected:
-		enum zoomDirection {
-			ZOOM_IN,
-			ZOOM_OUT
-		};
-
 		virtual void cairoPaintEvent(cairo_t* cr);
 
 		virtual void mouseMoveEvent(QMouseEvent* event);
 		virtual void mousePressEvent(QMouseEvent* event);
 		virtual void mouseReleaseEvent(QMouseEvent* event);
-		virtual void wheelEvent(QWheelEvent* event);
 
 		virtual void handleMouseMoveHierarchyLayerItem(
 			QMouseEvent* event,
@@ -63,7 +57,32 @@ class TimelineWidget : public CairoWidget {
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
+		virtual void handleMouseMoveAxesLayerItem(
+			QMouseEvent* event,
+			const struct am_timeline_entity* e);
+
+		virtual void handleMousePressAxesLayerItem(
+			QMouseEvent* event,
+			const struct am_timeline_entity* e);
+
+		virtual void handleHorizontalAxisDragEvent(double y);
+		virtual void handleVerticalAxisDragEvent(double x);
+		virtual void handleLanesDragEvent(double x);
+		virtual void handleDragEvent(QMouseEvent* event);
+
 		struct am_timeline_renderer renderer;
+
+		enum {
+			MOUSE_MODE_NONE = 0,
+			MOUSE_MODE_DRAG_HORIZONTAL_AXIS,
+			MOUSE_MODE_DRAG_VERTICAL_AXIS,
+			MOUSE_MODE_DRAG_LANES
+		} mouseMode;
+
+		struct {
+			QPoint pos;
+			struct am_interval visibleInterval;
+		} dragStart;
 };
 
 #endif
