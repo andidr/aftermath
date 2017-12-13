@@ -28,6 +28,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/counter_event_array_collection.h \
 				src/default_event_array_registry.c \
 				src/default_event_array_registry.h \
+				src/dfg_type.c \
+				src/dfg_type.h \
 				src/event_collection_array.h \
 				src/event_collection.c \
 				src/event_collection.h \
