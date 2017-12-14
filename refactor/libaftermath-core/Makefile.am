@@ -30,6 +30,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/default_event_array_registry.h \
 				src/dfg_buffer.c \
 				src/dfg_buffer.h \
+				src/dfg_graph.c \
+				src/dfg_graph.h \
 				src/dfg_node.c \
 				src/dfg_node.h \
 				src/dfg_node_type_registry.c \
