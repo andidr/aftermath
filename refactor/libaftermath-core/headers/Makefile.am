@@ -18,6 +18,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/counter_event_array.h \
 	aftermath/core/counter_event_array_collection.h \
 	aftermath/core/default_event_array_registry.h \
+	aftermath/core/dfg_buffer.h \
 	aftermath/core/dfg_type.h \
 	aftermath/core/dfg_type_registry.h \
 	aftermath/core/event_mapping.h \
