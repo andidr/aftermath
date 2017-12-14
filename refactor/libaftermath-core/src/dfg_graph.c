@@ -483,3 +483,38 @@ out_err_dest:
 out_err:
 	return NULL;
 }
+
+/* Saves a graph to a file using object notation. Returns 0 on success,
+ * otherwise 1. */
+int am_dfg_graph_save_fp(struct am_dfg_graph* g, FILE* fp)
+{
+	struct am_object_notation_node* n_graph;
+
+	if(!(n_graph = am_dfg_graph_to_object_notation(g)))
+		return 1;
+
+	if(am_object_notation_save_fp(n_graph, fp)) {
+		am_object_notation_node_destroy(n_graph);
+		return 1;
+	}
+
+	am_object_notation_node_destroy(n_graph);
+
+	return 0;
+}
+
+/* Saves a graph to a file using object notation. The file will be overwritten
+ * or created if necessary. Returns 0 on success, otherwise 1. */
+int am_dfg_graph_save(struct am_dfg_graph* g, const char* filename)
+{
+	FILE* fp = fopen(filename, "w+");
+	int ret = 0;
+
+	if(!fp)
+		return 1;
+
+	ret = am_dfg_graph_save_fp(g, fp);
+	fclose(fp);
+
+	return ret;
+}

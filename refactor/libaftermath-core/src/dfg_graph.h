@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg_buffer.h>
 #include <aftermath/core/dfg_node.h>
 #include <aftermath/core/typed_list.h>
+#include <stdio.h>
 
 enum am_dfg_graph_flags {
 	AM_DFG_GRAPH_DESTROY_NODES = (1 << 0),
@@ -87,5 +88,8 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 
 struct am_object_notation_node*
 am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);
+
+int am_dfg_graph_save(struct am_dfg_graph* g, const char* filename);
+int am_dfg_graph_save_fp(struct am_dfg_graph* g, FILE* fp);
 
 #endif
