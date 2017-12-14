@@ -85,4 +85,7 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 			   const struct am_dfg_port* ignore_src,
 			   const struct am_dfg_port* ignore_dst);
 
+struct am_object_notation_node*
+am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);
+
 #endif

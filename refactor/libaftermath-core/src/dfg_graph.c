@@ -329,3 +329,157 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 
 	return 0;
 }
+
+/* Convert a connection into its representation in object notation. Returns a newly
+ * created object notation node of the form:
+ *
+ *    [<id>, <port_name>, <id>, <port_name>]
+ *
+ * In case of an error NULL is returned.
+ */
+static struct am_object_notation_node*
+am_dfg_graph_connection_to_object_notation(struct am_dfg_port* psrc,
+					struct am_dfg_port* pdst)
+{
+	struct am_object_notation_node_list* n_list;
+	struct am_object_notation_node_string* n_src_port;
+	struct am_object_notation_node_int* n_src_id;
+	struct am_object_notation_node_string* n_dst_port;
+	struct am_object_notation_node_int* n_dst_id;
+
+	if(!(n_list = am_object_notation_node_list_create()))
+		goto out_err;
+
+	if(!(n_src_id = am_object_notation_node_int_create(psrc->node->id)))
+		goto out_err_dlist;
+
+	am_object_notation_node_list_add_item(
+		n_list,
+		(struct am_object_notation_node*)n_src_id);
+
+	if(!(n_src_port = am_object_notation_node_string_create(psrc->type->name, 1)))
+		goto out_err_dlist;
+
+	am_object_notation_node_list_add_item(
+		n_list,
+		(struct am_object_notation_node*)n_src_port);
+
+	if(!(n_dst_id = am_object_notation_node_int_create(pdst->node->id)))
+		goto out_err_dlist;
+
+	am_object_notation_node_list_add_item(
+		n_list,
+		(struct am_object_notation_node*)n_dst_id);
+
+	if(!(n_dst_port = am_object_notation_node_string_create(pdst->type->name, 1)))
+		goto out_err_dlist;
+
+	am_object_notation_node_list_add_item(
+		n_list,
+		(struct am_object_notation_node*)n_dst_port);
+
+	return (struct am_object_notation_node*)n_list;
+
+out_err_dlist:
+	am_object_notation_node_destroy((struct am_object_notation_node*)n_list);
+out_err:
+	return NULL;
+}
+
+/* Convert a graph into its representation in object notation. Returns a newly
+ * create object notation node of the form:
+ *
+ *    am_dfg_graph {
+ *       nodes : [
+ *          am_dfg_node {
+ *             type: <string>,
+ *             id: <integer>,
+ *          },
+ *          am_dfg_node {
+ *             id: <integer>,
+ *             type: <string>,
+ *          },
+ *          ...
+ *      ],
+ *
+ *      connections: [
+ *         [<id>, <port_name>, <id>, <port_name>],
+ *         [<id>, <port_name>, <id>, <port_name>],
+ *         ...
+ *      ]
+ *    }
+ *
+ * In case of an error NULL is returned.
+ */
+struct am_object_notation_node*
+am_dfg_graph_to_object_notation(const struct am_dfg_graph* g)
+{
+	struct am_object_notation_node_group* n_graph;
+	struct am_object_notation_node_member* n_memb_nodes;
+	struct am_object_notation_node_list* n_nodes;
+	struct am_object_notation_node_member* n_memb_connections;
+	struct am_object_notation_node_list* n_connections;
+	struct am_object_notation_node* n_connection;
+	struct am_object_notation_node* n_node;
+	struct am_dfg_node* n;
+	struct am_dfg_port* p;
+
+	if(!(n_graph = am_object_notation_node_group_create("am_dfg_graph")))
+		goto out_err;
+
+	if(!(n_nodes = am_object_notation_node_list_create()))
+		goto out_err_dest;
+
+	if(!(n_memb_nodes = am_object_notation_node_member_create(
+		     "nodes",
+		     (struct am_object_notation_node*)n_nodes)))
+	{
+		am_object_notation_node_destroy(
+			(struct am_object_notation_node*)n_nodes);
+		free(n_nodes);
+		goto out_err_dest;
+	}
+
+	am_object_notation_node_group_add_member(n_graph, n_memb_nodes);
+
+	if(!(n_connections = am_object_notation_node_list_create()))
+		goto out_err_dest;
+
+	if(!(n_memb_connections = am_object_notation_node_member_create(
+		     "connections",
+		     (struct am_object_notation_node*)n_connections)))
+	{
+		am_object_notation_node_destroy(
+			(struct am_object_notation_node*)n_connections);
+		free(n_connections);
+		goto out_err_dest;
+	}
+
+	am_object_notation_node_group_add_member(n_graph, n_memb_connections);
+
+	am_dfg_graph_for_each_node(g, n) {
+		if(!(n_node = am_dfg_node_to_object_notation(n)))
+			goto out_err_dest;
+
+		am_object_notation_node_list_add_item(n_nodes, n_node);
+
+		am_dfg_node_for_each_port(n, p) {
+			if(p->type->flags & AM_DFG_PORT_IN) {
+				if(p->num_connections > 0) {
+					if(!(n_connection = am_dfg_graph_connection_to_object_notation(p->connections[0], p)))
+						goto out_err_dest;
+
+					am_object_notation_node_list_add_item(n_connections, n_connection);
+				}
+			}
+		}
+	}
+
+	return (struct am_object_notation_node*)n_graph;
+
+out_err_dest:
+	am_object_notation_node_destroy((struct am_object_notation_node*)n_graph);
+	free(n_graph);
+out_err:
+	return NULL;
+}
