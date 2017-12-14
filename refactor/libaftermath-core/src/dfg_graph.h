@@ -68,6 +68,7 @@ struct am_dfg_graph {
 void am_dfg_graph_init(struct am_dfg_graph* g, long flags);
 void am_dfg_graph_destroy(struct am_dfg_graph* g);
 void am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n);
+struct am_dfg_node* am_dfg_graph_find_node(struct am_dfg_graph* g, long id);
 int am_dfg_graph_remove_node(struct am_dfg_graph* g, struct am_dfg_node* n);
 int am_dfg_graph_connectp(struct am_dfg_graph* g,
 			  struct am_dfg_port* src_port,

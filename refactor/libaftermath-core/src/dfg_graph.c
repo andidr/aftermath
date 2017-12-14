@@ -65,6 +65,21 @@ void am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n)
 	list_add(&n->list, &g->nodes);
 }
 
+/* Find a node in the graph by id. Returns the node if found or NULL if no such
+ * node exists in the graph. */
+struct am_dfg_node* am_dfg_graph_find_node(struct am_dfg_graph* g, long id)
+{
+	struct am_dfg_node* n;
+
+	/* TODO: faster lookup */
+	am_dfg_graph_for_each_node(g, n) {
+		if(n->id == id)
+			return n;
+	}
+
+	return NULL;
+}
+
 /*
  * Remove a node from the graph. This destroys all of the node's connections,
  * but does not destroy or free the node itself.
