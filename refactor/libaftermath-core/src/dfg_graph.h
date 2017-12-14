@@ -30,6 +30,9 @@ enum am_dfg_graph_flags {
 	AM_DFG_GRAPH_DESTROY_BUFFERS = (1 << 1)
 };
 
+#define AM_DFG_GRAPH_DESTROY_ALL \
+	(AM_DFG_GRAPH_DESTROY_NODES | AM_DFG_GRAPH_DESTROY_BUFFERS)
+
 /* A simple dataflow graph */
 struct am_dfg_graph {
 	/* *All nodes included in the graph */
@@ -86,6 +89,8 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 			   struct am_dfg_node* extra_dst,
 			   const struct am_dfg_port* ignore_src,
 			   const struct am_dfg_port* ignore_dst);
+
+int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g);
 
 struct am_object_notation_node*
 am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);

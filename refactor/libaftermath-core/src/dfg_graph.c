@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/dfg_graph.h>
+#include <limits.h>
 
 void am_dfg_graph_init(struct am_dfg_graph* g, long flags)
 {
@@ -341,6 +342,41 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 	am_dfg_graph_for_each_node(g, n)
 		if(n->marking == AM_DFG_CYCLE_UNMARKED)
 			return 1;
+
+	return 0;
+}
+
+/* Merge the graph g into dst. Returns 0 on success, 1 otherwise. */
+int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g)
+{
+	struct am_dfg_node* n;
+	long id = 0;
+
+	if(dst->flags != g->flags)
+		return 1;
+
+	/* Determine highest id */
+	am_dfg_graph_for_each_node(dst, n)
+		if(n->id > id)
+			id = n->id;
+
+	if(!list_empty(&dst->nodes)) {
+		if(id != LONG_MAX)
+			id++;
+		else
+			return 1;
+	}
+
+	/* Replace node ids of the graph that is to be merged. */
+	am_dfg_graph_for_each_node(g, n) {
+		if(id == LONG_MAX)
+			return 1;
+
+		n->id = id++;
+	}
+
+	list_splice(&g->nodes, &dst->nodes);
+	list_splice(&g->buffers, &dst->buffers);
 
 	return 0;
 }
