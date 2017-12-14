@@ -433,3 +433,64 @@ void am_dfg_node_destroy(struct am_dfg_node* n)
 
 	free(n->ports);
 }
+
+/* Convert a node into its representation in object notation. Returns a newly
+ * created object notation node of the form:
+ *
+ *    am_dfg_node {
+ *         id: <integer>;
+ *         type: <string>;
+ *    }
+ *
+ * In case of an error NULL is returned.
+ */
+struct am_object_notation_node*
+am_dfg_node_to_object_notation(struct am_dfg_node* n)
+{
+	struct am_object_notation_node_group* n_grp;
+	struct am_object_notation_node_member* n_memb_id;
+	struct am_object_notation_node_int* n_id;
+	struct am_object_notation_node_member* n_memb_type;
+	struct am_object_notation_node_string* n_type;
+
+	if(!(n_grp = am_object_notation_node_group_create("am_dfg_node")))
+		goto out_err;
+
+	if(!(n_type = am_object_notation_node_string_create(n->type->name, 0)))
+		goto out_err_dest;
+
+	if(!(n_memb_type = am_object_notation_node_member_create(
+		     "type",
+		     (struct am_object_notation_node*)n_type)))
+	{
+		am_object_notation_node_destroy(
+			(struct am_object_notation_node*)n_type);
+		free(n_type);
+		goto out_err_dest;
+	}
+
+	am_object_notation_node_group_add_member(n_grp, n_memb_type);
+
+	if(!(n_id = am_object_notation_node_int_create((int64_t)n->id)))
+		goto out_err_dest;
+
+	if(!(n_memb_id = am_object_notation_node_member_create(
+		     "id",
+		     (struct am_object_notation_node*)n_id)))
+	{
+		am_object_notation_node_destroy(
+			(struct am_object_notation_node*)n_id);
+		free(n_id);
+		goto out_err_dest;
+	}
+
+	am_object_notation_node_group_add_member(n_grp, n_memb_id);
+
+	return (struct am_object_notation_node*)n_grp;
+
+out_err_dest:
+	am_object_notation_node_destroy((struct am_object_notation_node*)n_grp);
+	free(n_grp);
+out_err:
+	return NULL;
+}

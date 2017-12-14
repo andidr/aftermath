@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg_type.h>
 #include <aftermath/core/dfg_type_registry.h>
 #include <aftermath/core/dfg_buffer.h>
+#include <aftermath/core/object_notation.h>
 
 enum am_dfg_port_flag {
 	AM_DFG_PORT_IN = (1 << 0),
@@ -214,5 +215,8 @@ int am_dfg_node_is_root(const struct am_dfg_node* n);
 int am_dfg_node_is_root_ign(const struct am_dfg_node* n,
 			    const struct am_dfg_port* ignore_src,
 			    const struct am_dfg_port* ignore_dst);
+
+struct am_object_notation_node*
+am_dfg_node_to_object_notation(struct am_dfg_node* n);
 
 #endif
