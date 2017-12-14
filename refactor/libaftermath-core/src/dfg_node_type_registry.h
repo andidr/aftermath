@@ -20,6 +20,7 @@
 #define AM_DFG_NODE_TYPE_REGISTRY_H
 
 #include <aftermath/core/dfg_node.h>
+#include <aftermath/core/object_notation.h>
 
 enum am_dfg_node_type_registry_flags {
 	AM_DFG_NODE_TYPE_REGISTRY_DESTROY_TYPES = (1 << 0)
@@ -55,5 +56,10 @@ void am_dfg_node_type_registry_add(struct am_dfg_node_type_registry* reg,
 struct am_dfg_node_type*
 am_dfg_node_type_registry_lookup(struct am_dfg_node_type_registry* reg,
 				 const char* name);
+
+struct am_dfg_node*
+am_dfg_node_type_registry_node_from_object_notation(
+	struct am_dfg_node_type_registry* reg,
+	struct am_object_notation_node* n_node);
 
 #endif
