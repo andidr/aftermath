@@ -36,6 +36,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg_node.h \
 				src/dfg_node_type_registry.c \
 				src/dfg_node_type_registry.h \
+				src/dfg_schedule.c \
+				src/dfg_schedule.h \
 				src/dfg_type.c \
 				src/dfg_type.h \
 				src/dfg_type_registry.c \
