@@ -66,3 +66,57 @@ void am_striped_rectangle(cairo_t* cr,
 
 	cairo_rectangle(cr, rect_left, rect_top, rect_width, rect_height);
 }
+
+void am_rounded_rectangle_corners(cairo_t* cr,
+				  const struct am_rect* rect,
+				  double r,
+				  long corner_flags)
+{
+	double dpr = 3.141592654 / 180.0;
+	double x = rect->x;
+	double y = rect->y;
+	double w = rect->width;
+	double h = rect->height;
+
+	cairo_new_sub_path(cr);
+
+	if(corner_flags & AM_ROUNDED_CORNER_UPPER_LEFT)
+		cairo_arc(cr, x + r, y + r, r, 180 * dpr, 270 * dpr);
+	else
+		cairo_move_to(cr, x, y);
+
+	if(corner_flags & AM_ROUNDED_CORNER_UPPER_RIGHT) {
+		cairo_line_to(cr, x + w - r, y);
+		cairo_arc(cr, x + w - r, y + r, r, -90 * dpr, 0 * dpr);
+	} else {
+		cairo_line_to(cr, x + w, y);
+	}
+
+	if(corner_flags & AM_ROUNDED_CORNER_LOWER_RIGHT) {
+		cairo_line_to(cr, x + w, y + h - r);
+		cairo_arc(cr, x + w - r, y + h - r, r, 0 * dpr, 90 * dpr);
+	} else {
+		cairo_line_to(cr, x + w, y + h);
+	}
+
+	if(corner_flags & AM_ROUNDED_CORNER_LOWER_LEFT) {
+		cairo_line_to(cr, x + r , y + h);
+		cairo_arc(cr, x + r, y + h - r, r, 90 * dpr, 180 * dpr);
+	} else {
+		cairo_line_to(cr, x, y + h);
+	}
+
+	if(corner_flags & AM_ROUNDED_CORNER_UPPER_LEFT) {
+		cairo_line_to(cr, x, y + r);
+	} else {
+		cairo_line_to(cr, x, y);
+	}
+
+	cairo_close_path(cr);
+}
+
+void am_rounded_rectangle(cairo_t* cr, const struct am_rect* rect, double r)
+{
+	am_rounded_rectangle_corners(cr, rect, r, AM_ROUNDED_CORNERS_ALL);
+}
+

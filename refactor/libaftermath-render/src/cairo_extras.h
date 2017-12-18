@@ -142,4 +142,34 @@ am_point_in_rect(const struct am_point* p,
 		p->y >= r->y && p->y <= r->y + r->height;
 }
 
+#define AM_ROUNDED_CORNER_UPPER_LEFT  (1 << 0)
+#define AM_ROUNDED_CORNER_UPPER_RIGHT (1 << 1)
+#define AM_ROUNDED_CORNER_LOWER_LEFT  (1 << 2)
+#define AM_ROUNDED_CORNER_LOWER_RIGHT (1 << 3)
+
+#define AM_ROUNDED_CORNERS_TOP \
+	(AM_ROUNDED_CORNER_UPPER_LEFT | AM_ROUNDED_CORNER_UPPER_RIGHT)
+
+#define AM_ROUNDED_CORNERS_BOTOM \
+	(AM_ROUNDED_CORNER_LOWER_LEFT | AM_ROUNDED_CORNER_LOWER_RIGHT)
+
+#define AM_ROUNDED_CORNERS_RIGHT \
+	(AM_ROUNDED_CORNER_UPPER_RIGHT | AM_ROUNDED_CORNER_LOWER_RIGHT)
+
+#define AM_ROUNDED_CORNERS_LEFT \
+	(AM_ROUNDED_CORNER_UPPER_LEFT | AM_ROUNDED_CORNER_LOWER_LEFT)
+
+#define AM_ROUNDED_CORNERS_ALL		 \
+	(AM_ROUNDED_CORNER_UPPER_LEFT  | \
+	 AM_ROUNDED_CORNER_UPPER_RIGHT | \
+	 AM_ROUNDED_CORNER_LOWER_LEFT  | \
+	 AM_ROUNDED_CORNER_LOWER_RIGHT)
+
+void am_rounded_rectangle_corners(cairo_t* cr,
+				  const struct am_rect* rect,
+				  double r,
+				  long corner_flags);
+
+void am_rounded_rectangle(cairo_t* cr, const struct am_rect* rect, double r);
+
 #endif
