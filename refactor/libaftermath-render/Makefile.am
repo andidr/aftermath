@@ -9,6 +9,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/color_map.h \
 	src/dfg/dfg_coordinate_mapping.h \
 	src/dfg/dfg_coordinate_mapping.c \
+	src/dfg/renderer.c \
+	src/dfg/renderer.h \
 	src/timeline/common_layers.c \
 	src/timeline/common_layers.h \
 	src/timeline/layer.c \
