@@ -172,4 +172,12 @@ void am_rounded_rectangle_corners(cairo_t* cr,
 
 void am_rounded_rectangle(cairo_t* cr, const struct am_rect* rect, double r);
 
+cairo_bool_t am_point_on_curve(cairo_t* cr,
+			       const struct am_point* p,
+			       const struct am_point* p1,
+			       const struct am_point* c1,
+			       const struct am_point* c2,
+			       const struct am_point* p2,
+			       double line_width);
+
 #endif

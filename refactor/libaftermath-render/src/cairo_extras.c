@@ -120,3 +120,25 @@ void am_rounded_rectangle(cairo_t* cr, const struct am_rect* rect, double r)
 	am_rounded_rectangle_corners(cr, rect, r, AM_ROUNDED_CORNERS_ALL);
 }
 
+/* Quick and dirty check if a point p is on a cubic bézier curve from p1 to p2
+ * with the control points c1 and c2 */
+cairo_bool_t am_point_on_curve(cairo_t* cr,
+			       const struct am_point* p,
+			       const struct am_point* p1,
+			       const struct am_point* c1,
+			       const struct am_point* c2,
+			       const struct am_point* p2,
+			       double line_width)
+{
+	cairo_bool_t ret;
+
+	cairo_save(cr);
+	cairo_set_line_width(cr, line_width);
+	cairo_move_to(cr, AM_PPOINT_ARGS(p1));
+	cairo_curve_to(cr, AM_PPOINT_ARGS(c1), AM_PPOINT_ARGS(c2), AM_PPOINT_ARGS(p2));
+
+	ret = cairo_in_stroke(cr, AM_PPOINT_ARGS(p));
+	cairo_restore(cr);
+
+	return ret;
+}
