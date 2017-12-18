@@ -569,3 +569,229 @@ int am_dfg_graph_save(struct am_dfg_graph* g, const char* filename)
 
 	return ret;
 }
+
+/* Connects two nodes of a graph g based on the connection description
+ * n_connection in object notation. The description must be a list of the
+ * form:
+ *
+ *   [<src_id>, <src_port_name>, <dst_id>, <dst_port_name>],
+ *
+ * Where src_id and dst_id are integers referring to the IDs of the source and
+ * destination node. src_port_name and dst_port_name are strings that refer to
+ * the names of the output port of the source node and the input port of the
+ * destination node, respectively.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_graph_connection_from_object_notation(
+	struct am_dfg_graph* g,
+	struct am_object_notation_node* n_connection)
+{
+	struct am_object_notation_node_list* n_lconnection;
+	struct am_object_notation_node* item;
+	struct am_object_notation_node* items[4];
+	struct am_object_notation_node* n_src_id;
+	struct am_object_notation_node_int* n_src_iid;
+	struct am_object_notation_node* n_src_port;
+	struct am_object_notation_node_string* n_src_sport;
+	struct am_object_notation_node* n_dst_id;
+	struct am_object_notation_node_int* n_dst_iid;
+	struct am_object_notation_node* n_dst_port;
+	struct am_object_notation_node_string* n_dst_sport;
+	struct am_dfg_node* src;
+	struct am_dfg_node* dst;
+	struct am_dfg_port* psrc;
+	struct am_dfg_port* pdst;
+	size_t i = 0;
+
+	if(n_connection->type !=  AM_OBJECT_NOTATION_NODE_TYPE_LIST)
+		return 1;
+
+	n_lconnection = (struct am_object_notation_node_list*)n_connection;
+
+	am_object_notation_for_each_list_item(n_lconnection, item) {
+		if(i > 3)
+			return 1;
+
+		items[i] = item;
+		i++;
+	}
+
+	if(i != 4)
+		return 1;
+
+	n_src_id = items[0];
+	n_src_port = items[1];
+	n_dst_id = items[2];
+	n_dst_port = items[3];
+
+	if(n_src_id->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	   n_src_port->type != AM_OBJECT_NOTATION_NODE_TYPE_STRING ||
+	   n_dst_id->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	   n_dst_port->type != AM_OBJECT_NOTATION_NODE_TYPE_STRING)
+	{
+		return 1;
+	}
+
+	n_src_iid = (struct am_object_notation_node_int*)n_src_id;
+	n_src_sport = (struct am_object_notation_node_string*)n_src_port;
+	n_dst_iid = (struct am_object_notation_node_int*)n_dst_id;
+	n_dst_sport = (struct am_object_notation_node_string*)n_dst_port;
+
+	if(!(src = am_dfg_graph_find_node(g, n_src_iid->value)))
+		return 1;
+
+	if(!(dst = am_dfg_graph_find_node(g, n_dst_iid->value)))
+		return 1;
+
+	if(!(psrc = am_dfg_node_find_port(src, n_src_sport->value)))
+		return 1;
+
+	if(!(pdst = am_dfg_node_find_port(dst, n_dst_sport->value)))
+		return 1;
+
+	if(am_dfg_graph_connectp(g, psrc, pdst))
+		return 1;
+
+	return 0;
+}
+
+/* Connects nodes of a graph g according to a list of connections specified in
+ * object notation. The object notation ode n_connections must refer to a list
+ * of connection each matching the requirements for a connection in object
+ * notation of am_dfg_graph_connection_from_object_notation.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_graph_connections_from_object_notation(
+	struct am_dfg_graph* g,
+	struct am_object_notation_node* n_connections)
+{
+	struct am_object_notation_node_list* n_lconnections;
+	struct am_object_notation_node* item;
+
+	if(n_connections->type !=  AM_OBJECT_NOTATION_NODE_TYPE_LIST)
+		return 1;
+
+	n_lconnections = (struct am_object_notation_node_list*)n_connections;
+
+	am_object_notation_for_each_list_item(n_lconnections, item) {
+		if(am_dfg_graph_connection_from_object_notation(g, item))
+			return 1;
+	}
+
+	return 0;
+}
+
+/* Adds all nodes specified as a list of object notation graph node objects
+ * n_nodes to a graph g. Nodes are instantiated using the node type registry
+ * ntr.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_graph_nodes_from_object_notation(
+	struct am_dfg_graph* g,
+	struct am_object_notation_node* n_nodes,
+	struct am_dfg_node_type_registry* ntr)
+{
+	struct am_object_notation_node_list* n_lnodes;
+	struct am_object_notation_node* item;
+	struct am_dfg_node* n;
+
+	if(n_nodes->type != AM_OBJECT_NOTATION_NODE_TYPE_LIST)
+		return 1;
+
+	n_lnodes = (struct am_object_notation_node_list*)n_nodes;
+
+	am_object_notation_for_each_list_item(n_lnodes, item) {
+		n = am_dfg_node_type_registry_node_from_object_notation(ntr, item);
+
+		if(!n)
+			return 1;
+
+		am_dfg_graph_add_node(g, n);
+	}
+
+	return 0;
+}
+
+/* Adds all nodes and connections of a graph specified as an object notation
+ * object n_graph to a graph g. Nodes are instantiated using the node type
+ * registry ntr.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
+				      struct am_object_notation_node* n_graph,
+				      struct am_dfg_node_type_registry* ntr)
+{
+	struct am_object_notation_node_group* n_ggraph;
+	struct am_object_notation_node* n_nodes;
+	struct am_object_notation_node* n_connections;
+	struct am_dfg_graph tmp;
+
+	am_dfg_graph_init(&tmp, g->flags);
+
+	if(n_graph->type != AM_OBJECT_NOTATION_NODE_TYPE_GROUP)
+		return 1;
+
+	n_ggraph = (struct am_object_notation_node_group*)n_graph;
+
+	if(strcmp(n_ggraph->name, "am_dfg_graph") != 0)
+		return 1;
+
+	if(!am_object_notation_node_group_has_members(n_ggraph, 1,
+						      "nodes", "connections",
+						      NULL))
+	{
+		return 1;
+	}
+
+	n_nodes = am_object_notation_node_group_get_member_def(n_ggraph,
+							       "nodes");
+
+	if(am_dfg_graph_nodes_from_object_notation(&tmp, n_nodes, ntr))
+		return 1;
+
+	n_connections = am_object_notation_node_group_get_member_def(
+		n_ggraph,
+		"connections");
+
+	if(am_dfg_graph_connections_from_object_notation(&tmp, n_connections))
+		return 1;
+
+	if(am_dfg_graph_merge(g, &tmp)) {
+		tmp.flags = AM_DFG_GRAPH_DESTROY_ALL;
+		am_dfg_graph_destroy(&tmp);
+		return 1;
+	}
+
+	return 0;
+}
+
+/* Opens the file in object notation specified by filename and adds the nodes
+ * and connections from the file to the graph g. Nodes are instantiated using
+ * the node type registry ntr.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_graph_load(struct am_dfg_graph* g,
+		      const char* filename,
+		      struct am_dfg_node_type_registry* ntr)
+{
+	struct am_object_notation_node* n_graph;
+	int ret = 1;
+
+	if(!(n_graph = am_object_notation_load(filename)))
+		goto out_err;
+
+	if(am_dfg_graph_from_object_notation(g, n_graph, ntr))
+		goto out_err_dest;
+
+	ret = 0;
+
+out_err_dest:
+	am_object_notation_node_destroy(n_graph);
+out_err:
+	return ret;
+}

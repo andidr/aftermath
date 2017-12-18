@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg_buffer.h>
 #include <aftermath/core/dfg_node.h>
 #include <aftermath/core/typed_list.h>
+#include <aftermath/core/dfg_node_type_registry.h>
 #include <stdio.h>
 
 enum am_dfg_graph_flags {
@@ -97,5 +98,13 @@ am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);
 
 int am_dfg_graph_save(struct am_dfg_graph* g, const char* filename);
 int am_dfg_graph_save_fp(struct am_dfg_graph* g, FILE* fp);
+
+int am_dfg_graph_load(struct am_dfg_graph* g,
+		      const char* filename,
+		      struct am_dfg_node_type_registry* ntr);
+int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
+				      struct am_object_notation_node* n_graph,
+				      struct am_dfg_node_type_registry* ntr);
+
 
 #endif
