@@ -34,6 +34,11 @@
 		_a > _b ? 1 : (_a < _b ? -1 : 0);	\
 	})
 
+/* Compares two pointers as AM_VALCMP_EXPR, but after casting them to
+ * uintptr_t */
+#define AM_VALCMP_PTR(a, b) \
+	AM_VALCMP_EXPR((uintptr_t)(a), (uintptr_t)(b))
+
 /* Calculates (a + b) / 2 without overflows */
 static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 {
