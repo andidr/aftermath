@@ -145,23 +145,14 @@ void am_dfg_port_destroy(struct am_dfg_port* p)
 	free(p->connections);
 }
 
-/*
- * Same as am_dfg_node_type_build, but takes an argument list instead of a
- * sequence of arguments.
- */
-int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
-			    struct am_dfg_type_registry* reg,
-			    const char* name,
-			    size_t instance_size,
-			    size_t num_ports,
-			    va_list arg)
+/* Same as am_dfg_node_type_buildv, but does not initialize ports (but allocates
+ * the space for them). */
+int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
+					struct am_dfg_type_registry* reg,
+					const char* name,
+					size_t instance_size,
+					size_t num_ports)
 {
-	const char* port_name;
-	long port_flags;
-	const struct am_dfg_type* port_type;
-	const char* port_type_name;
-	size_t i;
-
 	/* Avoid overflow of size_t */
 	if(num_ports > SIZE_MAX / sizeof(struct am_dfg_port_type))
 		goto out_err;
@@ -181,6 +172,86 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 
 	if(!(nt->ports = malloc(num_ports * sizeof(struct am_dfg_port_type))))
 		goto out_err_name;
+
+	return 0;
+
+out_err_name:
+	free(nt->name);
+out_err:
+	return 1;
+}
+
+/*
+ * Same as am_dfg_node_type_build, but takes a static definition of a node type.
+ */
+int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
+			    struct am_dfg_type_registry* reg,
+			    const struct am_dfg_static_node_type_def* sdef)
+{
+	struct am_dfg_static_port_type_def* pdef;
+	const struct am_dfg_type* port_type;
+	size_t i;
+
+	if(am_dfg_node_type_build_ports_noinit(nt, reg, sdef->name,
+					       sdef->instance_size,
+					       sdef->num_ports))
+	{
+		goto out_err;
+	}
+
+	for(i = 0; i < sdef->num_ports; i++) {
+		pdef = &sdef->ports[i];
+
+		if(!(port_type =
+		     am_dfg_type_registry_lookup(reg, pdef->type_name)))
+		{
+			goto out_err_ports;
+		}
+
+		if(am_dfg_port_type_init(&nt->ports[i],
+					 pdef->name,
+					 port_type,
+					 pdef->flags))
+		{
+			goto out_err_ports;
+		}
+	}
+
+	nt->functions = sdef->functions;
+
+	return 0;
+
+out_err_ports:
+	for(size_t j = 0; j < i; j++)
+		am_dfg_port_type_destroy(&nt->ports[j]);
+
+	free(nt->ports);
+out_err:
+	return 1;
+}
+
+/*
+ * Same as am_dfg_node_type_build, but takes an argument list instead of a
+ * sequence of arguments.
+ */
+int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
+			    struct am_dfg_type_registry* reg,
+			    const char* name,
+			    size_t instance_size,
+			    size_t num_ports,
+			    va_list arg)
+{
+	const char* port_name;
+	long port_flags;
+	const struct am_dfg_type* port_type;
+	const char* port_type_name;
+	size_t i;
+
+	if(am_dfg_node_type_build_ports_noinit(nt, reg, name,
+					       instance_size, num_ports))
+	{
+		goto out_err;
+	}
 
 	for(i = 0; i < num_ports; i++) {
 		port_name = va_arg(arg, const char*);
@@ -207,8 +278,8 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 out_err_ports:
 	for(size_t j = 0; j < i; j++)
 		am_dfg_port_type_destroy(&nt->ports[j]);
-out_err_name:
-	free(nt->name);
+
+	free(nt->ports);
 out_err:
 	return 1;
 }

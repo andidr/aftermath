@@ -40,6 +40,17 @@ struct am_dfg_port_type {
 	long flags;
 };
 
+/* Static definition of a DFG node port type */
+struct am_dfg_static_port_type_def {
+	/* Name of the port */
+	const char* name;
+
+	/* Name of the type of the port's elements */
+	const char* type_name;
+
+	long flags;
+};
+
 int am_dfg_port_type_init(struct am_dfg_port_type* pt,
 			  const char* name,
 			  const struct am_dfg_type* type,
@@ -158,12 +169,37 @@ struct am_dfg_node_type {
 	size_t instance_size;
 };
 
+/* Default size of a node instance */
+#define AM_DFG_NODE_DEFAULT_SIZE sizeof(struct am_dfg_node)
+
+/* Static definition of a DFG node type */
+struct am_dfg_static_node_type_def {
+	/* Name of the declared node type */
+	const char* name;
+
+	/* Size of an instance of this node in bytes */
+	size_t instance_size;
+
+	/* The types' functions */
+	struct am_dfg_node_type_functions functions;
+
+	/* Number of ports */
+	size_t num_ports;
+
+	/* Pointer to a static array of port definitions for the node type */
+	struct am_dfg_static_port_type_def* ports;
+};
+
 #define am_dfg_node_for_each_port(n, p)		\
 	for((p) = &(n)->ports[0];			\
 	    (p) != &(n)->ports[(n)->type->num_ports];	\
 	    (p)++)
 
 void am_dfg_node_type_destroy(struct am_dfg_node_type* nt);
+
+int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
+			    struct am_dfg_type_registry* reg,
+			    const struct am_dfg_static_node_type_def* sdef);
 
 int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			    struct am_dfg_type_registry* reg,
@@ -218,5 +254,61 @@ int am_dfg_node_is_root_ign(const struct am_dfg_node* n,
 
 struct am_object_notation_node*
 am_dfg_node_to_object_notation(struct am_dfg_node* n);
+
+/* When we're not using the definitions, i.e., in all code outside of the
+ * translation unit defining the builtin node types, expand node type
+ * declarations to no-ops. */
+#ifndef AM_DFG_GEN_BUILTIN_NODES
+	#define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(...)
+	#define AM_DFG_ADD_BUILTIN_NODE_TYPES_SWITCH(...)
+#endif
+
+/* Generates a static definition for a DFG node type. ID must be a globally
+ * unique identifier for the node type. This identifier is only used during
+ * compilation and does not appear as a DFG node type. NODE_TYPE_NAME must be
+ * set to the name of the node that is declared. This name will appear in the
+ * DFG node namespace of a node type registry. INSTANCE_SIZE is the size in
+ * bytes of an instance of this node type. FUNCTIONS must be a static
+ * initializer for a struct am_dfg_node_type_functions. The remaining arguments
+ * are port definitions in the form of triplets { PORT_NAME, PORT_TYPE, FLAGS }.
+ *
+ * Example:
+ * A node type that reads two integers from its input ports a and b and writes
+ * the result to its output port c would be defined as follows:
+ *
+ *   AM_DFG_DECL_NODE_TYPE(am_dfg_node_integer_add,
+ *   	"add_integer",
+ *   	AM_DFG_NODE_DEFAULT_SIZE,
+ *   	{ .process = am_dfg_node_integer_process,
+ *   	  .connect = am_dfg_node_integer_connect_ports }
+ *   	{ "a", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+ *   	{ "b", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+ *   	{ "c", "int", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY })
+ */
+#define AM_DFG_DECL_BUILTIN_NODE_TYPE(ID, NODE_TYPE_NAME,		\
+				      INSTANCE_SIZE, FUNCTIONS, ...)	\
+	AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,	\
+					     INSTANCE_SIZE, FUNCTIONS,	\
+					     __VA_ARGS__)
+
+/* Adds the nodes associated to the identifiers passed as arguments to the list
+ * of builtin DFG nodes. There can only be one invocation of
+ * AM_DFG_ADD_BUILTIN_NODE_TYPES per header file.
+ *
+ * Example:
+ *
+ *   AM_DFG_DECL_BUILTIN_NODE_TYPE(am_dfg_node_integer_add, ...)
+ *   AM_DFG_DECL_BUILTIN_NODE_TYPE(am_dfg_node_integer_sub, ...)
+ *   AM_DFG_DECL_BUILTIN_NODE_TYPE(am_dfg_node_integer_mul, ...)
+ *   AM_DFG_DECL_BUILTIN_NODE_TYPE(am_dfg_node_integer_div, ...)
+ *
+ *   AM_DFG_ADD_BUILTIN_NODE_TYPES(
+ *   		&am_dfg_node_integer_add
+ *   		&am_dfg_node_integer_sub
+ *   		&am_dfg_node_integer_mul
+ *   		&am_dfg_node_integer_div)
+ */
+#define AM_DFG_ADD_BUILTIN_NODE_TYPES(...) \
+	AM_DFG_ADD_BUILTIN_NODE_TYPES_SWITCH(__VA_ARGS__)
 
 #endif
