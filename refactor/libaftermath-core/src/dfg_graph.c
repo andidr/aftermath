@@ -740,7 +740,7 @@ int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
 	if(strcmp(n_ggraph->name, "am_dfg_graph") != 0)
 		return 1;
 
-	if(!am_object_notation_node_group_has_members(n_ggraph, 1,
+	if(!am_object_notation_node_group_has_at_least_members(n_ggraph,
 						      "nodes", "connections",
 						      NULL))
 	{
