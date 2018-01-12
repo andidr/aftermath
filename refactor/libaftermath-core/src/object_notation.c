@@ -457,58 +457,6 @@ int am_object_notation_node_group_has_exactly_members(
 	return ret && num_members == num_names;
 }
 
-/* Checks whether the list of members of a group contains members
- * whose names are given as the arguments. The list of member names
- * must be terminated by NULL. The maximum number of names is 64. If
- * exact is set to true, the function only returns true if the list of
- * members is composed only of members whose names are specified.*/
-int am_object_notation_node_group_has_members(
-	struct am_object_notation_node_group* node,
-	int exact,
-	...)
-{
-	va_list vl;
-	const char* name;
-	struct am_object_notation_node_member* iter;
-	size_t num_names = 0;
-	uint64_t notfound = 0;
-	size_t i;
-
-	va_start(vl, exact);
-	while((name = va_arg(vl, const char*))) {
-		notfound |= (1 << num_names);
-		num_names++;
-	}
-	va_end(vl);
-
-	if(num_names > 64)
-		return 0;
-
-	if(exact && am_object_notation_node_group_num_members(node) != num_names)
-		return 0;
-
-	am_object_notation_for_each_group_member(node, iter) {
-		i = 0;
-
-		va_start(vl, exact);
-		while((name = va_arg(vl, const char*))) {
-			if(notfound & (1 << i)) {
-				if(strcmp(iter->name, name) == 0) {
-					notfound &= ~(1 << i);
-					break;
-				}
-			}
-			i++;
-		}
-		va_end(vl);
-	}
-
-	if(notfound)
-		return 0;
-
-	return 1;
-}
-
 /* Generate a textual representation of a group node and save it to a file. The
  * indent represent the current indentation used as a prefix for the next
  * character, while next_indent specifies by how many tabs the next line will be

@@ -91,9 +91,9 @@ am_dfg_node_type_registry_node_from_object_notation(
 	if(strcmp(n_gnode->name, "am_dfg_node") != 0)
 		return NULL;
 
-	if(!am_object_notation_node_group_has_members(n_gnode, 1,
-						   "type", "id",
-						   NULL))
+	if(!am_object_notation_node_group_has_exactly_members(n_gnode,
+							      "type", "id",
+							      NULL))
 	{
 		return NULL;
 	}
