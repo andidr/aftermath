@@ -505,6 +505,18 @@ am_object_notation_node_group_num_members(struct am_object_notation_node_group* 
 	return ret;
 }
 
+int am_object_notation_node_group_has_at_least_members(
+	struct am_object_notation_node_group* node,
+	...);
+
+int am_object_notation_node_group_has_at_most_members(
+	struct am_object_notation_node_group* node,
+	...);
+
+int am_object_notation_node_group_has_exactly_members(
+	struct am_object_notation_node_group* node,
+	...);
+
 int am_object_notation_node_group_has_members(
 	struct am_object_notation_node_group* node,
 	int exact,

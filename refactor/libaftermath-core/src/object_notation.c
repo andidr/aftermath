@@ -350,6 +350,113 @@ am_object_notation_parse(const char* str, size_t len)
 	return am_object_notation_parse_node(&p);
 }
 
+/* Same as am_object_notation_node_group_has_at_least_members, but used argument
+ * list. */
+int am_object_notation_node_group_has_at_least_membersv(
+	struct am_object_notation_node_group* node,
+	va_list arg)
+{
+	const char* name;
+	struct am_object_notation_node_member* iter;
+	int found;
+
+	/* FIXME: use something faster */
+	while((name = va_arg(arg, const char*))) {
+		found = 0;
+
+		am_object_notation_for_each_group_member(node, iter) {
+			if(strcmp(iter->name, name) == 0) {
+				found = 1;
+				break;
+			}
+		}
+
+		if(!found)
+			return 0;
+	}
+
+	return 1;
+}
+
+/* Checks whether the list of members of a group contains at least the members
+ * whose names given as the arguments. The list of member names must be
+ * terminated by NULL.
+ *
+ * Returns 1 if the condition is met, otherwise 0.
+ */
+int am_object_notation_node_group_has_at_least_members(
+	struct am_object_notation_node_group* node,
+	...)
+{
+	va_list vl;
+	int ret;
+
+	va_start(vl, node);
+	ret = am_object_notation_node_group_has_at_least_membersv(node, vl);
+	va_end(vl);
+
+	return ret;
+}
+
+/* Checks whether the list of members of a group contains at most the members
+ * whose names given as the arguments, i.e., the group does not contain members
+ * whose names are not specified as arguments. The list of member names must be
+ * terminated by NULL.
+ *
+ * Returns 1 if the condition is met, otherwise 0.
+ */
+int am_object_notation_node_group_has_at_most_members(
+	struct am_object_notation_node_group* node,
+	...)
+{
+	va_list vl;
+	const char* name;
+	struct am_object_notation_node_member* iter;
+
+	/* FIXME: use something faster */
+	am_object_notation_for_each_group_member(node, iter) {
+		va_start(vl, node);
+
+		while((name = va_arg(vl, const char*)))
+			if(strcmp(iter->name, name) != 0)
+				return 0;
+
+		va_end(vl);
+	}
+
+	return 1;
+}
+
+/* Checks whether a group is composed of exactly the members whose names are
+ * given as the arguments. The list of member names must be terminated by
+ * NULL.
+ *
+ * Returns 1 if the condition is met, otherwise 0.
+ */
+int am_object_notation_node_group_has_exactly_members(
+	struct am_object_notation_node_group* node,
+	...)
+{
+	va_list vl;
+	int ret;
+	size_t num_names = 0;
+	size_t num_members;
+
+	/* Count number of arguments */
+	va_start(vl, node);
+	while((va_arg(vl, const char*)))
+		num_names++;
+	va_end(vl);
+
+	num_members = am_object_notation_node_group_num_members(node);
+
+	va_start(vl, node);
+	ret = am_object_notation_node_group_has_at_least_membersv(node, vl);
+	va_end(vl);
+
+	return ret && num_members == num_names;
+}
+
 /* Checks whether the list of members of a group contains members
  * whose names are given as the arguments. The list of member names
  * must be terminated by NULL. The maximum number of names is 64. If
