@@ -87,11 +87,39 @@
 		return this_node;						\
 	}									\
 										\
+	/* Return the first node (with the lowest key) or NULL if the tree is	\
+	 * empty. */								\
+	static inline NODE_T* PREFIX##_last(const TREE_T* t)			\
+	{									\
+		struct rb_node* node = rb_last(&t->TREE_ROOTMEMB);		\
+										\
+		if(!node)							\
+			return NULL;						\
+										\
+		NODE_T* this_node = rb_entry(node, NODE_T, NODE_RBMEMB);	\
+		return this_node;						\
+	}									\
+										\
 	/* Return the node with the next higher key or NULL if no such node	\
 	 * exists. */								\
 	static inline NODE_T* PREFIX##_next(NODE_T* n)				\
 	{									\
 		struct rb_node* node = rb_next(&n->NODE_RBMEMB);		\
+		NODE_T* this_node;						\
+										\
+		if(!node)							\
+			return NULL;						\
+										\
+		this_node = rb_entry(node, NODE_T, NODE_RBMEMB);		\
+										\
+		return this_node;						\
+	}									\
+										\
+	/* Return the node with the next lower key or NULL if no such node	\
+	 * exists. */								\
+	static inline NODE_T* PREFIX##_prev(NODE_T* n)				\
+	{									\
+		struct rb_node* node = rb_prev(&n->NODE_RBMEMB);		\
 		NODE_T* this_node;						\
 										\
 		if(!node)							\
