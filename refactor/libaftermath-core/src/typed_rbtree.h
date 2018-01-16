@@ -48,20 +48,20 @@
 		struct rb_node** pnew = &t->TREE_ROOTMEMB.rb_node;		\
 		struct rb_node* parent = NULL;					\
 										\
-		/* Figure out where to put pnew node */				\
+		/* Figure out where to put pnew node */			\
 		while(*pnew) {							\
 			NODE_T* pthis = container_of(*pnew, NODE_T, NODE_RBMEMB); \
-			parent = *pnew;						\
+			parent = *pnew;					\
 										\
 			if (KEYACC_EXPR(*n) < KEYACC_EXPR(*pthis))		\
 				pnew = &((*pnew)->rb_left);			\
-			else if (KEYACC_EXPR(*n) > KEYACC_EXPR(*pthis))		\
+			else if (KEYACC_EXPR(*n) > KEYACC_EXPR(*pthis))	\
 				pnew = &((*pnew)->rb_right);			\
 			else							\
 				return 1; /* Already in the tree */		\
 		}								\
 										\
-		/* Add pnew node and rebalance tree. */				\
+		/* Add pnew node and rebalance tree. */			\
 		rb_link_node(&n->NODE_RBMEMB, parent, pnew);			\
 		rb_insert_color(&n->NODE_RBMEMB, &t->TREE_ROOTMEMB);		\
 										\
@@ -76,7 +76,7 @@
 										\
 	/* Return the first node (with the lowest key) or NULL if the tree is	\
 	 * empty. */								\
-	static inline NODE_T* PREFIX##_first(TREE_T* t)			\
+	static inline NODE_T* PREFIX##_first(const TREE_T* t)			\
 	{									\
 		struct rb_node* node = rb_first(&t->TREE_ROOTMEMB);		\
 										\
@@ -119,13 +119,13 @@
 										\
 	/* Find the node whose key is needle. Returns NULL if no such node	\
 	 * exists. */								\
-	static inline NODE_T* PREFIX##_find(TREE_T* t, KEY_T needle)		\
+	static inline NODE_T* PREFIX##_find(const TREE_T* t, KEY_T needle)	\
 	{									\
 		struct rb_node* curr = t->TREE_ROOTMEMB.rb_node;		\
 										\
-		/* Figure out where to put pnew node */				\
+		/* Figure out where to put pnew node */			\
 		while(curr) {							\
-			NODE_T* pthis = container_of(curr, NODE_T, NODE_RBMEMB); \
+			NODE_T* pthis = container_of(curr, NODE_T, NODE_RBMEMB);\
 										\
 			if (needle < KEYACC_EXPR(*pthis))			\
 				curr = curr->rb_left;				\
