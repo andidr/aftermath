@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg_buffer.h>
 #include <aftermath/core/dfg_node.h>
 #include <aftermath/core/typed_list.h>
+#include <aftermath/core/typed_rbtree.h>
 #include <aftermath/core/dfg_node_type_registry.h>
 #include <stdio.h>
 
@@ -34,10 +35,14 @@ enum am_dfg_graph_flags {
 #define AM_DFG_GRAPH_DESTROY_ALL \
 	(AM_DFG_GRAPH_DESTROY_NODES | AM_DFG_GRAPH_DESTROY_BUFFERS)
 
+/* Root of the red-black tree sorted by node IDs */
+struct am_dfg_node_idtree {
+	struct rb_root rb_root;
+};
+
 /* A simple dataflow graph */
 struct am_dfg_graph {
-	/* *All nodes included in the graph */
-	struct list_head nodes;
+	struct am_dfg_node_idtree id_tree;
 
 	/* All buffers referenced by any node in the graph */
 	struct list_head buffers;
@@ -45,17 +50,39 @@ struct am_dfg_graph {
 	long flags;
 };
 
-#define am_dfg_graph_for_each_node(g, n) \
-	am_typed_list_for_each(g, nodes, n, list)
+#define AM_DFG_NODE_ACC_ID(x) ((x).id)
 
-#define am_dfg_graph_for_each_node_prev(g, n) \
-	am_typed_list_for_each_prev(g, nodes, n, list)
+AM_DECL_TYPED_RBTREE_OPS(am_dfg_node_idtree,
+			 struct am_dfg_node_idtree, rb_root,
+			 struct am_dfg_node, rb_node,
+			 long,
+			 AM_DFG_NODE_ACC_ID)
 
-#define am_dfg_graph_for_each_node_safe(g, n, i) \
-	am_typed_list_for_each_safe(g, nodes, n, i, list)
+#define am_dfg_graph_for_each_node(g, n)		 \
+	for(n = am_dfg_node_idtree_first(&(g)->id_tree); \
+	    n;						 \
+	    n = am_dfg_node_idtree_next(n))
 
-#define am_dfg_graph_for_each_node_prev_safe(g, n, i) \
-	am_typed_list_for_each_prev_safe(g, nodes, n, i, list)
+#define am_dfg_graph_for_each_node_prev(g, n)		 \
+	for(n = am_dfg_node_idtree_last(&(g)->id_tree);  \
+	    n;						 \
+	    n = am_dfg_node_idtree_prev(n))
+
+/* Safe traversal of the graph. That is, the current node n can be safely
+ * freed. However, n must not be removed from the graph, otherwise the graph
+ * gets rebalanced, and not all of the remaining nodes are visited. Use
+ * am_dfg_graph_for_each_remove_node_safe instead.
+ */
+#define am_dfg_graph_for_each_node_safe(g, n, i)	\
+	rbtree_postorder_for_each_entry_safe(		\
+		n, i, &(g)->id_tree.rb_root, rb_node)
+
+/* Iterate over each node of the graph. The current node at each iteration must
+ * be removed by the loop body. */
+#define am_dfg_graph_for_each_remove_node_safe(g, n)		\
+	for(n = am_dfg_node_idtree_first(&(g)->id_tree);	\
+	    n;							\
+	    n = am_dfg_node_idtree_first(&(g)->id_tree))
 
 #define am_dfg_graph_for_each_buffer(g, b) \
 	am_typed_list_for_each(g, buffers, b, list)
@@ -71,9 +98,12 @@ struct am_dfg_graph {
 
 void am_dfg_graph_init(struct am_dfg_graph* g, long flags);
 void am_dfg_graph_destroy(struct am_dfg_graph* g);
-void am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n);
-struct am_dfg_node* am_dfg_graph_find_node(struct am_dfg_graph* g, long id);
+int am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n);
+struct am_dfg_node*
+am_dfg_graph_find_node(const struct am_dfg_graph* g, long id);
 int am_dfg_graph_remove_node(struct am_dfg_graph* g, struct am_dfg_node* n);
+void am_dfg_graph_remove_node_no_disconnect(struct am_dfg_graph* g,
+					    struct am_dfg_node* n);
 int am_dfg_graph_connectp(struct am_dfg_graph* g,
 			  struct am_dfg_port* src_port,
 			  struct am_dfg_port* dst_port);
@@ -92,6 +122,8 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 			   const struct am_dfg_port* ignore_dst);
 
 int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g);
+struct am_dfg_node* am_dfg_graph_lowest_id_node(const struct am_dfg_graph* g);
+struct am_dfg_node* am_dfg_graph_highest_id_node(const struct am_dfg_graph* g);
 
 struct am_object_notation_node*
 am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);

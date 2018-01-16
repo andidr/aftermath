@@ -24,6 +24,7 @@
 #include <aftermath/core/dfg_type_registry.h>
 #include <aftermath/core/dfg_buffer.h>
 #include <aftermath/core/object_notation.h>
+#include <aftermath/core/typed_rbtree.h>
 
 enum am_dfg_port_flag {
 	AM_DFG_PORT_IN = (1 << 0),
@@ -220,11 +221,11 @@ struct am_dfg_node {
 	/* The node's node type */
 	const struct am_dfg_node_type* type;
 
+	/* Tree sorted by node IDs */
+	struct rb_node rb_node;
+
 	/* The node's port instances */
 	struct am_dfg_port* ports;
-
-	/* List to chain all nodes (e.g., nodes of a graph) */
-	struct list_head list;
 
 	/* Number of remaining dependencies (used for scheduling) */
 	size_t num_deps_remaining;

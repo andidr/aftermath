@@ -21,7 +21,7 @@
 
 void am_dfg_graph_init(struct am_dfg_graph* g, long flags)
 {
-	INIT_LIST_HEAD(&g->nodes);
+	am_dfg_node_idtree_init(&g->id_tree);
 	INIT_LIST_HEAD(&g->buffers);
 
 	g->flags = flags;
@@ -61,24 +61,25 @@ void am_dfg_graph_destroy(struct am_dfg_graph* g)
 }
 
 /* Add a node to the graph */
-void am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n)
+int am_dfg_graph_add_node(struct am_dfg_graph* g, struct am_dfg_node* n)
 {
-	list_add(&n->list, &g->nodes);
+	return am_dfg_node_idtree_insert(&g->id_tree, n);
 }
 
 /* Find a node in the graph by id. Returns the node if found or NULL if no such
  * node exists in the graph. */
-struct am_dfg_node* am_dfg_graph_find_node(struct am_dfg_graph* g, long id)
+struct am_dfg_node* am_dfg_graph_find_node(const struct am_dfg_graph* g, long id)
 {
-	struct am_dfg_node* n;
+	return am_dfg_node_idtree_find(&g->id_tree, id);
+}
 
-	/* TODO: faster lookup */
-	am_dfg_graph_for_each_node(g, n) {
-		if(n->id == id)
-			return n;
-	}
-
-	return NULL;
+/*
+ * Remove a node from the graph without disconnecting it from other nodes.
+ */
+void am_dfg_graph_remove_node_no_disconnect(struct am_dfg_graph* g,
+					   struct am_dfg_node* n)
+{
+	am_dfg_node_idtree_remove(&g->id_tree, n);
 }
 
 /*
@@ -96,7 +97,7 @@ int am_dfg_graph_remove_node(struct am_dfg_graph* g, struct am_dfg_node* n)
 			if(am_dfg_port_disconnect(p, i))
 				return 1;
 
-	list_del(&n->list);
+	am_dfg_graph_remove_node_no_disconnect(g, n);
 
 	return 0;
 }
@@ -346,36 +347,59 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 	return 0;
 }
 
+/* Returns the node with the lowest ID. If the graph is empty, NULL is
+ * returned. */
+struct am_dfg_node* am_dfg_graph_lowest_id_node(const struct am_dfg_graph* g)
+{
+	return am_dfg_node_idtree_first(&g->id_tree);
+}
+
+/* Returns the node with the highest ID. If the graph is empty, NULL is
+ * returned. */
+struct am_dfg_node* am_dfg_graph_highest_id_node(const struct am_dfg_graph* g)
+{
+	return am_dfg_node_idtree_last(&g->id_tree);
+}
+
 /* Merge the graph g into dst. Returns 0 on success, 1 otherwise. */
 int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g)
 {
+	struct am_dfg_node* ndst_hid;
+	struct am_dfg_node* nsrc_lid;
 	struct am_dfg_node* n;
 	long id = 0;
 
 	if(dst->flags != g->flags)
 		return 1;
 
-	/* Determine highest id */
-	am_dfg_graph_for_each_node(dst, n)
-		if(n->id > id)
-			id = n->id;
+	ndst_hid = am_dfg_graph_highest_id_node(dst);
+	nsrc_lid = am_dfg_graph_lowest_id_node(dst);
 
-	if(!list_empty(&dst->nodes)) {
-		if(id != LONG_MAX)
-			id++;
-		else
+	/* Shift source IDs if source and target graph have overlapping ID
+	 * intervals */
+	if(ndst_hid && nsrc_lid && ndst_hid->id > nsrc_lid->id) {
+		id = ndst_hid->id;
+
+		am_dfg_graph_for_each_node(g, n) {
+			if(id == LONG_MAX)
+				return 1;
+
+			n->id = id++;
+		}
+	}
+
+	/* Remove nodes from old graph and add to new one */
+	am_dfg_graph_for_each_remove_node_safe(g, n) {
+		am_dfg_graph_remove_node_no_disconnect(g, n);
+
+		/* This cannot fail unless we're trying to insert a node with
+		 * the same id into the idtree of the target graph. However,
+		 * we've already made sure above that the id space of the two
+		 * graphs is distinct.*/
+		if(am_dfg_graph_add_node(dst, n))
 			return 1;
 	}
 
-	/* Replace node ids of the graph that is to be merged. */
-	am_dfg_graph_for_each_node(g, n) {
-		if(id == LONG_MAX)
-			return 1;
-
-		n->id = id++;
-	}
-
-	list_splice(&g->nodes, &dst->nodes);
 	list_splice(&g->buffers, &dst->buffers);
 
 	return 0;
@@ -709,7 +733,10 @@ int am_dfg_graph_nodes_from_object_notation(
 		if(!n)
 			return 1;
 
-		am_dfg_graph_add_node(g, n);
+		if(am_dfg_graph_add_node(g, n)) {
+			am_dfg_node_destroy(n);
+			return 1;
+		}
 	}
 
 	return 0;

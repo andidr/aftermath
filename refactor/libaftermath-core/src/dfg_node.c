@@ -335,8 +335,6 @@ int am_dfg_node_instantiate(struct am_dfg_node* n,
 	if(id == 0)
 		n->id = (long)n;
 
-	INIT_LIST_HEAD(&n->list);
-
 	/* Avoid overflow of size_t */
 	if(t->num_ports > SIZE_MAX / sizeof(struct am_dfg_port))
 		goto out_err;
