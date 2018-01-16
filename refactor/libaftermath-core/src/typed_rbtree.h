@@ -89,6 +89,19 @@
 										\
 	/* Return the first node (with the lowest key) or NULL if the tree is	\
 	 * empty. */								\
+	static inline NODE_T* PREFIX##_first_postorder(const TREE_T* t)	\
+	{									\
+		struct rb_node* node = rb_first_postorder(&t->TREE_ROOTMEMB);	\
+										\
+		if(!node)							\
+			return NULL;						\
+										\
+		NODE_T* this_node = rb_entry(node, NODE_T, NODE_RBMEMB);	\
+		return this_node;						\
+	}									\
+										\
+	/* Return the last node (with the highest key) or NULL if the tree is	\
+	 * empty. */								\
 	static inline NODE_T* PREFIX##_last(const TREE_T* t)			\
 	{									\
 		struct rb_node* node = rb_last(&t->TREE_ROOTMEMB);		\
