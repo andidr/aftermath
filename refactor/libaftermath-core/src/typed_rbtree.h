@@ -177,6 +177,12 @@
 		}								\
 										\
 		return NULL;							\
+	}									\
+										\
+	/* Returns 1 if the tree is empty, otherwise 0. */			\
+	static inline int PREFIX##_empty(const TREE_T* t)			\
+	{									\
+		return RB_EMPTY_ROOT(&t->TREE_ROOTMEMB);			\
 	}
 
 #endif
