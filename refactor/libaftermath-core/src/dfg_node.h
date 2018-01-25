@@ -123,6 +123,18 @@ static inline int am_dfg_port_is_connected(const struct am_dfg_port* p)
 	return p->num_connections > 0;
 }
 
+/* Returns true if a port p is an input port. */
+static inline int am_dfg_port_is_input_port(const struct am_dfg_port* p)
+{
+	return p->type->flags & AM_DFG_PORT_IN;
+}
+
+/* Returns true if a port p is an output port. */
+static inline int am_dfg_port_is_output_port(const struct am_dfg_port* p)
+{
+	return p->type->flags & AM_DFG_PORT_OUT;
+}
+
 struct am_dfg_node;
 
 struct am_dfg_node_type_functions {
