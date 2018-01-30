@@ -247,8 +247,8 @@ enum {
  * Returns true if at least one cycle is found, otherwise 0.
  */
 static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
-				      const struct am_dfg_node* extra_src,
-				      struct am_dfg_node* extra_dst,
+				      const struct am_dfg_port* extra_src,
+				      const struct am_dfg_port* extra_dst,
 				      const struct am_dfg_port* ignore_src,
 				      const struct am_dfg_port* ignore_dst)
 {
@@ -267,8 +267,8 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
 	n->marking = AM_DFG_CYCLE_MARKED;
 
 	/* Evaluate extra edge */
-	if(n == extra_src) {
-		if(am_dfg_graph_has_cycle_rec(extra_dst,
+	if(n == extra_src->node) {
+		if(am_dfg_graph_has_cycle_rec(extra_dst->node,
 					      extra_src, extra_dst,
 					      ignore_src, ignore_dst))
 		{
@@ -317,8 +317,8 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
  * Returns true if at least one cycle is found, otherwise 0.
  */
 int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
-			   const struct am_dfg_node* extra_src,
-			   struct am_dfg_node* extra_dst,
+			   const struct am_dfg_port* extra_src,
+			   const struct am_dfg_port* extra_dst,
 			   const struct am_dfg_port* ignore_src,
 			   const struct am_dfg_port* ignore_dst)
 {

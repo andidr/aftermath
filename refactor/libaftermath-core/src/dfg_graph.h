@@ -116,8 +116,8 @@ int am_dfg_graph_connectn(struct am_dfg_graph* g,
 			  struct am_dfg_node* dst, const char* dst_port_name);
 void am_dfg_graph_reset_buffers(const struct am_dfg_graph* g);
 int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
-			   const struct am_dfg_node* extra_src,
-			   struct am_dfg_node* extra_dst,
+			   const struct am_dfg_port* extra_src,
+			   const struct am_dfg_port* extra_dst,
 			   const struct am_dfg_port* ignore_src,
 			   const struct am_dfg_port* ignore_dst);
 
