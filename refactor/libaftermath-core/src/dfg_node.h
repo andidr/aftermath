@@ -135,6 +135,34 @@ static inline int am_dfg_port_is_output_port(const struct am_dfg_port* p)
 	return p->type->flags & AM_DFG_PORT_OUT;
 }
 
+/* If a is an input port and b is an output port or the other way around,
+ * *in_port and *out_port will be set to the in and out port, respectively and
+ * the function returns 0. If a and b are both input ports or both ouput ports,
+ * the function does nothing and returns 1. */
+static inline int am_dfg_sort_ports_inout(const struct am_dfg_port* a,
+					  const struct am_dfg_port* b,
+					  struct am_dfg_port const ** out_port,
+					  struct am_dfg_port const ** in_port)
+{
+	if(am_dfg_port_is_output_port(a) &&
+	   am_dfg_port_is_input_port(b))
+	{
+		*in_port = b;
+		*out_port = a;
+
+		return 0;
+	} else if(am_dfg_port_is_input_port(a) &&
+		  am_dfg_port_is_output_port(b))
+	{
+		*in_port = a;
+		*out_port = b;
+
+		return 0;
+	}
+
+	return 1;
+}
+
 struct am_dfg_node;
 
 struct am_dfg_node_type_functions {
