@@ -57,4 +57,8 @@ void am_dfg_type_registry_add(struct am_dfg_type_registry* reg,
 struct am_dfg_type* am_dfg_type_registry_lookup(struct am_dfg_type_registry* reg,
 						const char* name);
 
+int am_dfg_type_registry_types_compatible(const struct am_dfg_type_registry* reg,
+					  const struct am_dfg_type* tsrc,
+					  const struct am_dfg_type* tdst);
+
 #endif

@@ -63,3 +63,14 @@ void am_dfg_type_registry_destroy(struct am_dfg_type_registry* reg)
 		}
 	}
 }
+
+/* Returns 1 if the types tsrc and tdst are compatible, i.e., if an instance of
+ * tsrc can be converted into tdst. Otherwise, 0 is returned.
+ */
+int am_dfg_type_registry_types_compatible(const struct am_dfg_type_registry* reg,
+					  const struct am_dfg_type* tsrc,
+					  const struct am_dfg_type* tdst)
+{
+	/* Currently, types are not converted, so types must be identical */
+	return (tsrc == tdst);
+}
