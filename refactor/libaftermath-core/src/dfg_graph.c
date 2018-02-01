@@ -571,14 +571,12 @@ am_dfg_graph_to_object_notation(const struct am_dfg_graph* g)
 
 		am_object_notation_node_list_add_item(n_nodes, n_node);
 
-		am_dfg_node_for_each_port(n, p) {
-			if(p->type->flags & AM_DFG_PORT_IN) {
-				if(p->num_connections > 0) {
-					if(!(n_connection = am_dfg_graph_connection_to_object_notation(p->connections[0], p)))
-						goto out_err_dest;
+		am_dfg_node_for_each_input_port(n, p) {
+			if(p->num_connections > 0) {
+				if(!(n_connection = am_dfg_graph_connection_to_object_notation(p->connections[0], p)))
+					goto out_err_dest;
 
-					am_object_notation_node_list_add_item(n_connections, n_connection);
-				}
+				am_object_notation_node_list_add_item(n_connections, n_connection);
 			}
 		}
 	}
