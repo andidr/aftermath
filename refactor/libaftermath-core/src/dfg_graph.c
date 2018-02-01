@@ -244,13 +244,18 @@ enum {
  * extra_dst, ignore_src and ignore_dst may be set to NULL to check only
  * existing edges.
  *
+ * If cycle is non-NULL and a cycle is detected, the connections of the detected
+ * cycle will also be returned (in reverse order) while *add_to_cycle is 1.
+ *
  * Returns true if at least one cycle is found, otherwise 0.
  */
 static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
 				      const struct am_dfg_port* extra_src,
 				      const struct am_dfg_port* extra_dst,
 				      const struct am_dfg_port* ignore_src,
-				      const struct am_dfg_port* ignore_dst)
+				      const struct am_dfg_port* ignore_dst,
+				      struct am_dfg_path* cycle,
+				      int* add_to_cycle)
 {
 	struct am_dfg_node* d;
 	struct am_dfg_port* p;
@@ -270,8 +275,19 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
 	if(n == extra_src->node) {
 		if(am_dfg_graph_has_cycle_rec(extra_dst->node,
 					      extra_src, extra_dst,
-					      ignore_src, ignore_dst))
+					      ignore_src, ignore_dst,
+					      cycle,
+					      add_to_cycle))
 		{
+			if(cycle && add_to_cycle && *add_to_cycle) {
+				am_dfg_path_append_leg(cycle,
+						       extra_src,
+						       extra_dst);
+
+				if(am_dfg_revpath_ends_closed(cycle))
+					*add_to_cycle = 0;
+			}
+
 			return 1;
 		}
 	}
@@ -295,8 +311,22 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
 							      extra_src,
 							      extra_dst,
 							      ignore_src,
-							      ignore_dst))
+							      ignore_dst,
+							      cycle,
+							      add_to_cycle))
 				{
+					if(cycle &&
+					   add_to_cycle &&
+					   *add_to_cycle)
+					{
+						am_dfg_path_append_leg(
+							cycle,
+							p, p->connections[j]);
+
+						if(am_dfg_revpath_ends_closed(cycle))
+							*add_to_cycle = 0;
+					}
+
 					return 1;
 				}
 			}
@@ -314,24 +344,34 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
  * ignore_dst is not taken into account. Extra_src, extra_dst, ignore_src and
  * ignore_dst may be set to NULL to check only existing edges.
  *
+ * If cycle is non-NULL and a cycle is detected, the connections of the detected
+ * cycle will also be returned in reverse order.
+ *
  * Returns true if at least one cycle is found, otherwise 0.
  */
 int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 			   const struct am_dfg_port* extra_src,
 			   const struct am_dfg_port* extra_dst,
 			   const struct am_dfg_port* ignore_src,
-			   const struct am_dfg_port* ignore_dst)
+			   const struct am_dfg_port* ignore_dst,
+			   struct am_dfg_path* cycle)
 {
 	struct am_dfg_node* n;
+	int add_to_cycle = 1;
 
 	am_dfg_graph_for_each_node(g, n)
 		n->marking = AM_DFG_CYCLE_UNMARKED;
+
+	if(cycle)
+		am_dfg_path_reset(cycle);
 
 	/* Check all roots */
 	am_dfg_graph_for_each_node(g, n) {
 		if(am_dfg_node_is_root_ign(n, ignore_src, ignore_dst)) {
 			if(am_dfg_graph_has_cycle_rec(n, extra_src, extra_dst,
-						      ignore_src, ignore_dst))
+						      ignore_src, ignore_dst,
+						      cycle,
+						      &add_to_cycle))
 			{
 				return 1;
 			}

@@ -73,6 +73,22 @@ static inline int am_dfg_path_append_leg(struct am_dfg_path* path,
 	return am_dfg_path_appendp(path, &c);
 }
 
+/* Checks if a path with edges specified in reverse order forms a cycle (e.g.,
+ * (c, a), (b, c), (a, b). The test is only carried out on the first and last
+ * edge of the path (i.e., it checks if the destination node of the first edge
+ * is the source node of the last edge).
+ *
+ * Returns 1 if the path forms a cycle, otherwise 0.
+ */
+static inline int am_dfg_revpath_ends_closed(const struct am_dfg_path* path)
+{
+	if(path->num_elements == 0)
+		return 0;
+
+	return path->elements[0].dst->node ==
+		path->elements[path->num_elements-1].src->node;
+}
+
 #define AM_DFG_NODE_ACC_ID(x) ((x).id)
 
 AM_DECL_TYPED_RBTREE_OPS(am_dfg_node_idtree,
@@ -142,7 +158,8 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 			   const struct am_dfg_port* extra_src,
 			   const struct am_dfg_port* extra_dst,
 			   const struct am_dfg_port* ignore_src,
-			   const struct am_dfg_port* ignore_dst);
+			   const struct am_dfg_port* ignore_dst,
+			   struct am_dfg_path* cycle);
 
 int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g);
 struct am_dfg_node* am_dfg_graph_lowest_id_node(const struct am_dfg_graph* g);
