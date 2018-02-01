@@ -277,6 +277,50 @@ struct am_dfg_node {
 	long id;
 };
 
+/* Given a node n and one of its ports curr, the function finds the next port
+ * whose flags include all the flags specified in a mask. If no such port is
+ * exists, the function returns NULL.
+ */
+static inline struct am_dfg_port*
+am_dfg_node_next_port_flagged(const struct am_dfg_node* n,
+			      long mask,
+			      struct am_dfg_port* curr)
+{
+	if(n->type->num_ports == 0)
+		return NULL;
+
+	curr = (!curr) ? &n->ports[0] : curr+1;
+
+	do {
+		/* Check that we haven't gone past the last port */
+		if(((uintptr_t)curr) >
+		   ((uintptr_t)&n->ports[n->type->num_ports-1]))
+			return NULL;
+
+		if(curr->type->flags & mask)
+			return curr;
+
+		curr++;
+	} while(1);
+
+	return NULL;
+}
+
+/* Iterates over all ports of a node n whose flags include the flags specified
+ * in the mask. */
+#define am_dfg_node_for_each_port_flagged(n, p, mask)		\
+	for((p) = am_dfg_node_next_port_flagged(n, mask, NULL); \
+	    (p);						\
+	    (p) = am_dfg_node_next_port_flagged(n, mask, (p)))
+
+/* Iterates over all input ports of a node n */
+#define am_dfg_node_for_each_input_port(n, p) \
+	am_dfg_node_for_each_port_flagged(n, p, AM_DFG_PORT_IN)
+
+/* Iterates over all output ports of a node n */
+#define am_dfg_node_for_each_output_port(n, p) \
+	am_dfg_node_for_each_port_flagged(n, p, AM_DFG_PORT_OUT)
+
 void am_dfg_node_reset_sched_data(struct am_dfg_node* n);
 struct am_dfg_node* am_dfg_node_alloc(const struct am_dfg_node_type* t);
 int am_dfg_node_instantiate(struct am_dfg_node* n,
