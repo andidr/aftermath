@@ -293,42 +293,35 @@ static int am_dfg_graph_has_cycle_rec(struct am_dfg_node* n,
 	}
 
 	/* Check all actual, outgoing edges of the current node */
-	for(size_t i = 0; i < n->type->num_ports; i++) {
-		if(n->type->ports[i].flags & AM_DFG_PORT_OUT) {
-			p = &n->ports[i];
+	am_dfg_node_for_each_output_port(n, p) {
+		for(size_t j = 0; j < p->num_connections; j++) {
+			d = p->connections[j]->node;
 
-			for(size_t j = 0; j < p->num_connections; j++) {
-				d = p->connections[j]->node;
+			/* Edge ignored? */
+			if(p == ignore_src &&
+			   p->connections[j] == ignore_dst)
+			{
+				continue;
+			}
 
-				/* Edge ignored? */
-				if(p == ignore_src &&
-				   p->connections[j] == ignore_dst)
-				{
-					continue;
+			if(am_dfg_graph_has_cycle_rec(d,
+						      extra_src,
+						      extra_dst,
+						      ignore_src,
+						      ignore_dst,
+						      cycle,
+						      add_to_cycle))
+			{
+				if(cycle && add_to_cycle && *add_to_cycle) {
+					am_dfg_path_append_leg(
+						cycle,
+						p, p->connections[j]);
+
+					if(am_dfg_revpath_ends_closed(cycle))
+						*add_to_cycle = 0;
 				}
 
-				if(am_dfg_graph_has_cycle_rec(d,
-							      extra_src,
-							      extra_dst,
-							      ignore_src,
-							      ignore_dst,
-							      cycle,
-							      add_to_cycle))
-				{
-					if(cycle &&
-					   add_to_cycle &&
-					   *add_to_cycle)
-					{
-						am_dfg_path_append_leg(
-							cycle,
-							p, p->connections[j]);
-
-						if(am_dfg_revpath_ends_closed(cycle))
-							*add_to_cycle = 0;
-					}
-
-					return 1;
-				}
+				return 1;
 			}
 		}
 	}
