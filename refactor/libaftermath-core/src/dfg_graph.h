@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg_buffer.h>
 #include <aftermath/core/dfg_node.h>
 #include <aftermath/core/typed_list.h>
+#include <aftermath/core/typed_array.h>
 #include <aftermath/core/typed_rbtree.h>
 #include <aftermath/core/dfg_node_type_registry.h>
 #include <stdio.h>
@@ -49,6 +50,28 @@ struct am_dfg_graph {
 
 	long flags;
 };
+
+/* A path is just an array of connections */
+AM_DECL_TYPED_ARRAY(am_dfg_path, struct am_dfg_connection)
+
+#define am_dfg_path_for_each_connection(path, connection)		\
+	for((connection) = &(path)->elements[0];			\
+	    (connection) != &(path)->elements[(path)->num_elements];	\
+	    (connection)++)
+
+/* Appends a connection (src, dst) to the path. Returns 0 on success, otherwise
+ * a value different from 0. */
+static inline int am_dfg_path_append_leg(struct am_dfg_path* path,
+					 const struct am_dfg_port* src,
+					 const struct am_dfg_port* dst)
+{
+	struct am_dfg_connection c;
+
+	c.src = (struct am_dfg_port*)src;
+	c.dst = (struct am_dfg_port*)dst;
+
+	return am_dfg_path_appendp(path, &c);
+}
 
 #define AM_DFG_NODE_ACC_ID(x) ((x).id)
 
