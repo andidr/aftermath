@@ -237,6 +237,16 @@ struct am_typed_array_generic {
 	static inline void prefix##_destroy(struct prefix* a) \
 	{								\
 		free(a->elements);					\
+	}								\
+									\
+	/* Resets the array (sets the number of elements to 0 and the	\
+	 * number of free elements to the total capacity). Note that	\
+	 * this function does not call any destructor on the elements.	\
+	 */								\
+	static inline void prefix##_reset(struct prefix* a)		\
+	{								\
+		a->num_free += a->num_elements;			\
+		a->num_elements = 0;					\
 	}
 
 #define AM_DECL_TYPED_ARRAY(prefix, T) \
