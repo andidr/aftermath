@@ -417,15 +417,13 @@ int am_dfg_node_is_root_ign(const struct am_dfg_node* n,
 {
 	struct am_dfg_port* p;
 
-	am_dfg_node_for_each_port(n, p) {
-		if(p->type->flags & AM_DFG_PORT_IN) {
-			if(p->num_connections > 1 ||
-			   (p->num_connections == 1 &&
-			    p == ignore_dst &&
-			    p->connections[0] != ignore_src))
-			{
-				return 0;
-			}
+	am_dfg_node_for_each_input_port(n, p) {
+		if(p->num_connections > 1 ||
+		   (p->num_connections == 1 &&
+		    p == ignore_dst &&
+		    p->connections[0] != ignore_src))
+		{
+			return 0;
 		}
 	}
 
