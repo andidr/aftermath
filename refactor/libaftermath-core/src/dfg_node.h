@@ -123,6 +123,20 @@ static inline int am_dfg_port_is_connected(const struct am_dfg_port* p)
 	return p->num_connections > 0;
 }
 
+/* Returns true if a port p is connected to another port pother. */
+static inline int am_dfg_ports_connected(const struct am_dfg_port* p,
+					 const struct am_dfg_port* pother)
+{
+	const struct am_dfg_port* piter;
+	size_t i;
+
+	am_dfg_port_for_each_connected_port_safe(p, piter, i)
+		if(piter == pother)
+			return 1;
+
+	return 0;
+}
+
 /* Returns true if a port p is an input port. */
 static inline int am_dfg_port_is_input_port(const struct am_dfg_port* p)
 {
