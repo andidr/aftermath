@@ -365,6 +365,22 @@ am_object_notation_node_list_first_item(
 			  siblings);
 }
 
+/* Returns the next sibling of a node contained in a list. */
+static inline struct am_object_notation_node*
+am_object_notation_node_list_next_item(
+	const struct am_object_notation_node_list* list,
+	const struct am_object_notation_node* item)
+{
+	if(am_object_notation_node_list_is_empty(list))
+		return NULL;
+
+	if(item->siblings.next == &list->items)
+		return NULL;
+
+	return list_entry(item->siblings.next, struct am_object_notation_node,
+			  siblings);
+}
+
 /* Returns the last item of a list node. */
 static inline struct am_object_notation_node*
 am_object_notation_node_list_last_item(
@@ -539,5 +555,60 @@ int am_object_notation_save(
 int am_object_notation_save_fp(struct am_object_notation_node* node, FILE* fp);
 
 struct am_object_notation_node* am_object_notation_load(const char* filename);
+
+enum am_object_notation_build_verb {
+	AM_OBJECT_NOTATION_BUILD_GROUP,
+	AM_OBJECT_NOTATION_BUILD_LIST,
+	AM_OBJECT_NOTATION_BUILD_INT,
+	AM_OBJECT_NOTATION_BUILD_STRING,
+	AM_OBJECT_NOTATION_BUILD_MEMBER,
+	AM_OBJECT_NOTATION_BUILD_END,
+};
+
+struct am_object_notation_node* __am_object_notation_build(int dummy, ...);
+
+/* Builds an object notation node based on its parameters. This includes
+ * composite nodes (lists and groups) with an arbitrary nesting. The parameter
+ * list must have a specific format, which is a mix of the control verbs defined
+ * by enum am_object_notation_build_verb and actual values (e.g., integers or
+ * strings).
+ *
+ * Examples:
+ *
+ * - Integer node with value 123:
+ *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_INT, 123);
+ *
+ * - String node with value "FOO":
+ *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_STRING, "FOO");
+ *
+ * - Group with name "testgroup" and two integer members "i0" and "i1" with
+ *   values 11 and 2987:
+ *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_GROUP, "testgroup",
+ *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i0", AM_OBJECT_NOTATION_BUILD_INT, 11,
+ *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i1", AM_OBJECT_NOTATION_BUILD_INT, 2987,
+ *                         AM_OBJECT_NOTATION_BUILD_END);
+ *
+ * - Group with a list of integers and a list of strings:
+ *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_GROUP, "testgroup",
+ *                           AM_OBJECT_NOTATION_BUILD_MEMBER, "int_list",
+ *                             AM_OBJECT_NOTATION_BUILD_LIST,
+ *                               AM_OBJECT_NOTATION_BUILD_INT, 1,
+ *                               AM_OBJECT_NOTATION_BUILD_INT, 2,
+ *                               AM_OBJECT_NOTATION_BUILD_INT, 3,
+ *                               AM_OBJECT_NOTATION_BUILD_INT, 4,
+ *                             AM_OBJECT_NOTATION_BUILD_END,
+ *                           AM_OBJECT_NOTATION_BUILD_MEMBER, "string_list",
+ *                             AM_OBJECT_NOTATION_BUILD_LIST,
+ *                               AM_OBJECT_NOTATION_BUILD_STRING, "TEST",
+ *                               AM_OBJECT_NOTATION_BUILD_STRING, "FOO",
+ *                               AM_OBJECT_NOTATION_BUILD_STRING, "BAR",
+ *                               AM_OBJECT_NOTATION_BUILD_STRING, "BAZ",
+ *                             AM_OBJECT_NOTATION_BUILD_END,
+ *                         AM_OBJECT_NOTATION_BUILD_END);
+ *
+ * On success, the function returns a pointer to the created and newly allocated
+ * node, otherwise NULL.
+ */
+#define am_object_notation_build(...) __am_object_notation_build(0, __VA_ARGS__)
 
 #endif

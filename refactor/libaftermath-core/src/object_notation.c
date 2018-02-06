@@ -668,3 +668,170 @@ out_fd:
 out:
 	return ret;
 }
+
+static struct am_object_notation_node*
+am_object_notation_vbuild(enum am_object_notation_build_verb type, va_list vl);
+
+/* Build a string node. The next parameter pointed to by vl must be a pointer to
+ * the string value of the node (const char*). Returns a newly allocated and
+ * created string node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_string_vbuild(va_list vl)
+{
+	const char* val = va_arg(vl, const char*);
+	return (struct am_object_notation_node*)
+		am_object_notation_node_string_create(val, 0);
+}
+
+/* Build an integer node. The next parameter pointed to by vl must be the
+ * integer value of the node (uint64_t). Returns a newly allocated and created
+ * integer node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_int_vbuild(va_list vl)
+{
+	uint64_t val = va_arg(vl, uint64_t);
+	return (struct am_object_notation_node*)
+		am_object_notation_node_int_create(val);
+}
+
+/* Build a member node. The argument list vl must point to the remaining verbs /
+ * values in the entire parameter list. Returns a newly allocated and created
+ * node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_member_vbuild(va_list vl)
+{
+	const char* name;
+	enum am_object_notation_build_verb type;
+	struct am_object_notation_node_member* member;
+	struct am_object_notation_node* def;
+
+	name = va_arg(vl, const char*);
+	type = va_arg(vl, enum am_object_notation_build_verb);
+
+	if(!(def = am_object_notation_vbuild(type, vl)))
+		goto out_err;
+
+	if(!(member = am_object_notation_node_member_create(name, def)))
+		goto out_err_destroy;
+
+	return (struct am_object_notation_node*)member;
+
+out_err_destroy:
+	am_object_notation_node_destroy(def);
+	free(def);
+out_err:
+	return NULL;
+}
+
+/* Build a list node. The argument list vl must point to the remaining verbs /
+ * values in the entire parameter list. Returns a newly allocated and created
+ * node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_list_vbuild(va_list vl)
+{
+	enum am_object_notation_build_verb verb;
+	struct am_object_notation_node_list* list = NULL;
+	struct am_object_notation_node* item;
+
+	if(!(list = am_object_notation_node_list_create()))
+		goto out_err;
+
+	while((verb = va_arg(vl, enum am_object_notation_build_verb)) !=
+	      AM_OBJECT_NOTATION_BUILD_END)
+	{
+		if(!(item = am_object_notation_vbuild(verb, vl)))
+			goto out_err_destroy;
+
+		am_object_notation_node_list_add_item(list, item);
+	}
+
+	return (struct am_object_notation_node*)list;
+
+out_err_destroy:
+	am_object_notation_node_list_destroy(list);
+	free(list);
+out_err:
+	return NULL;
+}
+
+/* Build a group node. The argument list vl must point to the remaining verbs /
+ * values in the entire parameter list. Returns a newly allocated and created
+ * node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_group_vbuild(va_list vl)
+{
+	enum am_object_notation_build_verb verb;
+	struct am_object_notation_node_group* group = NULL;
+	struct am_object_notation_node_member* member;
+	const char* name;
+
+	name = va_arg(vl, const char*);
+
+	if(!(group = am_object_notation_node_group_create(name)))
+		goto out_err;
+
+	while((verb = va_arg(vl, enum am_object_notation_build_verb)) !=
+	      AM_OBJECT_NOTATION_BUILD_END)
+	{
+		if(!(member = (struct am_object_notation_node_member*)
+		     am_object_notation_vbuild(verb, vl)))
+		{
+			goto out_err_destroy;
+		}
+
+		am_object_notation_node_group_add_member(group, member);
+	}
+
+	return (struct am_object_notation_node*)group;
+
+out_err_destroy:
+	am_object_notation_node_group_destroy(group);
+	free(group);
+out_err:
+	return NULL;
+}
+
+/* Build an object node of a given type. The argument list vl must point to the
+ * remaining verbs / values in the entire parameter list. Returns a newly
+ * allocated and created node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_vbuild(enum am_object_notation_build_verb type, va_list vl)
+{
+	switch(type) {
+		case AM_OBJECT_NOTATION_BUILD_GROUP:
+			return am_object_notation_group_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_LIST:
+			return am_object_notation_list_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_INT:
+			return am_object_notation_int_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_STRING:
+			return am_object_notation_string_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_MEMBER:
+			return am_object_notation_member_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_END:
+			return NULL;
+	}
+
+	return NULL;
+}
+
+/* @see am_object_notation_build */
+struct am_object_notation_node* __am_object_notation_build(int dummy, ...)
+{
+	struct am_object_notation_node* ret;
+	enum am_object_notation_build_verb type;
+	va_list vl;
+
+	va_start(vl, dummy);
+	type = va_arg(vl, enum am_object_notation_build_verb);
+	ret = am_object_notation_vbuild(type, vl);
+	va_end(vl);
+
+	return ret;
+}
