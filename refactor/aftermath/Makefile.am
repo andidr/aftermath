@@ -5,6 +5,8 @@ aftermath_SOURCES = src/main.cpp \
 	src/MainWindow.h \
 	src/CairoWidget.cpp \
 	src/CairoWidget.h \
+	src/DFGWidget.cpp \
+	src/DFGWidget.h \
 	src/TimelineWidget.cpp \
 	src/TimelineWidget.h
 
