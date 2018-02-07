@@ -543,6 +543,11 @@ int am_object_notation_node_list_save(
 	FILE* fp, int indent, int next_indent)
 {
 	struct am_object_notation_node* iter;
+	const char* list_start = "[";
+	const char* item_sep = ", ";
+	int has_composite;
+	int item_indent = 0;
+	int item_next_indent = 1;
 
 	if(am_object_notation_node_list_is_empty(node)) {
 		if(am_fputs_prefix("[]", "\t", indent, fp) < 0)
@@ -551,27 +556,39 @@ int am_object_notation_node_list_save(
 		return 0;
 	}
 
-	if(am_fputs_prefix("[\n", "\t", indent, fp) < 0)
+	has_composite = am_object_notation_node_list_has_composite_item(node);
+
+	if(has_composite) {
+		list_start = "[\n";
+		item_sep = ",\n";
+		item_indent = next_indent;
+	}	item_next_indent = next_indent+1;
+
+	if(am_fputs_prefix(list_start, "\t", indent, fp) < 0)
 		return 1;
 
 	am_object_notation_for_each_list_item(node, iter) {
-		if(am_object_notation_save_fp_indent(
-			   iter, fp,
-			   next_indent, next_indent+1))
+		if(am_object_notation_save_fp_indent(iter, fp, item_indent,
+						     item_next_indent))
 		{
 			return 1;
 		}
 
 		if(!am_object_notation_node_list_is_last_item(node, iter))
-			if(fputs(",\n", fp) < 0)
+			if(fputs(item_sep, fp) < 0)
 				return 0;
 	}
 
-	if(fputs("\n", fp) < 0)
-		return 1;
+	if(has_composite) {
+		if(fputs("\n", fp) < 0)
+			return 1;
 
-	if(am_fputs_prefix("]", "\t", next_indent, fp) < 0)
-		return 1;
+		if(am_fputs_prefix("]", "\t", next_indent, fp) < 0)
+			return 1;
+	} else {
+		if(fputs("]", fp) < 0)
+			return 1;
+	}
 
 	return 0;
 }

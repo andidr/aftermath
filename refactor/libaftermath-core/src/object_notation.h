@@ -56,6 +56,26 @@ am_object_notation_node_init(struct am_object_notation_node* n,
 	INIT_LIST_HEAD(&n->siblings);
 }
 
+/* Checks if a node is of a composite data type. Returns 1 if this is the case,
+ * otherwise 0. */
+static inline int
+am_object_notation_node_is_composite(struct am_object_notation_node* n)
+{
+	switch(n->type) {
+		case AM_OBJECT_NOTATION_NODE_TYPE_GROUP:
+		case AM_OBJECT_NOTATION_NODE_TYPE_MEMBER:
+		case AM_OBJECT_NOTATION_NODE_TYPE_LIST:
+			return 1;
+		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
+			return 0;
+	}
+
+	/* Cannot happen */
+	return 0;
+}
+
 struct am_object_notation_node_group {
 	struct am_object_notation_node node;
 	char* name;
@@ -358,6 +378,22 @@ am_object_notation_node_double_create(double value)
 	    iter = list_entry(iter->siblings.next,			\
 			      struct am_object_notation_node,		\
 			      siblings))
+
+/* Checks if at least one item in a list is a composite data type. Returns 1 if
+ * this is the case, otherwise 0.*/
+static inline int
+am_object_notation_node_list_has_composite_item(
+	const struct am_object_notation_node_list* l)
+{
+	struct am_object_notation_node* iter;
+
+	am_object_notation_for_each_list_item(l, iter) {
+		if(am_object_notation_node_is_composite(iter))
+			return 1;
+	}
+
+	return 0;
+}
 
 #define am_object_notation_for_each_group_member(group_node, iter)	\
 	for(iter = (struct am_object_notation_node_member*)		\
