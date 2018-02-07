@@ -149,35 +149,49 @@ static inline int am_is_valid_regex(const char* sregex)
 	return 1;
 }
 
+/* Skips leading whitespace of a non-zero-terminated string. */
+static inline void am_skip_leading_whitespacen(const char** str, size_t* len)
+{
+	while(isspace(**str) && (*len) > 0) {
+		(*str)++;
+		(*len)--;
+	}
+}
+
+/* Skips trailing whitespace of a non-zero-terminated string. */
+static inline void am_skip_trailing_whitespacen(const char** str, size_t* len)
+{
+	while((*len) > 0 && isspace((*str)[(*len)-1]))
+		(*len)--;
+}
+
+/* Skips both leading and trailing whitespace of a non-zero-terminated
+ * string. */
+static inline void am_skip_whitespacen(const char** str, size_t* len)
+{
+	am_skip_leading_whitespacen(str, len);
+	am_skip_trailing_whitespacen(str, len);
+}
+
 /* Converts the substring of the first len characters of str to an
  * integer. Returns 0 if the expression is valid, otherwise 1.
  */
 static inline int am_atou64n(const char* str, size_t len, uint64_t* out)
 {
-	int digit_found = 0;
-	int ws_after_digit = 0;
-
 	uint64_t val = 0;
 
-	for(size_t i = 0; i < len; i++) {
-		val *= 10;
+	am_skip_whitespacen(&str, &len);
 
-		if(isdigit(str[i])) {
-			/* Only leading and / or trailing whitespace is allowed,
-			 * but no whitespace in between digits */
-			if(ws_after_digit)
-				return 1;
-
-			val += str[i]-'0';
-			digit_found = 1;
-		} else if(isspace(str[i])) {
-			if(digit_found)
-				ws_after_digit = 1;
-		}
-	}
-
-	if(!digit_found)
+	if(len == 0)
 		return 1;
+
+	for(size_t i = 0; i < len; i++) {
+		if(!isdigit(str[i]))
+			return 1;
+
+		val *= 10;
+		val += str[i]-'0';
+	}
 
 	*out = val;
 
@@ -208,7 +222,8 @@ static inline int am_uint_multiplier(char unit, uint64_t* val)
 static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 {
 	uint64_t mult;
-	size_t i;
+
+	am_skip_whitespacen(&str, &len);
 
 	if(len == 0)
 		return 1;
@@ -221,13 +236,7 @@ static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 		if(am_uint_multiplier(str[len-1], &mult))
 			return 1;
 
-		i = len-2;
-
-		/* Skip whitespace between unit and number */
-		while(isspace(str[i]) && i > 0)
-			i--;
-
-		if(am_atou64n(str, i+1, val))
+		if(am_atou64n(str, len-1, val))
 			return 1;
 
 		*val *= mult;
@@ -244,6 +253,11 @@ static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 static inline int am_atodbln(const char* str, size_t len, double* val)
 {
 	char* buffer;
+
+	am_skip_whitespacen(&str, &len);
+
+	if(len == 0)
+		return 1;
 
 	if(!(buffer = malloc(len+1)))
 		return 1;
@@ -265,6 +279,8 @@ static inline int am_atodbln_unit(const char* str, size_t len, double* val)
 {
 	uint64_t mult;
 	size_t i;
+
+	am_skip_whitespacen(&str, &len);
 
 	if(len == 0)
 		return 1;
