@@ -28,6 +28,7 @@
  *
  * - string literals (e.g., "ABCD")
  * - integer literals (e.g., 1234) with a maximum of 64 bits
+ * - double literals (non-scientific notation with a mandatory dot)
  * - lists in brackets with comma-separated elements (e.g., [1, "ABC", 2]
  * - groups consisting of a group name and a list of members in braces (e.g.,
  *   foo {message: "foo", value: 1234 })

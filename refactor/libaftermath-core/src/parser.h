@@ -382,6 +382,117 @@ am_parser_read_next_int_with_unit(struct am_parser* p, struct am_parser_token* t
 	return am_parser_read_int_with_unit(p, t);
 }
 
+/* Consumes all characters of a double starting from the current position. If no
+ * such character exists the function returns 1. Otherwise, it sets the token to
+ * the sequence of numeric characters and returns 0.
+ */
+static inline int
+am_parser_read_double(struct am_parser* p, struct am_parser_token* t)
+{
+	int dot_read = 0;
+	int is_signed = 0;
+
+	if(am_parser_reached_end(p))
+		return 1;
+
+	if(!isdigit(*p->curr) && *p->curr != '.' && *p->curr != '-')
+		return 1;
+
+	if(*p->curr == '-')
+		is_signed = 1;
+
+	if(*p->curr == '.')
+		dot_read = 1;
+
+	t->str = p->curr;
+	t->len = 1;
+	p->curr++;
+
+	while(p->curr != p->end &&
+	      (isdigit(*p->curr) || (!dot_read && *p->curr == '.')))
+	{
+		if(*p->curr == '.')
+			dot_read = 1;
+
+		t->len++;
+		p->curr++;
+	}
+
+	if(!dot_read || (t->len == 1) || (is_signed && t->len == 2))
+		return 1;
+
+	return 0;
+}
+
+/* Same as am_parser_read_double, but skips all preceding whitespace */
+static inline int
+am_parser_read_next_double(struct am_parser* p, struct am_parser_token* t)
+{
+	am_parser_skip_ws(p);
+	return am_parser_read_double(p, t);
+}
+
+/* Same as am_parser_read_double, but does not consume the characters. */
+static inline int
+am_parser_peek_double(struct am_parser* p, struct am_parser_token* t)
+{
+	int ret;
+	const char* curr = p->curr;
+
+	ret = am_parser_read_double(p, t);
+	p->curr = curr;
+
+	return ret;
+}
+
+/* Consumes all characters of a double starting at the current position. An
+ * optional unit prefix at the end is allowed (i.e., K, M, G, T, P). If no such
+ * sequence exists the function returns 1. Otherwise, it sets the token to the
+ * sequence and returns 0.
+ */
+static inline int
+am_parser_read_double_with_unit(struct am_parser* p, struct am_parser_token* t)
+{
+	if(am_parser_reached_end(p))
+		return 1;
+
+	if(!isdigit(*p->curr))
+		return 1;
+
+	t->str = p->curr;
+	t->len = 1;
+	p->curr++;
+
+	while(p->curr != p->end && isdigit(*p->curr)) {
+		t->len++;
+		p->curr++;
+	}
+
+	if(!am_parser_reached_end(p)) {
+		if(*p->curr == 'K' ||
+		   *p->curr == 'M' ||
+		   *p->curr == 'G' ||
+		   *p->curr == 'T' ||
+		   *p->curr == 'P')
+		{
+			t->len++;
+			p->curr++;
+		}
+	}
+
+	return 0;
+}
+
+/* Same as am_parser_read_double_with_unit, but skips all preceding
+ * whitespace */
+static inline int am_parser_read_next_double_with_unit(struct am_parser* p,
+						       struct am_parser_token* t)
+{
+	am_parser_skip_ws(p);
+	return am_parser_read_double_with_unit(p, t);
+}
+
+
 /* Returns the address of the next occurrence of c. The position of
  * the parser is advanced to the position of the character. If the
  * character is not found NULL is returned. */
