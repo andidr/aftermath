@@ -39,7 +39,8 @@ enum am_object_notation_node_type {
 	AM_OBJECT_NOTATION_NODE_TYPE_MEMBER,
 	AM_OBJECT_NOTATION_NODE_TYPE_LIST,
 	AM_OBJECT_NOTATION_NODE_TYPE_STRING,
-	AM_OBJECT_NOTATION_NODE_TYPE_INT
+	AM_OBJECT_NOTATION_NODE_TYPE_INT,
+	AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE
 };
 
 struct am_object_notation_node {
@@ -316,6 +317,37 @@ am_object_notation_node_int_create(uint64_t value)
 	return ret;
 }
 
+struct am_object_notation_node_double {
+	struct am_object_notation_node node;
+	double value;
+};
+
+/* Initialize an already allocated double node. Returns 0 on success, otherwise
+ * 1. */
+static inline void
+am_object_notation_node_double_init(struct am_object_notation_node_double* i,
+				    double value)
+{
+	am_object_notation_node_init(&i->node, AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE);
+	i->value = value;
+}
+
+/* Allocate and initialize a double node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+static inline struct am_object_notation_node_double*
+am_object_notation_node_double_create(double value)
+{
+	struct am_object_notation_node_double* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	am_object_notation_node_double_init(ret, value);
+
+	return ret;
+}
+
 #define am_object_notation_for_each_list_item(list_node, iter)		\
 	for(iter = list_entry((list_node)->items.next,			\
 			      struct am_object_notation_node,		\
@@ -561,6 +593,7 @@ enum am_object_notation_build_verb {
 	AM_OBJECT_NOTATION_BUILD_GROUP,
 	AM_OBJECT_NOTATION_BUILD_LIST,
 	AM_OBJECT_NOTATION_BUILD_INT,
+	AM_OBJECT_NOTATION_BUILD_DOUBLE,
 	AM_OBJECT_NOTATION_BUILD_STRING,
 	AM_OBJECT_NOTATION_BUILD_MEMBER,
 	AM_OBJECT_NOTATION_BUILD_END,

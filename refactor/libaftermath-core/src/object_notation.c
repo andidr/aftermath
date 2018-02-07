@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <math.h>
 
 static inline struct am_object_notation_node*
 am_object_notation_parse_group(struct am_parser* p);
@@ -105,6 +106,7 @@ void am_object_notation_node_destroy(struct am_object_notation_node* node)
 				(struct am_object_notation_node_string*)node);
 			break;
 		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 			break;
 	}
 }
@@ -199,6 +201,26 @@ am_object_notation_parse_int(struct am_parser* p)
 
 	return (struct am_object_notation_node*)
 		am_object_notation_node_int_create(val);
+}
+
+/* Parses a double literal. Preceding whitespace is ignored. The
+ * position of the parser will be set to the character following the
+ * last digit. The function does not check whether the value fits into
+ * a double. */
+static inline struct am_object_notation_node*
+am_object_notation_parse_double(struct am_parser* p)
+{
+	struct am_parser_token t;
+	double val;
+
+	if(am_parser_read_next_double(p, &t))
+		return NULL;
+
+	if(am_atodbln(t.str, t.len, &val))
+		return NULL;
+
+	return (struct am_object_notation_node*)
+		am_object_notation_node_double_create(val);
 }
 
 /* Parses an group member of the form "member_name: EXPR". Preceding
@@ -333,8 +355,14 @@ am_object_notation_parse_node(struct am_parser* p)
 		return am_object_notation_parse_list(p);
 	else if(isident_start_char(t.str[0]))
 		return am_object_notation_parse_group(p);
-	else if(isdigit(t.str[0]))
-		return am_object_notation_parse_int(p);
+	else if(t.str[0] == '.')
+		return am_object_notation_parse_double(p);
+	else if(isdigit(t.str[0])) {
+		if(!am_parser_peek_double(p, &t))
+			return am_object_notation_parse_double(p);
+		else
+			return am_object_notation_parse_int(p);
+	}
 
 	return NULL;
 }
@@ -580,6 +608,16 @@ int am_object_notation_node_int_save(
 	return am_fprintf_prefix(fp, "\t", indent, "%"PRId64, node->value) < 0;
 }
 
+/* Generate a textual representation of a double node and save it to a file. The
+ * indent represent the current indentation used as a prefix for the first
+ * character. Returns 0 on success, otherwise 1.*/
+int am_object_notation_node_double_save(
+	struct am_object_notation_node_double* node,
+	FILE* fp, int indent)
+{
+	return am_fprintf_prefix(fp, "\t", indent, "%f", node->value) < 0;
+}
+
 /* Generate a textual representation of a node and save it to a file. The indent
  * represent the current indentation used as a prefix for the next character,
  * while next_indent specifies by how many tabs the next line will be
@@ -607,6 +645,10 @@ int am_object_notation_save_fp_indent(struct am_object_notation_node* node,
 		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
 			return am_object_notation_node_int_save(
 				(struct am_object_notation_node_int*)node,
+				fp, indent);
+		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
+			return am_object_notation_node_double_save(
+				(struct am_object_notation_node_double*)node,
 				fp, indent);
 	}
 
@@ -694,6 +736,18 @@ am_object_notation_int_vbuild(va_list vl)
 	uint64_t val = va_arg(vl, uint64_t);
 	return (struct am_object_notation_node*)
 		am_object_notation_node_int_create(val);
+}
+
+/* Build a double node. The next parameter pointed to by vl must be the double
+ * value of the node. Returns a newly allocated and created double node on
+ * success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_double_vbuild(va_list vl)
+{
+	double val = va_arg(vl, double);
+	return (struct am_object_notation_node*)
+		am_object_notation_node_double_create(val);
 }
 
 /* Build a member node. The argument list vl must point to the remaining verbs /
@@ -810,6 +864,8 @@ am_object_notation_vbuild(enum am_object_notation_build_verb type, va_list vl)
 			return am_object_notation_list_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_INT:
 			return am_object_notation_int_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_DOUBLE:
+			return am_object_notation_double_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_STRING:
 			return am_object_notation_string_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_MEMBER:
