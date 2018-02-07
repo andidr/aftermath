@@ -395,6 +395,27 @@ am_object_notation_node_list_has_composite_item(
 	return 0;
 }
 
+/* Returns the n-th item in a list. If the list has less than n items, NULL is
+ * returned.
+ */
+static inline struct am_object_notation_node*
+am_object_notation_node_list_nth_member(
+	const struct am_object_notation_node_list* l,
+	size_t n)
+{
+	struct am_object_notation_node* iter;
+	size_t i = 0;
+
+	am_object_notation_for_each_list_item(l, iter) {
+		if(i == n)
+			return iter;
+
+		i++;
+	}
+
+	return NULL;
+}
+
 #define am_object_notation_for_each_group_member(group_node, iter)	\
 	for(iter = (struct am_object_notation_node_member*)		\
 		    list_entry((group_node)->members.next,		\
