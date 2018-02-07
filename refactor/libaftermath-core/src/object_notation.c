@@ -908,3 +908,148 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...)
 
 	return ret;
 }
+
+static struct am_object_notation_node*
+am_object_notation_eval_dot(const struct am_object_notation_node* n,
+			    struct am_parser* p);
+
+/* Evaluates the next sub-expression of a parser on an object notation
+ * group. Returns the node resulting from the evaluation of the entire remaining
+ * expression or NULL in case of an error. */
+static struct am_object_notation_node*
+am_object_notation_eval_group(const struct am_object_notation_node_group* g,
+			      struct am_parser* p)
+{
+	struct am_parser_token t;
+	struct am_object_notation_node_member* member;
+
+	if(am_parser_read_next_identifier(p, &t))
+		return NULL;
+
+	am_object_notation_for_each_group_member(g, member) {
+		if(am_strn1eq(t.str, t.len, member->name))
+			return am_object_notation_eval_dot(member->def, p);
+	}
+
+	return NULL;
+}
+
+/* Evaluates the next sub-expression of a parser on an object notation
+ * list. Returns the node resulting from the evaluation of the entire remaining
+ * expression or NULL in case of an error. */
+static struct am_object_notation_node*
+am_object_notation_eval_list(const  struct am_object_notation_node_list* l,
+			     struct am_parser* p)
+{
+	struct am_parser_token t;
+	struct am_object_notation_node* item;
+	uint64_t idx;
+
+	if(am_parser_read_next_char(p, &t, '['))
+		return NULL;
+
+	if(am_parser_read_next_int(p, &t))
+		return NULL;
+
+	if(am_atou64n(t.str, t.len, &idx))
+		return NULL;
+
+	if(am_parser_read_next_char(p, &t, ']'))
+		return NULL;
+
+	if(!(item = am_object_notation_node_list_nth_member(l, idx)))
+		return NULL;
+
+	return am_object_notation_eval_dot(item, p);
+}
+
+/* Evaluates the remaining expression of a parser on an object node. Returns the
+ * address of the node resulting from the evaluation or NULL in case of an
+ * error.*/
+static struct am_object_notation_node*
+__am_object_notation_eval(const struct am_object_notation_node* n,
+			  struct am_parser* p)
+{
+	switch(n->type) {
+		case AM_OBJECT_NOTATION_NODE_TYPE_GROUP:
+			return am_object_notation_eval_group(
+				(const struct am_object_notation_node_group*)n, p);
+		case AM_OBJECT_NOTATION_NODE_TYPE_LIST:
+			return am_object_notation_eval_list(
+				(const struct am_object_notation_node_list*)n, p);
+		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
+		case AM_OBJECT_NOTATION_NODE_TYPE_MEMBER:
+			return NULL;
+	}
+
+	/* Cannot happen */
+	return NULL;
+}
+
+/* Same as __am_object_notation_eval, but consumes a leading dot if present. */
+static struct am_object_notation_node*
+am_object_notation_eval_dot(const struct am_object_notation_node* n,
+			    struct am_parser* p)
+{
+	struct am_parser_token t;
+	int expect_dot = 0;
+
+	if(am_parser_reached_end(p))
+		return (struct am_object_notation_node*)n;
+
+	switch(n->type) {
+		case AM_OBJECT_NOTATION_NODE_TYPE_GROUP:
+			expect_dot = 1;
+			break;
+		case AM_OBJECT_NOTATION_NODE_TYPE_LIST:
+		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
+		case AM_OBJECT_NOTATION_NODE_TYPE_MEMBER:
+			expect_dot = 0;
+			break;
+	}
+
+	if(expect_dot)
+		if(am_parser_read_next_char(p, &t, '.'))
+			return NULL;
+
+	return __am_object_notation_eval(n, p);
+}
+
+
+/* Evaluates a selection string on an object notation node. An expression can be
+ * composed of a concatenation separated with points of the following basic
+ * expressions:
+ *
+ * - A member expression (only valid on groups), composed of the name of the
+ *   group member
+ *
+ * - A list index expression (only valid on lists), represented by an integer in
+ *   brackets
+ *
+ * Example:
+ *
+ *  person {
+ *     name: "foo",
+ *     age: 30,
+ *     favorite_meals: [ "pizza", "spaghetti", "hamburger", "chicken" ]
+ *  }
+ *
+ * To select the name or age of the person, one would evaluate the expression
+ * "name" or "age", respectively. To get the first favorite meal, one would
+ * evaluate "favorite_meals[0]", for the second favorite meal
+ * "favorite_meal[1]", and so on.
+ */
+struct am_object_notation_node*
+am_object_notation_eval(const struct am_object_notation_node* n,
+			const char* expr)
+{
+	struct am_parser p;
+
+	am_parser_init(&p, expr, strlen(expr));
+
+	return __am_object_notation_eval(n, &p);
+}

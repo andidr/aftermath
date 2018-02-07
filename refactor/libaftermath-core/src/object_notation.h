@@ -702,4 +702,8 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...);
  */
 #define am_object_notation_build(...) __am_object_notation_build(0, __VA_ARGS__)
 
+struct am_object_notation_node*
+am_object_notation_eval(const struct am_object_notation_node* n,
+			const char* expr);
+
 #endif
