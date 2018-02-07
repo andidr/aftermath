@@ -706,4 +706,57 @@ struct am_object_notation_node*
 am_object_notation_eval(const struct am_object_notation_node* n,
 			const char* expr);
 
+/* Defines a function for a non-composite type that casts the result of an
+ * expression to the correct type and assigns the nodes value to a memory
+ * location passed as an argument.
+ *
+ * For example,
+ *
+ *   AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
+ *		int, AM_OBJECT_NOTATION_NODE_TYPE_INT, int64_t)
+ *
+ * defines a new function
+ *
+ *  static inline int
+ *  am_object_notation_eval_retrieve_int(struct am_object_notation_node* n,
+ *                                  const char* expr,
+ *                                  int64_t* out)
+ *
+ * The parameter n is the root node on which the expression expr will be
+ * evaluated. If the expression is not valid on the root node or if the
+ * resulting node is not an integer node, the function returns 1. Otherwise, the
+ * function return 0 and writes the integer value of the node at the address
+ * specified by out.
+ *
+ * Data at the output address remains unchanged in case of an error and will
+ * only be overwritten on success.
+ */
+#define AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(type_name, type_cst, ctype)	\
+	static inline int							\
+	am_object_notation_eval_retrieve_##type_name(				\
+		const struct am_object_notation_node* n,			\
+		const char* expr, ctype* out)					\
+	{									\
+		struct am_object_notation_node* res;				\
+		struct am_object_notation_node_##type_name* res_cast;		\
+										\
+		if(!(res = am_object_notation_eval(n, expr)))			\
+			return 1;						\
+										\
+		if(res->type != type_cst)					\
+			return 1;						\
+										\
+		res_cast = (struct am_object_notation_node_##type_name*)res;	\
+		*out = res_cast->value;					\
+										\
+		return 0;							\
+	}
+
+AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
+	int, AM_OBJECT_NOTATION_NODE_TYPE_INT, uint64_t)
+AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
+	double, AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE, double)
+AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
+	string, AM_OBJECT_NOTATION_NODE_TYPE_STRING, const char*)
+
 #endif
