@@ -368,16 +368,37 @@ am_object_notation_node_double_create(double value)
 	return ret;
 }
 
+#define am_object_notation_for_each_list_item_typed(list_node, iter, type)	\
+	for(iter = (type*)list_entry((list_node)->items.next,			\
+			      struct am_object_notation_node,			\
+			      siblings);					\
+	    iter != (type*)list_entry(&(list_node)->items,			\
+				      struct am_object_notation_node,		\
+				      siblings);				\
+	    iter = (type*)list_entry(((struct am_object_notation_node*)iter)->	\
+				     siblings.next,				\
+				     struct am_object_notation_node,		\
+				     siblings))
+
 #define am_object_notation_for_each_list_item(list_node, iter)		\
-	for(iter = list_entry((list_node)->items.next,			\
-			      struct am_object_notation_node,		\
-			      siblings);				\
-	    iter != list_entry(&(list_node)->items,			\
-			       struct am_object_notation_node,		\
-			       siblings);				\
-	    iter = list_entry(iter->siblings.next,			\
-			      struct am_object_notation_node,		\
-			      siblings))
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node)
+
+#define am_object_notation_for_each_list_item_int(list_node, iter)	\
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node_int)
+
+#define am_object_notation_for_each_list_item_double(list_node, iter)	\
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node_double)
+
+#define am_object_notation_for_each_list_item_string(list_node, iter)	\
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node_string)
+
+#define am_object_notation_for_each_list_item_group(list_node, iter)	\
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node_group)
 
 /* Checks if at least one item in a list is a composite data type. Returns 1 if
  * this is the case, otherwise 0.*/
