@@ -400,6 +400,44 @@ am_object_notation_node_double_create(double value)
 	am_object_notation_for_each_list_item_typed(			\
 		list_node, iter, struct am_object_notation_node_group)
 
+/* Returns true if all of the items of a list l are of the specified type. */
+static inline int
+am_object_notation_node_list_items_same_type(
+	const struct am_object_notation_node_list* l,
+	enum am_object_notation_node_type type)
+{
+	struct am_object_notation_node* iter;
+
+	am_object_notation_for_each_list_item(l, iter)
+		if(iter->type != type)
+			return 0;
+
+	return 1;
+}
+
+/* Defines a function am_object_notation_is_<name>_list(l), which checks if a
+ * list l is composed exclusively of nodes of the given type. */
+#define AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(name, type)		\
+	static inline int							\
+	am_object_notation_is_##name##_list(					\
+		const struct am_object_notation_node_list* l)			\
+	{									\
+		return am_object_notation_node_list_items_same_type(l, type);	\
+	}
+
+AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
+	group, AM_OBJECT_NOTATION_NODE_TYPE_GROUP);
+
+AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
+	string, AM_OBJECT_NOTATION_NODE_TYPE_STRING);
+
+AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
+	int, AM_OBJECT_NOTATION_NODE_TYPE_INT);
+
+AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
+	double, AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE);
+
+
 /* Checks if at least one item in a list is a composite data type. Returns 1 if
  * this is the case, otherwise 0.*/
 static inline int
