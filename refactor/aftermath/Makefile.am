@@ -3,12 +3,12 @@ aftermath_SOURCES = src/main.cpp \
 	src/moc_MainWindow.cpp \
 	src/MainWindow.cpp \
 	src/MainWindow.h \
-	src/CairoWidget.cpp \
-	src/CairoWidget.h \
-	src/DFGWidget.cpp \
-	src/DFGWidget.h \
-	src/TimelineWidget.cpp \
-	src/TimelineWidget.h
+	src/gui/widgets/CairoWidget.cpp \
+	src/gui/widgets/CairoWidget.h \
+	src/gui/widgets/DFGWidget.cpp \
+	src/gui/widgets/DFGWidget.h \
+	src/gui/widgets/TimelineWidget.cpp \
+	src/gui/widgets/TimelineWidget.h
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
 aftermath_CXXFLAGS=$(MOCFLAGS) -fpermissive @CAIRO_CFLAGS@
