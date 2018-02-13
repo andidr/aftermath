@@ -10,6 +10,7 @@ aftermath_SOURCES = src/cxx_extras.h \
 	src/gui/AftermathGUI.h \
 	src/gui/factory/GUIFactory.cpp \
 	src/gui/factory/GUIFactory.h \
+	src/gui/factory/SplitterWidgetCreator.h \
 	src/gui/factory/TimelineWidgetCreator.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
 	src/gui/widgets/CairoWidget.cpp \
