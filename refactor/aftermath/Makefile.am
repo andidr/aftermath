@@ -8,6 +8,7 @@ aftermath_SOURCES = src/cxx_extras.h \
 	src/MainWindow.h \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
+	src/gui/factory/BoxWidgetCreator.h \
 	src/gui/factory/GUIFactory.cpp \
 	src/gui/factory/GUIFactory.h \
 	src/gui/factory/SplitterWidgetCreator.h \
