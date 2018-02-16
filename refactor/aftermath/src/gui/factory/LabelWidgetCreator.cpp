@@ -15,26 +15,30 @@
  * Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "DefaultGUIFactory.h"
-#include "../../AftermathSession.h"
-#include "BoxWidgetCreator.h"
-#include "DFGWidgetCreator.h"
 #include "LabelWidgetCreator.h"
-#include "SplitterWidgetCreator.h"
-#include "TimelineWidgetCreator.h"
+#include <QLabel>
 
-DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
-	GUIFactory(), session(session)
+LabelWidgetCreator::LabelWidgetCreator() :
+	NonContainerWidgetCreator("amgui_label")
 {
-	this->addCreator(new HBoxWidgetCreator());
-	this->addCreator(new VBoxWidgetCreator());
-	this->addCreator(new DFGWidgetCreator());
-	this->addCreator(new HSplitterWidgetCreator());
-	this->addCreator(new VSplitterWidgetCreator());
-	this->addCreator(new LabelWidgetCreator());
-	this->addCreator(new TimelineWidgetCreator(session->getRenderLayerTypeRegistry()));
 }
 
-DefaultGUIFactory::~DefaultGUIFactory()
+QWidget* LabelWidgetCreator::instantiate(const struct am_object_notation_node_group* n)
 {
+	const char* text;
+	QLabel* l = new QLabel();
+
+	try {
+		if(am_object_notation_eval_retrieve_string(&n->node,
+							   "text",
+							   &text) == 0)
+		{
+			l->setText(text);
+		}
+	} catch(...) {
+		delete l;
+		throw;
+	}
+
+	return l;
 }

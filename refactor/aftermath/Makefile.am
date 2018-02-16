@@ -17,6 +17,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/DFGWidgetCreator.h \
 	src/gui/factory/GUIFactory.cpp \
 	src/gui/factory/GUIFactory.h \
+	src/gui/factory/LabelWidgetCreator.cpp \
+	src/gui/factory/LabelWidgetCreator.h \
 	src/gui/factory/SplitterWidgetCreator.h \
 	src/gui/factory/TimelineWidgetCreator.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
