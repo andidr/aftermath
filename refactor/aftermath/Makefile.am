@@ -1,5 +1,6 @@
 bin_PROGRAMS = aftermath
-aftermath_SOURCES = src/Exception.cpp \
+aftermath_SOURCES = src/cxx_extras.h \
+	src/Exception.cpp \
 	src/Exception.h \
 	src/main.cpp \
 	src/moc_MainWindow.cpp \
