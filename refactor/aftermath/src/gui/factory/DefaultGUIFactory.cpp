@@ -21,6 +21,7 @@
 #include "DFGWidgetCreator.h"
 #include "LabelWidgetCreator.h"
 #include "SplitterWidgetCreator.h"
+#include "TabWidgetCreator.h"
 #include "TimelineWidgetCreator.h"
 
 DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
@@ -32,6 +33,7 @@ DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
 	this->addCreator(new HSplitterWidgetCreator());
 	this->addCreator(new VSplitterWidgetCreator());
 	this->addCreator(new LabelWidgetCreator());
+	this->addCreator(new TabWidgetCreator());
 	this->addCreator(new TimelineWidgetCreator(session->getRenderLayerTypeRegistry()));
 }
 

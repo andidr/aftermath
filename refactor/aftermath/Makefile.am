@@ -20,6 +20,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/LabelWidgetCreator.cpp \
 	src/gui/factory/LabelWidgetCreator.h \
 	src/gui/factory/SplitterWidgetCreator.h \
+	src/gui/factory/TabWidgetCreator.cpp \
+	src/gui/factory/TabWidgetCreator.h \
 	src/gui/factory/TimelineWidgetCreator.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
 	src/gui/widgets/CairoWidget.cpp \
