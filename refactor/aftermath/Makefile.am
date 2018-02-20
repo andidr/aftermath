@@ -6,6 +6,8 @@ aftermath_SOURCES = src/cxx_extras.h \
 	src/moc_MainWindow.cpp \
 	src/MainWindow.cpp \
 	src/MainWindow.h \
+	src/gui/AftermathGUI.cpp \
+	src/gui/AftermathGUI.h \
 	src/gui/widgets/CairoWidget.cpp \
 	src/gui/widgets/CairoWidget.h \
 	src/gui/widgets/DFGWidget.cpp \
