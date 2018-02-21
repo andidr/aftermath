@@ -17,40 +17,8 @@
  */
 
 #include <aftermath/core/dfg_builtin_node_types.h>
+#include <aftermath/core/dfg_builtin_node_impl.h>
 
-/* Undef the default no-ops */
-#undef AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH
-#undef AM_DFG_ADD_BUILTIN_NODE_TYPES_SWITCH
-
-/* Generates the static port definitions and the node definitions from an
- * invocation of AM_DFG_DECL_BUILTIN_NODE_TYPE. See
- * AM_DFG_DECL_BUILTIN_NODE_TYPE for documentation. */
-#define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME, INSTANCE_SIZE, \
-					     FUNCTIONS, ...)			\
-	static struct am_dfg_static_port_type_def ID##_ports[] = {		\
-		__VA_ARGS__							\
-	};									\
-										\
-	static struct am_dfg_static_node_type_def ID = {			\
-		.name = NODE_TYPE_NAME,					\
-		.instance_size = INSTANCE_SIZE,				\
-		.functions = FUNCTIONS,					\
-		.num_ports = AM_ARRAY_SIZE(ID##_ports),			\
-		.ports = ID##_ports						\
-	};
-
-/* Generates a NULL-terminated list of static node type definitions for a header
- * file from its invocation of AM_DFG_ADD_BUILTIN_NODE_TYPES. The macro
- * DEFS_NAME() must be defined prior to the invocation, e.g., before inclusion
- * of the header. */
-#define AM_DFG_ADD_BUILTIN_NODE_TYPES_SWITCH(...)			\
-	static struct am_dfg_static_node_type_def* DEFS_NAME()[] = {	\
-		__VA_ARGS__, NULL					\
-	};
-
-/* Use the definitions above as replacements for the default no-ops of
- * AM_DFG_DECL_BUILTIN_NODE_TYPE and AM_DFG_ADD_BUILTIN_NODE_TYPES. */
-#define AM_DFG_GEN_BUILTIN_NODES
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
