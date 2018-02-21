@@ -17,7 +17,6 @@
  */
 
 #include <aftermath/core/dfg_builtin_node_types.h>
-#include <aftermath/core/ansi_extras.h>
 
 /* Undef the default no-ops */
 #undef AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH
@@ -55,62 +54,13 @@
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
+	NULL
 };
-
-/* Destroys a list of node types */
-static void am_dfg_builtin_type_list_destroy(struct list_head* list)
-{
-	struct am_dfg_node_type* nt;
-	struct am_dfg_node_type* next;
-
-	am_typed_list_for_each_safe_genentry(list, nt, next, list) {
-		am_dfg_node_type_destroy(nt);
-		free(nt);
-	}
-}
 
 /* Register the builtin node types at the node type registry ntr using the type
  * registry tr. Returns 0 on success, otherwise 1. */
 int am_dfg_builtin_node_types_register(struct am_dfg_node_type_registry* ntr,
 				       struct am_dfg_type_registry* tr)
 {
-	struct am_dfg_static_node_type_def** curr_defset;
-	struct am_dfg_static_node_type_def** pcurr_def;
-	struct am_dfg_static_node_type_def* curr_def;
-	struct am_dfg_node_type* nt;
-	struct am_dfg_node_type* next;
-	struct list_head types;
-
-	INIT_LIST_HEAD(&types);
-
-	/* First reserve memory for each node type and initialize */
-	for(size_t i = 0; i < AM_ARRAY_SIZE(defsets); i++) {
-		curr_defset = defsets[i];
-
-		for(pcurr_def = curr_defset; *pcurr_def; pcurr_def++) {
-			curr_def = *pcurr_def;
-
-			if(!(nt = malloc(sizeof(*nt))))
-				goto out_err;
-
-			if(am_dfg_node_type_builds(nt, tr, curr_def)) {
-				free(nt);
-				goto out_err;
-			}
-
-			list_add(&nt->list, &types);
-		}
-	}
-
-	/* Register entire list of initialized node types. Use safe version for
-	 * iteration, since the embedded list of the node type will be used to
-	 * enqueue the type at the node type registry. */
-	am_typed_list_for_each_safe_genentry(&types, nt, next, list)
-		am_dfg_node_type_registry_add(ntr, nt);
-
-	return 0;
-
-out_err:
-	am_dfg_builtin_type_list_destroy(&types);
-	return 1;
+	return am_dfg_node_type_registry_add_static(ntr, tr, defsets);
 }

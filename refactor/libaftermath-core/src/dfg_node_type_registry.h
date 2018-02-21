@@ -62,4 +62,9 @@ am_dfg_node_type_registry_node_from_object_notation(
 	struct am_dfg_node_type_registry* reg,
 	struct am_object_notation_node* n_node);
 
+int am_dfg_node_type_registry_add_static(
+	struct am_dfg_node_type_registry* ntr,
+	struct am_dfg_type_registry* tr,
+	struct am_dfg_static_node_type_def*** defsets);
+
 #endif

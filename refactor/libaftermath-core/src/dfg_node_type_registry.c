@@ -123,3 +123,80 @@ am_dfg_node_type_registry_node_from_object_notation(
 
 	return ret;
 }
+
+/* Destroys a list of node types */
+static void am_dfg_node_type_list_destroy(struct list_head* list)
+{
+	struct am_dfg_node_type* nt;
+	struct am_dfg_node_type* next;
+
+	am_typed_list_for_each_safe_genentry(list, nt, next, list) {
+		am_dfg_node_type_destroy(nt);
+		free(nt);
+	}
+}
+
+/* Registers static DFG node type definitions atomically at a node type registry
+ * nt using the type registry tr. The definitions are given as a set of pointers
+ * to sets of static node type definitions, terminated by a NULL entry. This
+ * allows for grouping as in the example below, where ALLdefs contains the
+ * definitions of two groups of ndoe types:
+ *
+ *   struct am_dfg_static_node_type_def tA1 = { ... };
+ *   struct am_dfg_static_node_type_def tA2 = { ... };
+ *   struct am_dfg_static_node_type_def* Adefs[] = { &tA1, &tA2, NULL };
+ *
+ *   struct am_dfg_static_node_type_def tB1 = { ... };
+ *   struct am_dfg_static_node_type_def tB2 = { ... };
+ *   struct am_dfg_static_node_type_def* Bdefs[] = { &tB1, &tB2, NULL };
+ *
+ *   struct am_dfg_static_node_type_def** ALLdefs[] = { Adefs, Bdefs, NULL };
+ *
+ * The function returns 0 on success, otherwise 1.
+ */
+int am_dfg_node_type_registry_add_static(
+	struct am_dfg_node_type_registry* ntr,
+	struct am_dfg_type_registry* tr,
+	struct am_dfg_static_node_type_def*** defsets)
+{
+	struct am_dfg_static_node_type_def*** pcurr_defset;
+	struct am_dfg_static_node_type_def** curr_defset;
+	struct am_dfg_static_node_type_def** pcurr_def;
+	struct am_dfg_static_node_type_def* curr_def;
+	struct am_dfg_node_type* nt;
+	struct am_dfg_node_type* next;
+	struct list_head types;
+
+	INIT_LIST_HEAD(&types);
+
+	/* First reserve memory for each node type and initialize */
+	for(pcurr_defset = defsets; *pcurr_defset; pcurr_defset++) {
+		curr_defset = *pcurr_defset;
+
+		for(pcurr_def = curr_defset; *pcurr_def; pcurr_def++) {
+			curr_def = *pcurr_def;
+
+			if(!(nt = malloc(sizeof(*nt))))
+				goto out_err;
+
+			if(am_dfg_node_type_builds(nt, tr, curr_def)) {
+				free(nt);
+				goto out_err;
+			}
+
+			list_add(&nt->list, &types);
+		}
+	}
+
+	/* Register entire list of initialized node types. Use safe version for
+	 * iteration, since the embedded list of the node type will be used to
+	 * enqueue the type at the node type registry. */
+	am_typed_list_for_each_safe_genentry(&types, nt, next, list)
+		am_dfg_node_type_registry_add(ntr, nt);
+
+	return 0;
+
+out_err:
+	am_dfg_node_type_list_destroy(&types);
+	return 1;
+}
