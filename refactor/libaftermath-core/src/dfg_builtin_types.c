@@ -20,6 +20,20 @@
 #include <aftermath/core/base_types.h>
 #include <aftermath/core/in_memory.h>
 
+/* Default destructor for pointer samples (e.g., char* aka string) */
+static void free_ptr_samples(const struct am_dfg_type* t,
+			     size_t num_samples,
+			     void* ptr)
+{
+	void** pptr = ptr;
+	void* curr;
+
+	for(size_t i = 0; i < num_samples; i++) {
+		curr = pptr[i];
+		free(curr);
+	}
+}
+
 struct static_dfg_type_decl {
 	/* Type name */
 	const char* name;
@@ -36,6 +50,7 @@ static struct static_dfg_type_decl types[] = {
 	{ "timestamp", sizeof(am_timestamp_t), NULL},
 	{ "duration", sizeof(struct am_time_offset), NULL },
 	{ "interval", sizeof(struct am_interval), NULL },
+	{ "string", sizeof(char*), free_ptr_samples },
 	{ NULL } /* End marker */
 };
 
