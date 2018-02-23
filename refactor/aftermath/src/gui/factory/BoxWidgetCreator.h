@@ -40,8 +40,36 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QWidget* w = new QWidget();
+			QWidget* w;
+			struct am_object_notation_node* nmargin;
+			struct am_object_notation_node_int* imargin;
+			int margins[4] = { 5, 5, 5, 5 };
 
+			const char* margin_names[4] = {
+				"margin_left", "margin_top",
+				"margin_right", "margin_bottom"
+			};
+
+			for(size_t i = 0; i < 4; i++) {
+				nmargin = am_object_notation_node_group_get_member_def(
+					n, margin_names[i]);
+
+				if(!nmargin)
+					continue;
+
+				if(nmargin->type !=
+				   AM_OBJECT_NOTATION_NODE_TYPE_INT)
+				{
+					throw Exception(std::string("Member ") +
+							margin_names[i] +
+							" must be an integer");
+				}
+
+				imargin = (typeof(imargin))nmargin;
+				margins[i] = imargin->value;
+			}
+
+			w = new QWidget();
 			w->setSizePolicy(QSizePolicy::Expanding,
 					 QSizePolicy::Expanding);
 
@@ -49,6 +77,10 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				w->setLayout(new L());
 				w->layout()->setSpacing(0);
 				w->layout()->setAlignment(A);
+				w->layout()->setContentsMargins(margins[0],
+								margins[1],
+								margins[2],
+								margins[3]);
 			} catch(...) {
 				delete w;
 				throw;
@@ -61,6 +93,10 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 /* Widget creator creating horizontal boxes. The expected node format is
  *
  *   amgui_hbox {
+ *     @optional margin_top: ...,
+ *     @optional margin_left: ...,
+ *     @optional margin_bottom: ...,
+ *     @optional margin_right: ...,
  *     children: [ ... ]
  *   }
  */
@@ -70,6 +106,10 @@ using HBoxWidgetCreator = BoxWidgetCreator<QHBoxLayout, HBoxStrType, Qt::AlignLe
 /* Widget creator creating vertical boxes. The expected node format is
  *
  *   amgui_vbox {
+ *     @optional margin_top: ...,
+ *     @optional margin_left: ...,
+ *     @optional margin_bottom: ...,
+ *     @optional margin_right: ...,
  *     children: [ ... ]
  *   }
  */
