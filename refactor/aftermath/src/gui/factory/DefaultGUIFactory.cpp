@@ -18,6 +18,7 @@
 #include "DefaultGUIFactory.h"
 #include "../../AftermathSession.h"
 #include "BoxWidgetCreator.h"
+#include "ButtonWidgetCreator.h"
 #include "DFGWidgetCreator.h"
 #include "LabelWidgetCreator.h"
 #include "SplitterWidgetCreator.h"
@@ -29,6 +30,7 @@ DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
 {
 	this->addCreator(new HBoxWidgetCreator());
 	this->addCreator(new VBoxWidgetCreator());
+	this->addCreator(new ButtonWidgetCreator());
 	this->addCreator(new DFGWidgetCreator());
 	this->addCreator(new HSplitterWidgetCreator());
 	this->addCreator(new VSplitterWidgetCreator());

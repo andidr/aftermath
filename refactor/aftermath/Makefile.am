@@ -11,6 +11,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
 	src/gui/factory/BoxWidgetCreator.h \
+	src/gui/factory/ButtonWidgetCreator.cpp \
+	src/gui/factory/ButtonWidgetCreator.h \
 	src/gui/factory/DefaultGUIFactory.cpp \
 	src/gui/factory/DefaultGUIFactory.h \
 	src/gui/factory/DFGWidgetCreator.cpp \
