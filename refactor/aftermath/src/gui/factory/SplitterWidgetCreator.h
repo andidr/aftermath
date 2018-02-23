@@ -22,6 +22,29 @@
 #include "../../cxx_extras.h"
 #include <QSplitter>
 
+/* Modified QSplitter that applies an initially set list of stretch values every
+ * time a widget is added to the splitter. This way, the stretch values can be
+ * set before the splitter has receoived its final set of children. */
+class SplitterWithInitialStretch : public QSplitter {
+	public:
+		SplitterWithInitialStretch() : QSplitter()
+		{ }
+
+		void setStretch(const QList<int>& stretch)
+		{
+			this->stretch = stretch;
+		}
+
+		void addWidget(QWidget* w)
+		{
+			QSplitter::addWidget(w);
+			this->setSizes(this->stretch);
+		}
+
+	protected:
+		QList<int> stretch;
+};
+
 /* Generic creator for splitter widgets */
 template<enum Qt::Orientation orientation, typename T>
 class SplitterWidgetCreator : public ContainerWidgetCreator {
@@ -39,11 +62,45 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QSplitter* s = new QSplitter();
+			struct am_object_notation_node* nstretch;
+			struct am_object_notation_node_list* lstretch;
+			struct am_object_notation_node_int* iter;
+			SplitterWithInitialStretch* s;
+			QList<int> stretchFactors;
+
+			/* Process stretch factors */
+			nstretch = am_object_notation_node_group_get_member_def(
+				n, "stretch");
+
+			if(nstretch) {
+				lstretch = (typeof(lstretch))nstretch;
+
+				if(!am_object_notation_is_int_list(lstretch))
+					throw Exception("Member stretch must be "
+							"a list of integers");
+
+				am_object_notation_for_each_list_item_int(lstretch,
+									  iter)
+				{
+					/* Scale values in order to force ratios
+					 * rather than sizes in pixels. */
+					stretchFactors.append(iter->value *
+							      100000);
+
+					if(iter->value < 1)
+						throw Exception("Stretch value "
+								"must be "
+								"greater than "
+								"zero");
+				}
+			}
+
+			s = new SplitterWithInitialStretch();
 
 			s->setSizePolicy(QSizePolicy::Expanding,
 					 QSizePolicy::Expanding);
 			s->setOrientation(orientation);
+			s->setStretch(stretchFactors);
 
 			return s;
 		}
@@ -52,7 +109,9 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 				 QWidget* parent,
 				 std::list<QWidget*>& children)
 		{
-			QSplitter* s = static_cast<QSplitter*>(parent);
+			SplitterWithInitialStretch* s;
+
+			s = static_cast<SplitterWithInitialStretch*>(parent);
 
 			for(auto child: children)
 				s->addWidget(child);
@@ -62,6 +121,7 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 /* Widget creator creating horizontal splitters. The expected node format is
  *
  *   amgui_hsplitter {
+ *     @optional stretch: [...],
  *     children: [ ... ]
  *   }
  */
@@ -72,6 +132,7 @@ using HSplitterWidgetCreator =
 /* Widget creator creating vertical splitters. The expected node format is
  *
  *   amgui_vsplitter {
+ *     @optional stretch: [...],
  *     children: [ ... ]
  *   }
  */
