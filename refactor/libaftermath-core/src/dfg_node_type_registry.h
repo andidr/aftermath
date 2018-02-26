@@ -26,12 +26,26 @@ enum am_dfg_node_type_registry_flags {
 	AM_DFG_NODE_TYPE_REGISTRY_DESTROY_TYPES = (1 << 0)
 };
 
+struct am_dfg_node_type_registry;
+
+typedef int (*am_dfg_node_type_instantiate_callback_fun_t)(
+	struct am_dfg_node_type_registry* reg,
+	struct am_dfg_node* n,
+	void* data);
+
 /* Set of types */
 struct am_dfg_node_type_registry {
 	/* Chaining of all types in the registry */
 	struct list_head types;
 
 	long flags;
+
+	/* Callback function that is called every time a node type is
+	 * instantiated */
+	struct {
+		am_dfg_node_type_instantiate_callback_fun_t fun;
+		void* data;
+	} instantiate_callback;
 };
 
 #define am_dfg_node_type_registry_for_each_type(r, t) \
@@ -52,6 +66,11 @@ void am_dfg_node_type_registry_destroy(struct am_dfg_node_type_registry* reg);
 
 void am_dfg_node_type_registry_add(struct am_dfg_node_type_registry* reg,
 				   struct am_dfg_node_type* t);
+
+void am_dfg_node_type_registry_set_instantiate_callback_fun(
+	struct am_dfg_node_type_registry* reg,
+	am_dfg_node_type_instantiate_callback_fun_t f,
+	void* data);
 
 struct am_dfg_node_type*
 am_dfg_node_type_registry_lookup(struct am_dfg_node_type_registry* reg,

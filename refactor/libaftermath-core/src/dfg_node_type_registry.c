@@ -26,6 +26,8 @@ void am_dfg_node_type_registry_add(struct am_dfg_node_type_registry* reg,
 				   struct am_dfg_node_type* t)
 {
 	list_add(&t->list, &reg->types);
+	reg->instantiate_callback.fun = NULL;
+	reg->instantiate_callback.data = NULL;
 }
 
 /*
@@ -83,6 +85,8 @@ am_dfg_node_type_registry_node_from_object_notation(
 	struct am_dfg_node* ret = NULL;
 	struct am_dfg_node_type* nt;
 
+	void* callback_data;
+
 	if(n_node->type !=  AM_OBJECT_NOTATION_NODE_TYPE_GROUP)
 		return NULL;
 
@@ -111,17 +115,29 @@ am_dfg_node_type_registry_node_from_object_notation(
 	n_iid = (struct am_object_notation_node_int*)n_id;
 
 	if(!(nt = am_dfg_node_type_registry_lookup(reg, n_stype->value)))
-		return NULL;
+		goto out_err;
 
 	if(!(ret = am_dfg_node_alloc(nt)))
-		return NULL;
+		goto out_err;
 
-	if(am_dfg_node_instantiate(ret, nt, n_iid->value)) {
-		free(ret);
-		return NULL;
+	if(am_dfg_node_instantiate(ret, nt, n_iid->value))
+		goto out_err_free;
+
+	if(reg->instantiate_callback.fun) {
+		callback_data = reg->instantiate_callback.data;
+
+		if(reg->instantiate_callback.fun(reg, ret, callback_data))
+			goto out_err_dest;
 	}
 
 	return ret;
+
+out_err_dest:
+	am_dfg_node_destroy(ret);
+out_err_free:
+	free(ret);
+out_err:
+	return NULL;
 }
 
 /* Destroys a list of node types */
@@ -199,4 +215,18 @@ int am_dfg_node_type_registry_add_static(
 out_err:
 	am_dfg_node_type_list_destroy(&types);
 	return 1;
+}
+
+/* Sets a function that is called back every time a node type is instantiated
+ * from the registry reg. The pointer data is passed verbatim to the callback
+ * function. If the callback function's return value is different from zero,
+ * node instantiation fails.
+ */
+void am_dfg_node_type_registry_set_instantiate_callback_fun(
+	struct am_dfg_node_type_registry* reg,
+	am_dfg_node_type_instantiate_callback_fun_t f,
+	void* data)
+{
+	reg->instantiate_callback.fun = f;
+	reg->instantiate_callback.data = data;
 }
