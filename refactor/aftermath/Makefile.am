@@ -26,6 +26,7 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/TabWidgetCreator.h \
 	src/gui/factory/TimelineWidgetCreator.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
+	src/gui/factory/ToolbarButtonCreator.h \
 	src/gui/factory/ToolbarWidgetCreator.h \
 	src/gui/widgets/CairoWidget.cpp \
 	src/gui/widgets/CairoWidget.h \

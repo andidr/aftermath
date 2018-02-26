@@ -24,6 +24,7 @@
 #include "SplitterWidgetCreator.h"
 #include "TabWidgetCreator.h"
 #include "TimelineWidgetCreator.h"
+#include "ToolbarButtonCreator.h"
 #include "ToolbarWidgetCreator.h"
 
 DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
@@ -38,6 +39,8 @@ DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
 	this->addCreator(new LabelWidgetCreator());
 	this->addCreator(new TabWidgetCreator());
 	this->addCreator(new TimelineWidgetCreator(session->getRenderLayerTypeRegistry()));
+	this->addCreator(new ToolbarButtonCreator());
+	this->addCreator(new ToolbarToggleButtonCreator());
 	this->addCreator(new HToolbarWidgetCreator());
 	this->addCreator(new VToolbarWidgetCreator());
 }
