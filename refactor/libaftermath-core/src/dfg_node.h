@@ -198,6 +198,20 @@ struct am_dfg_node_type_functions {
 
 	/* Function called when a port of a node of this type is disconnected */
 	void (*disconnect)(struct am_dfg_node* n, struct am_dfg_port* pi);
+
+	/* Function called when a node of this type is constructed from an
+	 * object notation group node. The function is called after the init
+	 * function. A return value of 0 indicates a success, a return value of
+	 * 1 indicates an error. */
+	int (*from_object_notation)(struct am_dfg_node* n,
+				    struct am_object_notation_node_group* g);
+
+	/* Function called when a node of this type is needs to be converted to
+	 * an object notation group node. Upon a call, g is already a valid
+	 * group node with the basic members initialized. A return value of 0
+	 * indicates a success, a return value of 1 indicates an error. */
+	int (*to_object_notation)(struct am_dfg_node* n,
+				  struct am_object_notation_node_group* g);
 };
 
 /* A node type */

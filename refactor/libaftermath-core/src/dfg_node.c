@@ -165,6 +165,8 @@ int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
 	nt->functions.process = NULL;
 	nt->functions.connect = NULL;
 	nt->functions.disconnect = NULL;
+	nt->functions.to_object_notation = NULL;
+	nt->functions.from_object_notation = NULL;
 
 	INIT_LIST_HEAD(&nt->list);
 
@@ -554,6 +556,10 @@ am_dfg_node_to_object_notation(struct am_dfg_node* n)
 
 	am_object_notation_node_group_add_member(n_grp, n_memb_id);
 
+	if(n->type->functions.to_object_notation)
+		if(n->type->functions.to_object_notation(n, n_grp))
+			goto out_err_dest;
+
 	return (struct am_object_notation_node*)n_grp;
 
 out_err_dest:
@@ -588,8 +594,14 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
 	if(am_dfg_node_instantiate(ret, nt, id))
 		goto out_err_free;
 
+	if(nt->functions.from_object_notation)
+		if(nt->functions.from_object_notation(ret, g))
+			goto out_err_dest;
+
 	return ret;
 
+out_err_dest:
+	am_dfg_node_destroy(ret);
 out_err_free:
 	free(ret);
 out_err:
