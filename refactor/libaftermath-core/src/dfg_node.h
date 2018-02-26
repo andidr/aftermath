@@ -354,6 +354,10 @@ int am_dfg_node_is_root_ign(const struct am_dfg_node* n,
 struct am_object_notation_node*
 am_dfg_node_to_object_notation(struct am_dfg_node* n);
 
+struct am_dfg_node*
+am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
+				 struct am_object_notation_node_group* g);
+
 /* When we're not using the definitions, i.e., in all code outside of the
  * translation unit defining the builtin node types, expand node type
  * declarations to no-ops. */

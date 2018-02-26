@@ -79,7 +79,7 @@ am_dfg_node_type_registry_lookup(struct am_dfg_node_type_registry* reg,
 struct am_dfg_node*
 am_dfg_node_type_registry_node_from_object_notation(
 	struct am_dfg_node_type_registry* reg,
-	struct am_object_notation_node* n_node);
+	struct am_object_notation_node* n);
 
 int am_dfg_node_type_registry_add_static(
 	struct am_dfg_node_type_registry* ntr,

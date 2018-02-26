@@ -74,54 +74,31 @@ void am_dfg_node_type_registry_destroy(struct am_dfg_node_type_registry* reg)
 struct am_dfg_node*
 am_dfg_node_type_registry_node_from_object_notation(
 	struct am_dfg_node_type_registry* reg,
-	struct am_object_notation_node* n_node)
+	struct am_object_notation_node* n)
 {
-	struct am_object_notation_node_group* n_gnode;
-	struct am_object_notation_node* n_type;
-	struct am_object_notation_node_string* n_stype;
-	struct am_object_notation_node* n_id;
-	struct am_object_notation_node_int* n_iid;
-
+	struct am_object_notation_node_group* g;
 	struct am_dfg_node* ret = NULL;
 	struct am_dfg_node_type* nt;
+	const char* type;
 
-	void* callback_data;
+	void* callback_data = NULL;
 
-	if(n_node->type !=  AM_OBJECT_NOTATION_NODE_TYPE_GROUP)
-		return NULL;
-
-	n_gnode = (struct am_object_notation_node_group*)n_node;
-
-	if(strcmp(n_gnode->name, "am_dfg_node") != 0)
-		return NULL;
-
-	if(!am_object_notation_node_group_has_exactly_members(n_gnode,
-							      "type", "id",
-							      NULL))
-	{
-		return NULL;
-	}
-
-	n_type = am_object_notation_node_group_get_member_def(n_gnode, "type");
-	n_id = am_object_notation_node_group_get_member_def(n_gnode, "id");
-
-	if(n_type->type != AM_OBJECT_NOTATION_NODE_TYPE_STRING ||
-	   n_id->type != AM_OBJECT_NOTATION_NODE_TYPE_INT)
-	{
-		return NULL;
-	}
-
-	n_stype = (struct am_object_notation_node_string*)n_type;
-	n_iid = (struct am_object_notation_node_int*)n_id;
-
-	if(!(nt = am_dfg_node_type_registry_lookup(reg, n_stype->value)))
+	if(n->type != AM_OBJECT_NOTATION_NODE_TYPE_GROUP)
 		goto out_err;
 
-	if(!(ret = am_dfg_node_alloc(nt)))
+	g = (struct am_object_notation_node_group*)n;
+
+	if(strcmp(g->name, "am_dfg_node") != 0)
 		goto out_err;
 
-	if(am_dfg_node_instantiate(ret, nt, n_iid->value))
-		goto out_err_free;
+	if(am_object_notation_eval_retrieve_string(n, "type", &type))
+		goto out_err;
+
+	if(!(nt = am_dfg_node_type_registry_lookup(reg, type)))
+		goto out_err;
+
+	if(!(ret = am_dfg_node_from_object_notation(nt, g)))
+		goto out_err;
 
 	if(reg->instantiate_callback.fun) {
 		callback_data = reg->instantiate_callback.data;
@@ -134,7 +111,6 @@ am_dfg_node_type_registry_node_from_object_notation(
 
 out_err_dest:
 	am_dfg_node_destroy(ret);
-out_err_free:
 	free(ret);
 out_err:
 	return NULL;

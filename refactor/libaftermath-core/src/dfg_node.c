@@ -19,6 +19,7 @@
 #include <aftermath/core/dfg_node.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 
 /* Initialize a port type. The string pointed to by name is copied.*/
 int am_dfg_port_type_init(struct am_dfg_port_type* pt,
@@ -558,6 +559,39 @@ am_dfg_node_to_object_notation(struct am_dfg_node* n)
 out_err_dest:
 	am_object_notation_node_destroy((struct am_object_notation_node*)n_grp);
 	free(n_grp);
+out_err:
+	return NULL;
+}
+
+/* Builds a DFG node of type nt from an object notation node n_node. Returns the
+ * newly allocated and initialized node on success, otherwise NULL. */
+struct am_dfg_node*
+am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
+				 struct am_object_notation_node_group* g)
+{
+	uint64_t u64id;
+	long id;
+
+	struct am_dfg_node* ret = NULL;
+
+	if(am_object_notation_eval_retrieve_int(&g->node, "id", &u64id))
+		goto out_err;
+
+	if(u64id > LONG_MAX)
+		goto out_err;
+
+	id = u64id;
+
+	if(!(ret = am_dfg_node_alloc(nt)))
+		goto out_err;
+
+	if(am_dfg_node_instantiate(ret, nt, id))
+		goto out_err_free;
+
+	return ret;
+
+out_err_free:
+	free(ret);
 out_err:
 	return NULL;
 }
