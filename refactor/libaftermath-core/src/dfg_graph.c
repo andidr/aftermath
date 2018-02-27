@@ -499,13 +499,13 @@ out_err:
  *
  *    am_dfg_graph {
  *       nodes : [
- *          am_dfg_node {
- *             type: <string>,
+ *          <node_type> {
  *             id: <integer>,
+ *             ...
  *          },
- *          am_dfg_node {
+ *          <node_type> {
  *             id: <integer>,
- *             type: <string>,
+ *             ...
  *          },
  *          ...
  *      ],

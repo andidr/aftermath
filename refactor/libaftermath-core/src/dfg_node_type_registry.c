@@ -87,12 +87,7 @@ am_dfg_node_type_registry_node_from_object_notation(
 		goto out_err;
 
 	g = (struct am_object_notation_node_group*)n;
-
-	if(strcmp(g->name, "am_dfg_node") != 0)
-		goto out_err;
-
-	if(am_object_notation_eval_retrieve_string(n, "type", &type))
-		goto out_err;
+	type = g->name;
 
 	if(!(nt = am_dfg_node_type_registry_lookup(reg, type)))
 		goto out_err;

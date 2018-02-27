@@ -507,9 +507,8 @@ void am_dfg_node_destroy(struct am_dfg_node* n)
 /* Convert a node into its representation in object notation. Returns a newly
  * created object notation node of the form:
  *
- *    am_dfg_node {
+ *    <type> {
  *         id: <integer>;
- *         type: <string>;
  *    }
  *
  * In case of an error NULL is returned.
@@ -517,54 +516,29 @@ void am_dfg_node_destroy(struct am_dfg_node* n)
 struct am_object_notation_node*
 am_dfg_node_to_object_notation(struct am_dfg_node* n)
 {
-	struct am_object_notation_node_group* n_grp;
-	struct am_object_notation_node_member* n_memb_id;
-	struct am_object_notation_node_int* n_id;
-	struct am_object_notation_node_member* n_memb_type;
-	struct am_object_notation_node_string* n_type;
+	struct am_object_notation_node_group* g;
+	struct am_object_notation_node* ng;
 
-	if(!(n_grp = am_object_notation_node_group_create("am_dfg_node")))
+	ng = am_object_notation_build(
+		AM_OBJECT_NOTATION_BUILD_GROUP, n->type->name,
+		  AM_OBJECT_NOTATION_BUILD_MEMBER, "id",
+		    AM_OBJECT_NOTATION_BUILD_INT, (int64_t)n->id,
+		AM_OBJECT_NOTATION_BUILD_END);
+
+	if(!ng)
 		goto out_err;
 
-	if(!(n_type = am_object_notation_node_string_create(n->type->name, 0)))
-		goto out_err_dest;
-
-	if(!(n_memb_type = am_object_notation_node_member_create(
-		     "type",
-		     (struct am_object_notation_node*)n_type)))
-	{
-		am_object_notation_node_destroy(
-			(struct am_object_notation_node*)n_type);
-		free(n_type);
-		goto out_err_dest;
-	}
-
-	am_object_notation_node_group_add_member(n_grp, n_memb_type);
-
-	if(!(n_id = am_object_notation_node_int_create((int64_t)n->id)))
-		goto out_err_dest;
-
-	if(!(n_memb_id = am_object_notation_node_member_create(
-		     "id",
-		     (struct am_object_notation_node*)n_id)))
-	{
-		am_object_notation_node_destroy(
-			(struct am_object_notation_node*)n_id);
-		free(n_id);
-		goto out_err_dest;
-	}
-
-	am_object_notation_node_group_add_member(n_grp, n_memb_id);
+	g = (struct am_object_notation_node_group*)ng;
 
 	if(n->type->functions.to_object_notation)
-		if(n->type->functions.to_object_notation(n, n_grp))
+		if(n->type->functions.to_object_notation(n, g))
 			goto out_err_dest;
 
-	return (struct am_object_notation_node*)n_grp;
+	return ng;
 
 out_err_dest:
-	am_object_notation_node_destroy((struct am_object_notation_node*)n_grp);
-	free(n_grp);
+	am_object_notation_node_destroy(ng);
+	free(ng);
 out_err:
 	return NULL;
 }
