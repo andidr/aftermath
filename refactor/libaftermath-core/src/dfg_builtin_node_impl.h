@@ -28,16 +28,16 @@
 #define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,	\
 					     NODE_TYPE_HRNAME,		\
 					     INSTANCE_SIZE,		\
-					     FUNCTIONS, ...)		\
+					     FUNCTIONS, PORTS)		\
 	static struct am_dfg_static_port_type_def ID##_ports[] = {	\
-		__VA_ARGS__						\
+		AM_MACRO_ARG_PROTECT PORTS				\
 	};								\
 									\
 	static struct am_dfg_static_node_type_def ID = {		\
 		.name = NODE_TYPE_NAME,				\
 		.hrname = NODE_TYPE_HRNAME,				\
 		.instance_size = INSTANCE_SIZE,			\
-		.functions = FUNCTIONS,				\
+		.functions = AM_MACRO_ARG_PROTECT FUNCTIONS,		\
 		.num_ports = AM_ARRAY_SIZE(ID##_ports),		\
 		.ports = ID##_ports					\
 	};

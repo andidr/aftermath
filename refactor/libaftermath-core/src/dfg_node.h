@@ -388,6 +388,9 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
 	#define AM_DFG_ADD_BUILTIN_NODE_TYPES_SWITCH(...)
 #endif
 
+#define AM_DFG_NODE_PORTS(...) (__VA_ARGS__)
+#define AM_DFG_NODE_FUNCTIONS(...) (__VA_ARGS__)
+
 /* Generates a static definition for a DFG node type. ID must be a globally
  * unique identifier for the node type. This identifier is only used during
  * compilation and does not appear as a DFG node type. NODE_TYPE_NAME must be
@@ -395,8 +398,9 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  * DFG node namespace of a node type registry. NODE_TYPE_HRNAME is the
  * human-redable name for the node type. INSTANCE_SIZE is the size in bytes of
  * an instance of this node type. FUNCTIONS must be a static initializer for a
- * struct am_dfg_node_type_functions. The remaining arguments are port
- * definitions in the form of triplets { PORT_NAME, PORT_TYPE, FLAGS }.
+ * struct am_dfg_node_type_functions. PORTS is a list of port definitions
+ * generated from the invocation of the AM_DFG_NODE_PORTS() macro with a set of
+ * triplets as its arguments of the form { PORT_NAME, PORT_TYPE, FLAGS }.
  *
  * Example:
  * A node type that reads two integers from its input ports a and b and writes
@@ -405,18 +409,22 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  *   AM_DFG_DECL_NODE_TYPE(am_dfg_node_integer_add,
  *   	"add_integer",
  *   	AM_DFG_NODE_DEFAULT_SIZE,
- *   	{ .process = am_dfg_node_integer_process,
- *   	  .connect = am_dfg_node_integer_connect_ports }
- *   	{ "a", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
- *   	{ "b", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
- *   	{ "c", "int", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY })
+ *   	AM_DFG_NODE_FUNCTIONS({
+ *   		.process = am_dfg_node_integer_process,
+ *   		.connect = am_dfg_node_integer_connect_ports
+ *   	}),
+ *   	AM_DFG_NODE_PORTS(
+ *   		{ "a", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+ *   		{ "b", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+ *   		{ "c", "int", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }
+ *   	))
  */
 #define AM_DFG_DECL_BUILTIN_NODE_TYPE(ID, NODE_TYPE_NAME, NODE_TYPE_HRNAME,	\
-				      INSTANCE_SIZE, FUNCTIONS, ...)		\
+				      INSTANCE_SIZE, FUNCTIONS, PORTS)		\
 	AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,		\
 					     NODE_TYPE_HRNAME,			\
 					     INSTANCE_SIZE, FUNCTIONS,		\
-					     __VA_ARGS__)
+					     PORTS)
 
 /* Adds the nodes associated to the identifiers passed as arguments to the list
  * of builtin DFG nodes. There can only be one invocation of
