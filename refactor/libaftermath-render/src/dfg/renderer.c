@@ -205,7 +205,7 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 
 	cairo_set_font_size(cr, r->params.names.label.font_size);
 
-	cairo_text_extents(cr, n->type->name, &extents);
+	cairo_text_extents(cr, n->type->hrname, &extents);
 	name_label_width = extents.width + 2 * r->params.names.label.pad_x;
 
 	/* Extend main rectangle if type label is larger than the required size
@@ -251,7 +251,7 @@ am_dfg_renderer_name_label_rect_dimensions(struct am_dfg_renderer* r,
 	cairo_set_font_size(cr, r->params.names.label.font_size);
 
 	/* Size is padding + text width / height */
-	cairo_text_extents(cr, n->type->name, &extents);
+	cairo_text_extents(cr, n->type->hrname, &extents);
 	cairo_font_extents(cr, &fextents);
 
 	rect->width = extents.width + 2*r->params.names.label.pad_x;
@@ -349,7 +349,7 @@ static void am_dfg_renderer_paint_node_label(struct am_dfg_renderer* r,
 		      rect.x + r->params.names.label.pad_x,
 		      rect.y + rect.height - fextents.descent -
 		      r->params.names.label.pad_y);
-	cairo_show_text(cr, n->type->name);
+	cairo_show_text(cr, n->type->hrname);
 }
 
 /* Draws an entire node, composed of the main rectangle, the top label box and
