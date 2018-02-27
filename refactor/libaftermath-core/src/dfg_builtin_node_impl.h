@@ -25,18 +25,21 @@
 /* Generates the static port definitions and the node definitions from an
  * invocation of AM_DFG_DECL_BUILTIN_NODE_TYPE. See
  * AM_DFG_DECL_BUILTIN_NODE_TYPE for documentation. */
-#define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME, INSTANCE_SIZE, \
-					     FUNCTIONS, ...)			\
-	static struct am_dfg_static_port_type_def ID##_ports[] = {		\
-		__VA_ARGS__							\
-	};									\
-										\
-	static struct am_dfg_static_node_type_def ID = {			\
-		.name = NODE_TYPE_NAME,					\
-		.instance_size = INSTANCE_SIZE,				\
-		.functions = FUNCTIONS,					\
-		.num_ports = AM_ARRAY_SIZE(ID##_ports),			\
-		.ports = ID##_ports						\
+#define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,	\
+					     NODE_TYPE_HRNAME,		\
+					     INSTANCE_SIZE,		\
+					     FUNCTIONS, ...)		\
+	static struct am_dfg_static_port_type_def ID##_ports[] = {	\
+		__VA_ARGS__						\
+	};								\
+									\
+	static struct am_dfg_static_node_type_def ID = {		\
+		.name = NODE_TYPE_NAME,				\
+		.hrname = NODE_TYPE_HRNAME,				\
+		.instance_size = INSTANCE_SIZE,			\
+		.functions = FUNCTIONS,				\
+		.num_ports = AM_ARRAY_SIZE(ID##_ports),		\
+		.ports = ID##_ports					\
 	};
 
 /* Generates a NULL-terminated list of static node type definitions for a header

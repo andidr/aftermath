@@ -46,6 +46,7 @@ void am_dfg_port_type_destroy(struct am_dfg_port_type* pt)
 void am_dfg_node_type_destroy(struct am_dfg_node_type* nt)
 {
 	free(nt->name);
+	free(nt->hrname);
 
 	for(size_t i = 0; i < nt->num_ports; i++)
 		am_dfg_port_type_destroy(&nt->ports[i]);
@@ -151,6 +152,7 @@ void am_dfg_port_destroy(struct am_dfg_port* p)
 int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
 					struct am_dfg_type_registry* reg,
 					const char* name,
+					const char* hrname,
 					size_t instance_size,
 					size_t num_ports)
 {
@@ -173,11 +175,16 @@ int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
 	if(!(nt->name = strdup(name)))
 		goto out_err;
 
-	if(!(nt->ports = malloc(num_ports * sizeof(struct am_dfg_port_type))))
+	if(!(nt->hrname = strdup(hrname)))
 		goto out_err_name;
+
+	if(!(nt->ports = malloc(num_ports * sizeof(struct am_dfg_port_type))))
+		goto out_err_hrname;
 
 	return 0;
 
+out_err_hrname:
+	free(nt->hrname);
 out_err_name:
 	free(nt->name);
 out_err:
@@ -196,6 +203,7 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 	size_t i;
 
 	if(am_dfg_node_type_build_ports_noinit(nt, reg, sdef->name,
+					       sdef->hrname,
 					       sdef->instance_size,
 					       sdef->num_ports))
 	{
@@ -240,6 +248,7 @@ out_err:
 int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			    struct am_dfg_type_registry* reg,
 			    const char* name,
+			    const char* hrname,
 			    size_t instance_size,
 			    size_t num_ports,
 			    va_list arg)
@@ -250,7 +259,7 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 	const char* port_type_name;
 	size_t i;
 
-	if(am_dfg_node_type_build_ports_noinit(nt, reg, name,
+	if(am_dfg_node_type_build_ports_noinit(nt, reg, name, hrname,
 					       instance_size, num_ports))
 	{
 		goto out_err;
@@ -297,6 +306,7 @@ out_err:
 int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 			   struct am_dfg_type_registry* reg,
 			   const char* name,
+			   const char* hrname,
 			   size_t instance_size,
 			   size_t num_ports,
 			   ...)
@@ -305,8 +315,8 @@ int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 	int ret;
 
 	va_start(arg, num_ports);
-	ret = am_dfg_node_type_buildv(nt, reg, name, instance_size, num_ports,
-				      arg);
+	ret = am_dfg_node_type_buildv(nt, reg, name, hrname, instance_size,
+				      num_ports, arg);
 	va_end(arg);
 
 	return ret;

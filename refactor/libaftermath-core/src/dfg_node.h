@@ -219,6 +219,9 @@ struct am_dfg_node_type {
 	/* The name of this node type */
 	char* name;
 
+	/* The human-redable name of this type */
+	char* hrname;
+
 	/* The types of the ports associated to this node type */
 	struct am_dfg_port_type* ports;
 
@@ -245,6 +248,9 @@ struct am_dfg_node_type {
 struct am_dfg_static_node_type_def {
 	/* Name of the declared node type */
 	const char* name;
+
+	/* Human-readable name of the declared node type */
+	const char* hrname;
 
 	/* Size of an instance of this node in bytes */
 	size_t instance_size;
@@ -273,6 +279,7 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			    struct am_dfg_type_registry* reg,
 			    const char* name,
+			    const char* hrname,
 			    size_t instance_size,
 			    size_t num_ports,
 			    va_list arg);
@@ -280,6 +287,7 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 			   struct am_dfg_type_registry* reg,
 			   const char* name,
+			   const char* hrname,
 			   size_t instance_size,
 			   size_t num_ports,
 			   ...);
@@ -384,10 +392,11 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  * unique identifier for the node type. This identifier is only used during
  * compilation and does not appear as a DFG node type. NODE_TYPE_NAME must be
  * set to the name of the node that is declared. This name will appear in the
- * DFG node namespace of a node type registry. INSTANCE_SIZE is the size in
- * bytes of an instance of this node type. FUNCTIONS must be a static
- * initializer for a struct am_dfg_node_type_functions. The remaining arguments
- * are port definitions in the form of triplets { PORT_NAME, PORT_TYPE, FLAGS }.
+ * DFG node namespace of a node type registry. NODE_TYPE_HRNAME is the
+ * human-redable name for the node type. INSTANCE_SIZE is the size in bytes of
+ * an instance of this node type. FUNCTIONS must be a static initializer for a
+ * struct am_dfg_node_type_functions. The remaining arguments are port
+ * definitions in the form of triplets { PORT_NAME, PORT_TYPE, FLAGS }.
  *
  * Example:
  * A node type that reads two integers from its input ports a and b and writes
@@ -402,10 +411,11 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  *   	{ "b", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
  *   	{ "c", "int", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY })
  */
-#define AM_DFG_DECL_BUILTIN_NODE_TYPE(ID, NODE_TYPE_NAME,		\
-				      INSTANCE_SIZE, FUNCTIONS, ...)	\
-	AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,	\
-					     INSTANCE_SIZE, FUNCTIONS,	\
+#define AM_DFG_DECL_BUILTIN_NODE_TYPE(ID, NODE_TYPE_NAME, NODE_TYPE_HRNAME,	\
+				      INSTANCE_SIZE, FUNCTIONS, ...)		\
+	AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,		\
+					     NODE_TYPE_HRNAME,			\
+					     INSTANCE_SIZE, FUNCTIONS,		\
 					     __VA_ARGS__)
 
 /* Adds the nodes associated to the identifiers passed as arguments to the list
