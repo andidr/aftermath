@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/buffer.h>
+#include <aftermath/core/safe_alloc.h>
 
 /* Checks if a buffer *buffer with used elements and free remaining elements of
  * size elem_size needs to be resized in order to store n additional
@@ -32,17 +33,32 @@ int am_check_buffer_grow_n(void** buffer, size_t elem_size, size_t used,
 {
 	void* ptr;
 	size_t alloc;
+	size_t total_elements;
+	size_t new_free;
 
-	if(*free < n) {
-		alloc = (prealloc_elems < n-(*free)) ? n-(*free) : prealloc_elems;
+	/* Already enough space left? */
+	if(*free >= n)
+		return 0;
 
-		if(!(ptr = realloc(*buffer, (used+alloc)*elem_size))) {
-			return 1;
-		} else {
-			*free = alloc;
-			*buffer = ptr;
-		}
-	}
+	if(am_size_add_safe(&total_elements, used, *free))
+		return 1;
+
+	if(prealloc_elems < n-(*free))
+		alloc = n - (*free);
+	else
+		alloc = prealloc_elems;
+
+	if(am_size_add_safe(&total_elements, total_elements, alloc))
+		return 1;
+
+	if(am_size_add_safe(&new_free, *free, alloc))
+		return 1;
+
+	if(!(ptr = am_realloc_array_safe(*buffer, total_elements, elem_size)))
+		return 1;
+
+	*free = new_free;
+	*buffer = ptr;
 
 	return 0;
 }
@@ -67,10 +83,22 @@ int am_check_buffer_grow(void** buffer, size_t elem_size, size_t used,
 int am_add_buffer_grow(void** buffer, void* elem, size_t elem_size, size_t* used,
 		       size_t* free, size_t prealloc_elems)
 {
+	void* addr;
+	void* addr_end;
+
 	if(am_check_buffer_grow(buffer, elem_size, *used, free, prealloc_elems))
 		return 1;
 
-	void* addr = ((char*)(*buffer))+(elem_size*(*used));
+	if(!(addr = am_array_element_ptr_safe(*buffer, *used, elem_size)))
+		return 1;
+
+	/* Safe guard for subtraction below */
+	if(elem_size == 0)
+		return 1;
+
+	/* Would a write of one element wrap around in the address space? */
+	if(!(addr_end = am_array_element_ptr_safe(addr, 1, elem_size-1)))
+		return 1;
 
 	memcpy(addr, elem, elem_size);
 	(*free)--;
