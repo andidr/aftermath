@@ -183,3 +183,8 @@ def isinttype(tname):
         return True
     else:
         return False
+
+# Returns the number of decimal digits (including the sign) for an integer of n
+# bits
+def max_decimal_digits(n):
+    return len(str(2**n))+1

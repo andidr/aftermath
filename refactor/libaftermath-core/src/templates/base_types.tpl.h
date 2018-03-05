@@ -46,6 +46,7 @@ typedef {{t.c_def}} {{t.c_type}};
 #define {{t.c_type|upper}}_MIN 0
 {%- endif %}
 #define {{t.c_type|upper}}_MAX {{minmaxprefix}}INT{{nbits.group(2)}}_MAX
+#define {{t.c_type|upper}}_MAX_DECIMAL_DIGITS {{am_types.max_decimal_digits(am_types.int(nbits.group(2)))}}
 {%- endif %}
 {% endif -%}
 {% endfor -%}

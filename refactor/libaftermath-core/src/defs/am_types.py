@@ -49,5 +49,7 @@ def definitions():
         "filter_list_hasattrs" : am_type_aux.filter_list_hasattrs,
         "filter_list_hasdefs" : am_type_aux.filter_list_hasdefs,
         "isinttype" : am_type_aux.isinttype,
+        "max_decimal_digits" : am_type_aux.max_decimal_digits,
+        "int" : int,
         "istuple" : lambda x: isinstance(x, tuple)
     }
