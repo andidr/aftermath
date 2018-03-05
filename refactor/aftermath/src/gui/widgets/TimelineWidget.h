@@ -42,6 +42,8 @@ class TimelineWidget : public CairoWidget {
 		void setVisibleInterval(const struct am_interval* i);
 		void addLayer(struct am_timeline_render_layer* l);
 
+		void getVisibleInterval(struct am_interval* i);
+
 	protected:
 		enum zoomDirection {
 			ZOOM_IN,

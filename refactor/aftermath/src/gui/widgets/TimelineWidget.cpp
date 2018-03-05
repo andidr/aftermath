@@ -79,6 +79,13 @@ void TimelineWidget::setVisibleInterval(const struct am_interval* i)
 	this->update();
 }
 
+/* Retrieves the currently visible interval
+ */
+void TimelineWidget::getVisibleInterval(struct am_interval* i)
+{
+	am_timeline_renderer_get_visible_interval(&this->renderer, i);
+}
+
 /**
  * Add a time line render layer to the time line renderer
  */
