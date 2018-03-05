@@ -23,9 +23,14 @@
 #define DEFS_NAME() interval_attributes_defs
 #include <aftermath/core/dfg/nodes/interval_attributes.h>
 
+#undef DEFS_NAME
+#define DEFS_NAME() interval_duration_defs
+#include <aftermath/core/dfg/nodes/interval_duration.h>
+
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	interval_attributes_defs,
+	interval_duration_defs,
 	NULL
 };
 

@@ -49,6 +49,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg_type_registry.h \
 				src/dfg/nodes/interval_attributes.c \
 				src/dfg/nodes/interval_attributes.h \
+				src/dfg/nodes/interval_duration.c \
+				src/dfg/nodes/interval_duration.h \
 				src/event_collection_array.h \
 				src/event_collection.c \
 				src/event_collection.h \
