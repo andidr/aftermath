@@ -12,6 +12,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/DFGQTProcessor.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp \
 	src/dfg/DFGQTProcessor.h \
+	src/dfg/nodes/gui/timeline.h \
+	src/dfg/nodes/gui/timeline.cpp \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
 	src/gui/factory/BoxWidgetCreator.h \
