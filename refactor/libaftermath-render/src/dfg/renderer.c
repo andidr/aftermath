@@ -201,7 +201,7 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 	cairo_select_font_face(cr,
 			       r->params.names.label.font,
 			       CAIRO_FONT_SLANT_NORMAL,
-			       CAIRO_FONT_WEIGHT_NORMAL);
+			       CAIRO_FONT_WEIGHT_BOLD);
 
 	cairo_set_font_size(cr, r->params.names.label.font_size);
 
@@ -246,7 +246,7 @@ am_dfg_renderer_name_label_rect_dimensions(struct am_dfg_renderer* r,
 	cairo_select_font_face(cr,
 			       r->params.names.label.font,
 			       CAIRO_FONT_SLANT_NORMAL,
-			       CAIRO_FONT_WEIGHT_NORMAL);
+			       CAIRO_FONT_WEIGHT_BOLD);
 
 	cairo_set_font_size(cr, r->params.names.label.font_size);
 
@@ -311,7 +311,7 @@ static void am_dfg_renderer_paint_node_label(struct am_dfg_renderer* r,
 	/* Calculate size of the label */
 	cairo_select_font_face(cr, r->params.names.label.font,
 			       CAIRO_FONT_SLANT_NORMAL,
-			       CAIRO_FONT_WEIGHT_NORMAL);
+			       CAIRO_FONT_WEIGHT_BOLD);
 
 	cairo_set_font_size(cr, r->params.names.label.font_size);
 	cairo_font_extents(cr, &fextents);
