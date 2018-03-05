@@ -27,10 +27,15 @@
 #define DEFS_NAME() interval_duration_defs
 #include <aftermath/core/dfg/nodes/interval_duration.h>
 
+#undef DEFS_NAME
+#define DEFS_NAME() timestamp_to_string_defs
+#include <aftermath/core/dfg/nodes/timestamp_to_string.h>
+
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	interval_attributes_defs,
 	interval_duration_defs,
+	timestamp_to_string_defs,
 	NULL
 };
 
