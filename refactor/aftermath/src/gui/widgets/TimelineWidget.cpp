@@ -77,6 +77,7 @@ void TimelineWidget::setVisibleInterval(const struct am_interval* i)
 	am_timeline_renderer_set_visible_interval(&this->renderer, i);
 
 	this->update();
+	this->processDFGNode();
 }
 
 /* Retrieves the currently visible interval
@@ -180,6 +181,7 @@ void TimelineWidget::handleLanesDragEvent(double x)
 	am_timeline_renderer_set_visible_interval(r, &i);
 
 	this->update();
+	this->processDFGNode();
 }
 
 /**
@@ -414,6 +416,7 @@ void TimelineWidget::handleZoomEvent(double x, enum zoomDirection direction)
 	am_timeline_renderer_set_visible_interval(r, &i_new);
 
 	this->update();
+	this->processDFGNode();
 }
 
 void TimelineWidget::wheelEvent(QWheelEvent* event)

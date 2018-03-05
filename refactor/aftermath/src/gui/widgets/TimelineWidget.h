@@ -18,7 +18,7 @@
 #ifndef TIMELINEWIDGET_H
 #define TIMELINEWIDGET_H
 
-#include "CairoWidget.h"
+#include "CairoWidgetWithDFGNode.h"
 
 extern "C" {
 	#include <aftermath/render/timeline/renderer.h>
@@ -29,9 +29,9 @@ struct am_timeline_entity;
 /**
  * Widget encapsulating the time line renderer showing events over time.
  */
-class TimelineWidget : public CairoWidget {
+class TimelineWidget : public CairoWidgetWithDFGNode {
 	public:
-		typedef CairoWidget super;
+		typedef CairoWidgetWithDFGNode super;
 		class TimelineWidgetException {};
 
 		TimelineWidget(QWidget* parent = NULL);
