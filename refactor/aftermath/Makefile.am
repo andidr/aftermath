@@ -30,6 +30,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/ToolbarWidgetCreator.h \
 	src/gui/widgets/CairoWidget.cpp \
 	src/gui/widgets/CairoWidget.h \
+	src/gui/widgets/CairoWidgetWithDFGNode.cpp \
+	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
+	src/gui/widgets/CairoWidgetWithDFGNode.h \
 	src/gui/widgets/DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
@@ -41,7 +44,8 @@ aftermath_CXXFLAGS=$(MOCFLAGS) -fpermissive @CAIRO_CFLAGS@
 aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
 GENERATED_FILES=src/ui_MainWindow.h \
-	src/moc_MainWindow.cpp
+	src/moc_MainWindow.cpp \
+	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp
 
 moc_verbose = $(moc_verbose_@AM_V@)
 moc_verbose_ = $(moc_verbose_@AM_DEFAULT_V@)
@@ -58,6 +62,11 @@ src/ui_MainWindow.h: src/MainWindow.ui
 
 src/moc_MainWindow.cpp: src/MainWindow.cpp
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/MainWindow.h -o $@
+
+src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp: \
+	src/gui/widgets/CairoWidgetWithDFGNode.cpp \
+	src/gui/widgets/CairoWidgetWithDFGNode.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/CairoWidgetWithDFGNode.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 
