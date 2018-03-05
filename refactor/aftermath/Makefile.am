@@ -8,6 +8,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/moc_MainWindow.cpp \
 	src/MainWindow.cpp \
 	src/MainWindow.h \
+	src/dfg/DFGQTProcessor.cpp \
+	src/dfg/moc_DFGQTProcessor.cpp \
+	src/dfg/DFGQTProcessor.h \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
 	src/gui/factory/BoxWidgetCreator.h \
@@ -67,6 +70,11 @@ src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp: \
 	src/gui/widgets/CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/CairoWidgetWithDFGNode.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/CairoWidgetWithDFGNode.h -o $@
+
+src/dfg/moc_DFGQTProcessor.cpp: \
+	src/dfg/DFGQTProcessor.cpp \
+	src/dfg/DFGQTProcessor.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/dfg/DFGQTProcessor.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 
