@@ -28,6 +28,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg_schedule.h \
 	aftermath/core/dfg_type.h \
 	aftermath/core/dfg_type_registry.h \
+	aftermath/core/dfg/nodes/interval_attributes.h \
 	aftermath/core/event_mapping.h \
 	aftermath/core/event_collection.h \
 	aftermath/core/event_collection_array.h \
