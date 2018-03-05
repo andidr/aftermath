@@ -22,6 +22,7 @@
 #include <cstdint>
 #include "Exception.h"
 #include "gui/AftermathGUI.h"
+#include "dfg/DFGQTProcessor.h"
 
 extern "C" {
 	#include <aftermath/core/trace.h>
@@ -76,6 +77,8 @@ class AftermathSession {
 		getRenderLayerTypeRegistry() noexcept;
 
 		AftermathGUI& getGUI();
+		DFGQTProcessor& getDFGProcessor();
+		DFGQTProcessor* getDFGProcessorp();
 
 	protected:
 		void cleanup();
@@ -91,6 +94,7 @@ class AftermathSession {
 		struct am_timeline_render_layer_type_registry rltr;
 
 		AftermathGUI gui;
+		DFGQTProcessor dfgProcessor;
 };
 
 #endif

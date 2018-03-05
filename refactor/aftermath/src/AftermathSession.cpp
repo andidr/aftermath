@@ -126,6 +126,7 @@ void AftermathSession::setDFG(struct am_dfg_graph* g) noexcept
 	}
 
 	this->dfg.graph = g;
+	this->dfgProcessor.setDFG(g);
 }
 
 struct am_dfg_coordinate_mapping* AftermathSession::getDFGCoordinateMapping()
@@ -143,4 +144,14 @@ void AftermathSession::setDFGCoordinateMapping(
 AftermathGUI& AftermathSession::getGUI()
 {
 	return this->gui;
+}
+
+DFGQTProcessor& AftermathSession::getDFGProcessor()
+{
+	return this->dfgProcessor;
+}
+
+DFGQTProcessor* AftermathSession::getDFGProcessorp()
+{
+	return &this->dfgProcessor;
 }

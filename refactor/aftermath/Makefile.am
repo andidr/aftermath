@@ -55,7 +55,8 @@ aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp \
-	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp
+	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
+	src/dfg/moc_DFGQTProcessor.cpp
 
 moc_verbose = $(moc_verbose_@AM_V@)
 moc_verbose_ = $(moc_verbose_@AM_DEFAULT_V@)
