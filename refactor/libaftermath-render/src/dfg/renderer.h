@@ -124,6 +124,18 @@ struct am_dfg_renderer_params {
 		} rect;
 	} ports;
 
+	/* Parameter for properties */
+	struct {
+		/* Name of the font */
+		const char* font;
+
+		/* Scaling factor for the font size */
+		double font_size;
+
+		/* Font color */
+		struct am_rgba color;
+	} properties;
+
 	/* Parameters for the names at the top of a node */
 	struct {
 		struct {

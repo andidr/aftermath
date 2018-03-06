@@ -50,6 +50,10 @@ void am_dfg_renderer_init(struct am_dfg_renderer* r)
 	r->params.main_rects.color.bg.selected =
 		AM_RGBA255(0xFF, 0x97, 0x00, 0xFF);
 
+	r->params.properties.font = "Sans";
+	r->params.properties.font_size = 10;
+	r->params.properties.color = AM_RGBA255(0x00, 0x00, 0x00, 0xFF);
+
 	r->params.ports.label.font = "Sans";
 	r->params.ports.label.font_size = 10;
 
@@ -156,6 +160,7 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 {
 	struct am_dfg_port* p;
 	cairo_text_extents_t extents;
+	cairo_font_extents_t fextents;
 	double max_in = 0;
 	double max_out = 0;
 	size_t n_in = 0;
@@ -163,6 +168,7 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 	double main_rect_width;
 	double main_rect_height;
 	double name_label_width;
+	double property_height;
 
 	cairo_select_font_face(cr,
 			       r->params.ports.label.font,
@@ -188,6 +194,16 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 		}
 	}
 
+	cairo_select_font_face(cr,
+			       r->params.properties.font,
+			       CAIRO_FONT_SLANT_NORMAL,
+			       CAIRO_FONT_WEIGHT_BOLD);
+
+	cairo_set_font_size(cr, r->params.properties.font_size);
+	cairo_font_extents(cr, &fextents);
+
+	property_height = fextents.height;
+
 	main_rect_width = max_in +
 		max_out +
 		r->params.ports.label.pad_x +
@@ -195,6 +211,7 @@ am_dfg_renderer_node_main_rect_dimensions(struct am_dfg_renderer* r,
 
 	main_rect_height = ((n_in > n_out) ? n_in : n_out) *
 		r->params.ports.height +
+		n->type->num_properties * property_height +
 		2 * r->params.main_rects.pad_y;
 
 	/* Calculate size of the type label */
@@ -352,8 +369,8 @@ static void am_dfg_renderer_paint_node_label(struct am_dfg_renderer* r,
 	cairo_show_text(cr, n->type->hrname);
 }
 
-/* Draws an entire node, composed of the main rectangle, the top label box and
- * all ports.
+/* Draws an entire node, composed of the main rectangle, the top label box, all
+ * ports and all properties.
  *
  *      .-----------.
  *      | Label     |
@@ -363,6 +380,10 @@ static void am_dfg_renderer_paint_node_label(struct am_dfg_renderer* r,
  *    |                       |
  *  (]| in_port1    out_port1 |[)
  *    |                       |
+ *    | property1: ...        |
+ *    |                       |
+ *    | property2: ...        |
+ *    |                       |
  *    \_______________________/
  *
  */
@@ -371,9 +392,11 @@ static void am_dfg_renderer_paint_node(struct am_dfg_renderer* r,
 				       const struct am_dfg_node* n)
 {
 	cairo_text_extents_t textents;
+	cairo_font_extents_t fextents;
 	struct am_rect mr;
 	size_t i_in = 0;
 	size_t i_out = 0;
+	size_t i_prop = 0;
 	double port_y;
 	struct am_rect port_rect;
 	struct am_point label_point;
@@ -382,13 +405,24 @@ static void am_dfg_renderer_paint_node(struct am_dfg_renderer* r,
 	const struct am_rgba* stroke_color;
 	long corner_flags;
 	struct am_dfg_port* p;
+	struct am_dfg_property* prop;
 	struct am_point node_pos;
+	double properties_start_y = 0.0;
+	double property_height;
+	double property_descent;
+	char prop_str[64];
+	char* prop_val_str;
+	void* prop_val;
+	int prop_cst;
+	double max_content_width;
 	typeof(&r->params.ports.rect.colors) prc = &r->params.ports.rect.colors;
 	typeof(&r->params.main_rects.color) mrc = &r->params.main_rects.color;
 
 	am_dfg_renderer_get_node_coordinate_def(r, n, &node_pos);
 	am_dfg_renderer_paint_node_label(r, cr, n, &node_pos);
 	am_dfg_renderer_node_main_rect_dimensions(r, cr, n, &node_pos, &mr);
+
+	max_content_width = mr.width - 2 * r->params.main_rects.pad_x;
 
 	/* Main rectangle, background */
 	am_rounded_rectangle(cr, &mr, r->params.main_rects.corner_radius);
@@ -470,6 +504,75 @@ static void am_dfg_renderer_paint_node(struct am_dfg_renderer* r,
 
 		cairo_move_to(cr, label_point.x, label_point.y);
 		cairo_show_text(cr, p->type->name);
+
+		if(label_point.y > properties_start_y ||
+		   (i_out == 1 && i_in == 0) ||
+		   (i_out == 0 && i_in == 1))
+		{
+			properties_start_y = label_point.y;
+		}
+	}
+
+	/* Properties */
+	cairo_select_font_face(cr,
+			       r->params.properties.font,
+			       CAIRO_FONT_SLANT_NORMAL,
+			       CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_set_font_size(cr, r->params.properties.font_size);
+	cairo_set_source_rgba(cr, AM_RGBA_ARGS(r->params.properties.color));
+
+	cairo_font_extents(cr, &fextents);
+	property_height = fextents.height;
+	property_descent = fextents.descent;
+
+	properties_start_y += property_height;
+
+	am_dfg_node_for_each_property(n, prop) {
+		label_point.x = node_pos.x + r->params.main_rects.pad_x;
+		label_point.y = properties_start_y + i_prop * property_height;
+
+		prop_val_str = NULL;
+		prop_cst = 0;
+
+		if(n->type->functions.get_property &&
+		   prop->type->to_string)
+		{
+			if(n->type->functions.get_property(n,
+							   prop,
+							   &prop_val) == 0)
+			{
+				prop->type->to_string(prop->type,
+						      prop_val,
+						      &prop_val_str,
+						      &prop_cst);
+			}
+		}
+
+		if(!prop_val_str) {
+			prop_val_str = "?";
+			prop_cst = 1;
+		}
+
+		snprintf(prop_str, sizeof(prop_str), "%s: %s",
+			 prop->hrname, prop_val_str);
+
+		cairo_save(cr);
+		cairo_rectangle(cr,
+				label_point.x,
+				label_point.y - property_height,
+				max_content_width,
+				property_height + property_descent);
+		cairo_clip(cr);
+
+		cairo_move_to(cr, label_point.x, label_point.y);
+		cairo_show_text(cr, prop_str);
+
+		cairo_restore(cr);
+
+		if(!prop_cst)
+			free(prop_val_str);
+
+		i_prop++;
 	}
 
 	/* Main rectangle, foreground */
