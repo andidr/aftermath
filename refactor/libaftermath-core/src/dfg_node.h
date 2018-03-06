@@ -177,6 +177,37 @@ static inline int am_dfg_sort_ports_inout(const struct am_dfg_port* a,
 	return 1;
 }
 
+/* Static definition of a property */
+struct am_dfg_static_property_def {
+	/* Name of the property */
+	const char* name;
+
+	/* Human-readable name of the property */
+	const char* hrname;
+
+	/* Name of the type of the property */
+	const char* type_name;
+};
+
+/* Property of a dfg node */
+struct am_dfg_property {
+	/* Name of the property */
+	char* name;
+
+	/* Human-readable name of the property */
+	char* hrname;
+
+	/* The type of the property */
+	const struct am_dfg_type* type;
+};
+
+int am_dfg_property_init(struct am_dfg_property* p,
+			 const char* name,
+			 const char* hrname,
+			 const struct am_dfg_type* type);
+
+void am_dfg_property_destroy(struct am_dfg_property* p);
+
 struct am_dfg_node;
 
 struct am_dfg_node_type_functions {
@@ -212,6 +243,21 @@ struct am_dfg_node_type_functions {
 	 * indicates a success, a return value of 1 indicates an error. */
 	int (*to_object_notation)(struct am_dfg_node* n,
 				  struct am_object_notation_node_group* g);
+
+	/* Function called when a property is set externally (e.g., from a
+	 * controller reading a property from a dialog box). A return value of 0
+	 * indicates that the property has been set correctly. On failure, a
+	 * value different from 0 should be returned. */
+	int (*set_property)(struct am_dfg_node* n,
+			    const struct am_dfg_property* property,
+			    const void* value);
+
+	/* Function called when the value of a property requested from the
+	 * node. The node remains the owner of the value and must only provide a
+	 * read-only pointer to it. */
+	int (*get_property)(const struct am_dfg_node* n,
+			    const struct am_dfg_property* property,
+			    void** value);
 };
 
 /* A node type */
@@ -239,6 +285,12 @@ struct am_dfg_node_type {
 
 	/* Size in bytes of an instance of this node type */
 	size_t instance_size;
+
+	/* Number of properties of a node of this type */
+	size_t num_properties;
+
+	/* List of property names */
+	struct am_dfg_property* properties;
 };
 
 /* Default size of a node instance */
@@ -263,11 +315,23 @@ struct am_dfg_static_node_type_def {
 
 	/* Pointer to a static array of port definitions for the node type */
 	struct am_dfg_static_port_type_def* ports;
+
+	/* Number of properties */
+	size_t num_properties;
+
+	/* Pointer to a static array of property definitions for the node
+	 * type */
+	struct am_dfg_static_property_def* properties;
 };
 
 #define am_dfg_node_for_each_port(n, p)		\
 	for((p) = &(n)->ports[0];			\
 	    (p) != &(n)->ports[(n)->type->num_ports];	\
+	    (p)++)
+
+#define am_dfg_node_for_each_property(n, p)				\
+	for((p) = &(n)->type->properties[0];				\
+	    (p) != &(n)->type->properties[(n)->type->num_properties];	\
 	    (p)++)
 
 void am_dfg_node_type_destroy(struct am_dfg_node_type* nt);
@@ -282,6 +346,7 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			    const char* hrname,
 			    size_t instance_size,
 			    size_t num_ports,
+			    size_t num_properties,
 			    va_list arg);
 
 int am_dfg_node_type_build(struct am_dfg_node_type* nt,
@@ -290,6 +355,7 @@ int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 			   const char* hrname,
 			   size_t instance_size,
 			   size_t num_ports,
+			   size_t num_properties,
 			   ...);
 
 /* Instance of a node */
@@ -389,6 +455,7 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
 #endif
 
 #define AM_DFG_NODE_PORTS(...) (__VA_ARGS__)
+#define AM_DFG_NODE_PROPERTIES(...) (__VA_ARGS__)
 #define AM_DFG_NODE_FUNCTIONS(...) (__VA_ARGS__)
 
 /* Generates a static definition for a DFG node type. ID must be a globally
@@ -400,7 +467,12 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  * an instance of this node type. FUNCTIONS must be a static initializer for a
  * struct am_dfg_node_type_functions. PORTS is a list of port definitions
  * generated from the invocation of the AM_DFG_NODE_PORTS() macro with a set of
- * triplets as its arguments of the form { PORT_NAME, PORT_TYPE, FLAGS }.
+ * triplets as its arguments of the form { PORT_NAME, PORT_TYPE, FLAGS
+ * }. PROPERTIES is a set of node properties defined by invoking
+ * AM_DFG_NODE_PROPERTIES with a list of triplets of the form { PROPERTY_NAME,
+ * PROPERTY_HRNAME, TYPE }. PROPERTY_NAME is the name of the property,
+ * PROPERTY_HRNAME is the human-redable name of the property and TYPE is the
+ * property type as a string.
  *
  * Example:
  * A node type that reads two integers from its input ports a and b and writes
@@ -417,14 +489,19 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
  *   		{ "a", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
  *   		{ "b", "int", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
  *   		{ "c", "int", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }
- *   	))
+ *   	),
+ *   	AM_DFG_NODE_PROPERTIES(
+ *   		{ "prop1", "A property", "int" },
+ *   		{ "prop2", "Another property", "int" },
+ *   	)
  */
 #define AM_DFG_DECL_BUILTIN_NODE_TYPE(ID, NODE_TYPE_NAME, NODE_TYPE_HRNAME,	\
-				      INSTANCE_SIZE, FUNCTIONS, PORTS)		\
+				      INSTANCE_SIZE, FUNCTIONS, PORTS,		\
+				      PROPERTIES)				\
 	AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,		\
 					     NODE_TYPE_HRNAME,			\
 					     INSTANCE_SIZE, FUNCTIONS,		\
-					     PORTS)
+					     PORTS, PROPERTIES)
 
 /* Adds the nodes associated to the identifiers passed as arguments to the list
  * of builtin DFG nodes. There can only be one invocation of

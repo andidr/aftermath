@@ -42,6 +42,33 @@ void am_dfg_port_type_destroy(struct am_dfg_port_type* pt)
 	free(pt->name);
 }
 
+int am_dfg_property_init(struct am_dfg_property* p,
+			 const char* name,
+			 const char* hrname,
+			 const struct am_dfg_type* type)
+{
+	if(!(p->name = strdup(name)))
+		goto out_err;
+
+	if(!(p->hrname = strdup(hrname)))
+		goto out_err_name;
+
+	p->type = type;
+
+	return 0;
+
+out_err_name:
+	free(p->name);
+out_err:
+	return 1;
+}
+
+void am_dfg_property_destroy(struct am_dfg_property* p)
+{
+	free(p->name);
+	free(p->hrname);
+}
+
 /* Destroy a node type */
 void am_dfg_node_type_destroy(struct am_dfg_node_type* nt)
 {
@@ -51,7 +78,11 @@ void am_dfg_node_type_destroy(struct am_dfg_node_type* nt)
 	for(size_t i = 0; i < nt->num_ports; i++)
 		am_dfg_port_type_destroy(&nt->ports[i]);
 
+	for(size_t i = 0; i < nt->num_properties; i++)
+		am_dfg_property_destroy(&nt->properties[i]);
+
 	free(nt->ports);
+	free(nt->properties);
 }
 
 /* Connect port other to p. Note that the connection is only one-sided. For a
@@ -147,21 +178,26 @@ void am_dfg_port_destroy(struct am_dfg_port* p)
 	free(p->connections);
 }
 
-/* Same as am_dfg_node_type_buildv, but does not initialize ports (but allocates
- * the space for them). */
-int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
-					struct am_dfg_type_registry* reg,
-					const char* name,
-					const char* hrname,
-					size_t instance_size,
-					size_t num_ports)
+/* Same as am_dfg_node_type_buildv, but does not initialize ports and properties
+ * (but allocates the space for them). */
+int am_dfg_node_type_build_noinit(struct am_dfg_node_type* nt,
+				  struct am_dfg_type_registry* reg,
+				  const char* name,
+				  const char* hrname,
+				  size_t instance_size,
+				  size_t num_ports,
+				  size_t num_properties)
 {
 	/* Avoid overflow of size_t */
-	if(num_ports > SIZE_MAX / sizeof(struct am_dfg_port_type))
+	if(num_ports > SIZE_MAX / sizeof(struct am_dfg_port_type) ||
+	   num_properties > SIZE_MAX / sizeof(struct am_dfg_property))
+	{
 		goto out_err;
+	}
 
 	nt->instance_size = instance_size;
 	nt->num_ports = num_ports;
+	nt->num_properties = num_properties;
 	nt->functions.init = NULL;
 	nt->functions.destroy = NULL;
 	nt->functions.process = NULL;
@@ -169,6 +205,8 @@ int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
 	nt->functions.disconnect = NULL;
 	nt->functions.to_object_notation = NULL;
 	nt->functions.from_object_notation = NULL;
+	nt->functions.set_property = NULL;
+	nt->functions.get_property = NULL;
 
 	INIT_LIST_HEAD(&nt->list);
 
@@ -181,8 +219,13 @@ int am_dfg_node_type_build_ports_noinit(struct am_dfg_node_type* nt,
 	if(!(nt->ports = malloc(num_ports * sizeof(struct am_dfg_port_type))))
 		goto out_err_hrname;
 
+	if(!(nt->properties = malloc(num_properties * sizeof(struct am_dfg_property))))
+		goto out_err_ports;
+
 	return 0;
 
+out_err_ports:
+	free(nt->ports);
 out_err_hrname:
 	free(nt->hrname);
 out_err_name:
@@ -198,33 +241,55 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 			    struct am_dfg_type_registry* reg,
 			    const struct am_dfg_static_node_type_def* sdef)
 {
-	struct am_dfg_static_port_type_def* pdef;
+	struct am_dfg_static_port_type_def* portdef;
+	struct am_dfg_static_property_def* propdef;
 	const struct am_dfg_type* port_type;
-	size_t i;
+	const struct am_dfg_type* prop_type;
+	size_t iports;
+	size_t iprops;
 
-	if(am_dfg_node_type_build_ports_noinit(nt, reg, sdef->name,
-					       sdef->hrname,
-					       sdef->instance_size,
-					       sdef->num_ports))
+	if(am_dfg_node_type_build_noinit(nt, reg, sdef->name,
+					 sdef->hrname,
+					 sdef->instance_size,
+					 sdef->num_ports,
+					 sdef->num_properties))
 	{
 		goto out_err;
 	}
 
-	for(i = 0; i < sdef->num_ports; i++) {
-		pdef = &sdef->ports[i];
+	for(iports = 0; iports < sdef->num_ports; iports++) {
+		portdef = &sdef->ports[iports];
 
 		if(!(port_type =
-		     am_dfg_type_registry_lookup(reg, pdef->type_name)))
+		     am_dfg_type_registry_lookup(reg, portdef->type_name)))
 		{
 			goto out_err_ports;
 		}
 
-		if(am_dfg_port_type_init(&nt->ports[i],
-					 pdef->name,
+		if(am_dfg_port_type_init(&nt->ports[iports],
+					 portdef->name,
 					 port_type,
-					 pdef->flags))
+					 portdef->flags))
 		{
 			goto out_err_ports;
+		}
+	}
+
+	for(iprops = 0; iprops < sdef->num_properties; iprops++) {
+		propdef = &sdef->properties[iprops];
+
+		if(!(prop_type =
+		     am_dfg_type_registry_lookup(reg, propdef->type_name)))
+		{
+			goto out_err_props;
+		}
+
+		if(am_dfg_property_init(&nt->properties[iprops],
+					propdef->name,
+					propdef->hrname,
+					prop_type))
+		{
+			goto out_err_props;
 		}
 	}
 
@@ -232,8 +297,11 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 
 	return 0;
 
+out_err_props:
+	for(size_t j = 0; j < iprops; j++)
+		am_dfg_property_destroy(&nt->properties[j]);
 out_err_ports:
-	for(size_t j = 0; j < i; j++)
+	for(size_t j = 0; j < iports; j++)
 		am_dfg_port_type_destroy(&nt->ports[j]);
 
 	free(nt->ports);
@@ -251,21 +319,27 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			    const char* hrname,
 			    size_t instance_size,
 			    size_t num_ports,
+			    size_t num_properties,
 			    va_list arg)
 {
 	const char* port_name;
 	long port_flags;
 	const struct am_dfg_type* port_type;
 	const char* port_type_name;
-	size_t i;
+	const char* prop_name;
+	const char* prop_hrname;
+	const struct am_dfg_type* prop_type;
+	const char* prop_type_name;
+	size_t iports;
+	size_t iprops;
 
-	if(am_dfg_node_type_build_ports_noinit(nt, reg, name, hrname,
-					       instance_size, num_ports))
+	if(am_dfg_node_type_build_noinit(nt, reg, name, hrname, instance_size,
+					 num_ports, num_properties))
 	{
 		goto out_err;
 	}
 
-	for(i = 0; i < num_ports; i++) {
+	for(iports = 0; iports < num_ports; iports++) {
 		port_name = va_arg(arg, const char*);
 		port_type_name = va_arg(arg, const char*);
 		port_flags = va_arg(arg, long);
@@ -276,7 +350,7 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 			goto out_err_ports;
 		}
 
-		if(am_dfg_port_type_init(&nt->ports[i],
+		if(am_dfg_port_type_init(&nt->ports[iports],
 					 port_name,
 					 port_type,
 					 port_flags))
@@ -285,10 +359,35 @@ int am_dfg_node_type_buildv(struct am_dfg_node_type* nt,
 		}
 	}
 
+	for(iprops = 0; iprops < num_properties; iprops++) {
+		prop_name = va_arg(arg, const char*);
+		prop_hrname = va_arg(arg, const char*);
+		prop_type_name = va_arg(arg, const char*);
+
+		if(!(prop_type = am_dfg_type_registry_lookup(reg,
+							     prop_type_name)))
+		{
+			goto out_err_props;
+		}
+
+		if(am_dfg_property_init(&nt->properties[iprops],
+					prop_name,
+					prop_hrname,
+					prop_type))
+		{
+			goto out_err_props;
+		}
+	}
+
 	return 0;
 
+out_err_props:
+	for(size_t j = 0; j < iprops; j++)
+		am_dfg_property_destroy(&nt->properties[j]);
+
+	free(nt->properties);
 out_err_ports:
-	for(size_t j = 0; j < i; j++)
+	for(size_t j = 0; j < iports; j++)
 		am_dfg_port_type_destroy(&nt->ports[j]);
 
 	free(nt->ports);
@@ -309,14 +408,15 @@ int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 			   const char* hrname,
 			   size_t instance_size,
 			   size_t num_ports,
+			   size_t num_properties,
 			   ...)
 {
 	va_list arg;
 	int ret;
 
-	va_start(arg, num_ports);
+	va_start(arg, num_properties);
 	ret = am_dfg_node_type_buildv(nt, reg, name, hrname, instance_size,
-				      num_ports, arg);
+				      num_ports, num_properties, arg);
 	va_end(arg);
 
 	return ret;

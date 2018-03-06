@@ -58,7 +58,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.from_object_notation = am_dfg_amgui_label_from_object_notation,
 		.to_object_notation = am_dfg_amgui_label_to_object_notation
 	}),
-	AM_DFG_NODE_PORTS({ "in", "string", AM_DFG_PORT_IN }))
+	AM_DFG_NODE_PORTS({ "in", "string", AM_DFG_PORT_IN }),
+	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_label_node_type)
 

@@ -60,7 +60,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "interval in", "interval", AM_DFG_PORT_IN },
-		{ "interval out", "interval", AM_DFG_PORT_OUT }))
+		{ "interval out", "interval", AM_DFG_PORT_OUT }),
+	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_timeline_node_type)
 

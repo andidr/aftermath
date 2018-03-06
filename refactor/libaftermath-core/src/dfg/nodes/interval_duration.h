@@ -36,7 +36,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "interval", "interval", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
-		{ "duration", "duration", AM_DFG_PORT_OUT }))
+		{ "duration", "duration", AM_DFG_PORT_OUT }),
+	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_interval_duration_node_type)
 
