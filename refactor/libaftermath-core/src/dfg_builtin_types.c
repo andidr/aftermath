@@ -44,6 +44,9 @@ struct static_dfg_type_decl {
 	/* Function for the destruction of samples. May be NULL if no
 	 * destruction is needed. */
 	am_dfg_type_destroy_samples_fun_t destroy_samples;
+
+	/* Conversion to string */
+	am_dfg_type_to_string_fun_t to_string;
 };
 
 static struct static_dfg_type_decl types[] = {
@@ -89,6 +92,7 @@ am_dfg_builtin_types_register_static_decls(struct am_dfg_type_registry* tr,
 			goto out_err;
 
 		t->destroy_samples = std->destroy_samples;
+		t->to_string = std->to_string;
 
 		list_add(&t->list, &list);
 	}

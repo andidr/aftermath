@@ -28,6 +28,9 @@ typedef void (*am_dfg_type_destroy_samples_fun_t)(const struct am_dfg_type* t,
 						  size_t num_samples,
 						  void* ptr);
 
+typedef int (*am_dfg_type_to_string_fun_t)(const struct am_dfg_type* t,
+					   void* ptr, char** out, int* cst);
+
 /* Represents a data type (e.g., for ports) */
 struct am_dfg_type {
 	/* Name of the type */
@@ -45,6 +48,13 @@ struct am_dfg_type {
 	 * prior to freeing the memory. The argument ptr is a pointer to the
 	 * first sample and must not be freed. */
 	am_dfg_type_destroy_samples_fun_t destroy_samples;
+
+	/* Function converting a single sample of the type into a
+	 * string. Ownership of the returned string is transferred to the
+	 * caller, unless the output parameter cst is set to 1. A return value
+	 * of 0 indicates a successful conversion, whereas 1 indicates an
+	 * error. */
+	am_dfg_type_to_string_fun_t to_string;
 };
 
 int am_dfg_type_init(struct am_dfg_type* t, const char* name, size_t sample_size);
