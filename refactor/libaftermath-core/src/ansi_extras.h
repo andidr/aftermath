@@ -108,6 +108,28 @@ static inline void am_print_short(char* buf, size_t max_len, const char* src)
 	snprintf(buf, max_len, "%.*s...%.*s", (int)pref_len, src, (int)suff_len, &src[strlen(src)-suff_len]);
 }
 
+/* Abbreviates a string str with an allipsis (...) at the end if its length is
+ * greater than max_len. The modification is done in-place. If the maximum
+ * length is not exceeded, the string remains untouched.
+ */
+static inline void am_abbreviate_string_inplace(char* str, size_t max_len)
+{
+	size_t len = strlen(str);
+	char* pos;
+	int i = 0;
+
+	if(len > max_len) {
+		if(max_len > 0) {
+			pos = &str[max_len];
+
+			while(i++ < 3 && pos-- != str)
+				*pos = '.';
+		}
+
+		str[max_len] = '\0';
+	}
+}
+
 /* Returns true if the character c is an octal digit. */
 static inline int isodigit(char c)
 {
