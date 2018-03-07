@@ -646,6 +646,29 @@ void DFGWidget::mouseReleaseEvent(QMouseEvent* event)
 	this->abortDrag();
 }
 
+void DFGWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	struct am_point graph_pos;
+	struct am_point screen_pos = {
+		.x = (double)event->x(),
+		.y = (double)event->y()
+	};
+	struct am_dfg_node* n;
+
+	am_dfg_renderer_screen_to_graph(&this->renderer,
+					&screen_pos,
+					&graph_pos);
+
+	/* Find out what is under the cursor */
+	if((n = am_dfg_renderer_node_at(&this->renderer,
+					this->cairo_context,
+					graph_pos.x,
+					graph_pos.y)))
+	{
+		emit nodeDoubleClicked(n);
+	}
+}
+
 void DFGWidget::wheelEvent(QWheelEvent* event)
 {
 	struct am_point p = {

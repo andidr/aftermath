@@ -47,6 +47,7 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/CairoWidgetWithDFGNode.h \
 	src/gui/widgets/DFGWidget.cpp \
+	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
 	src/gui/widgets/TimelineWidget.h
@@ -59,6 +60,7 @@ aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
+	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp
 
@@ -87,6 +89,11 @@ src/dfg/moc_DFGQTProcessor.cpp: \
 	src/dfg/DFGQTProcessor.cpp \
 	src/dfg/DFGQTProcessor.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/dfg/DFGQTProcessor.h -o $@
+
+src/gui/widgets/moc_DFGWidget.cpp: \
+	src/gui/widgets/DFGWidget.cpp \
+	src/gui/widgets/DFGWidget.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/DFGWidget.h -o $@
 
 src/gui/moc_DFGNodePropertyDialog.cpp: \
 	src/gui/DFGNodePropertyDialog.cpp \

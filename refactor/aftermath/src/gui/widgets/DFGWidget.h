@@ -28,6 +28,8 @@ extern "C" {
  * Widget encapsulating the DFG line renderer showing data flow graphs.
  */
 class DFGWidget : public CairoWidget {
+	Q_OBJECT
+
 	public:
 		typedef CairoWidget super;
 		class DFGWidgetException {};
@@ -39,6 +41,7 @@ class DFGWidget : public CairoWidget {
 		virtual void mouseMoveEvent(QMouseEvent* event);
 		virtual void mousePressEvent(QMouseEvent* event);
 		virtual void mouseReleaseEvent(QMouseEvent* event);
+		virtual void mouseDoubleClickEvent(QMouseEvent* event);
 		virtual void wheelEvent(QWheelEvent* event);
 
 		void setGraph(struct am_dfg_graph* g);
@@ -190,6 +193,9 @@ class DFGWidget : public CairoWidget {
 			std::string& error);
 
 		virtual void keyPressEvent(QKeyEvent* event);
+
+	signals:
+		void nodeDoubleClicked(struct am_dfg_node* n);
 };
 
 #endif
