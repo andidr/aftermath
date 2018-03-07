@@ -20,6 +20,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/nodes/gui/timeline.cpp \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
+	src/gui/DFGNodePropertyDialog.cpp \
+	src/gui/moc_DFGNodePropertyDialog.cpp \
+	src/gui/DFGNodePropertyDialog.h \
 	src/gui/factory/BoxWidgetCreator.h \
 	src/gui/factory/ButtonWidgetCreator.cpp \
 	src/gui/factory/ButtonWidgetCreator.h \
@@ -56,6 +59,7 @@ aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
+	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp
 
 moc_verbose = $(moc_verbose_@AM_V@)
@@ -83,6 +87,11 @@ src/dfg/moc_DFGQTProcessor.cpp: \
 	src/dfg/DFGQTProcessor.cpp \
 	src/dfg/DFGQTProcessor.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/dfg/DFGQTProcessor.h -o $@
+
+src/gui/moc_DFGNodePropertyDialog.cpp: \
+	src/gui/DFGNodePropertyDialog.cpp \
+	src/gui/DFGNodePropertyDialog.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/DFGNodePropertyDialog.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 
