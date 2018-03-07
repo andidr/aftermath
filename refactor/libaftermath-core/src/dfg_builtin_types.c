@@ -17,94 +17,11 @@
  */
 
 #include <aftermath/core/dfg_builtin_types.h>
-#include <aftermath/core/base_types.h>
-#include <aftermath/core/in_memory.h>
-#include <stdio.h>
-
-/* Default destructor for pointer samples (e.g., char* aka string) */
-static void free_ptr_samples(const struct am_dfg_type* t,
-			     size_t num_samples,
-			     void* ptr)
-{
-	void** pptr = ptr;
-	void* curr;
-
-	for(size_t i = 0; i < num_samples; i++) {
-		curr = pptr[i];
-		free(curr);
-	}
-}
-
-static int string_to_string(const struct am_dfg_type* t,
-			    void* ptr,
-			    char** out,
-			    int* cst)
-{
-	*cst = 1;
-	*out = ptr;
-
-	return 0;
-}
-
-static int timestamp_to_string(const struct am_dfg_type* t,
-			       void* ptr,
-			       char** out,
-			       int* cst)
-{
-	char* ret;
-	am_timestamp_t* ts = ptr;
-
-	if(!(ret = malloc(AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS + 1)))
-		return 1;
-
-	snprintf(ret, AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS,
-		 "%" AM_TIMESTAMP_T_FMT, *ts);
-
-	*out = ret;
-
-	return 0;
-}
-
-static int duration_to_string(const struct am_dfg_type* t,
-			       void* ptr,
-			       char** out,
-			       int* cst)
-{
-	char* ret;
-	struct am_time_offset* d = ptr;
-
-	if(!(ret = malloc(AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS + 2)))
-		return 1;
-
-	snprintf(ret, AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS,
-		 "%s%" AM_TIMESTAMP_T_FMT,
-		 (d->sign) ? "-" : "",
-		 d->abs);
-
-	*out = ret;
-
-	return 0;
-}
-
-static int interval_to_string(const struct am_dfg_type* t,
-			      void* ptr,
-			      char** out,
-			      int* cst)
-{
-	char* ret;
-	struct am_interval* i = ptr;
-
-	if(!(ret = malloc(2*AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS + 5)))
-		return 1;
-
-	snprintf(ret, 2 * AM_TIMESTAMP_T_MAX_DECIMAL_DIGITS + 4,
-		 "[%" AM_TIMESTAMP_T_FMT ", %" AM_TIMESTAMP_T_FMT "]",
-		 i->start, i->end);
-
-	*out = ret;
-
-	return 0;
-}
+#include <aftermath/core/dfg/types/duration.h>
+#include <aftermath/core/dfg/types/generic.h>
+#include <aftermath/core/dfg/types/interval.h>
+#include <aftermath/core/dfg/types/string.h>
+#include <aftermath/core/dfg/types/timestamp.h>
 
 struct static_dfg_type_decl {
 	/* Type name */
@@ -128,10 +45,10 @@ struct static_dfg_type_decl {
 };
 
 static struct static_dfg_type_decl types[] = {
-	{ "timestamp", sizeof(am_timestamp_t), NULL, timestamp_to_string },
-	{ "duration", sizeof(struct am_time_offset), NULL, duration_to_string },
-	{ "interval", sizeof(struct am_interval), NULL, interval_to_string },
-	{ "string", sizeof(char*), free_ptr_samples, string_to_string },
+	{ "timestamp", AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE, NULL, am_dfg_type_timestamp_to_string },
+	{ "duration", AM_DFG_TYPE_DURATION_SAMPLE_SIZE, NULL, am_dfg_type_duration_to_string },
+	{ "interval", AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE, NULL, am_dfg_type_interval_to_string },
+	{ "string", AM_DFG_TYPE_STRING_SAMPLE_SIZE, am_dfg_type_generic_free_samples, am_dfg_type_string_to_string },
 	{ NULL } /* End marker */
 };
 

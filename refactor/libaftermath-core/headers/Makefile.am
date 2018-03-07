@@ -33,6 +33,11 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/interval_duration.h \
 	aftermath/core/dfg/nodes/string_format.h \
 	aftermath/core/dfg/nodes/timestamp_to_string.h \
+	aftermath/core/dfg/types/duration.h \
+	aftermath/core/dfg/types/generic.h \
+	aftermath/core/dfg/types/interval.h \
+	aftermath/core/dfg/types/string.h \
+	aftermath/core/dfg/types/timestamp.h \
 	aftermath/core/event_mapping.h \
 	aftermath/core/event_collection.h \
 	aftermath/core/event_collection_array.h \

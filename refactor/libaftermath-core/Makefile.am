@@ -57,6 +57,16 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/string_format.h \
 				src/dfg/nodes/timestamp_to_string.c \
 				src/dfg/nodes/timestamp_to_string.h \
+				src/dfg/types/duration.c \
+				src/dfg/types/duration.h \
+				src/dfg/types/generic.c \
+				src/dfg/types/generic.h \
+				src/dfg/types/interval.c \
+				src/dfg/types/interval.h \
+				src/dfg/types/string.c \
+				src/dfg/types/string.h \
+				src/dfg/types/timestamp.c \
+				src/dfg/types/timestamp.h \
 				src/event_collection_array.h \
 				src/event_collection.c \
 				src/event_collection.h \
