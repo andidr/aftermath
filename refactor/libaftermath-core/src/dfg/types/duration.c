@@ -17,6 +17,7 @@
  */
 
 #include "duration.h"
+#include <aftermath/core/dfg/types/timestamp.h>
 #include <stdio.h>
 
 int am_dfg_type_duration_to_string(const struct am_dfg_type* t,
@@ -37,6 +38,44 @@ int am_dfg_type_duration_to_string(const struct am_dfg_type* t,
 
 	*out = ret;
 	*cst = 0;
+
+	return 0;
+}
+
+int am_dfg_type_duration_from_string(const struct am_dfg_type* t,
+				     const char* str,
+				     void* out)
+{
+	struct am_time_offset* d = out;
+	am_timestamp_t abs;
+	const char* rstr = str;
+	int sign = 0;
+
+	if(str[0] == '-') {
+		sign = 1;
+		rstr = str + 1;
+	}
+
+	if(am_dfg_type_timestamp_from_string(t, rstr, &abs))
+		return 1;
+
+	d->abs = abs;
+	d->sign = sign;
+
+	return 0;
+}
+
+int am_dfg_type_duration_check_string(const struct am_dfg_type* t,
+				      const char* str)
+{
+	const char* rstr = str;
+	am_timestamp_t abs;
+
+	if(str[0] == '-')
+		rstr = str + 1;
+
+	if(am_dfg_type_timestamp_from_string(t, rstr, &abs))
+		return 1;
 
 	return 0;
 }

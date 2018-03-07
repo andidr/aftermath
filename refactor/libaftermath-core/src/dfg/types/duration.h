@@ -27,6 +27,12 @@ int am_dfg_type_duration_to_string(const struct am_dfg_type* t,
 				   char** out,
 				   int* cst);
 
+int am_dfg_type_duration_from_string(const struct am_dfg_type* t,
+				     const char* str,
+				     void* out);
+
+int am_dfg_type_duration_check_string(const struct am_dfg_type* t,
+				      const char* str);
 
 #define AM_DFG_TYPE_DURATION_SAMPLE_SIZE sizeof(struct am_time_offset)
 

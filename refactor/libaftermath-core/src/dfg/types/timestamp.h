@@ -27,6 +27,13 @@ int am_dfg_type_timestamp_to_string(const struct am_dfg_type* t,
 				    char** out,
 				    int* cst);
 
+int am_dfg_type_timestamp_from_string(const struct am_dfg_type* t,
+				      const char* str,
+				      void* out);
+
+int am_dfg_type_timestamp_check_string(const struct am_dfg_type* t,
+				       const char* str);
+
 #define AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE sizeof(am_timestamp_t)
 
 #endif

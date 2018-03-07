@@ -17,6 +17,7 @@
  */
 
 #include "string.h"
+#include <string.h>
 
 int am_dfg_type_string_to_string(const struct am_dfg_type* t,
 				 void* ptr,
@@ -27,4 +28,24 @@ int am_dfg_type_string_to_string(const struct am_dfg_type* t,
 	*out = ptr;
 
 	return 0;
+}
+
+int am_dfg_type_string_from_string(const struct am_dfg_type* t,
+				   const char* str,
+				   void* out)
+{
+	char** sout = out;
+	char* tmp;
+
+	if(!(tmp = strdup(str)))
+		return 1;
+
+	*sout = tmp;
+
+	return 0;
+}
+
+int am_dfg_type_string_check_string(const struct am_dfg_type* t, const char* str)
+{
+	return 1;
 }

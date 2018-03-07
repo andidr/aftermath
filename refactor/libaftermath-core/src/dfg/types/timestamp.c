@@ -17,7 +17,12 @@
  */
 
 #include "timestamp.h"
+#include <aftermath/core/ansi_extras.h>
 #include <stdio.h>
+
+#if AM_TIMESTAMP_T_BITS != 64 || AM_TIMESTAMP_T_SIGNED != 0
+#error "Assuming am_timestamp_t to be an unsigned 64 bit value, but it isn't"
+#endif
 
 int am_dfg_type_timestamp_to_string(const struct am_dfg_type* t,
 				    void* ptr,
@@ -37,4 +42,19 @@ int am_dfg_type_timestamp_to_string(const struct am_dfg_type* t,
 	*cst = 0;
 
 	return 0;
+}
+
+int am_dfg_type_timestamp_from_string(const struct am_dfg_type* t,
+				      const char* str,
+				      void* out)
+{
+	return am_atou64n_unit(str, strlen(str), out);
+}
+
+int am_dfg_type_timestamp_check_string(const struct am_dfg_type* t,
+				       const char* str)
+{
+	am_timestamp_t ts;
+
+	return am_atou64n_unit(str, strlen(str), &ts);
 }

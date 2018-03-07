@@ -45,10 +45,30 @@ struct static_dfg_type_decl {
 };
 
 static struct static_dfg_type_decl types[] = {
-	{ "timestamp", AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE, NULL, am_dfg_type_timestamp_to_string },
-	{ "duration", AM_DFG_TYPE_DURATION_SAMPLE_SIZE, NULL, am_dfg_type_duration_to_string },
-	{ "interval", AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE, NULL, am_dfg_type_interval_to_string },
-	{ "string", AM_DFG_TYPE_STRING_SAMPLE_SIZE, am_dfg_type_generic_free_samples, am_dfg_type_string_to_string },
+	{ "timestamp",
+	  AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_timestamp_to_string,
+	  am_dfg_type_timestamp_from_string,
+	  am_dfg_type_timestamp_check_string },
+	{ "duration",
+	  AM_DFG_TYPE_DURATION_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_duration_to_string,
+	  am_dfg_type_duration_from_string,
+	  am_dfg_type_duration_check_string },
+	{ "interval",
+	  AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_interval_to_string,
+	  am_dfg_type_interval_from_string,
+	  am_dfg_type_interval_check_string },
+	{ "string",
+	  AM_DFG_TYPE_STRING_SAMPLE_SIZE,
+	  am_dfg_type_generic_free_samples,
+	  am_dfg_type_string_to_string,
+	  am_dfg_type_string_from_string,
+	  am_dfg_type_string_check_string },
 	{ NULL } /* End marker */
 };
 
