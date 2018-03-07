@@ -31,6 +31,12 @@ typedef void (*am_dfg_type_destroy_samples_fun_t)(const struct am_dfg_type* t,
 typedef int (*am_dfg_type_to_string_fun_t)(const struct am_dfg_type* t,
 					   void* ptr, char** out, int* cst);
 
+typedef int (*am_dfg_type_from_string_fun_t)(const struct am_dfg_type* t,
+					     const char* str, void* out);
+
+typedef int (*am_dfg_type_check_string_fun_t)(const struct am_dfg_type* t,
+					      const char* str);
+
 /* Represents a data type (e.g., for ports) */
 struct am_dfg_type {
 	/* Name of the type */
@@ -55,6 +61,16 @@ struct am_dfg_type {
 	 * of 0 indicates a successful conversion, whereas 1 indicates an
 	 * error. */
 	am_dfg_type_to_string_fun_t to_string;
+
+	/* Function converting a string into a single sample of the type. Memory
+	 * for the sample is allocated by the caller prior to the call and the
+	 * owner of the object remains the caller. A return value of 0 indicates
+	 * a successful conversion, whereas 1 indicates an error. */
+	am_dfg_type_from_string_fun_t from_string;
+
+	/* Checks if a string is valid and could be passed to
+	 * from_string(). Returns 1 if the check passes, otherwise 0. */
+	am_dfg_type_check_string_fun_t check_string;
 };
 
 int am_dfg_type_init(struct am_dfg_type* t, const char* name, size_t sample_size);

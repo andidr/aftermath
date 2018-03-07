@@ -119,6 +119,12 @@ struct static_dfg_type_decl {
 
 	/* Conversion to string */
 	am_dfg_type_to_string_fun_t to_string;
+
+	/* Conversion from string */
+	am_dfg_type_from_string_fun_t from_string;
+
+	/* Checks if string is valid to be passed to from_string */
+	am_dfg_type_check_string_fun_t check_string;
 };
 
 static struct static_dfg_type_decl types[] = {
@@ -165,6 +171,8 @@ am_dfg_builtin_types_register_static_decls(struct am_dfg_type_registry* tr,
 
 		t->destroy_samples = std->destroy_samples;
 		t->to_string = std->to_string;
+		t->from_string = std->from_string;
+		t->check_string = std->check_string;
 
 		list_add(&t->list, &list);
 	}
