@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg/types/interval.h>
 #include <aftermath/core/dfg/types/string.h>
 #include <aftermath/core/dfg/types/timestamp.h>
+#include <aftermath/core/dfg/types/uint.h>
 
 struct static_dfg_type_decl {
 	/* Type name */
@@ -76,6 +77,30 @@ static struct static_dfg_type_decl types[] = {
 	  am_dfg_type_string_to_string,
 	  am_dfg_type_string_from_string,
 	  am_dfg_type_string_check_string },
+	{ "uint8",
+	  AM_DFG_TYPE_UINT8_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_uint8_to_string,
+	  am_dfg_type_uint8_from_string,
+	  am_dfg_type_uint8_check_string },
+	{ "uint16",
+	  AM_DFG_TYPE_UINT16_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_uint16_to_string,
+	  am_dfg_type_uint16_from_string,
+	  am_dfg_type_uint16_check_string },
+	{ "uint32",
+	  AM_DFG_TYPE_UINT32_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_uint32_to_string,
+	  am_dfg_type_uint32_from_string,
+	  am_dfg_type_uint32_check_string },
+	{ "uint64",
+	  AM_DFG_TYPE_UINT64_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_uint64_to_string,
+	  am_dfg_type_uint64_from_string,
+	  am_dfg_type_uint64_check_string },
 	{ NULL } /* End marker */
 };
 

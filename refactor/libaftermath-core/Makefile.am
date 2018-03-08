@@ -69,6 +69,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/types/string.h \
 				src/dfg/types/timestamp.c \
 				src/dfg/types/timestamp.h \
+				src/dfg/types/uint.c \
+				src/dfg/types/uint.h \
 				src/event_collection_array.h \
 				src/event_collection.c \
 				src/event_collection.h \
