@@ -21,7 +21,31 @@
 
 #include <aftermath/core/dfg_node.h>
 
+struct am_dfg_timestamp_to_string_node {
+	struct am_dfg_node node;
+	int pretty_print;
+	size_t max_significant_digits;
+};
+
+int am_dfg_timestamp_to_string_node_init(struct am_dfg_node* n);
+
 int am_dfg_timestamp_to_string_node_process(struct am_dfg_node* n);
+
+int am_dfg_timestamp_to_string_node_set_property(
+	struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	const void* value);
+
+int am_dfg_timestamp_to_string_node_get_property(
+	const struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	void** value);
+
+int am_dfg_timestamp_to_string_node_from_object_notation(
+	struct am_dfg_node* n, struct am_object_notation_node_group* g);
+
+int am_dfg_timestamp_to_string_node_to_object_notation(
+	struct am_dfg_node* n, struct am_object_notation_node_group* g);
 
 /**
  * Node that converts timestamps into their string representations
@@ -30,14 +54,21 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_timestamp_to_string_node_type,
 	"timestamp_to_string",
 	"Timestamp -> String",
-	AM_DFG_NODE_DEFAULT_SIZE,
+	sizeof(struct am_dfg_timestamp_to_string_node),
 	AM_DFG_NODE_FUNCTIONS({
-		.process = am_dfg_timestamp_to_string_node_process
+		.init = am_dfg_timestamp_to_string_node_init,
+		.process = am_dfg_timestamp_to_string_node_process,
+		.set_property = am_dfg_timestamp_to_string_node_set_property,
+		.get_property = am_dfg_timestamp_to_string_node_get_property,
+		.from_object_notation = am_dfg_timestamp_to_string_node_from_object_notation,
+		.to_object_notation = am_dfg_timestamp_to_string_node_to_object_notation,
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "in", "timestamp", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
 		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
-	AM_DFG_NODE_PROPERTIES())
+	AM_DFG_NODE_PROPERTIES(
+		{ "pretty_print", "Pretty print", "bool" },
+		{ "max_significant_digits", "Significant digits", "uint8" } ))
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_timestamp_to_string_node_type)
 
