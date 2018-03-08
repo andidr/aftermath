@@ -448,4 +448,61 @@ am_assign_uint(void* dst, unsigned int dst_bits,
 	}
 }
 
+enum am_atou_safe_status {
+	AM_ATOU_SAFE_STATUS_VALID = 0,
+	AM_ATOU_SAFE_STATUS_INVALID = 1,
+	AM_ATOU_SAFE_STATUS_OVERFLOW = 2
+};
+
+#define AM_DEFINE_ATOU_SAFE_FUN(NBITS)						\
+	/* Safely converts a string str into a uint<NBITS>_t. That is, the	\
+	 * function detects any malformed input, including an empty string and	\
+	 * indicates an overflow if the string contains a value that is higher	\
+	 * than the maximum value for a uint<NBITS>_t. If the string is	\
+	 * well-formed and does not lead to an overflow, its integer value is	\
+	 * returned in *out. */						\
+	static inline enum am_atou_safe_status					\
+	am_atou##NBITS##_safe(const char* str, uint##NBITS##_t* out)		\
+	{									\
+		static const uint##NBITS##_t val_last_shift_ok =		\
+			UINT##NBITS##_MAX / 10;				\
+		const char* curr = str;					\
+		uint##NBITS##_t val = 0;					\
+		uint##NBITS##_t digit_val;					\
+		char digit;							\
+										\
+		if(str[0] == '\0')						\
+			return AM_ATOU_SAFE_STATUS_INVALID;			\
+										\
+		while(*curr) {							\
+			digit = *curr;						\
+										\
+			if(!isdigit(digit))					\
+				return AM_ATOU_SAFE_STATUS_INVALID;		\
+										\
+			digit_val = digit - '0';				\
+										\
+			if(val > val_last_shift_ok)				\
+				return AM_ATOU_SAFE_STATUS_OVERFLOW;		\
+										\
+			val *= 10;						\
+										\
+			if(UINT##NBITS##_MAX - val < digit_val)		\
+				return AM_ATOU_SAFE_STATUS_OVERFLOW;		\
+										\
+			val += digit_val;					\
+										\
+			curr++;						\
+		}								\
+										\
+		*out = val;							\
+										\
+		return AM_ATOU_SAFE_STATUS_VALID;				\
+	}
+
+AM_DEFINE_ATOU_SAFE_FUN(8)
+AM_DEFINE_ATOU_SAFE_FUN(16)
+AM_DEFINE_ATOU_SAFE_FUN(32)
+AM_DEFINE_ATOU_SAFE_FUN(64)
+
 #endif
