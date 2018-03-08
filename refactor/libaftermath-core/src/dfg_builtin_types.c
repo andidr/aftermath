@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/dfg_builtin_types.h>
+#include <aftermath/core/dfg/types/bool.h>
 #include <aftermath/core/dfg/types/duration.h>
 #include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/core/dfg/types/interval.h>
@@ -45,6 +46,12 @@ struct static_dfg_type_decl {
 };
 
 static struct static_dfg_type_decl types[] = {
+	{ "bool",
+	  AM_DFG_TYPE_BOOL_SAMPLE_SIZE,
+	  NULL,
+	  am_dfg_type_bool_to_string,
+	  am_dfg_type_bool_from_string,
+	  am_dfg_type_bool_check_string },
 	{ "timestamp",
 	  AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE,
 	  NULL,

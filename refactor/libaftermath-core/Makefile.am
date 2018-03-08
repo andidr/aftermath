@@ -57,6 +57,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/string_format.h \
 				src/dfg/nodes/timestamp_to_string.c \
 				src/dfg/nodes/timestamp_to_string.h \
+				src/dfg/types/bool.c \
+				src/dfg/types/bool.h \
 				src/dfg/types/duration.c \
 				src/dfg/types/duration.h \
 				src/dfg/types/generic.c \
