@@ -32,6 +32,21 @@ static inline int am_realloc_str(char** str, size_t new_len)
 	return 0;
 }
 
+/* Duplicates the first len bytes of a string s into a new zero-terminates
+ * string. Upon failure, NULL is returned. */
+char* am_strdupn(const char* s, size_t len)
+{
+	char* ret = malloc(len+1);
+
+	if(ret) {
+		strncpy(ret, s, len);
+		ret[len] = '\0';
+	}
+
+	return ret;
+}
+
+
 /* Appends a string str of length str_slen to a string *dst with a length of
  * *dst_slen characters and a maximum size of *dst_size characters. If the
  * destination needs to be resized, prealloc additional bytes are allocated. The

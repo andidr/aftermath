@@ -71,19 +71,7 @@ static inline off_t am_file_size(const char* filename)
 	return stat_buf.st_size;
 }
 
-/* Duplicates the first len bytes of a string s into a new zero-terminates
- * string. Upon failure, NULL is returned. */
-static inline char* am_strdupn(const char* s, size_t len)
-{
-	char* ret = malloc(len+1);
-
-	if(ret) {
-		strncpy(ret, s, len);
-		ret[len] = '\0';
-	}
-
-	return ret;
-}
+char* am_strdupn(const char* s, size_t len);
 
 /* Prints the contents of a buffer src into a target buffer buf of size max_len
  * using an ellipsis if the target buffer is not large enough to hold all
