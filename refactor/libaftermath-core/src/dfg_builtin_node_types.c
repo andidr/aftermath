@@ -39,6 +39,10 @@
 #define DEFS_NAME() timestamp_to_string_defs
 #include <aftermath/core/dfg/nodes/timestamp_to_string.h>
 
+#undef DEFS_NAME
+#define DEFS_NAME() trace_defs
+#include <aftermath/core/dfg/nodes/trace.h>
+
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	duration_to_string_defs,
@@ -46,6 +50,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	interval_duration_defs,
 	string_format_defs,
 	timestamp_to_string_defs,
+	trace_defs,
 	NULL
 };
 
