@@ -269,7 +269,7 @@ static inline int am_atodbln(const char* str, size_t len, double* val)
 	if(len == 0)
 		return 1;
 
-	if(!(buffer = malloc(len+1)))
+	if(!(buffer = (char*)malloc(len+1)))
 		return 1;
 
 	memcpy(buffer, str, len);
