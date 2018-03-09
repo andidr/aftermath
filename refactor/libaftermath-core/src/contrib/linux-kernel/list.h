@@ -1,7 +1,7 @@
 /*
   File taken from the Linux kernel v3.14
   Slightly modified in order to work in userspace and without the rest of
-  the kernel sources.
+  the kernel sources and with a C++ compiler.
 */
 
 #ifndef _LINUX_LIST_H
@@ -110,8 +110,8 @@ static inline void __list_del_entry(struct list_head *entry)
 static inline void list_del(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
-	entry->next = LIST_POISON1;
-	entry->prev = LIST_POISON2;
+	entry->next = (struct list_head*)LIST_POISON1;
+	entry->prev = (struct list_head*)LIST_POISON2;
 }
 #else
 extern void __list_del_entry(struct list_head *entry);
@@ -628,8 +628,8 @@ static inline void __hlist_del(struct hlist_node *n)
 static inline void hlist_del(struct hlist_node *n)
 {
 	__hlist_del(n);
-	n->next = LIST_POISON1;
-	n->pprev = LIST_POISON2;
+	n->next = (struct hlist_node*)LIST_POISON1;
+	n->pprev = (struct hlist_node**)LIST_POISON2;
 }
 
 static inline void hlist_del_init(struct hlist_node *n)
