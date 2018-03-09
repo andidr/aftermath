@@ -107,25 +107,8 @@ am_object_notation_node_group_init(struct am_object_notation_node_group* g,
 	return am_object_notation_node_group_initn(g, name, strlen(name));
 }
 
-/* Allocate and initialize a group node using a non-zero-terminated string for
- * the name. Returns a reference to the newly allocated node on success,
- * otherwise NULL.
- */
-static inline struct am_object_notation_node_group*
-am_object_notation_node_group_createn(const char* name, size_t name_len)
-{
-	struct am_object_notation_node_group* ret;
-
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	if(am_object_notation_node_group_initn(ret, name, name_len)) {
-		free(ret);
-		return NULL;
-	}
-
-	return ret;
-}
+struct am_object_notation_node_group*
+am_object_notation_node_group_createn(const char* name, size_t name_len);
 
 /* Allocate and initialize a group node. Returns a reference to the newly
  * allocated node on success, otherwise NULL.
@@ -169,26 +152,9 @@ am_object_notation_node_member_init(struct am_object_notation_node_member* m,
 	return am_object_notation_node_member_initn(m, name, strlen(name), def);
 }
 
-/* Allocate and initialize a member node using a non-zero-terminated string for
- * the name. Returns a reference to the newly allocated node on success,
- * otherwise NULL.
- */
-static inline struct am_object_notation_node_member*
+struct am_object_notation_node_member*
 am_object_notation_node_member_createn(const char* name, size_t name_len,
-				       struct am_object_notation_node* def)
-{
-	struct am_object_notation_node_member* ret;
-
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	if(am_object_notation_node_member_initn(ret, name, name_len, def)) {
-		free(ret);
-		return NULL;
-	}
-
-	return ret;
-}
+				       struct am_object_notation_node* def);
 
 /* Allocate and initialize a member node. Returns a reference to the newly
  * allocated node on success, otherwise NULL.
@@ -215,21 +181,7 @@ am_object_notation_node_list_init(struct am_object_notation_node_list* l)
 	INIT_LIST_HEAD(&l->items);
 }
 
-/* Allocate and initialize a list node. Returns a reference to the newly
- * allocated node on success, otherwise NULL.
- */
-static inline struct am_object_notation_node_list*
-am_object_notation_node_list_create(void)
-{
-	struct am_object_notation_node_list* ret;
-
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	am_object_notation_node_list_init(ret);
-
-	return ret;
-}
+struct am_object_notation_node_list* am_object_notation_node_list_create(void);
 
 struct am_object_notation_node_string {
 	struct am_object_notation_node node;
@@ -269,30 +221,10 @@ am_object_notation_node_string_init(struct am_object_notation_node_string* g,
 						 unescape);
 }
 
-/* Allocate and initialize a string node using a non-zero-terminated string for
- * the value. If unescape is non-zero, the value is unescaped after
- * duplication. Returns a reference to the newly allocated node on success,
- * otherwise NULL.
- */
-static inline struct am_object_notation_node_string*
+struct am_object_notation_node_string*
 am_object_notation_node_string_createn(const char* value,
 				       size_t value_len,
-				       int unescape)
-{
-	struct am_object_notation_node_string* ret;
-
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	if(am_object_notation_node_string_initn(ret, value, value_len,
-						unescape))
-	{
-		free(ret);
-		return NULL;
-	}
-
-	return ret;
-}
+				       int unescape);
 
 /* Allocate and initialize a string node. If unescape is non-zero, the value is
  * unescaped after duplication. Returns a reference to the newly allocated node
@@ -321,21 +253,8 @@ am_object_notation_node_int_init(struct am_object_notation_node_int* i,
 	i->value = value;
 }
 
-/* Allocate and initialize a int node. Returns a reference to the newly
- * allocated node on success, otherwise NULL.
- */
-static inline struct am_object_notation_node_int*
-am_object_notation_node_int_create(uint64_t value)
-{
-	struct am_object_notation_node_int* ret;
-
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	am_object_notation_node_int_init(ret, value);
-
-	return ret;
-}
+struct am_object_notation_node_int*
+am_object_notation_node_int_create(uint64_t value);
 
 struct am_object_notation_node_double {
 	struct am_object_notation_node node;
@@ -352,21 +271,9 @@ am_object_notation_node_double_init(struct am_object_notation_node_double* i,
 	i->value = value;
 }
 
-/* Allocate and initialize a double node. Returns a reference to the newly
- * allocated node on success, otherwise NULL.
- */
-static inline struct am_object_notation_node_double*
-am_object_notation_node_double_create(double value)
-{
-	struct am_object_notation_node_double* ret;
+struct am_object_notation_node_double*
+am_object_notation_node_double_create(double value);
 
-	if(!(ret = malloc(sizeof(*ret))))
-		return NULL;
-
-	am_object_notation_node_double_init(ret, value);
-
-	return ret;
-}
 
 #define am_object_notation_for_each_list_item_typed(list_node, iter, type)	\
 	for(iter = (type*)list_entry((list_node)->items.next,			\

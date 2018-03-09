@@ -32,6 +32,26 @@ am_object_notation_parse_group(struct am_parser* p);
 static inline struct am_object_notation_node*
 am_object_notation_parse_node(struct am_parser* p);
 
+/* Allocate and initialize a group node using a non-zero-terminated string for
+ * the name. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+struct am_object_notation_node_group*
+am_object_notation_node_group_createn(const char* name, size_t name_len)
+{
+	struct am_object_notation_node_group* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(am_object_notation_node_group_initn(ret, name, name_len)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
 /* Destroys a group node */
 static inline void
 am_object_notation_node_group_destroy(struct am_object_notation_node_group* node)
@@ -47,6 +67,21 @@ am_object_notation_node_group_destroy(struct am_object_notation_node_group* node
 		am_object_notation_node_destroy(node_iter);
 		free(node_iter);
 	}
+}
+
+/* Allocate and initialize a list node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+struct am_object_notation_node_list* am_object_notation_node_list_create(void)
+{
+	struct am_object_notation_node_list* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	am_object_notation_node_list_init(ret);
+
+	return ret;
 }
 
 /* Destroys a list node */
@@ -65,6 +100,27 @@ am_object_notation_node_list_destroy(struct am_object_notation_node_list* node)
 	}
 }
 
+/* Allocate and initialize a member node using a non-zero-terminated string for
+ * the name. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+struct am_object_notation_node_member*
+am_object_notation_node_member_createn(const char* name, size_t name_len,
+				       struct am_object_notation_node* def)
+{
+	struct am_object_notation_node_member* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(am_object_notation_node_member_initn(ret, name, name_len, def)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
 /* Destroys a member node */
 static inline void
 am_object_notation_node_member_destroy(struct am_object_notation_node_member* node)
@@ -75,6 +131,31 @@ am_object_notation_node_member_destroy(struct am_object_notation_node_member* no
 		am_object_notation_node_destroy(node->def);
 
 	free(node->def);
+}
+
+/* Allocate and initialize a string node using a non-zero-terminated string for
+ * the value. If unescape is non-zero, the value is unescaped after
+ * duplication. Returns a reference to the newly allocated node on success,
+ * otherwise NULL.
+ */
+struct am_object_notation_node_string*
+am_object_notation_node_string_createn(const char* value,
+				       size_t value_len,
+				       int unescape)
+{
+	struct am_object_notation_node_string* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	if(am_object_notation_node_string_initn(ret, value, value_len,
+						unescape))
+	{
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
 }
 
 /* Destroys a string node */
@@ -625,6 +706,22 @@ int am_object_notation_node_int_save(
 	return am_fprintf_prefix(fp, "\t", indent, "%"PRId64, node->value) < 0;
 }
 
+/* Allocate and initialize a int node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+struct am_object_notation_node_int*
+am_object_notation_node_int_create(uint64_t value)
+{
+	struct am_object_notation_node_int* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	am_object_notation_node_int_init(ret, value);
+
+	return ret;
+}
+
 /* Generate a textual representation of a double node and save it to a file. The
  * indent represent the current indentation used as a prefix for the first
  * character. Returns 0 on success, otherwise 1.*/
@@ -634,6 +731,23 @@ int am_object_notation_node_double_save(
 {
 	return am_fprintf_prefix(fp, "\t", indent, "%f", node->value) < 0;
 }
+
+/* Allocate and initialize a double node. Returns a reference to the newly
+ * allocated node on success, otherwise NULL.
+ */
+struct am_object_notation_node_double*
+am_object_notation_node_double_create(double value)
+{
+	struct am_object_notation_node_double* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	am_object_notation_node_double_init(ret, value);
+
+	return ret;
+}
+
 
 /* Generate a textual representation of a node and save it to a file. The indent
  * represent the current indentation used as a prefix for the next character,
