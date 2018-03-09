@@ -23,6 +23,7 @@
 #include <aftermath/core/dfg/types/interval.h>
 #include <aftermath/core/dfg/types/string.h>
 #include <aftermath/core/dfg/types/timestamp.h>
+#include <aftermath/core/dfg/types/trace.h>
 #include <aftermath/core/dfg/types/uint.h>
 
 struct static_dfg_type_decl {
@@ -59,6 +60,9 @@ static struct static_dfg_type_decl types[] = {
 	  am_dfg_type_timestamp_to_string,
 	  am_dfg_type_timestamp_from_string,
 	  am_dfg_type_timestamp_check_string },
+	{ "trace",
+	  AM_DFG_TYPE_TRACE_SAMPLE_SIZE,
+	  NULL },
 	{ "duration",
 	  AM_DFG_TYPE_DURATION_SAMPLE_SIZE,
 	  NULL,
