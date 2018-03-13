@@ -53,7 +53,7 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/TimelineWidget.h
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
-aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@
+aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -Wall -Werror
 
 aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
