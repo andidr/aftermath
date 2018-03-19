@@ -76,6 +76,15 @@ static inline int am_size_add_safe(size_t* out, size_t a, size_t b)
 	return 0;
 }
 
+/* Assigns *out = *out + b iff the addition of *out and a does not overflow. If
+ * an overflow would occur, the function returns 1 and leaves *out
+ * untouched. Otherwise, the function returns 0.
+ */
+static inline int am_size_inc_safe(size_t* out, size_t a)
+{
+	return am_size_add_safe(out, *out, a);
+}
+
 /* Assigns *out = a * b iff the multiplication of a and b does not overflow. If
  * an overflow would occur, the function returns 1 and leaves *out
  * untouched. Otherwise, the function returns 0.
