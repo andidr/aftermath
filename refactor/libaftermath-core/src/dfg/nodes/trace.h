@@ -30,20 +30,19 @@ struct am_dfg_node_trace {
 int am_dfg_trace_node_init(struct am_dfg_node* n);
 int am_dfg_trace_node_process(struct am_dfg_node* n);
 
-/**
- * Node that calculates the durations of intervals.
- */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_trace_node_type,
 	"trace",
 	"Trace",
 	sizeof(struct am_dfg_node_trace),
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
 	AM_DFG_NODE_FUNCTIONS({
-		.init = am_dfg_trace_node_init,
-		.process = am_dfg_trace_node_process
+			.init = am_dfg_trace_node_init,
+			.process = am_dfg_trace_node_process
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "trace", "trace", AM_DFG_PORT_OUT }),
+	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_trace_node_type)

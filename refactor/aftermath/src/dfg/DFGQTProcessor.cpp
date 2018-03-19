@@ -52,7 +52,7 @@ void DFGQTProcessor::DFGNodeTriggered(struct am_dfg_node* n)
 	this->disable();
 
 	try {
-		am_dfg_schedule(this->dfgGraph);
+		am_dfg_schedule_component(n);
 	} catch(...) {
 		this->enable();
 		throw;

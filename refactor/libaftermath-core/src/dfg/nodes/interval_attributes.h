@@ -32,6 +32,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"interval_attributes",
 	"Interval Attributes",
 	AM_DFG_NODE_DEFAULT_SIZE,
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
 	AM_DFG_NODE_FUNCTIONS({
 		.process = am_dfg_interval_attributes_node_process
 	}),
@@ -39,6 +40,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		{ "interval", "interval", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
 		{ "start", "timestamp", AM_DFG_PORT_OUT },
 		{ "end", "timestamp", AM_DFG_PORT_OUT }),
+	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_interval_attributes_node_type)

@@ -55,6 +55,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"timestamp_to_string",
 	"Timestamp -> String",
 	sizeof(struct am_dfg_timestamp_to_string_node),
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
 	AM_DFG_NODE_FUNCTIONS({
 		.init = am_dfg_timestamp_to_string_node_init,
 		.process = am_dfg_timestamp_to_string_node_process,
@@ -66,6 +67,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	AM_DFG_NODE_PORTS(
 		{ "in", "timestamp", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
 		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES(
 		{ "pretty_print", "Pretty print", "bool" },
 		{ "max_significant_digits", "Significant digits", "uint8" } ))

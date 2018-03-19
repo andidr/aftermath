@@ -33,6 +33,9 @@ int am_dfg_port_type_init(struct am_dfg_port_type* pt,
 	pt->flags = flags;
 	pt->type = type;
 
+	am_dfg_port_mask_reset(&pt->new_mask);
+	am_dfg_port_mask_reset(&pt->old_mask);
+
 	return 0;
 }
 
@@ -111,6 +114,13 @@ int am_dfg_port_connect_onesided(struct am_dfg_port* p,
 	p->connections[p->num_connections] = other;
 	p->num_connections++;
 
+	/* When (re)connecting an input port, the generation must be reset, such
+	 * that the generation of the output port the input port was last
+	 * connected to is not taken for the last generation of the new output
+	 * port. */
+	if(am_dfg_port_is_input_port(p))
+		p->generation = 0;
+
 	return 0;
 }
 
@@ -161,11 +171,17 @@ int am_dfg_port_disconnect_onesided(struct am_dfg_port* p,
  */
 int am_dfg_port_disconnect(struct am_dfg_port* p_out, struct am_dfg_port* p_in)
 {
-	if(p_in->node->type->functions.disconnect)
-		p_in->node->type->functions.disconnect(p_in->node, p_in);
+	const struct am_dfg_node_type_functions* in_funs;
+	const struct am_dfg_node_type_functions* out_funs;
 
-	if(p_out->node->type->functions.disconnect)
-		p_out->node->type->functions.disconnect(p_out->node, p_out);
+	in_funs = &p_in->node->type->functions;
+	out_funs = &p_out->node->type->functions;
+
+	if(in_funs->disconnect)
+		in_funs->disconnect(p_in->node, p_in);
+
+	if(out_funs->disconnect)
+		out_funs->disconnect(p_out->node, p_out);
 
 	return am_dfg_port_disconnect_onesided(p_out, p_in) ||
 		am_dfg_port_disconnect_onesided(p_in, p_out);
@@ -194,6 +210,41 @@ am_dfg_node_type_find_port_type(const struct am_dfg_node_type* nt,
 			return pt;
 
 	return NULL;
+}
+
+/* Generates a bit mask from a NULL-terminated list of port names for a node
+ * type. The bits set to 1 are at indexes that correspond to the indexes of the
+ * ports with the specified names within the array of ports of the node type.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_node_type_build_node_dep_mask(const struct am_dfg_node_type* nt,
+					 uint64_t* mask,
+					 const char** port_names)
+{
+	const struct am_dfg_port_type* pt;
+	uint64_t retmask;
+	size_t bpos;
+
+	retmask = 0;
+
+	if(!port_names)
+		return 0;
+
+	for(size_t i = 0; port_names[i] != NULL; i++) {
+		if(!(pt = am_dfg_node_type_find_port_type(nt, port_names[i])))
+			return 1;
+
+		/* Current limit is 64 ports */
+		if((bpos = AM_ARRAY_INDEX(nt->ports, pt)) >= 64)
+			return 1;
+
+		retmask |= UINT64_C(1) << bpos;
+	}
+
+	*mask = retmask;
+
+	return 0;
 }
 
 /* Same as am_dfg_node_type_buildv, but does not initialize ports and properties
@@ -252,6 +303,161 @@ out_err:
 	return 1;
 }
 
+/* Initializes the port dependence masks of a port type */
+static void am_dfg_static_port_def_init_masks(
+	const struct am_dfg_static_port_type_def* sptd,
+	struct am_dfg_port_type* pt,
+	const struct am_dfg_node_type* nt)
+{
+	am_dfg_port_mask_reset(&pt->new_mask);
+	am_dfg_port_mask_reset(&pt->old_mask);
+
+	/* Add self reference for output ports, such that if a consumer pulls a
+	 * new value, the output port by default indicates that only old data is
+	 * available. This triggers application of the "old value" mask of the
+	 * output port, which usually triggers inclusion of input ports into the
+	 * "pull new" mask. */
+	if(am_dfg_port_type_is_output_type(pt))
+		pt->new_mask.push_old |= am_dfg_port_type_mask_bits(pt, nt);
+}
+
+/* Adds port dependencies for all ports of nt according to the value
+ * AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL. See documentation of that value for
+ * the effect.
+ */
+static void
+am_dfg_node_type_set_portdeps_pure_functional(struct am_dfg_node_type* nt)
+{
+	struct am_dfg_port_type* pt;
+	uint64_t in_ports = am_dfg_node_type_input_mask(nt);
+	uint64_t out_ports = am_dfg_node_type_output_mask(nt);
+
+	am_dfg_node_type_for_each_port_type(nt, pt) {
+		if(am_dfg_port_type_is_input_type(pt)) {
+			/* If new data is available at this port, indicate that
+			 * all ouput ports will provide new data. Also, indicate
+			 * that data will be needed to on all input ports
+			 * regardless of the age, since we assume that the node
+			 * does not cache any input values. */
+			pt->new_mask.push_new |= out_ports;
+			pt->new_mask.push_old |= 0;
+			pt->new_mask.pull_old |= in_ports;
+			pt->new_mask.pull_new |= 0;
+
+			/* If old data is available at this port, indicate that
+			 * all ouput ports will also provide old data. Input
+			 * ports will be pulled for new data. */
+			pt->old_mask.push_new |= 0;
+			pt->old_mask.push_old |= out_ports;
+			pt->old_mask.pull_old |= 0;
+			pt->old_mask.pull_new |= in_ports;
+		} else {
+			/* If a connected input port asks for new data, indicate
+			 * that no new data is available and ask on all input
+			 * ports for new data. */
+			pt->new_mask.push_new |= 0;
+			pt->new_mask.push_old |= out_ports;
+			pt->new_mask.pull_old |= 0;
+			pt->new_mask.pull_new |= in_ports;
+
+			/* If a connected input port asks for data regardless of
+			 * the age, indicate that old data will be available at
+			 * each output port and force pulling in data regardless
+			 * of the age on all input ports. */
+			pt->old_mask.push_new |= 0;
+			pt->old_mask.push_old |= out_ports;
+			pt->old_mask.pull_old |= in_ports;
+			pt->old_mask.pull_new |= 0;
+		}
+	}
+}
+
+/* Adds port dependencies to the port definitions of a node type nt according to
+ * the specified default dependencies of a static node type definition sdef. */
+static void am_dfg_node_type_build_default_masks(
+	struct am_dfg_node_type* nt,
+	const struct am_dfg_static_node_type_def* sdef)
+{
+	switch(sdef->default_port_deps) {
+		case AM_DFG_DEFAULT_PORT_DEPS_NONE:
+			break;
+		case AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL:
+			am_dfg_node_type_set_portdeps_pure_functional(nt);
+			break;
+	}
+}
+
+/* FIXME: This could entirely be done at compile time. This would require some
+ * macro trickery for AM_DFG_DECL_BUILTIN_NODE_TYPE and AM_DFG_NODE_PORTS or
+ * some external preprocessor generating the masks.
+ */
+
+/* Adds port dependencies to the port definitions of a node type nt according to
+ * the specified explicit per-port dependencies of a static node type definition
+ * sdef. */
+static int am_dfg_node_type_build_explicit_masks(
+	struct am_dfg_node_type* nt,
+	const struct am_dfg_static_node_type_def* sdef)
+{
+	struct am_dfg_static_port_type_def* portdef;
+	struct am_dfg_static_port_dep_word* portdep;
+	struct am_dfg_port_mask* mask = NULL;
+	struct am_dfg_port_type* pt;
+	struct am_dfg_port_type* ptother;
+	uint64_t* mask_field = NULL;
+	const char** pname;
+	uint64_t pbits;
+
+	/* Process explicit port dependencies */
+	for(size_t i = 0; i < nt->num_ports; i++) {
+		portdef = &sdef->ports[i];
+		pt = &nt->ports[i];
+
+		am_dfg_static_port_def_init_masks(portdef, pt, nt);
+	}
+
+	for(size_t i = 0; i < sdef->num_port_deps; i++) {
+		portdep = &sdef->port_deps[i];
+
+		if(!(pt = am_dfg_node_type_find_port_type(nt, portdep->trigger_port)))
+			return 1;
+
+		switch(portdep->trigger) {
+			case AM_DFG_PORT_DEP_ON_NEW:
+				mask = &pt->new_mask;
+				break;
+			case AM_DFG_PORT_DEP_ON_OLD:
+				mask = &pt->old_mask;
+				break;
+		}
+
+		switch(portdep->reaction) {
+			case AM_DFG_PORT_DEP_PULL_NEW:
+				mask_field = &mask->pull_new;
+				break;
+			case AM_DFG_PORT_DEP_PULL_OLD:
+				mask_field = &mask->pull_old;
+				break;
+			case AM_DFG_PORT_DEP_PUSH_NEW:
+				mask_field = &mask->push_new;
+				break;
+			case AM_DFG_PORT_DEP_PUSH_OLD:
+				mask_field = &mask->push_old;
+				break;
+		}
+
+		for(pname = &portdep->reaction_ports[0]; *pname; pname++) {
+			if(!(ptother = am_dfg_node_type_find_port_type(nt, *pname)))
+				return 1;
+
+			pbits = am_dfg_port_type_mask_bits(ptother, nt);
+			*mask_field |= pbits;
+		}
+	}
+
+	return 0;
+}
+
 /*
  * Same as am_dfg_node_type_build, but takes a static definition of a node type.
  */
@@ -293,6 +499,13 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 		}
 	}
 
+	nt->functions = sdef->functions;
+
+	if(am_dfg_node_type_build_explicit_masks(nt, sdef))
+		goto out_err_ports;
+
+	am_dfg_node_type_build_default_masks(nt, sdef);
+
 	for(iprops = 0; iprops < sdef->num_properties; iprops++) {
 		propdef = &sdef->properties[iprops];
 
@@ -310,8 +523,6 @@ int am_dfg_node_type_builds(struct am_dfg_node_type* nt,
 			goto out_err_props;
 		}
 	}
-
-	nt->functions = sdef->functions;
 
 	return 0;
 
@@ -466,12 +677,12 @@ int am_dfg_node_instantiate(struct am_dfg_node* n,
 	if(id == 0)
 		n->id = (long)n;
 
-	/* Avoid overflow of size_t */
-	if(t->num_ports > SIZE_MAX / sizeof(struct am_dfg_port))
+	if(!(n->ports = calloc(t->num_ports, sizeof(struct am_dfg_port))))
 		goto out_err;
 
-	if(!(n->ports = malloc(t->num_ports * sizeof(struct am_dfg_port))))
-		goto out_err;
+	am_dfg_port_mask_reset(&n->negotiated_mask);
+	am_dfg_port_mask_reset(&n->required_mask);
+	am_dfg_port_mask_reset(&n->propagated_mask);
 
 	for(size_t i = 0; i < t->num_ports; i++) {
 		n->ports[i].type = &t->ports[i];
@@ -479,7 +690,18 @@ int am_dfg_node_instantiate(struct am_dfg_node* n,
 		n->ports[i].connections = NULL;
 		n->ports[i].num_connections = 0;
 		n->ports[i].node = n;
+
+		/* Set the generation of output data to 1 and the generation of
+		 * input data to 0, such that a newly created input port
+		 * connecting to an output port 'sees' new data, even if pulling
+		 * in new mode. */
+		if(am_dfg_port_type_is_output_type(n->ports[i].type))
+			n->ports[i].generation = 1;
+		else
+			n->ports[i].generation = 0;
 	}
+
+	INIT_LIST_HEAD(&n->sched_list);
 
 	if(n->type->functions.init)
 		if(n->type->functions.init(n))
@@ -559,27 +781,6 @@ int am_dfg_node_is_root_ign(const struct am_dfg_node* n,
 	}
 
 	return 1;
-}
-
-/*
- * Resets the number of remaining dependencies and the marking of n.
- */
-void am_dfg_node_reset_sched_data(struct am_dfg_node* n)
-{
-	struct am_dfg_port* p;
-
-	n->num_deps_remaining = 0;
-	n->marking = 0;
-
-	am_dfg_node_for_each_port(n, p) {
-		if(p->type->flags & AM_DFG_PORT_IN) {
-			if(p->type->flags & AM_DFG_PORT_MANDATORY ||
-			   am_dfg_port_is_connected(p))
-			{
-				n->num_deps_remaining++;
-			}
-		}
-	}
 }
 
 /*

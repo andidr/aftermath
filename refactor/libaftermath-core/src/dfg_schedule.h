@@ -21,6 +21,9 @@
 
 #include <aftermath/core/dfg_graph.h>
 
-int am_dfg_schedule(const struct am_dfg_graph* g);
+int am_dfg_schedule_graph(const struct am_dfg_graph* g);
+int am_dfg_schedule_component(struct am_dfg_node* n);
+
+void am_dfg_schedule_reset_node(struct am_dfg_node* n);
 
 #endif

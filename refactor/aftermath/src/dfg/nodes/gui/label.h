@@ -51,6 +51,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"amgui_label",
 	"Label",
 	sizeof(struct am_dfg_amgui_label_node),
+	AM_DFG_DEFAULT_PORT_DEPS_NONE,
 	AM_DFG_NODE_FUNCTIONS({
 		.init = am_dfg_amgui_label_init,
 		.destroy = am_dfg_amgui_label_destroy,
@@ -59,6 +60,10 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_amgui_label_to_object_notation
 	}),
 	AM_DFG_NODE_PORTS({ "in", "string", AM_DFG_PORT_IN }),
+	AM_DFG_PORT_DEPS(
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "in",
+				AM_DFG_PORT_DEP_PULL_NEW, "in"),
+	),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_label_node_type)

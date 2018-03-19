@@ -65,6 +65,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"string_format",
 	"String format",
 	sizeof(struct am_dfg_string_format_node),
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
 	AM_DFG_NODE_FUNCTIONS({
 		.init = am_dfg_string_format_node_init,
 		.destroy = am_dfg_string_format_node_destroy,
@@ -77,6 +78,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	AM_DFG_NODE_PORTS(
 		{ "in", "string", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
 		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES(
 		{ "format", "Format", "string" }))
 

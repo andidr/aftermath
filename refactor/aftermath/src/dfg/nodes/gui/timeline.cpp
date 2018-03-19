@@ -44,14 +44,14 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	struct am_interval interval_in;
 	void* out;
 
-	if(am_dfg_port_is_connected(pinterval_in)) {
+	if(am_dfg_port_activated_and_has_data(pinterval_in)) {
 		if(am_dfg_buffer_read_last(pinterval_in->buffer, &interval_in))
 			return 1;
 
 		t->timeline->setVisibleInterval(&interval_in);
 	}
 
-	if(am_dfg_port_is_connected(pinterval_out)) {
+	if(am_dfg_port_activated(pinterval_out)) {
 		if(!(out = am_dfg_buffer_reserve(pinterval_out->buffer, 1)))
 			return 1;
 

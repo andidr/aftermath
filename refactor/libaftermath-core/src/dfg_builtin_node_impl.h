@@ -28,7 +28,9 @@
 #define AM_DFG_DECL_BUILTIN_NODE_TYPE_SWITCH(ID, NODE_TYPE_NAME,	\
 					     NODE_TYPE_HRNAME,		\
 					     INSTANCE_SIZE,		\
+					     DEFAULT_PORTDEPS,		\
 					     FUNCTIONS, PORTS,		\
+					     EXPLICIT_PORT_DEPS,	\
 					     PROPERTIES)		\
 	static struct am_dfg_static_port_type_def ID##_ports[] = {	\
 		AM_MACRO_ARG_PROTECT PORTS				\
@@ -38,15 +40,22 @@
 		AM_MACRO_ARG_PROTECT PROPERTIES			\
 	};								\
 									\
+	static struct am_dfg_static_port_dep_word ID##_port_deps[] = {	\
+		AM_MACRO_ARG_PROTECT EXPLICIT_PORT_DEPS		\
+	};								\
+									\
 	static struct am_dfg_static_node_type_def ID = {		\
 		.name = NODE_TYPE_NAME,				\
 		.hrname = NODE_TYPE_HRNAME,				\
 		.instance_size = INSTANCE_SIZE,			\
+		.default_port_deps = DEFAULT_PORTDEPS,			\
 		.functions = AM_MACRO_ARG_PROTECT FUNCTIONS,		\
 		.num_ports = AM_ARRAY_SIZE(ID##_ports),		\
 		.ports = ID##_ports,					\
 		.num_properties = AM_ARRAY_SIZE(ID##_properties),	\
-		.properties = ID##_properties				\
+		.properties = ID##_properties,				\
+		.num_port_deps = AM_ARRAY_SIZE(ID##_port_deps),	\
+		.port_deps = ID##_port_deps				\
 	};
 
 /* Generates a NULL-terminated list of static node type definitions for a header

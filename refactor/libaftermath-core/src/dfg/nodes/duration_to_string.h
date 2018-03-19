@@ -31,12 +31,14 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"duration_to_string",
 	"Duration -> String",
 	AM_DFG_NODE_DEFAULT_SIZE,
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
 	AM_DFG_NODE_FUNCTIONS({
 		.process = am_dfg_duration_to_string_node_process
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "in", "duration", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
 		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_duration_to_string_node_type)

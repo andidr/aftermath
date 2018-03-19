@@ -22,6 +22,7 @@ extern "C" {
 	#include <aftermath/render/timeline/layers/hierarchy.h>
 	#include <aftermath/render/timeline/layers/axes.h>
 	#include <aftermath/core/timestamp.h>
+	#include <aftermath/core/dfg_schedule.h>
 }
 
 TimelineWidget::TimelineWidget(QWidget* parent)
@@ -77,7 +78,12 @@ void TimelineWidget::setVisibleInterval(const struct am_interval* i)
 	am_timeline_renderer_set_visible_interval(&this->renderer, i);
 
 	this->update();
-	this->processDFGNode();
+
+	if(this->dfgNode) {
+		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+		this->dfgNode->required_mask.push_new = (1 << 3);
+		this->processDFGNode();
+	}
 }
 
 /* Retrieves the currently visible interval
@@ -178,10 +184,8 @@ void TimelineWidget::handleLanesDragEvent(double x)
 	i = this->dragStart.visibleInterval;
 
 	am_interval_shift(&i, &tdiff);
-	am_timeline_renderer_set_visible_interval(r, &i);
 
-	this->update();
-	this->processDFGNode();
+	this->setVisibleInterval(&i);
 }
 
 /**

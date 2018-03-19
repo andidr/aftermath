@@ -51,6 +51,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	"amgui_timeline",
 	"Timeline",
 	sizeof(struct am_dfg_amgui_timeline_node),
+	AM_DFG_DEFAULT_PORT_DEPS_NONE,
 	AM_DFG_NODE_FUNCTIONS({
 		.init = am_dfg_amgui_timeline_init,
 		.destroy = am_dfg_amgui_timeline_destroy,
@@ -61,6 +62,12 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	AM_DFG_NODE_PORTS(
 		{ "interval in", "interval", AM_DFG_PORT_IN },
 		{ "interval out", "interval", AM_DFG_PORT_OUT }),
+	AM_DFG_PORT_DEPS(
+		AM_DFG_PORT_DEP_UPDATE_IN_PORT("interval in"),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("interval out"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "interval in",
+				AM_DFG_PORT_DEP_PUSH_NEW, "interval out")
+	),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_timeline_node_type)
