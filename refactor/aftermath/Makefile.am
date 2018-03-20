@@ -41,6 +41,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
 	src/gui/factory/ToolbarButtonCreator.h \
 	src/gui/factory/ToolbarWidgetCreator.h \
+	src/models/DFGNodeTypeRegistryTableModel.cpp \
+	src/models/moc_DFGNodeTypeRegistryTableModel.cpp \
+	src/models/DFGNodeTypeRegistryTableModel.h \
 	src/gui/widgets/CairoWidget.cpp \
 	src/gui/widgets/CairoWidget.h \
 	src/gui/widgets/CairoWidgetWithDFGNode.cpp \
@@ -62,7 +65,8 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
-	src/dfg/moc_DFGQTProcessor.cpp
+	src/dfg/moc_DFGQTProcessor.cpp \
+	src/models/moc_DFGNodeTypeRegistryTableModel.cpp
 
 moc_verbose = $(moc_verbose_@AM_V@)
 moc_verbose_ = $(moc_verbose_@AM_DEFAULT_V@)
@@ -99,6 +103,11 @@ src/gui/moc_DFGNodePropertyDialog.cpp: \
 	src/gui/DFGNodePropertyDialog.cpp \
 	src/gui/DFGNodePropertyDialog.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/DFGNodePropertyDialog.h -o $@
+
+src/models/moc_DFGNodeTypeRegistryTableModel.cpp: \
+	src/models/DFGNodeTypeRegistryTableModel.cpp \
+	src/models/DFGNodeTypeRegistryTableModel.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/models/DFGNodeTypeRegistryTableModel.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 
