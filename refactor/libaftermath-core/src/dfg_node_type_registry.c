@@ -46,6 +46,56 @@ am_dfg_node_type_registry_lookup(struct am_dfg_node_type_registry* reg,
 	return NULL;
 }
 
+/* Creates a new node of the type nt. On success, the new instance is returned,
+ * otherwise NULL.
+ */
+struct am_dfg_node* am_dfg_node_type_registry_instantiate(
+	struct am_dfg_node_type_registry* reg,
+	struct am_dfg_node_type* nt,
+	long id)
+{
+	struct am_dfg_node* ret = NULL;
+	void* callback_data = NULL;
+
+	if(!(ret = am_dfg_node_alloc(nt)))
+		goto out_err;
+
+	if(am_dfg_node_instantiate(ret, nt, id))
+		goto out_free;
+
+	if(reg->instantiate_callback.fun) {
+		callback_data = reg->instantiate_callback.data;
+
+		if(reg->instantiate_callback.fun(reg, ret, callback_data))
+			goto out_err_dest;
+	}
+
+	return ret;
+
+out_err_dest:
+	am_dfg_node_destroy(ret);
+out_free:
+	free(ret);
+out_err:
+	return NULL;
+}
+
+/* Creates a new node of the type identified by type_name. On success, the new
+ * instance is returned, otherwise NULL.
+ */
+struct am_dfg_node* am_dfg_node_type_registry_instantiate_name(
+	struct am_dfg_node_type_registry* reg,
+	const char* type_name,
+	long id)
+{
+	struct am_dfg_node_type* nt;
+
+	if(!(nt = am_dfg_node_type_registry_lookup(reg, type_name)))
+		return NULL;
+
+	return am_dfg_node_type_registry_instantiate(reg, nt, id);
+}
+
 /* Initialize a registry */
 void am_dfg_node_type_registry_init(struct am_dfg_node_type_registry* reg,
 				    long flags)

@@ -76,6 +76,16 @@ struct am_dfg_node_type*
 am_dfg_node_type_registry_lookup(struct am_dfg_node_type_registry* reg,
 				 const char* name);
 
+struct am_dfg_node* am_dfg_node_type_registry_instantiate(
+	struct am_dfg_node_type_registry* reg,
+	struct am_dfg_node_type* nt,
+	long id);
+
+struct am_dfg_node* am_dfg_node_type_registry_instantiate_name(
+	struct am_dfg_node_type_registry* reg,
+	const char* name,
+	long id);
+
 struct am_dfg_node*
 am_dfg_node_type_registry_node_from_object_notation(
 	struct am_dfg_node_type_registry* reg,
