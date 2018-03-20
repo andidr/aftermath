@@ -23,6 +23,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/DFGNodePropertyDialog.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/gui/DFGNodePropertyDialog.h \
+	src/gui/DFGNodeTypeSelectionDialog.cpp \
+	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
+	src/gui/DFGNodeTypeSelectionDialog.h \
 	src/gui/factory/BoxWidgetCreator.h \
 	src/gui/factory/ButtonWidgetCreator.cpp \
 	src/gui/factory/ButtonWidgetCreator.h \
@@ -65,6 +68,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
+	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp \
 	src/models/moc_DFGNodeTypeRegistryTableModel.cpp
 
@@ -103,6 +107,11 @@ src/gui/moc_DFGNodePropertyDialog.cpp: \
 	src/gui/DFGNodePropertyDialog.cpp \
 	src/gui/DFGNodePropertyDialog.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/DFGNodePropertyDialog.h -o $@
+
+src/gui/moc_DFGNodeTypeSelectionDialog.cpp: \
+	src/gui/DFGNodeTypeSelectionDialog.cpp \
+	src/gui/DFGNodeTypeSelectionDialog.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/DFGNodeTypeSelectionDialog.h -o $@
 
 src/models/moc_DFGNodeTypeRegistryTableModel.cpp: \
 	src/models/DFGNodeTypeRegistryTableModel.cpp \
