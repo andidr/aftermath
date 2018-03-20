@@ -159,6 +159,8 @@ class DFGWidget : public CairoWidget {
 			struct am_dfg_connection ignoreConnection;
 		} draggedPort;
 
+		struct am_point currMouseGraphPos;
+
 		/* Type registry used to check for port compatibility */
 		struct am_dfg_type_registry* type_registry;
 
@@ -196,6 +198,7 @@ class DFGWidget : public CairoWidget {
 
 	signals:
 		void nodeDoubleClicked(struct am_dfg_node* n);
+		void createNodeAt(struct am_dfg_graph* g, struct am_point p);
 };
 
 #endif

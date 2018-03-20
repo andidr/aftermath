@@ -399,7 +399,6 @@ void DFGWidget::mouseMoveNoMode(const struct am_point* graph_pos)
 
 void DFGWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	struct am_point graph_pos;
 	struct am_point screen_pos = {
 		.x = (double)event->x(),
 		.y = (double)event->y()
@@ -410,16 +409,16 @@ void DFGWidget::mouseMoveEvent(QMouseEvent* event)
 
 	am_dfg_renderer_screen_to_graph(&this->renderer,
 					&screen_pos,
-					&graph_pos);
+					&this->currMouseGraphPos);
 
 	if(this->mouseMode == MOUSE_MODE_NAVIGATE)
 		this->mouseMoveNavigate(&screen_pos);
 	else if(this->mouseMode == MOUSE_MODE_DRAG_NODE)
 		this->mouseMoveDragNode(event);
 	else if(this->mouseMode == MOUSE_MODE_DRAG_PORT)
-		this->mouseMoveDragPort(&screen_pos, &graph_pos);
+		this->mouseMoveDragPort(&screen_pos, &this->currMouseGraphPos);
 	else
-		this->mouseMoveNoMode(&graph_pos);
+		this->mouseMoveNoMode(&this->currMouseGraphPos);
 }
 
 /**
@@ -666,6 +665,8 @@ void DFGWidget::mouseDoubleClickEvent(QMouseEvent* event)
 					graph_pos.y)))
 	{
 		emit nodeDoubleClicked(n);
+	} else {
+		emit createNodeAt(this->graph, graph_pos);
 	}
 }
 
@@ -708,6 +709,15 @@ void DFGWidget::keyPressEvent(QKeyEvent* event)
 		}
 
 		this->update();
+	} else if(event->key() == Qt::Key_N) {
+		struct am_point p;
+
+		if(this->underMouse())
+			p = this->currMouseGraphPos;
+		else
+			am_dfg_renderer_graph_center(&this->renderer, &p);
+
+		emit createNodeAt(this->graph, p);
 	} else {
 		super::keyPressEvent(event);
 	}
