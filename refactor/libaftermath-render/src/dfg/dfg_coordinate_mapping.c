@@ -160,3 +160,65 @@ am_dfg_coordinate_mapping_from_object_notation(
 
 	return 0;
 }
+
+/* Converts a single coordinate for a node to object notation of the form
+ *
+ *  [[id, x, y], ...]
+ *
+ * Where id is an integer identifying the node, x is the integer x position and
+ * y the integer y position of the node.
+ */
+static struct am_object_notation_node*
+am_dfg_coordinate_mapping_to_object_notation_single(
+	const struct am_dfg_node_coordinate* m)
+{
+
+	return am_object_notation_build(
+		AM_OBJECT_NOTATION_BUILD_LIST,
+		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->id,
+		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->pos.x,
+		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->pos.y,
+		AM_OBJECT_NOTATION_BUILD_END);
+}
+
+/* Converts the coordinates of a set of nodes from to object notation list node
+ * of the form
+ *
+ *  [[id, x, y], ...]
+ *
+ * Where id is an integer identifying the node, x is the integer x position and
+ * y the integer y position of the node.
+ *
+ * Returns the newly allocated and initialized object notation node on success
+ * or NULL on failure.
+ */
+struct am_object_notation_node*
+am_dfg_coordinate_mapping_to_object_notation(
+	const struct am_dfg_coordinate_mapping* m)
+{
+	struct am_object_notation_node* coord;
+	struct am_object_notation_node_list* lst;
+
+	if(!(lst = malloc(sizeof(*lst))))
+		goto out_err;
+
+	am_object_notation_node_list_init(lst);
+
+	for(size_t i = 0; i < m->num_elements; i++) {
+		if(!(coord = am_dfg_coordinate_mapping_to_object_notation_single(
+			     &m->elements[i])))
+		{
+			goto out_err_destroy;
+		}
+
+		am_object_notation_node_list_add_item(lst, coord);
+	}
+
+	return (struct am_object_notation_node*)lst;
+
+out_err_destroy:
+	am_object_notation_node_destroy(&lst->node);
+	free(lst);
+out_err:
+	return NULL;
+}

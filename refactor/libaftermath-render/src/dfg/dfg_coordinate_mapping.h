@@ -77,4 +77,8 @@ am_dfg_coordinate_mapping_from_object_notation(
 	struct am_dfg_coordinate_mapping* m,
 	struct am_object_notation_node_list* lst);
 
+struct am_object_notation_node*
+am_dfg_coordinate_mapping_to_object_notation(
+	const struct am_dfg_coordinate_mapping* m);
+
 #endif
