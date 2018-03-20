@@ -394,6 +394,26 @@ struct am_dfg_node* am_dfg_graph_highest_id_node(const struct am_dfg_graph* g)
 	return am_dfg_node_idtree_last(&g->id_tree);
 }
 
+/* Generates a new ID. On success, the function returns 0 and sets *id to the
+ * newly generated id. On failure, the function return 1 and leaves *id
+ * untouched.
+ */
+int am_dfg_graph_generate_id(const struct am_dfg_graph* g, long* id)
+{
+	struct am_dfg_node* n;
+	long curr_id = 0;
+
+	if((n = am_dfg_node_idtree_last(&g->id_tree)))
+		curr_id = n->id;
+
+	if(curr_id == LONG_MAX)
+		return 1;
+
+	*id = curr_id + 1;
+
+	return 0;
+}
+
 /* Merge the graph g into dst. Returns 0 on success, 1 otherwise. */
 int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g)
 {

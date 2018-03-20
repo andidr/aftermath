@@ -164,6 +164,7 @@ int am_dfg_graph_has_cycle(const struct am_dfg_graph* g,
 int am_dfg_graph_merge(struct am_dfg_graph* dst, struct am_dfg_graph* g);
 struct am_dfg_node* am_dfg_graph_lowest_id_node(const struct am_dfg_graph* g);
 struct am_dfg_node* am_dfg_graph_highest_id_node(const struct am_dfg_graph* g);
+int am_dfg_graph_generate_id(const struct am_dfg_graph* g, long* id);
 
 struct am_object_notation_node*
 am_dfg_graph_to_object_notation(const struct am_dfg_graph* g);
