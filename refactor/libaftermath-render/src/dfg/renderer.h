@@ -578,6 +578,25 @@ am_dfg_renderer_screen_to_graph(const struct am_dfg_renderer* r,
 	graph_pos->y = am_dfg_renderer_screen_y_to_graph(r, screen_pos->y);
 }
 
+/* Returns the center in screen coordinates of the renderer in *center. */
+static inline void am_dfg_renderer_screen_center(const struct am_dfg_renderer* r,
+						 struct am_point* center)
+{
+	center->x = r->width / 2;
+	center->y = r->height / 2;
+}
+
+/* Returns the center in graph coordinates of the renderer in *center. */
+static inline void am_dfg_renderer_graph_center(const struct am_dfg_renderer* r,
+						struct am_point* center)
+{
+	struct am_point screen_center;
+
+	am_dfg_renderer_screen_center(r, &screen_center);
+
+	return am_dfg_renderer_screen_to_graph(r, &screen_center, center);
+}
+
 /* Sets the offset in graph units of the upper left corner relative to the
  * origin of the graph. */
 static inline
