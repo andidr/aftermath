@@ -798,10 +798,17 @@ void DFGWidget::showContextMenu(const QPoint& p)
 {
 	QMenu contextMenu(tr("Context menu"), this);
 
+	QAction createNodeAction("Create node", this);
+	connect(&createNodeAction, &QAction::triggered, this,
+		[=](){
+			emit createNodeAt(this->graph, this->currMouseGraphPos);
+		});
+
 	QAction saveAction("Save graph", this);
 	connect(&saveAction, &QAction::triggered,
 		this, [=](){ this->saveGraph(); });
 
+	contextMenu.addAction(&createNodeAction);
 	contextMenu.addAction(&saveAction);
 	contextMenu.exec(this->mapToGlobal(p));
 }
