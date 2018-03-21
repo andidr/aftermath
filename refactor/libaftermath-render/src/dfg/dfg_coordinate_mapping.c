@@ -266,3 +266,23 @@ out_err_coords:
 out_err:
 	return 1;
 }
+
+struct am_object_notation_node*
+am_dfg_coordinate_mapping_graph_to_object_notation(
+	const struct am_dfg_coordinate_mapping* m,
+	const struct am_dfg_graph* g)
+{
+	struct am_object_notation_node* ograph;
+
+	if(!(ograph = am_dfg_graph_to_object_notation(g)))
+		return NULL;
+
+	if(am_dfg_coordinate_mapping_embed_object_notation(m, ograph)) {
+		am_object_notation_node_destroy(ograph);
+		free(ograph);
+
+		return NULL;
+	}
+
+	return ograph;
+}

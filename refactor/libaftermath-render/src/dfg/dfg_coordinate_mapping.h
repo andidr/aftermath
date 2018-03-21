@@ -21,6 +21,7 @@
 
 #include <aftermath/render/cairo_extras.h>
 #include <aftermath/core/dfg_node.h>
+#include <aftermath/core/dfg_graph.h>
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/bsearch.h>
 #include <aftermath/core/object_notation.h>
@@ -84,5 +85,10 @@ am_dfg_coordinate_mapping_to_object_notation(
 int am_dfg_coordinate_mapping_embed_object_notation(
 	const struct am_dfg_coordinate_mapping* m,
 	struct am_object_notation_node* ograph);
+
+struct am_object_notation_node*
+am_dfg_coordinate_mapping_graph_to_object_notation(
+	const struct am_dfg_coordinate_mapping* m,
+	const struct am_dfg_graph* g);
 
 #endif
