@@ -16,6 +16,7 @@
  */
 
 #include "DFGWidget.h"
+#include <QFileDialog>
 #include <QMouseEvent>
 #include <QWheelEvent>
 
@@ -45,6 +46,65 @@ DFGWidget::DFGWidget(QWidget* parent)
 	this->error.valid = false;
 
 	this->setFocusPolicy(Qt::ClickFocus);
+}
+
+/* Opens a file save dialog and writes the current graph to the selected
+ * file. */
+void DFGWidget::saveGraph()
+{
+	QString filename = QFileDialog::getSaveFileName(
+		this,
+		tr("Save graph to file"),
+		"",
+		tr("Aftermath data flow graphs (*.dfg)"));
+
+	/* Dialog cancelled by the user? */
+	if(filename.isNull())
+		return;
+
+	this->saveGraph(filename);
+}
+
+/* Saves the current graph in object notation to the file identified by its file
+ * name. If no graph is associated to the widget, an empty graph is written.
+ */
+void DFGWidget::saveGraph(const QString& filename)
+{
+	struct am_dfg_graph emptyGraph;
+	struct am_dfg_graph* g;
+	struct am_object_notation_node* ograph;
+	int do_throw = 1;
+	QByteArray barr;
+
+	barr = filename.toUtf8();
+
+	if(!this->graph) {
+		am_dfg_graph_init(&emptyGraph, 0);
+		g = &emptyGraph;
+	} else {
+		g = this->graph;
+	}
+
+	if(!(ograph = am_dfg_coordinate_mapping_graph_to_object_notation(
+		     this->coordinate_mapping, g)))
+	{
+		goto out;
+	}
+
+	if(am_object_notation_save(ograph, barr.data()))
+		goto out_objnot;
+
+	do_throw = 0;
+
+out_objnot:
+	am_object_notation_node_destroy(ograph);
+	free(ograph);
+out:
+	if(g == &emptyGraph)
+		am_dfg_graph_destroy(&emptyGraph);
+
+	if(do_throw)
+		throw Exception("Could not save graph");
 }
 
 /**

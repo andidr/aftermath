@@ -19,6 +19,7 @@
 #define DFGWIDGET_H
 
 #include "CairoWidget.h"
+#include "../../Exception.h"
 
 extern "C" {
 	#include <aftermath/render/dfg/renderer.h>
@@ -31,6 +32,13 @@ class DFGWidget : public CairoWidget {
 	Q_OBJECT
 
 	public:
+		class Exception : public AftermathException {
+			public:
+				Exception(const std::string& msg) :
+					AftermathException(msg)
+				{ }
+		};
+
 		typedef CairoWidget super;
 		class DFGWidgetException {};
 
@@ -47,6 +55,8 @@ class DFGWidget : public CairoWidget {
 		void setGraph(struct am_dfg_graph* g);
 		void setCoordinateMapping(struct am_dfg_coordinate_mapping* m);
 		void setTypeRegistry(struct am_dfg_type_registry* tr);
+		void saveGraph(const QString& filename);
+		void saveGraph();
 
 	protected:
 		struct am_dfg_renderer renderer;
