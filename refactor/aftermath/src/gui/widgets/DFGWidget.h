@@ -209,6 +209,9 @@ class DFGWidget : public CairoWidget {
 	signals:
 		void nodeDoubleClicked(struct am_dfg_node* n);
 		void createNodeAt(struct am_dfg_graph* g, struct am_point p);
+
+	protected slots:
+		void showContextMenu(const QPoint& p);
 };
 
 #endif

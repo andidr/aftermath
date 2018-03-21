@@ -17,6 +17,7 @@
 
 #include "DFGWidget.h"
 #include <QFileDialog>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QWheelEvent>
 
@@ -46,6 +47,10 @@ DFGWidget::DFGWidget(QWidget* parent)
 	this->error.valid = false;
 
 	this->setFocusPolicy(Qt::ClickFocus);
+	this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(this, &QWidget::customContextMenuRequested,
+		this, &DFGWidget::showContextMenu);
 }
 
 /* Opens a file save dialog and writes the current graph to the selected
@@ -787,4 +792,16 @@ DFGWidget::~DFGWidget()
 {
 	am_dfg_path_destroy(&this->cycle);
 	am_dfg_renderer_destroy(&this->renderer);
+}
+
+void DFGWidget::showContextMenu(const QPoint& p)
+{
+	QMenu contextMenu(tr("Context menu"), this);
+
+	QAction saveAction("Save graph", this);
+	connect(&saveAction, &QAction::triggered,
+		this, [=](){ this->saveGraph(); });
+
+	contextMenu.addAction(&saveAction);
+	contextMenu.exec(this->mapToGlobal(p));
 }
