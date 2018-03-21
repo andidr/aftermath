@@ -81,4 +81,8 @@ struct am_object_notation_node*
 am_dfg_coordinate_mapping_to_object_notation(
 	const struct am_dfg_coordinate_mapping* m);
 
+int am_dfg_coordinate_mapping_embed_object_notation(
+	const struct am_dfg_coordinate_mapping* m,
+	struct am_object_notation_node* ograph);
+
 #endif

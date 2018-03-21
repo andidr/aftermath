@@ -222,3 +222,47 @@ out_err_destroy:
 out_err:
 	return NULL;
 }
+
+/* Creates the object node representation of a coordinate mapping m and embeds
+ * it as the a member named "positions" into the object node representation of a
+ * DFG graph ograph.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_coordinate_mapping_embed_object_notation(
+	const struct am_dfg_coordinate_mapping* m,
+	struct am_object_notation_node* ograph)
+{
+	struct am_object_notation_node_group* ggraph;
+	struct am_object_notation_node* coords;
+	struct am_object_notation_node_member* mcoords;
+
+	if(ograph->type != AM_OBJECT_NOTATION_NODE_TYPE_GROUP)
+		goto out_err;
+
+	ggraph = (typeof(ggraph))ograph;
+
+	if(strcmp(ggraph->name, "am_dfg_graph") != 0)
+		goto out_err;
+
+	if(!(coords = am_dfg_coordinate_mapping_to_object_notation(m)))
+		goto out_err;
+
+	if(!(mcoords = (typeof(mcoords))malloc(sizeof(*mcoords))))
+		goto out_err_coords;
+
+	if(am_object_notation_node_member_init(mcoords, "positions", coords))
+		goto out_err_mcoords;
+
+	am_object_notation_node_group_add_member(ggraph, mcoords);
+
+	return 0;
+
+out_err_mcoords:
+	free(mcoords);
+out_err_coords:
+	am_object_notation_node_destroy(coords);
+	free(coords);
+out_err:
+	return 1;
+}
