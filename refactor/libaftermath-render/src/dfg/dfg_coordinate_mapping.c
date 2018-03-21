@@ -91,7 +91,10 @@ am_dfg_coordinate_mapping_from_object_notation_single(
 	struct am_object_notation_node_list* lst)
 {
 	struct am_object_notation_node* iter;
-	struct am_object_notation_node_int* iter_int;
+	struct am_object_notation_node_int* nid;
+	struct am_object_notation_node_double* nx;
+	struct am_object_notation_node_double* ny;
+	struct am_object_notation_node* items[3];
 	uint64_t ui;
 	long id;
 	double x = 0;
@@ -102,24 +105,27 @@ am_dfg_coordinate_mapping_from_object_notation_single(
 		return 1;
 
 	am_object_notation_for_each_list_item(lst, iter) {
-		if(iter->type != AM_OBJECT_NOTATION_NODE_TYPE_INT)
-			return 1;
-
-		iter_int = (typeof(iter_int))iter;
-
-		if(i == 0) {
-			if((ui = iter_int->value) > LONG_MAX)
-				return 1;
-
-			id = (long)ui;
-		} else if(i == 1) {
-			x = (double)iter_int->value;
-		} else if(i == 2) {
-			y = (double)iter_int->value;
-		}
-
+		items[i] = iter;
 		i++;
 	}
+
+	if(items[0]->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	   items[1]->type != AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE ||
+	   items[2]->type != AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE)
+	{
+		return 1;
+	}
+
+	nid = (typeof(nid))items[0];
+	nx = (typeof(nx))items[1];
+	ny = (typeof(ny))items[2];
+
+	if((ui = nid->value) > LONG_MAX)
+		return 1;
+
+	id = (long)ui;
+	x = nx->value;
+	y = ny->value;
 
 	if(am_dfg_coordinate_mapping_set_coordinates(m, id, x, y))
 		return 1;
@@ -176,8 +182,8 @@ am_dfg_coordinate_mapping_to_object_notation_single(
 	return am_object_notation_build(
 		AM_OBJECT_NOTATION_BUILD_LIST,
 		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->id,
-		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->pos.x,
-		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->pos.y,
+		  AM_OBJECT_NOTATION_BUILD_DOUBLE, m->pos.x,
+		  AM_OBJECT_NOTATION_BUILD_DOUBLE, m->pos.y,
 		AM_OBJECT_NOTATION_BUILD_END);
 }
 
