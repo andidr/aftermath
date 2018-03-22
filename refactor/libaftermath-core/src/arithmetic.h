@@ -392,16 +392,23 @@ am_add_sat_ui64(uint64_t a, int64_t b, uint64_t* out)
 		return am_add_sat_u64(a, b, out);
 }
 
-/* Safely changes the sign of a negative signed 64-bit integer and returns the
- * corresponding unsigned 64-bit integer without overflowing. The argument must
- * be negative. */
-static inline uint64_t am_safe_negate_i64(int64_t v)
-{
-	uint64_t* up = (uint64_t*)&v;
-	uint64_t u = *up;
+#define AM_DECL_SAFE_NEGATE_FUN(BITS)						\
+	/* Safely changes the sign of a negative signed 64-bit integer and	\
+	 * returns the corresponding unsigned 64-bit integer without		\
+	 * overflowing. The argument must be negative.				\
+	 */									\
+	static inline uint##BITS##_t am_safe_negate_i##BITS(int##BITS##_t v)	\
+	{									\
+		uint##BITS##_t* up = (uint##BITS##_t*)&v;			\
+		uint##BITS##_t u = *up;					\
+										\
+		return ~u + 1;							\
+	}
 
-	return ~u + 1;
-}
+AM_DECL_SAFE_NEGATE_FUN(8)
+AM_DECL_SAFE_NEGATE_FUN(16)
+AM_DECL_SAFE_NEGATE_FUN(32)
+AM_DECL_SAFE_NEGATE_FUN(64)
 
 /* Calculates *out = a + b without overflows / underflows for signed integers a
  * and *out and an unsigned integer b if the final value fits into a 64 bit
