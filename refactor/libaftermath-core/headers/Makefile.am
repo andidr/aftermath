@@ -62,6 +62,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/safe_alloc.h \
 	aftermath/core/state_description_array.h \
 	aftermath/core/state_event_array.h \
+	aftermath/core/statistics/histogram.h \
 	aftermath/core/statistics/interval.h \
 	aftermath/core/timestamp.h \
 	aftermath/core/trace.h \
