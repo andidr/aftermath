@@ -410,6 +410,118 @@ AM_DECL_SAFE_NEGATE_FUN(16)
 AM_DECL_SAFE_NEGATE_FUN(32)
 AM_DECL_SAFE_NEGATE_FUN(64)
 
+#define AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_I_FUN(BITS)			\
+	/* Calculates the size of the interval [left; right) of two signed	\
+	 * integers without overflows. The size is returned in an unsigned	\
+	 * integer *out with the same number of bits.				\
+	 *									\
+	 * Returns 0 if the result can be represented, otherwise 1. */		\
+	static inline int							\
+	am_safe_rightopen_interval_size_i##BITS(uint##BITS##_t* out,		\
+						int##BITS##_t left,		\
+						int##BITS##_t right)		\
+	{									\
+		/* Swap if necessary */					\
+		if(right < left)						\
+			return 1;						\
+										\
+		if(left < 0 && right < 0) {					\
+			*out = right - left;					\
+		} else if(left < 0 && right >= 0) {				\
+			*out = am_safe_negate_i##BITS(left) +			\
+				((uint##BITS##_t)right);			\
+		} else	/* both positive */ {					\
+			*out = right - left;					\
+		}								\
+										\
+		return 0;							\
+	}
+
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_I_FUN(8)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_I_FUN(16)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_I_FUN(32)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_I_FUN(64)
+
+#define AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_U_FUN(BITS)			\
+	/* Calculates the size of the interval [left; right) of two unsigned	\
+	 * integers. The size is returned in an unsigned integer *out with the	\
+	 * same number of bits.						\
+	 *									\
+	 * Returns 0 if the result can be represented, otherwise 1. */		\
+	static inline int							\
+	am_safe_rightopen_interval_size_u##BITS(uint##BITS##_t* out,		\
+						int##BITS##_t left,		\
+						int##BITS##_t right)		\
+	{									\
+		if(right < left)						\
+			return 1;						\
+										\
+		*out = right - left;						\
+										\
+		return 0;							\
+	}
+
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_U_FUN(8)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_U_FUN(16)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_U_FUN(32)
+AM_DECL_SAFE_RIGHTOPEN_INTERVAL_SIZE_U_FUN(64)
+
+#define AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_I_FUN(BITS)				\
+	/* Calculates the size of the interval [left; right] of two signed	\
+	 * integers without overflows. The size is returned in an unsigned	\
+	 * integer *out with the same number of bits.				\
+	 *									\
+	 * Returns 0 if the result can be represented, otherwise 1. */		\
+	static inline int							\
+	am_safe_closed_interval_size_i##BITS(uint##BITS##_t* out,		\
+					     int##BITS##_t left,		\
+					     int##BITS##_t right)		\
+	{									\
+		/* Final + 1 would overflow */					\
+		if(left == INT##BITS##_MIN && right == INT##BITS##_MAX)	\
+			return 1;						\
+										\
+		if(am_safe_rightopen_interval_size_i##BITS(out, left, right))	\
+			return 1;						\
+										\
+		*out += 1;							\
+										\
+		return 0;							\
+	}
+
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_I_FUN(8)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_I_FUN(16)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_I_FUN(32)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_I_FUN(64)
+
+#define AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_U_FUN(BITS)				\
+	/* Calculates the size of the interval [left; right] of two unsigned	\
+	 * integers without overflows. The size is returned in an unsigned	\
+	 * integer *out with the same number of bits.				\
+	 *									\
+	 * Returns 0 if the result can be represented, otherwise 1. */		\
+	static inline int							\
+	am_safe_closed_interval_size_u##BITS(uint##BITS##_t* out,		\
+					     uint##BITS##_t left,		\
+					     uint##BITS##_t right)		\
+	{									\
+		if(right < left)						\
+			return 1;						\
+										\
+		/* Final + 1 would overflow */					\
+		if(left == 0 && right == UINT##BITS##_MAX)			\
+			return 1;						\
+										\
+		*out = right - left + 1;					\
+										\
+		return 0;							\
+	}
+
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_U_FUN(8)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_U_FUN(16)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_U_FUN(32)
+AM_DECL_SAFE_CLOSED_INTERVAL_SIZE_U_FUN(64)
+
 /* Calculates *out = a + b without overflows / underflows for signed integers a
  * and *out and an unsigned integer b if the final value fits into a 64 bit
  * signed integer. The return value indicates whether an overflow / underflow
