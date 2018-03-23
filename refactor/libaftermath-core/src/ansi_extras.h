@@ -43,6 +43,11 @@
 /* Protects macro arguments from evaluation */
 #define AM_MACRO_ARG_PROTECT(...) __VA_ARGS__
 
+/* Forces expansion of X and Y and returns a token corresponding to the
+ * concatenation of X and Y */
+#define AM_MACRO_ARG_EXPAND_JOIN2(X, Y) X ## Y
+#define AM_MACRO_ARG_EXPAND_JOIN(X, Y) AM_MACRO_ARG_EXPAND_JOIN2(X, Y)
+
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
 static inline void
