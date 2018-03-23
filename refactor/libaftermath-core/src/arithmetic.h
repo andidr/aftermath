@@ -130,6 +130,28 @@ am_muldiv_safe_u64(uint64_t a, uint64_t b, uint64_t c, uint64_t* out)
 	return am_u128_check_u64(&res);
 }
 
+#define AM_DECL_MULDIV_U_FUN(BITS, T, TBIG)					\
+	/* Calculates *out = a * b / c for BITS-bit unsigned integers without	\
+	 * overflows if the final value fits into a 64-bit unsigned integer.	\
+	 * The function only guarantees not to overflow during the		\
+	 * multiplication and division, but does not check if the final result	\
+	 * can be represented using BITS bits. */				\
+	static inline void am_muldiv_u##BITS(T a, T b, T c, T* out)	\
+	{								\
+		TBIG ax = a;						\
+		TBIG bx = b;						\
+		TBIG cx = c;						\
+		TBIG res;						\
+									\
+		res = (ax * bx) / cx;					\
+		*out = (T)res;						\
+	}
+
+AM_DECL_MULDIV_U_FUN(8, uint8_t, uint_fast16_t)
+AM_DECL_MULDIV_U_FUN(16, uint16_t, uint_fast32_t)
+AM_DECL_MULDIV_U_FUN(32, uint32_t, uint_fast64_t)
+AM_DECL_MULDIV_U_FUN(64, uint64_t, unsigned __int128)
+
 /* Saturated computation of *out = a * b / c for unsigned 64-bit integers. The
  * return value indicates whether saturation took place. */
 static inline enum am_arithmetic_status
