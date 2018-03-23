@@ -146,6 +146,23 @@ static inline int isident_next_char(char c)
 	return isalnum(c) || c == '_';
 }
 
+/* Checks whether c is a character that is allowed as the first
+ * character of a group name. */
+static inline int isgroup_name_start_char(char c)
+{
+	return isident_start_char(c);
+}
+
+/* Checks whether c is a character that is allowed in group names, starting from
+ * the second character (i.e., alphanumeric characters, an underscore, colon,
+ * asterisk, smaller and greater sign, or a comma). */
+static inline int isgroup_name_next_char(char c)
+{
+	return isalnum(c) ||
+		c == '_' || c == ':' || c == '<' || c == '>' || c == '*' ||
+		c == ',';
+}
+
 /* Consumes all characters starting from the current position that
  * make up an identifier. If no such character exists the function
  * returns 1. Otherwise, it sets the token to the character sequence
@@ -179,6 +196,41 @@ am_parser_read_next_identifier(struct am_parser* p, struct am_parser_token* t)
 {
 	am_parser_skip_ws(p);
 	return am_parser_read_identifier(p, t);
+}
+
+/* Consumes all characters starting from the current position that make up a
+ * group name. If no such character exists the function returns 1. Otherwise, it
+ * sets the token to the character sequence representing the group name and
+ * returns 0.
+ */
+static inline int
+am_parser_read_group_name(struct am_parser* p, struct am_parser_token* t)
+{
+	if(am_parser_reached_end(p))
+		return 1;
+
+	if(!isgroup_name_start_char(*p->curr))
+		return 1;
+
+	t->str = p->curr;
+	t->len = 1;
+	p->curr++;
+
+	while(p->curr != p->end && isgroup_name_next_char(*p->curr)) {
+		t->len++;
+		p->curr++;
+	}
+
+	return 0;
+}
+
+/* Same as am_parser_read_group_name, but skips all preceding
+ * whitespace */
+static inline int
+am_parser_read_next_group_name(struct am_parser* p, struct am_parser_token* t)
+{
+	am_parser_skip_ws(p);
+	return am_parser_read_group_name(p, t);
 }
 
 /* Consumes the next character, initializes the token with it and

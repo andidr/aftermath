@@ -399,7 +399,7 @@ am_object_notation_parse_group(struct am_parser* p)
 	struct am_parser_token t;
 	struct am_object_notation_node_group* node;
 
-	if(am_parser_read_next_identifier(p, &t))
+	if(am_parser_read_next_group_name(p, &t))
 		goto out_err;
 
 	if(!(node = am_object_notation_node_group_createn(t.str, t.len)))
