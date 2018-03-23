@@ -48,6 +48,48 @@
 #define AM_MACRO_ARG_EXPAND_JOIN2(X, Y) X ## Y
 #define AM_MACRO_ARG_EXPAND_JOIN(X, Y) AM_MACRO_ARG_EXPAND_JOIN2(X, Y)
 
+/* The tests below are very, very ugly. Some code needs to know the number of
+ * bits in a size_t. During compilation, the number of bits could be determined
+ * by evaluating AM_SIZEOF_BITS(size_t). However, since this involves the sizeof
+ * operator, the expression cannot be evaluated during preprocessing. The
+ * purpose of the code below is to set AM_SIZE_BITS to a simple preprocessor
+ * constant that can be used within #if directives.
+ *
+ * The code only supports bit widths, which are powers of 2. On some "weird"
+ * platform with CHAR_BIT != 8 or if sizeof(size_t) is not a power of two, this
+ * might break.
+ */
+#ifndef AM_SIZE_BITS
+  #if SIZE_MAX > UINT64_MAX
+    #error "size_t seems to be very big on your system (> 64 bits). "	\
+    	   "Cannot determine the size automatically. "			\
+    	   "Please set AM_SIZE_BITS accordingly."
+  #elif SIZE_MAX == UINT64_MAX
+    #define AM_SIZE_BITS 64
+  #elif SIZE_MAX == UINT32_MAX
+    #define AM_SIZE_BITS 32
+  #elif SIZE_MAX == UINT16_MAX
+    #define AM_SIZE_BITS 16
+  #elif SIZE_MAX == UINT8_MAX
+    #define AM_SIZE_BITS 8
+  #else
+    #warning "SIZE_MAX is not an integer value of the form 2^N - 1, where N "	\
+             "is 64, 32, 16 or 8. Setting AM_SIZE_BITS to the smallest "	\
+             "number of bits N, such that 2^(N-1)-1 >= SIZE_MAX. "		\
+             "This behavior can be overridden by setting AM_SIZE_BITS manually."
+
+    #if SIZE_MAX > UINT32_MAX
+      #define AM_SIZE_BITS 64
+    #elif SIZE_MAX > UINT16_MAX
+      #define AM_SIZE_BITS 32
+    #elif SIZE_MAX > UINT8_MAX
+      #define AM_SIZE_BITS 16
+    #else
+      #define AM_SIZE_BITS 8
+    #endif
+  #endif
+#endif
+
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
 static inline void
