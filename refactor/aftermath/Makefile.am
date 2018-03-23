@@ -14,6 +14,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/DFGQTProcessor.h \
 	src/dfg/nodes/builtin_nodes.h \
 	src/dfg/nodes/builtin_nodes.c \
+	src/dfg/nodes/gui/histogram.h \
+	src/dfg/nodes/gui/histogram.cpp \
 	src/dfg/nodes/gui/label.h \
 	src/dfg/nodes/gui/label.cpp \
 	src/dfg/nodes/gui/timeline.h \
