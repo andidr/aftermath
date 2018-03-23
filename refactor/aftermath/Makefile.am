@@ -55,6 +55,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/DFGWidget.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h \
+	src/gui/widgets/HistogramWidget.cpp \
+	src/gui/widgets/HistogramWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
 	src/gui/widgets/TimelineWidget.h
 
