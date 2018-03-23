@@ -32,7 +32,7 @@ int am_dfg_trace_node_process(struct am_dfg_node* n);
 
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_trace_node_type,
-	"trace",
+	"am::core::trace",
 	"Trace",
 	sizeof(struct am_dfg_node_trace),
 	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
@@ -40,8 +40,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 			.init = am_dfg_trace_node_init,
 			.process = am_dfg_trace_node_process
 	}),
-	AM_DFG_NODE_PORTS(
-		{ "trace", "trace", AM_DFG_PORT_OUT }),
+	AM_DFG_NODE_PORTS({ "trace", "am::core::trace", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 

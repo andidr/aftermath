@@ -28,7 +28,7 @@ int am_dfg_interval_duration_node_process(struct am_dfg_node* n);
  */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_interval_duration_node_type,
-	"interval_duration",
+	"am::core::interval::duration",
 	"Interval Duration",
 	AM_DFG_NODE_DEFAULT_SIZE,
 	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
@@ -36,8 +36,9 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.process = am_dfg_interval_duration_node_process
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "interval", "interval", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
-		{ "duration", "duration", AM_DFG_PORT_OUT }),
+		{ "interval", "am::core::interval",
+				AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+		{ "duration", "am::core::duration", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 

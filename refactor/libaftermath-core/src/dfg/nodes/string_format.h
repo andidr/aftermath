@@ -62,7 +62,7 @@ int am_dfg_string_format_node_to_object_notation(
  */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_string_format_node_type,
-	"string_format",
+	"am::core::string_format",
 	"String format",
 	sizeof(struct am_dfg_string_format_node),
 	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
@@ -76,11 +76,13 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_string_format_node_to_object_notation,
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "in", "string", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
-		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+		{ "in", "am::core::string",
+				AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+		{ "out", "am::core::string",
+				AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES(
-		{ "format", "Format", "string" }))
+		{ "format", "Format", "am::core::string" }))
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_string_format_node_type)
 

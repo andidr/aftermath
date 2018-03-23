@@ -28,7 +28,7 @@ int am_dfg_duration_to_string_node_process(struct am_dfg_node* n);
  */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_duration_to_string_node_type,
-	"duration_to_string",
+	"am::core::duration::to_string",
 	"Duration -> String",
 	AM_DFG_NODE_DEFAULT_SIZE,
 	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
@@ -36,8 +36,10 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.process = am_dfg_duration_to_string_node_process
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "in", "duration", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
-		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+		{ "in", "am::core::duration",
+				AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+		{ "out", "am::core::string",
+				AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 

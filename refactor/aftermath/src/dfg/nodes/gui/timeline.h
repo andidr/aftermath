@@ -48,7 +48,7 @@ int am_dfg_amgui_timeline_to_object_notation(
  */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_amgui_timeline_node_type,
-	"amgui_timeline",
+	"am::gui::timeline",
 	"Timeline",
 	sizeof(struct am_dfg_amgui_timeline_node),
 	AM_DFG_DEFAULT_PORT_DEPS_NONE,
@@ -60,8 +60,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_amgui_timeline_to_object_notation
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "interval in", "interval", AM_DFG_PORT_IN },
-		{ "interval out", "interval", AM_DFG_PORT_OUT }),
+		{ "interval in", "am::core::interval", AM_DFG_PORT_IN },
+		{ "interval out", "am::core::interval", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("interval in"),
 		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("interval out"),

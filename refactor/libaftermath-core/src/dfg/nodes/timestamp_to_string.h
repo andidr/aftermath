@@ -52,7 +52,7 @@ int am_dfg_timestamp_to_string_node_to_object_notation(
  */
 AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	am_dfg_timestamp_to_string_node_type,
-	"timestamp_to_string",
+	"am::core::timestamp::to_string",
 	"Timestamp -> String",
 	sizeof(struct am_dfg_timestamp_to_string_node),
 	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
@@ -65,12 +65,16 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_timestamp_to_string_node_to_object_notation,
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "in", "timestamp", AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
-		{ "out", "string", AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
+		{ "in", "am::core::timestamp",
+				AM_DFG_PORT_IN | AM_DFG_PORT_MANDATORY },
+		{ "out", "am::core::string",
+				AM_DFG_PORT_OUT | AM_DFG_PORT_MANDATORY }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES(
-		{ "pretty_print", "Pretty print", "bool" },
-		{ "max_significant_digits", "Significant digits", "uint8" } ))
+		{ "pretty_print", "Pretty print", "am::core::bool" },
+		{ "max_significant_digits",
+		  "Significant digits",
+		  "am::core::uint8" } ))
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_timestamp_to_string_node_type)
 
