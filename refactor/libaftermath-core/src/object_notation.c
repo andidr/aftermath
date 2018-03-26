@@ -943,22 +943,16 @@ out_err:
 	return NULL;
 }
 
-/* Build a group node. The argument list vl must point to the remaining verbs /
- * values in the entire parameter list. Returns a newly allocated and created
- * node on success, otherwise NULL.
+/* Builds all the members of a group and adds them to the group. Returns 0 on
+ * success, 1 otherwise.
  */
-static struct am_object_notation_node*
-am_object_notation_group_vbuild(va_list vl)
+static int
+am_object_notation_group_vbuild_members(
+	struct am_object_notation_node_group* group,
+	va_list vl)
 {
-	enum am_object_notation_build_verb verb;
-	struct am_object_notation_node_group* group = NULL;
 	struct am_object_notation_node_member* member;
-	const char* name;
-
-	name = va_arg(vl, const char*);
-
-	if(!(group = am_object_notation_node_group_create(name)))
-		goto out_err;
+	enum am_object_notation_build_verb verb;
 
 	while((verb = va_arg(vl, enum am_object_notation_build_verb)) !=
 	      AM_OBJECT_NOTATION_BUILD_END)
@@ -966,11 +960,33 @@ am_object_notation_group_vbuild(va_list vl)
 		if(!(member = (struct am_object_notation_node_member*)
 		     am_object_notation_vbuild(verb, vl)))
 		{
-			goto out_err_destroy;
+			return 1;
 		}
 
 		am_object_notation_node_group_add_member(group, member);
 	}
+
+	return 0;
+}
+
+
+/* Build a group node. The argument list vl must point to the remaining verbs /
+ * values in the entire parameter list. Returns a newly allocated and created
+ * node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_group_vbuild(va_list vl)
+{
+	struct am_object_notation_node_group* group = NULL;
+	const char* name;
+
+	name = va_arg(vl, const char*);
+
+	if(!(group = am_object_notation_node_group_create(name)))
+		goto out_err;
+
+	if(am_object_notation_group_vbuild_members(group, vl))
+		goto out_err_destroy;
 
 	return (struct am_object_notation_node*)group;
 
