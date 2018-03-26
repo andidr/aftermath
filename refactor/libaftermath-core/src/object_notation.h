@@ -82,15 +82,23 @@ struct am_object_notation_node_group {
 	struct list_head members;
 };
 
+/* Initializes a group n and sets its name to NULL. */
+static inline void am_object_notation_node_group_init_no_name(
+	struct am_object_notation_node_group* g)
+{
+	am_object_notation_node_init(&g->node,
+				     AM_OBJECT_NOTATION_NODE_TYPE_GROUP);
+	INIT_LIST_HEAD(&g->members);
+	g->name = NULL;
+}
+
 /* Initialize an already allocated group node using a non-zero-terminated string
  * for the name. Returns 0 on success, otherwise 1. */
 static inline int
 am_object_notation_node_group_initn(struct am_object_notation_node_group* g,
 				    const char* name, size_t name_len)
 {
-	am_object_notation_node_init(&g->node,
-				     AM_OBJECT_NOTATION_NODE_TYPE_GROUP);
-	INIT_LIST_HEAD(&g->members);
+	am_object_notation_node_group_init_no_name(g);
 
 	if(!(g->name = am_strdupn(name, name_len)))
 		return 1;
