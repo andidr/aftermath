@@ -133,6 +133,10 @@ am_object_notation_node_group_create(const char* name)
 	return am_object_notation_node_group_createn(name, strlen(name));
 }
 
+int am_object_notation_node_group_move_members(
+	struct am_object_notation_node_group* dst,
+	struct am_object_notation_node_group* src);
+
 struct am_object_notation_node_member {
 	struct am_object_notation_node node;
 	char* name;

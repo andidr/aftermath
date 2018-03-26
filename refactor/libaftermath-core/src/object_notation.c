@@ -52,6 +52,30 @@ am_object_notation_node_group_createn(const char* name, size_t name_len)
 	return ret;
 }
 
+/* Atomically moves all members of the group src to the group dst. If at least
+ * one of the members cannot be moved, the function fails and both groups remain
+ * unmodified.
+ *
+ * Returns 0 on success, 1 otherwise.
+ */
+int am_object_notation_node_group_move_members(
+	struct am_object_notation_node_group* dst,
+	struct am_object_notation_node_group* src)
+{
+	struct am_object_notation_node_member* m;
+
+	/* Check if dst already has members with the same name as in src */
+	am_object_notation_group_for_each_member(src, m) {
+		if(am_object_notation_node_group_get_member_def(dst, m->name))
+			return 1;
+	}
+
+	list_splice_tail_init(&src->members, &dst->members);
+
+	return 0;
+}
+
+
 /* Destroys a group node */
 static inline void
 am_object_notation_node_group_destroy(struct am_object_notation_node_group* node)
