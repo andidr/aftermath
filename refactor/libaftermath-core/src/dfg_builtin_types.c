@@ -20,6 +20,7 @@
 #include <aftermath/core/dfg/types/bool.h>
 #include <aftermath/core/dfg/types/duration.h>
 #include <aftermath/core/dfg/types/generic.h>
+#include <aftermath/core/dfg/types/histogram.h>
 #include <aftermath/core/dfg/types/interval.h>
 #include <aftermath/core/dfg/types/string.h>
 #include <aftermath/core/dfg/types/timestamp.h>
@@ -47,6 +48,14 @@ struct static_dfg_type_decl {
 	am_dfg_type_check_string_fun_t check_string;
 };
 
+#define AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(SUFFIX, SUFFIX_UPCASE)		\
+	{ "am::core::histogram1d<" #SUFFIX ">",				\
+			AM_DFG_TYPE_HISTOGRAM1D_##SUFFIX_UPCASE##_SAMPLE_SIZE,	\
+			am_dfg_type_histogram1d_##SUFFIX##_free_samples,	\
+			NULL,							\
+			NULL,							\
+			NULL }
+
 static struct static_dfg_type_decl types[] = {
 	{ "am::core::bool",
 	  AM_DFG_TYPE_BOOL_SAMPLE_SIZE,
@@ -69,6 +78,15 @@ static struct static_dfg_type_decl types[] = {
 	  am_dfg_type_duration_to_string,
 	  am_dfg_type_duration_from_string,
 	  am_dfg_type_duration_check_string },
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint8, UINT8),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint16, UINT16),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint32, UINT32),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint64, UINT64),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int8, INT8),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int16, INT16),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int32, INT32),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int64, INT64),
+	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(double, DOUBLE),
 	{ "am::core::interval",
 	  AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE,
 	  NULL,

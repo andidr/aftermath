@@ -66,6 +66,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/types/duration.h \
 				src/dfg/types/generic.c \
 				src/dfg/types/generic.h \
+				src/dfg/types/histogram.c \
+				src/dfg/types/histogram.h \
 				src/dfg/types/interval.c \
 				src/dfg/types/interval.h \
 				src/dfg/types/string.c \

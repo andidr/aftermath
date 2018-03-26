@@ -38,6 +38,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/types/bool.h \
 	aftermath/core/dfg/types/duration.h \
 	aftermath/core/dfg/types/generic.h \
+	aftermath/core/dfg/types/histogram.h \
 	aftermath/core/dfg/types/interval.h \
 	aftermath/core/dfg/types/string.h \
 	aftermath/core/dfg/types/timestamp.h \
