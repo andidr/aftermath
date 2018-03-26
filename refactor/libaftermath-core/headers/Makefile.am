@@ -30,6 +30,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg_type.h \
 	aftermath/core/dfg_type_registry.h \
 	aftermath/core/dfg/nodes/duration_to_string.h \
+	aftermath/core/dfg/nodes/histogram_builder.h \
 	aftermath/core/dfg/nodes/interval_attributes.h \
 	aftermath/core/dfg/nodes/interval_duration.h \
 	aftermath/core/dfg/nodes/string_format.h \

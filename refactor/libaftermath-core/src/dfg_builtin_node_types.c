@@ -20,6 +20,10 @@
 #include <aftermath/core/dfg_builtin_node_impl.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() histogram_builder_defs
+#include <aftermath/core/dfg/nodes/histogram_builder.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() interval_attributes_defs
 #include <aftermath/core/dfg/nodes/interval_attributes.h>
 
@@ -46,6 +50,7 @@
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	duration_to_string_defs,
+	histogram_builder_defs,
 	interval_attributes_defs,
 	interval_duration_defs,
 	string_format_defs,
