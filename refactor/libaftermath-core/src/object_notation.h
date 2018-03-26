@@ -686,6 +686,37 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...);
  */
 #define am_object_notation_build(...) __am_object_notation_build(0, __VA_ARGS__)
 
+int __am_object_notation_node_group_build_add_members(
+	struct am_object_notation_node_group* g, ...);
+
+/* Builds a set of members and adds these members to a group g atomically. If
+ * the construction of at least one member fails, nothing is added to the
+ * group. On success, all members are added.
+ *
+ * Each member is defined by a name and a set of build verbs that create the
+ * member, e.g., the following code adds three members a, b, and lst to a group
+ * g, where a and b are integers and lst is a list of strings:
+ *
+ *   am_object_notation_node_group_build_add_members(g,
+ *     AM_OBJECT_NOTATION_BUILD_MEMBER, "a",
+ *       AM_OBJECT_NOTATION_BUILD_INT, 1,
+ *     AM_OBJECT_NOTATION_BUILD_MEMBER, "b",
+ *       AM_OBJECT_NOTATION_BUILD_INT, 2,
+ *     AM_OBJECT_NOTATION_BUILD_MEMBER, "lst",
+ *       AM_OBJECT_NOTATION_BUILD_LIST
+ *         AM_OBJECT_NOTATION_BUILD_STRING, "aaa",
+ *         AM_OBJECT_NOTATION_BUILD_STRING, "bbb",
+ *         AM_OBJECT_NOTATION_BUILD_STRING, "ccc",
+ *       AM_OBJECT_NOTATION_BUILD_END);
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+#define am_object_notation_node_group_build_add_members(g, ...) \
+	__am_object_notation_node_group_build_add_members(		\
+		g,							\
+		__VA_ARGS__,						\
+		AM_OBJECT_NOTATION_BUILD_END)
+
 struct am_object_notation_node*
 am_object_notation_eval(const struct am_object_notation_node* n,
 			const char* expr);

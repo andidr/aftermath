@@ -1063,6 +1063,34 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...)
 	return ret;
 }
 
+/* Same as am_object_notation_node_group_build_add_members, but takes an
+ * argument list and expecting a AM_OBJECT_NOTATION_BUILD_END verb as the last
+ * parameter.
+ */
+int __am_object_notation_node_group_build_add_members(
+	struct am_object_notation_node_group* g, ...)
+{
+	struct am_object_notation_node_group gtmp;
+	va_list vl;
+	int ret;
+
+	am_object_notation_node_group_init_no_name(&gtmp);
+
+	va_start(vl, g);
+	ret = am_object_notation_group_vbuild_members(&gtmp, vl);
+	va_end(vl);
+
+	if(ret)
+		goto out;
+
+	ret = am_object_notation_node_group_move_members(g, &gtmp);
+
+out:
+	am_object_notation_node_group_destroy(&gtmp);
+
+	return ret;
+}
+
 static struct am_object_notation_node*
 am_object_notation_eval_dot(const struct am_object_notation_node* n,
 			    struct am_parser* p);
