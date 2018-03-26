@@ -570,4 +570,24 @@ AM_DEFINE_CONVERT_SAFE_INT_TO_SIZE_FUN(int16_t, i16, 1)
 AM_DEFINE_CONVERT_SAFE_INT_TO_SIZE_FUN(int32_t, i32, 1)
 AM_DEFINE_CONVERT_SAFE_INT_TO_SIZE_FUN(int64_t, i64, 1)
 
+#define AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(BITS)				\
+	/* Safely converts a uint64_t to a uint##BITS##_t, i.e., performs a	\
+	 * range check prior to the conversion. Returns 0 on success,		\
+	 * otherwise 1. */							\
+	static inline int							\
+	am_safe_u##BITS##_from_u64(uint##BITS##_t* out, uint64_t v)		\
+	{									\
+		if(v > (uint64_t)UINT##BITS##_MAX)				\
+			return 1;						\
+										\
+		*out = (uint##BITS##_t)v;					\
+										\
+		return 0;							\
+	}
+
+AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(8)
+AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(16)
+AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(32)
+AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(64)
+
 #endif
