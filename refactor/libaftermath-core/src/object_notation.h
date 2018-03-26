@@ -21,6 +21,7 @@
 
 #include <aftermath/core/parser.h>
 #include <aftermath/core/ansi_extras.h>
+#include <aftermath/core/typed_list.h>
 #include <aftermath/core/contrib/linux-kernel/list.h>
 
 /* The object notation used in aftermath is a very simple notation
@@ -81,6 +82,11 @@ struct am_object_notation_node_group {
 	char* name;
 	struct list_head members;
 };
+
+/* Iterates over all members of a group node g. M must be the name of a pointer
+ * that serves as an iterator */
+#define am_object_notation_group_for_each_member(g, m) \
+	am_typed_list_for_each(g, members, m, node.siblings)
 
 /* Initializes a group n and sets its name to NULL. */
 static inline void am_object_notation_node_group_init_no_name(
