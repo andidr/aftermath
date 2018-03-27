@@ -119,6 +119,26 @@ static inline int am_parser_reached_end(const struct am_parser* p)
 	return p->curr == p->end;
 }
 
+/* Checks if the next characters are identical to the sequence of characters
+ * specified in str (except the terminating '\0'). If so, the function advances
+ * the parser by strlen(str) characters and returns 0. Otherwise, 1 is
+ * returned. */
+static inline int am_parser_expect_chars(struct am_parser* p, const char* str)
+{
+	while(*str) {
+		if(am_parser_reached_end(p))
+			return 1;
+
+		if(*p->curr != *str)
+			return 1;
+
+		str++;
+		p->curr++;
+	}
+
+	return 0;
+}
+
 /* Advances the current position to the next character that is not
  * considered as whitespace (i.e., the newline character and all
  * characters for which isblank is true). */
