@@ -50,6 +50,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg_type_registry.h \
 				src/dfg/nodes/duration_to_string.c \
 				src/dfg/nodes/duration_to_string.h \
+				src/dfg/nodes/histogram_attributes.c \
+				src/dfg/nodes/histogram_attributes.h \
 				src/dfg/nodes/histogram_builder.c \
 				src/dfg/nodes/histogram_builder.h \
 				src/dfg/nodes/interval_attributes.c \
