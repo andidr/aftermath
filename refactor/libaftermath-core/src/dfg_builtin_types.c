@@ -25,7 +25,7 @@
 #include <aftermath/core/dfg/types/string.h>
 #include <aftermath/core/dfg/types/timestamp.h>
 #include <aftermath/core/dfg/types/trace.h>
-#include <aftermath/core/dfg/types/uint.h>
+#include <aftermath/core/dfg/types/int.h>
 
 struct static_dfg_type_decl {
 	/* Type name */
@@ -55,6 +55,14 @@ struct static_dfg_type_decl {
 			NULL,							\
 			NULL,							\
 			NULL }
+
+#define AM_DFG_INT_TYPE_STATIC_DECL(TPREFIX, TPREFIXUP)	\
+	{ "am::core::" #TPREFIX,				\
+	  AM_DFG_TYPE_##TPREFIXUP##_SAMPLE_SIZE,		\
+	  NULL,						\
+	  am_dfg_type_##TPREFIX##_to_string,			\
+	  am_dfg_type_##TPREFIX##_from_string,			\
+	  am_dfg_type_##TPREFIX##_check_string }
 
 static struct static_dfg_type_decl types[] = {
 	{ "am::core::bool",
@@ -99,30 +107,14 @@ static struct static_dfg_type_decl types[] = {
 	  am_dfg_type_string_to_string,
 	  am_dfg_type_string_from_string,
 	  am_dfg_type_string_check_string },
-	{ "am::core::uint8",
-	  AM_DFG_TYPE_UINT8_SAMPLE_SIZE,
-	  NULL,
-	  am_dfg_type_uint8_to_string,
-	  am_dfg_type_uint8_from_string,
-	  am_dfg_type_uint8_check_string },
-	{ "am::core::uint16",
-	  AM_DFG_TYPE_UINT16_SAMPLE_SIZE,
-	  NULL,
-	  am_dfg_type_uint16_to_string,
-	  am_dfg_type_uint16_from_string,
-	  am_dfg_type_uint16_check_string },
-	{ "am::core::uint32",
-	  AM_DFG_TYPE_UINT32_SAMPLE_SIZE,
-	  NULL,
-	  am_dfg_type_uint32_to_string,
-	  am_dfg_type_uint32_from_string,
-	  am_dfg_type_uint32_check_string },
-	{ "am::core::uint64",
-	  AM_DFG_TYPE_UINT64_SAMPLE_SIZE,
-	  NULL,
-	  am_dfg_type_uint64_to_string,
-	  am_dfg_type_uint64_from_string,
-	  am_dfg_type_uint64_check_string },
+	AM_DFG_INT_TYPE_STATIC_DECL( int8,  INT8),
+	AM_DFG_INT_TYPE_STATIC_DECL(int16, INT16),
+	AM_DFG_INT_TYPE_STATIC_DECL(int32, INT32),
+	AM_DFG_INT_TYPE_STATIC_DECL(int64, INT64),
+	AM_DFG_INT_TYPE_STATIC_DECL( uint8,  UINT8),
+	AM_DFG_INT_TYPE_STATIC_DECL(uint16, UINT16),
+	AM_DFG_INT_TYPE_STATIC_DECL(uint32, UINT32),
+	AM_DFG_INT_TYPE_STATIC_DECL(uint64, UINT64),
 	{ NULL } /* End marker */
 };
 
