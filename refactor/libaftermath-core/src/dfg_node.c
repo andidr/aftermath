@@ -851,7 +851,7 @@ am_dfg_node_to_object_notation(struct am_dfg_node* n)
 	ng = am_object_notation_build(
 		AM_OBJECT_NOTATION_BUILD_GROUP, n->type->name,
 		  AM_OBJECT_NOTATION_BUILD_MEMBER, "id",
-		    AM_OBJECT_NOTATION_BUILD_INT, (int64_t)n->id,
+		    AM_OBJECT_NOTATION_BUILD_UINT64, (uint64_t)n->id,
 		AM_OBJECT_NOTATION_BUILD_END);
 
 	if(!ng)
@@ -883,7 +883,7 @@ am_dfg_node_from_object_notation(struct am_dfg_node_type* nt,
 
 	struct am_dfg_node* ret = NULL;
 
-	if(am_object_notation_eval_retrieve_int(&g->node, "id", &u64id))
+	if(am_object_notation_eval_retrieve_uint64(&g->node, "id", &u64id))
 		goto out_err;
 
 	if(u64id > LONG_MAX)

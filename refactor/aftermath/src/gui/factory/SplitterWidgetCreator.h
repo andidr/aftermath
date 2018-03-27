@@ -64,7 +64,7 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 		{
 			struct am_object_notation_node* nstretch;
 			struct am_object_notation_node_list* lstretch;
-			struct am_object_notation_node_int* iter;
+			struct am_object_notation_node_uint64* iter;
 			SplitterWithInitialStretch* s;
 			QList<int> stretchFactors;
 
@@ -75,12 +75,12 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 			if(nstretch) {
 				lstretch = (typeof(lstretch))nstretch;
 
-				if(!am_object_notation_is_int_list(lstretch))
+				if(!am_object_notation_is_uint64_list(lstretch))
 					throw Exception("Member stretch must be "
 							"a list of integers");
 
-				am_object_notation_for_each_list_item_int(lstretch,
-									  iter)
+				am_object_notation_for_each_list_item_uint64(
+					lstretch, iter)
 				{
 					/* Scale values in order to force ratios
 					 * rather than sizes in pixels. */

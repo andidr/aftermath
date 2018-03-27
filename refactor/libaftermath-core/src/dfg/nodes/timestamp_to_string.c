@@ -148,16 +148,16 @@ int am_dfg_timestamp_to_string_node_from_object_notation(
 	struct am_dfg_timestamp_to_string_node* tts = (typeof(tts))n;
 	uint64_t u64val;
 
-	if(am_object_notation_eval_retrieve_int(&g->node,
-						"pretty_print",
-						&u64val) == 0)
+	if(am_object_notation_eval_retrieve_uint64(&g->node,
+						   "pretty_print",
+						   &u64val) == 0)
 	{
 		tts->pretty_print = u64val ? 1 : 0;
 	}
 
-	if(am_object_notation_eval_retrieve_int(&g->node,
-						"max_significant_digits",
-						&u64val) == 0)
+	if(am_object_notation_eval_retrieve_uint64(&g->node,
+						   "max_significant_digits",
+						   &u64val) == 0)
 	{
 		tts->max_significant_digits = u64val;
 	}
@@ -176,9 +176,9 @@ int am_dfg_timestamp_to_string_node_to_object_notation(
 	mformat = (struct am_object_notation_node_member*)
 		am_object_notation_build(
 			AM_OBJECT_NOTATION_BUILD_MEMBER, "pretty_print",
-			AM_OBJECT_NOTATION_BUILD_INT, pretty_print,
+			  AM_OBJECT_NOTATION_BUILD_UINT64, pretty_print,
 			AM_OBJECT_NOTATION_BUILD_MEMBER, "max_significant_digits",
-			AM_OBJECT_NOTATION_BUILD_INT, sig_digits);
+			  AM_OBJECT_NOTATION_BUILD_UINT64, sig_digits);
 
 	if(!mformat)
 		return 1;

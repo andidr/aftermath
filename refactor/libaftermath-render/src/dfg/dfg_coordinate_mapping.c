@@ -91,7 +91,7 @@ am_dfg_coordinate_mapping_from_object_notation_single(
 	struct am_object_notation_node_list* lst)
 {
 	struct am_object_notation_node* iter;
-	struct am_object_notation_node_int* nid;
+	struct am_object_notation_node_uint64* nid;
 	struct am_object_notation_node_double* nx;
 	struct am_object_notation_node_double* ny;
 	struct am_object_notation_node* items[3];
@@ -109,7 +109,7 @@ am_dfg_coordinate_mapping_from_object_notation_single(
 		i++;
 	}
 
-	if(items[0]->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	if(items[0]->type != AM_OBJECT_NOTATION_NODE_TYPE_UINT64 ||
 	   items[1]->type != AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE ||
 	   items[2]->type != AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE)
 	{
@@ -181,7 +181,7 @@ am_dfg_coordinate_mapping_to_object_notation_single(
 
 	return am_object_notation_build(
 		AM_OBJECT_NOTATION_BUILD_LIST,
-		  AM_OBJECT_NOTATION_BUILD_INT, (int64_t)m->id,
+		  AM_OBJECT_NOTATION_BUILD_UINT64, (uint64_t)m->id,
 		  AM_OBJECT_NOTATION_BUILD_DOUBLE, m->pos.x,
 		  AM_OBJECT_NOTATION_BUILD_DOUBLE, m->pos.y,
 		AM_OBJECT_NOTATION_BUILD_END);

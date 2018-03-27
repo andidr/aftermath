@@ -379,7 +379,7 @@ am_parser_read_next_string(struct am_parser* p, struct am_parser_token* t)
  * the token to the sequence of numeric characters and returns 0.
  */
 static inline int
-am_parser_read_int(struct am_parser* p, struct am_parser_token* t)
+am_parser_read_any_uint(struct am_parser* p, struct am_parser_token* t)
 {
 	if(am_parser_reached_end(p))
 		return 1;
@@ -399,59 +399,102 @@ am_parser_read_int(struct am_parser* p, struct am_parser_token* t)
 	return 0;
 }
 
-/* Same as am_parser_read_int, but skips all preceding whitespace */
+/* Consumes a signed 64-bit integer literal (e.g., 123i64 or -456i64). Returns 0
+ * on success, otherwise 1. */
 static inline int
-am_parser_read_next_int(struct am_parser* p, struct am_parser_token* t)
+am_parser_read_int64(struct am_parser* p, struct am_parser_token* t)
 {
-	am_parser_skip_ws(p);
-	return am_parser_read_int(p, t);
-}
+	int sign = 0;
 
-/* Consumes all numeric characters from the current position. An
- * optional unit prefix at the end is allowed (i.e., K, M, G, T,
- * P). If no such sequence exists the function returns 1. Otherwise,
- * it sets the token to the sequence and returns 0.
- */
-static inline int
-am_parser_read_int_with_unit(struct am_parser* p, struct am_parser_token* t)
-{
 	if(am_parser_reached_end(p))
 		return 1;
 
-	if(!isdigit(*p->curr))
-		return 1;
-
-	t->str = p->curr;
-	t->len = 1;
-	p->curr++;
-
-	while(p->curr != p->end && isdigit(*p->curr)) {
-		t->len++;
+	/* Negative value? */
+	if(*p->curr == '-') {
 		p->curr++;
+		sign = 1;
 	}
 
-	if(!am_parser_reached_end(p)) {
-		if(*p->curr == 'K' ||
-		   *p->curr == 'M' ||
-		   *p->curr == 'G' ||
-		   *p->curr == 'T' ||
-		   *p->curr == 'P')
-		{
-			t->len++;
-			p->curr++;
-		}
+	/* Read digits */
+	if(am_parser_read_any_uint(p, t))
+		return 1;
+
+	/* Read i64 suffix */
+	if(am_parser_expect_chars(p, "i64"))
+		return 1;
+
+	t->len += 3;
+
+	/* Include minus sign in token */
+	if(sign) {
+		t->str--;
+		t->len++;
 	}
 
 	return 0;
 }
 
-/* Same as am_parser_read_int_with_unit, but skips all preceding
- * whitespace */
+/* Consumes an unsigned 64-bit integer literal (e.g., 123u64). Returns 0 on
+ * success, otherwise 1. */
 static inline int
-am_parser_read_next_int_with_unit(struct am_parser* p, struct am_parser_token* t)
+am_parser_read_uint64(struct am_parser* p, struct am_parser_token* t)
+{
+	if(am_parser_reached_end(p))
+		return 1;
+
+	/* Read digits */
+	if(am_parser_read_any_uint(p, t))
+		return 1;
+
+	/* Read u64 suffix */
+	if(am_parser_expect_chars(p, "u64"))
+		return 1;
+
+	t->len += 3;
+
+	return 0;
+}
+
+/* Same as am_parser_read_int64, but skips all preceding whitespace */
+static inline int
+am_parser_read_next_int64(struct am_parser* p, struct am_parser_token* t)
 {
 	am_parser_skip_ws(p);
-	return am_parser_read_int_with_unit(p, t);
+	return am_parser_read_int64(p, t);
+}
+
+/* Same as am_parser_read_uint64, but skips all preceding whitespace */
+static inline int
+am_parser_read_next_uint64(struct am_parser* p, struct am_parser_token* t)
+{
+	am_parser_skip_ws(p);
+	return am_parser_read_uint64(p, t);
+}
+
+/* Same as am_parser_read_int64, but does not consume the characters. */
+static inline int
+am_parser_peek_int64(struct am_parser* p, struct am_parser_token* t)
+{
+	int ret;
+	const char* curr = p->curr;
+
+	ret = am_parser_read_int64(p, t);
+	p->curr = curr;
+
+	return ret;
+}
+
+/* Same as am_parser_read_uint64, but does not consume the characters. */
+static inline int
+am_parser_peek_uint64(struct am_parser* p, struct am_parser_token* t)
+{
+	int ret;
+	const char* curr = p->curr;
+
+	ret = am_parser_read_uint64(p, t);
+	p->curr = curr;
+
+	return ret;
 }
 
 /* Consumes all characters of a double starting from the current position. If no

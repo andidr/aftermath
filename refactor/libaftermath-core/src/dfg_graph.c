@@ -471,14 +471,14 @@ am_dfg_graph_connection_to_object_notation(struct am_dfg_port* psrc,
 {
 	struct am_object_notation_node_list* n_list;
 	struct am_object_notation_node_string* n_src_port;
-	struct am_object_notation_node_int* n_src_id;
+	struct am_object_notation_node_uint64* n_src_id;
 	struct am_object_notation_node_string* n_dst_port;
-	struct am_object_notation_node_int* n_dst_id;
+	struct am_object_notation_node_uint64* n_dst_id;
 
 	if(!(n_list = am_object_notation_node_list_create()))
 		goto out_err;
 
-	if(!(n_src_id = am_object_notation_node_int_create(psrc->node->id)))
+	if(!(n_src_id = am_object_notation_node_uint64_create(psrc->node->id)))
 		goto out_err_dlist;
 
 	am_object_notation_node_list_add_item(
@@ -492,7 +492,7 @@ am_dfg_graph_connection_to_object_notation(struct am_dfg_port* psrc,
 		n_list,
 		(struct am_object_notation_node*)n_src_port);
 
-	if(!(n_dst_id = am_object_notation_node_int_create(pdst->node->id)))
+	if(!(n_dst_id = am_object_notation_node_uint64_create(pdst->node->id)))
 		goto out_err_dlist;
 
 	am_object_notation_node_list_add_item(
@@ -666,11 +666,11 @@ int am_dfg_graph_connection_from_object_notation(
 	struct am_object_notation_node* item;
 	struct am_object_notation_node* items[4];
 	struct am_object_notation_node* n_src_id;
-	struct am_object_notation_node_int* n_src_iid;
+	struct am_object_notation_node_uint64* n_src_iid;
 	struct am_object_notation_node* n_src_port;
 	struct am_object_notation_node_string* n_src_sport;
 	struct am_object_notation_node* n_dst_id;
-	struct am_object_notation_node_int* n_dst_iid;
+	struct am_object_notation_node_uint64* n_dst_iid;
 	struct am_object_notation_node* n_dst_port;
 	struct am_object_notation_node_string* n_dst_sport;
 	struct am_dfg_node* src;
@@ -700,17 +700,17 @@ int am_dfg_graph_connection_from_object_notation(
 	n_dst_id = items[2];
 	n_dst_port = items[3];
 
-	if(n_src_id->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	if(n_src_id->type != AM_OBJECT_NOTATION_NODE_TYPE_UINT64 ||
 	   n_src_port->type != AM_OBJECT_NOTATION_NODE_TYPE_STRING ||
-	   n_dst_id->type != AM_OBJECT_NOTATION_NODE_TYPE_INT ||
+	   n_dst_id->type != AM_OBJECT_NOTATION_NODE_TYPE_UINT64 ||
 	   n_dst_port->type != AM_OBJECT_NOTATION_NODE_TYPE_STRING)
 	{
 		return 1;
 	}
 
-	n_src_iid = (struct am_object_notation_node_int*)n_src_id;
+	n_src_iid = (struct am_object_notation_node_uint64*)n_src_id;
 	n_src_sport = (struct am_object_notation_node_string*)n_src_port;
-	n_dst_iid = (struct am_object_notation_node_int*)n_dst_id;
+	n_dst_iid = (struct am_object_notation_node_uint64*)n_dst_id;
 	n_dst_sport = (struct am_object_notation_node_string*)n_dst_port;
 
 	if(!(src = am_dfg_graph_find_node(g, n_src_iid->value)))

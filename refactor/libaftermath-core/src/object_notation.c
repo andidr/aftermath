@@ -210,7 +210,8 @@ void am_object_notation_node_destroy(struct am_object_notation_node* node)
 			am_object_notation_node_string_destroy(
 				(struct am_object_notation_node_string*)node);
 			break;
-		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT64:
+		case AM_OBJECT_NOTATION_NODE_TYPE_UINT64:
 		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 			break;
 	}
@@ -288,24 +289,48 @@ am_object_notation_parse_string(struct am_parser* p)
 		am_object_notation_node_string_createn(t.str+1, t.len-2, 1);
 }
 
-/* Parses an integer literal. Preceding whitespace is ignored. The
+/* Parses a signed 64-bit integer literal. Preceding whitespace is ignored. The
  * position of the parser will be set to the character following the
- * last digit. The function does not check whether the value fits into
- * an unsigned integer. */
+ * literal. The function does not check whether the value fits into a 64-bit
+ * signed integer (i.e., if it overflows). */
 static inline struct am_object_notation_node*
-am_object_notation_parse_int(struct am_parser* p)
+am_object_notation_parse_int64(struct am_parser* p)
+{
+	struct am_parser_token t;
+	int64_t val;
+
+	if(am_parser_read_next_int64(p, &t))
+		return NULL;
+
+	/* Skip the trailing "i64". Subtraction is safe, since t is guaranteed
+	 * to include the suffix. */
+	if(am_atoi64n(t.str, t.len - 3, &val))
+		return NULL;
+
+	return (struct am_object_notation_node*)
+		am_object_notation_node_int64_create(val);
+}
+
+/* Parses an unsigned 64-bit integer literal. Preceding whitespace is
+ * ignored. The position of the parser will be set to the character following
+ * the literal. The function does not check whether the value fits into an
+ * unsigned 64-bit signed integer (i.e., if it overflows). */
+static inline struct am_object_notation_node*
+am_object_notation_parse_uint64(struct am_parser* p)
 {
 	struct am_parser_token t;
 	uint64_t val;
 
-	if(am_parser_read_next_int(p, &t))
+	if(am_parser_read_next_uint64(p, &t))
 		return NULL;
 
-	if(am_atou64n(t.str, t.len, &val))
+	/* Skip the trailing "u64". Subtraction is safe, since t is guaranteed
+	 * to include the suffix. */
+	if(am_atou64n(t.str, t.len - 3, &val))
 		return NULL;
 
 	return (struct am_object_notation_node*)
-		am_object_notation_node_int_create(val);
+		am_object_notation_node_uint64_create(val);
 }
 
 /* Parses a double literal. Preceding whitespace is ignored. The
@@ -462,11 +487,13 @@ am_object_notation_parse_node(struct am_parser* p)
 		return am_object_notation_parse_group(p);
 	else if(t.str[0] == '.')
 		return am_object_notation_parse_double(p);
-	else if(isdigit(t.str[0])) {
+	else if(isdigit(t.str[0]) || t.str[0] == '-') {
 		if(!am_parser_peek_double(p, &t))
 			return am_object_notation_parse_double(p);
+		if(!am_parser_peek_int64(p, &t))
+			return am_object_notation_parse_int64(p);
 		else
-			return am_object_notation_parse_int(p);
+			return am_object_notation_parse_uint64(p);
 	}
 
 	return NULL;
@@ -720,28 +747,58 @@ int am_object_notation_node_string_save(
 	return 0;
 }
 
-/* Generate a textual representation of an integer node and save it to a
- * file. The indent represent the current indentation used as a prefix for the
- * first character. Returns 0 on success, otherwise 1.*/
-int am_object_notation_node_int_save(
-	struct am_object_notation_node_int* node,
+/* Generate a textual representation of a 64-bit signed integer node and save it
+ * to a file. The indent represent the current indentation used as a prefix for
+ * the first character. Returns 0 on success, otherwise 1.*/
+int am_object_notation_node_int64_save(
+	struct am_object_notation_node_int64* node,
 	FILE* fp, int indent)
 {
-	return am_fprintf_prefix(fp, "\t", indent, "%"PRId64, node->value) < 0;
+	int ret;
+	ret = am_fprintf_prefix(fp, "\t", indent, "%" PRId64 "i64", node->value);
+	return ret < 0;
 }
 
-/* Allocate and initialize a int node. Returns a reference to the newly
- * allocated node on success, otherwise NULL.
- */
-struct am_object_notation_node_int*
-am_object_notation_node_int_create(uint64_t value)
+/* Generate a textual representation of an unsigned 64-bit integer node and save
+ * it to a file. The indent represent the current indentation used as a prefix
+ * for the first character. Returns 0 on success, otherwise 1.*/
+int am_object_notation_node_uint64_save(
+	struct am_object_notation_node_uint64* node,
+	FILE* fp, int indent)
 {
-	struct am_object_notation_node_int* ret;
+	int ret;
+	ret = am_fprintf_prefix(fp, "\t", indent, "%" PRIu64 "u64", node->value);
+	return ret < 0;
+}
+
+/* Allocate and initialize a 64-bit signed integer node. Returns a reference to
+ * the newly allocated node on success, otherwise NULL.
+ */
+struct am_object_notation_node_int64*
+am_object_notation_node_int64_create(int64_t value)
+{
+	struct am_object_notation_node_int64* ret;
 
 	if(!(ret = malloc(sizeof(*ret))))
 		return NULL;
 
-	am_object_notation_node_int_init(ret, value);
+	am_object_notation_node_int64_init(ret, value);
+
+	return ret;
+}
+
+/* Allocate and initialize a 64-bit unsigned integer node. Returns a reference
+ * to the newly allocated node on success, otherwise NULL.
+ */
+struct am_object_notation_node_uint64*
+am_object_notation_node_uint64_create(uint64_t value)
+{
+	struct am_object_notation_node_uint64* ret;
+
+	if(!(ret = malloc(sizeof(*ret))))
+		return NULL;
+
+	am_object_notation_node_uint64_init(ret, value);
 
 	return ret;
 }
@@ -797,9 +854,13 @@ int am_object_notation_save_fp_indent(struct am_object_notation_node* node,
 			return am_object_notation_node_string_save(
 				(struct am_object_notation_node_string*)node,
 				fp, indent);
-		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
-			return am_object_notation_node_int_save(
-				(struct am_object_notation_node_int*)node,
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT64:
+			return am_object_notation_node_int64_save(
+				(struct am_object_notation_node_int64*)node,
+				fp, indent);
+		case AM_OBJECT_NOTATION_NODE_TYPE_UINT64:
+			return am_object_notation_node_uint64_save(
+				(struct am_object_notation_node_uint64*)node,
 				fp, indent);
 		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 			return am_object_notation_node_double_save(
@@ -881,16 +942,28 @@ am_object_notation_string_vbuild(va_list vl)
 		am_object_notation_node_string_create(val, 0);
 }
 
-/* Build an integer node. The next parameter pointed to by vl must be the
- * integer value of the node (uint64_t). Returns a newly allocated and created
- * integer node on success, otherwise NULL.
+/* Build a signed 64-bit integer node. The next parameter pointed to by vl must
+ * be the integer value of the node (int64_t). Returns a newly allocated and
+ * created integer node on success, otherwise NULL.
  */
 static struct am_object_notation_node*
-am_object_notation_int_vbuild(va_list vl)
+am_object_notation_int64_vbuild(va_list vl)
+{
+	int64_t val = va_arg(vl, int64_t);
+	return (struct am_object_notation_node*)
+		am_object_notation_node_int64_create(val);
+}
+
+/* Build an unsigned 64-bit integer node. The next parameter pointed to by vl
+ * must be the integer value of the node (uint64_t). Returns a newly allocated
+ * and created integer node on success, otherwise NULL.
+ */
+static struct am_object_notation_node*
+am_object_notation_uint64_vbuild(va_list vl)
 {
 	uint64_t val = va_arg(vl, uint64_t);
 	return (struct am_object_notation_node*)
-		am_object_notation_node_int_create(val);
+		am_object_notation_node_uint64_create(val);
 }
 
 /* Build a double node. The next parameter pointed to by vl must be the double
@@ -1033,8 +1106,10 @@ am_object_notation_vbuild(enum am_object_notation_build_verb type, va_list vl)
 			return am_object_notation_group_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_LIST:
 			return am_object_notation_list_vbuild(vl);
-		case AM_OBJECT_NOTATION_BUILD_INT:
-			return am_object_notation_int_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_INT64:
+			return am_object_notation_int64_vbuild(vl);
+		case AM_OBJECT_NOTATION_BUILD_UINT64:
+			return am_object_notation_uint64_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_DOUBLE:
 			return am_object_notation_double_vbuild(vl);
 		case AM_OBJECT_NOTATION_BUILD_STRING:
@@ -1130,7 +1205,7 @@ am_object_notation_eval_list(const  struct am_object_notation_node_list* l,
 	if(am_parser_read_next_char(p, &t, '['))
 		return NULL;
 
-	if(am_parser_read_next_int(p, &t))
+	if(am_parser_read_next_uint64(p, &t))
 		return NULL;
 
 	if(am_atou64n(t.str, t.len, &idx))
@@ -1160,7 +1235,8 @@ __am_object_notation_eval(const struct am_object_notation_node* n,
 			return am_object_notation_eval_list(
 				(const struct am_object_notation_node_list*)n, p);
 		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
-		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT64:
+		case AM_OBJECT_NOTATION_NODE_TYPE_UINT64:
 		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 		case AM_OBJECT_NOTATION_NODE_TYPE_MEMBER:
 			return NULL;
@@ -1187,7 +1263,8 @@ am_object_notation_eval_dot(const struct am_object_notation_node* n,
 			break;
 		case AM_OBJECT_NOTATION_NODE_TYPE_LIST:
 		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
-		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT64:
+		case AM_OBJECT_NOTATION_NODE_TYPE_UINT64:
 		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 		case AM_OBJECT_NOTATION_NODE_TYPE_MEMBER:
 			expect_dot = 0;

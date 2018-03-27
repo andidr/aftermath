@@ -60,7 +60,7 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 				}
 
 				if(TOGGLE) {
-					if(am_object_notation_eval_retrieve_int(
+					if(am_object_notation_eval_retrieve_uint64(
 						   &n->node, "checked", &checked) == 0)
 					{
 						b->setChecked(checked);

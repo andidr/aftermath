@@ -28,7 +28,8 @@
  * similar to JSON, but less complex. It consists of:
  *
  * - string literals (e.g., "ABCD")
- * - integer literals (e.g., 1234) with a maximum of 64 bits
+ * - 64-bit unsigned integer literals (e.g., 1234u64)
+ * - 64-bit signed integer literals (e.g., 1234i64)
  * - double literals (non-scientific notation with a mandatory dot)
  * - lists in brackets with comma-separated elements (e.g., [1, "ABC", 2]
  * - groups consisting of a group name and a list of members in braces (e.g.,
@@ -40,7 +41,8 @@ enum am_object_notation_node_type {
 	AM_OBJECT_NOTATION_NODE_TYPE_MEMBER,
 	AM_OBJECT_NOTATION_NODE_TYPE_LIST,
 	AM_OBJECT_NOTATION_NODE_TYPE_STRING,
-	AM_OBJECT_NOTATION_NODE_TYPE_INT,
+	AM_OBJECT_NOTATION_NODE_TYPE_INT64,
+	AM_OBJECT_NOTATION_NODE_TYPE_UINT64,
 	AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE
 };
 
@@ -68,7 +70,8 @@ am_object_notation_node_is_composite(struct am_object_notation_node* n)
 		case AM_OBJECT_NOTATION_NODE_TYPE_LIST:
 			return 1;
 		case AM_OBJECT_NOTATION_NODE_TYPE_STRING:
-		case AM_OBJECT_NOTATION_NODE_TYPE_INT:
+		case AM_OBJECT_NOTATION_NODE_TYPE_INT64:
+		case AM_OBJECT_NOTATION_NODE_TYPE_UINT64:
 		case AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE:
 			return 0;
 	}
@@ -256,7 +259,26 @@ am_object_notation_node_string_create(const char* value, int unescape)
 						      unescape);
 }
 
-struct am_object_notation_node_int {
+struct am_object_notation_node_int64 {
+	struct am_object_notation_node node;
+	int64_t value;
+};
+
+/* Initialize an already allocated int node. Returns 0 on success, otherwise
+ * 1. */
+static inline void
+am_object_notation_node_int64_init(struct am_object_notation_node_int64* i,
+				   int64_t value)
+{
+	am_object_notation_node_init(&i->node,
+				     AM_OBJECT_NOTATION_NODE_TYPE_INT64);
+	i->value = value;
+}
+
+struct am_object_notation_node_int64*
+am_object_notation_node_int_create(int64_t value);
+
+struct am_object_notation_node_uint64 {
 	struct am_object_notation_node node;
 	uint64_t value;
 };
@@ -264,15 +286,19 @@ struct am_object_notation_node_int {
 /* Initialize an already allocated int node. Returns 0 on success, otherwise
  * 1. */
 static inline void
-am_object_notation_node_int_init(struct am_object_notation_node_int* i,
-				 uint64_t value)
+am_object_notation_node_uint64_init(struct am_object_notation_node_uint64* i,
+				    uint64_t value)
 {
-	am_object_notation_node_init(&i->node, AM_OBJECT_NOTATION_NODE_TYPE_INT);
+	am_object_notation_node_init(&i->node,
+				     AM_OBJECT_NOTATION_NODE_TYPE_UINT64);
 	i->value = value;
 }
 
-struct am_object_notation_node_int*
-am_object_notation_node_int_create(uint64_t value);
+struct am_object_notation_node_int64*
+am_object_notation_node_int64_create(int64_t value);
+
+struct am_object_notation_node_uint64*
+am_object_notation_node_uint64_create(uint64_t value);
 
 struct am_object_notation_node_double {
 	struct am_object_notation_node node;
@@ -309,9 +335,13 @@ am_object_notation_node_double_create(double value);
 	am_object_notation_for_each_list_item_typed(			\
 		list_node, iter, struct am_object_notation_node)
 
-#define am_object_notation_for_each_list_item_int(list_node, iter)	\
+#define am_object_notation_for_each_list_item_int64(list_node, iter)	\
 	am_object_notation_for_each_list_item_typed(			\
-		list_node, iter, struct am_object_notation_node_int)
+		list_node, iter, struct am_object_notation_node_int64)
+
+#define am_object_notation_for_each_list_item_uint64(list_node, iter)	\
+	am_object_notation_for_each_list_item_typed(			\
+		list_node, iter, struct am_object_notation_node_uint64)
 
 #define am_object_notation_for_each_list_item_double(list_node, iter)	\
 	am_object_notation_for_each_list_item_typed(			\
@@ -357,7 +387,10 @@ AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
 	string, AM_OBJECT_NOTATION_NODE_TYPE_STRING);
 
 AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
-	int, AM_OBJECT_NOTATION_NODE_TYPE_INT);
+	int64, AM_OBJECT_NOTATION_NODE_TYPE_INT64);
+
+AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
+	uint64, AM_OBJECT_NOTATION_NODE_TYPE_UINT64);
 
 AM_OBJECT_NOTATION_DEFINE_TYPED_LIST_CHECK_FUN(
 	double, AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE);
@@ -619,8 +652,12 @@ int am_object_notation_node_list_save(
 int am_object_notation_node_string_save(
 	struct am_object_notation_node_string* node,
 	FILE* fp, int indent);
-int am_object_notation_node_int_save(struct am_object_notation_node_int* node,
-				     FILE* fp, int indent);
+int am_object_notation_node_int64_save(
+	struct am_object_notation_node_int64* node,
+	FILE* fp, int indent);
+int am_object_notation_node_uint64_save(
+	struct am_object_notation_node_uint64* node,
+	FILE* fp, int indent);
 int am_object_notation_save_fp_indent(struct am_object_notation_node* node,
 				      FILE* fp, int indent, int next_indent);
 int am_object_notation_save(
@@ -633,7 +670,8 @@ struct am_object_notation_node* am_object_notation_load(const char* filename);
 enum am_object_notation_build_verb {
 	AM_OBJECT_NOTATION_BUILD_GROUP,
 	AM_OBJECT_NOTATION_BUILD_LIST,
-	AM_OBJECT_NOTATION_BUILD_INT,
+	AM_OBJECT_NOTATION_BUILD_INT64,
+	AM_OBJECT_NOTATION_BUILD_UINT64,
 	AM_OBJECT_NOTATION_BUILD_DOUBLE,
 	AM_OBJECT_NOTATION_BUILD_STRING,
 	AM_OBJECT_NOTATION_BUILD_MEMBER,
@@ -651,7 +689,7 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...);
  * Examples:
  *
  * - Integer node with value 123:
- *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_INT, 123);
+ *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_UINT64, 123);
  *
  * - String node with value "FOO":
  *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_STRING, "FOO");
@@ -659,18 +697,18 @@ struct am_object_notation_node* __am_object_notation_build(int dummy, ...);
  * - Group with name "testgroup" and two integer members "i0" and "i1" with
  *   values 11 and 2987:
  *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_GROUP, "testgroup",
- *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i0", AM_OBJECT_NOTATION_BUILD_INT, 11,
- *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i1", AM_OBJECT_NOTATION_BUILD_INT, 2987,
+ *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i0", AM_OBJECT_NOTATION_BUILD_UINT64, 11,
+ *                            AM_OBJECT_NOTATION_BUILD_MEMBER, "i1", AM_OBJECT_NOTATION_BUILD_UINT64, 2987,
  *                         AM_OBJECT_NOTATION_BUILD_END);
  *
  * - Group with a list of integers and a list of strings:
  *   am_object_notation_build(AM_OBJECT_NOTATION_BUILD_GROUP, "testgroup",
  *                           AM_OBJECT_NOTATION_BUILD_MEMBER, "int_list",
  *                             AM_OBJECT_NOTATION_BUILD_LIST,
- *                               AM_OBJECT_NOTATION_BUILD_INT, 1,
- *                               AM_OBJECT_NOTATION_BUILD_INT, 2,
- *                               AM_OBJECT_NOTATION_BUILD_INT, 3,
- *                               AM_OBJECT_NOTATION_BUILD_INT, 4,
+ *                               AM_OBJECT_NOTATION_BUILD_UINT64, 1,
+ *                               AM_OBJECT_NOTATION_BUILD_UINT64, 2,
+ *                               AM_OBJECT_NOTATION_BUILD_UINT64, 3,
+ *                               AM_OBJECT_NOTATION_BUILD_UINT64, 4,
  *                             AM_OBJECT_NOTATION_BUILD_END,
  *                           AM_OBJECT_NOTATION_BUILD_MEMBER, "string_list",
  *                             AM_OBJECT_NOTATION_BUILD_LIST,
@@ -699,9 +737,9 @@ int __am_object_notation_node_group_build_add_members(
  *
  *   am_object_notation_node_group_build_add_members(g,
  *     AM_OBJECT_NOTATION_BUILD_MEMBER, "a",
- *       AM_OBJECT_NOTATION_BUILD_INT, 1,
+ *       AM_OBJECT_NOTATION_BUILD_UINT64, 1,
  *     AM_OBJECT_NOTATION_BUILD_MEMBER, "b",
- *       AM_OBJECT_NOTATION_BUILD_INT, 2,
+ *       AM_OBJECT_NOTATION_BUILD_UINT64, 2,
  *     AM_OBJECT_NOTATION_BUILD_MEMBER, "lst",
  *       AM_OBJECT_NOTATION_BUILD_LIST
  *         AM_OBJECT_NOTATION_BUILD_STRING, "aaa",
@@ -768,7 +806,9 @@ am_object_notation_eval(const struct am_object_notation_node* n,
 	}
 
 AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
-	int, AM_OBJECT_NOTATION_NODE_TYPE_INT, uint64_t)
+	int64, AM_OBJECT_NOTATION_NODE_TYPE_INT64, int64_t)
+AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
+	uint64, AM_OBJECT_NOTATION_NODE_TYPE_UINT64, uint64_t)
 AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(
 	double, AM_OBJECT_NOTATION_NODE_TYPE_DOUBLE, double)
 AM_OBJECT_NOTATION_DECL_EVAL_RETRIEVE_FUN(

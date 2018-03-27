@@ -42,7 +42,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 		{
 			QWidget* w;
 			struct am_object_notation_node* nmargin;
-			struct am_object_notation_node_int* imargin;
+			struct am_object_notation_node_uint64* imargin;
 			int margins[4] = { 5, 5, 5, 5 };
 
 			const char* margin_names[4] = {
@@ -58,7 +58,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 					continue;
 
 				if(nmargin->type !=
-				   AM_OBJECT_NOTATION_NODE_TYPE_INT)
+				   AM_OBJECT_NOTATION_NODE_TYPE_UINT64)
 				{
 					throw Exception(std::string("Member ") +
 							margin_names[i] +
