@@ -122,6 +122,17 @@ void* am_dfg_buffer_reserve(struct am_dfg_buffer* b, size_t num_samples)
 	return ret;
 }
 
+/* Shrinks a buffer by num_samples samples.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_buffer_shrink(struct am_dfg_buffer* b, size_t num_samples)
+{
+	if(b->num_samples < num_samples)
+		return 1;
+
+	return am_dfg_buffer_resize(b, b->num_samples - num_samples);
+}
 
 /*
  * Append num_saples samples of data to a buffer. The buffer is dynamically

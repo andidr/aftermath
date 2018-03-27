@@ -55,6 +55,7 @@ void am_dfg_buffer_dec_ref(struct am_dfg_buffer* b);
 int am_dfg_buffer_resize(struct am_dfg_buffer* b, size_t num_samples);
 int am_dfg_buffer_write(struct am_dfg_buffer* b, size_t num_samples, void* data);
 void* am_dfg_buffer_reserve(struct am_dfg_buffer* b, size_t num_samples);
+int am_dfg_buffer_shrink(struct am_dfg_buffer* b, size_t num_samples);
 int am_dfg_buffer_read(struct am_dfg_buffer* b, size_t num_samples, void* data);
 int am_dfg_buffer_read_last(struct am_dfg_buffer* b, void* data);
 int am_dfg_buffer_get(struct am_dfg_buffer* b,
