@@ -51,7 +51,7 @@
 						  const char* str,		\
 						  void* out)			\
 	{									\
-		if(am_atou##NBITS##_safe(str, out) != AM_ATOU_SAFE_STATUS_VALID)\
+		if(am_atou##NBITS##_safe(str, out) != AM_ATO_SAFE_STATUS_VALID)\
 			return 1;						\
 										\
 		return 0;							\
@@ -62,7 +62,7 @@
 	{									\
 		uint##NBITS##_t i;						\
 										\
-		if(am_atou##NBITS##_safe(str, &i) != AM_ATOU_SAFE_STATUS_VALID) \
+		if(am_atou##NBITS##_safe(str, &i) != AM_ATO_SAFE_STATUS_VALID) \
 			return 0;						\
 										\
 		return 1;							\
