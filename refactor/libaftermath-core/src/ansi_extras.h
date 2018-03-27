@@ -702,4 +702,24 @@ AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(16)
 AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(32)
 AM_DEFINE_CONVERT_SAFE_UINT64_TO_U(64)
 
+#define AM_DEFINE_CONVERT_SAFE_INT64_TO_I(BITS)				\
+	/* Safely converts a int64_t to a int##BITS##_t, i.e., performs a	\
+	 * range check prior to the conversion. Returns 0 on success,		\
+	 * otherwise 1. */							\
+	static inline int							\
+	am_safe_i##BITS##_from_i64(int##BITS##_t* out, int64_t v)		\
+	{									\
+		if(v > (int64_t)INT##BITS##_MAX || v < (int64_t)INT##BITS##_MIN)\
+			return 1;						\
+										\
+		*out = (int##BITS##_t)v;					\
+										\
+		return 0;							\
+	}
+
+AM_DEFINE_CONVERT_SAFE_INT64_TO_I(8)
+AM_DEFINE_CONVERT_SAFE_INT64_TO_I(16)
+AM_DEFINE_CONVERT_SAFE_INT64_TO_I(32)
+AM_DEFINE_CONVERT_SAFE_INT64_TO_I(64)
+
 #endif
