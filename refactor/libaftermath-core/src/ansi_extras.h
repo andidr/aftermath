@@ -230,6 +230,38 @@ static inline void am_skip_whitespacen(const char** str, size_t* len)
 	am_skip_trailing_whitespacen(str, len);
 }
 
+/* Converts the substring of the first len characters of str to a signed 64-bit
+ * integer. Returns 0 if the expression is valid, otherwise 1.
+ */
+static inline int am_atoi64n(const char* str, size_t len, int64_t* out)
+{
+	int64_t val = 0;
+	int sign = 0;
+
+	am_skip_whitespacen(&str, &len);
+
+	if(len == 0)
+		return 1;
+
+	if(str[0] == '-') {
+		sign = 1;
+		str++;
+		len--;
+	}
+
+	for(size_t i = 0; i < len; i++) {
+		if(!isdigit(str[i]))
+			return 1;
+
+		val *= 10;
+		val += str[i]-'0';
+	}
+
+	*out = (sign) ? -val : val;
+
+	return 0;
+}
+
 /* Converts the substring of the first len characters of str to an
  * integer. Returns 0 if the expression is valid, otherwise 1.
  */
