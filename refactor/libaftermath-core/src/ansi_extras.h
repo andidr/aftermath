@@ -595,6 +595,31 @@ AM_DEFINE_ATOI_SAFE_FUN(16)
 AM_DEFINE_ATOI_SAFE_FUN(32)
 AM_DEFINE_ATOI_SAFE_FUN(64)
 
+#define AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(T, SUFFIX, MAX)		\
+	/* Safely converts a size_t to a T, i.e., performs a range check prior	\
+	 * to the conversion. Returns 0 on success, otherwise 1. */		\
+	static inline int							\
+	am_safe_##SUFFIX##_from_size(T* out, size_t v)				\
+	{									\
+		if(sizeof(T) >= sizeof(size_t)) {				\
+			if((T)v > MAX)						\
+				return 1;					\
+		}								\
+										\
+		*out = (T)v;							\
+		return 0;							\
+	}
+
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN (uint8_t,  u8,  UINT8_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(uint16_t, u16, UINT16_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(uint32_t, u32, UINT32_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(uint64_t, u64, UINT64_MAX)
+
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN( int8_t,  i8,  INT8_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(int16_t, i16, INT16_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(int32_t, i32, INT32_MAX)
+AM_DEFINE_CONVERT_SAFE_SIZE_TO_INT_FUN(int64_t, i64, INT64_MAX)
+
 #define AM_DEFINE_CONVERT_SAFE_INT_TO_SIZE_FUN(T, SUFFIX, SIGNED)		\
 	/* Safely converts a T to a size_t, i.e., performs a range check prior	\
 	 * to the conversion. Returns 0 on success, otherwise 1. */		\
