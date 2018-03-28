@@ -5,8 +5,12 @@ AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_MACRO_DIRS([m4])
 
 m4_include([m4/with-check.m4])
+m4_include([m4/ax_require_defined.m4])
+m4_include([m4/ax_cxx_compile_stdcxx.m4])
+m4_include([m4/ax_cxx_compile_stdcxx_14.m4])
 
 AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX_14(ext, mandatory)
 
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES(QT, [Qt5Core, Qt5Gui, Qt5Widgets], [],
