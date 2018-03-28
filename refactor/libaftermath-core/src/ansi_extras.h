@@ -19,6 +19,7 @@
 #ifndef AM_ANSI_EXTRAS_H
 #define AM_ANSI_EXTRAS_H
 
+#include "safe_alloc.h"
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -30,6 +31,8 @@
 #include <regex.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <math.h>
+#include <float.h>
 
 #define AM_ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -231,11 +234,13 @@ static inline void am_skip_whitespacen(const char** str, size_t* len)
 }
 
 /* Converts the substring of the first len characters of str to a signed 64-bit
- * integer. Returns 0 if the expression is valid, otherwise 1.
+ * integer. Returns 0 if the expression is valid and does not overflow or
+ * underflow, otherwise 1.
  */
-static inline int am_atoi64n(const char* str, size_t len, int64_t* out)
+static inline int am_safe_atoi64n(const char* str, size_t len, int64_t* out)
 {
 	int64_t val = 0;
+	int64_t digitval;
 	int sign = 0;
 
 	am_skip_whitespacen(&str, &len);
@@ -253,21 +258,44 @@ static inline int am_atoi64n(const char* str, size_t len, int64_t* out)
 		if(!isdigit(str[i]))
 			return 1;
 
-		val *= 10;
-		val += str[i]-'0';
+		digitval = str[i]-'0';
+
+		if(sign) {
+			if(val < INT64_MIN / 10)
+				return 1;
+
+			val *= 10;
+
+			if(INT64_MIN - val > -digitval)
+				return 1;
+
+			val -= digitval;
+		} else {
+			if(val > INT64_MAX / 10)
+				return 1;
+
+			val *= 10;
+
+			if(INT64_MAX - val < digitval)
+				return 1;
+
+			val += digitval;
+		}
 	}
 
-	*out = (sign) ? -val : val;
+	*out = val;
 
 	return 0;
 }
 
 /* Converts the substring of the first len characters of str to an
- * integer. Returns 0 if the expression is valid, otherwise 1.
+ * integer. Returns 0 if the expression is valid and does not overflow,
+ * otherwise 1.
  */
-static inline int am_atou64n(const char* str, size_t len, uint64_t* out)
+static inline int am_safe_atou64n(const char* str, size_t len, uint64_t* out)
 {
 	uint64_t val = 0;
+	uint64_t digitval;
 
 	am_skip_whitespacen(&str, &len);
 
@@ -278,8 +306,17 @@ static inline int am_atou64n(const char* str, size_t len, uint64_t* out)
 		if(!isdigit(str[i]))
 			return 1;
 
+		digitval = str[i]-'0';
+
+		if(val > UINT64_MAX / 10)
+			return 1;
+
 		val *= 10;
-		val += str[i]-'0';
+
+		if(UINT64_MAX - val < digitval)
+			return 1;
+
+		val += digitval;
 	}
 
 	*out = val;
@@ -304,13 +341,14 @@ static inline int am_uint_multiplier(char unit, uint64_t* val)
 	return 0;
 }
 
-/* Parses the first len characters of str for an unsigned integer with
- * an optional unit prefix (K, M, G, T, P). The value is returned in
- * val. If the characters do not form a valid expression the function
- * returns 1, otherwise 0. */
+/* Parses the first len characters of str for an unsigned integer with an
+ * optional unit prefix (K, M, G, T, P). The value is returned in val. If the
+ * characters do not form a valid expression or if the expression overflows, the
+ * function returns 1, otherwise 0. */
 static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 {
 	uint64_t mult;
+	uint64_t convval;
 
 	am_skip_whitespacen(&str, &len);
 
@@ -325,12 +363,15 @@ static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 		if(am_uint_multiplier(str[len-1], &mult))
 			return 1;
 
-		if(am_atou64n(str, len-1, val))
+		if(am_safe_atou64n(str, len-1, &convval))
 			return 1;
 
-		*val *= mult;
+		if(convval > UINT64_MAX / mult)
+			return 1;
+
+		*val = mult * convval;
 	} else {
-		return am_atou64n(str, len, val);
+		return am_safe_atou64n(str, len, val);
 	}
 
 	return 0;
@@ -339,35 +380,50 @@ static inline int am_atou64n_unit(const char* str, size_t len, uint64_t* val)
 /* Parses the first len characters of str for an double
  * expression. The value is returned in val. If the characters do not
  * form a valid expression the function returns 1, otherwise 0. */
-static inline int am_atodbln(const char* str, size_t len, double* val)
+static inline int am_safe_atodbln(const char* str, size_t len, double* val)
 {
 	char* buffer;
+	double convval;
+	char* endptr;
+	size_t alloc_len;
 
 	am_skip_whitespacen(&str, &len);
 
 	if(len == 0)
 		return 1;
 
-	if(!(buffer = (char*)malloc(len+1)))
+	if(am_size_add_safe(&alloc_len, len, 1))
+		return 1;
+
+	if(!(buffer = (char*)malloc(alloc_len)))
 		return 1;
 
 	memcpy(buffer, str, len);
 	buffer[len] = '\0';
 
-	*val = strtod(buffer, NULL);
+	convval = strtod(buffer, &endptr);
+
+	if(endptr == buffer || convval == HUGE_VAL || convval == -HUGE_VAL) {
+		free(buffer);
+		return 1;
+	}
+
+	*val = convval;
+
 	free(buffer);
 
 	return 0;
 }
 
-/* Parses the first len characters of str for an double expression
- * with an optional unit prefix (K, M, G, T, P). The value is returned
- * in val. If the characters do not form a valid expression the
- * function returns 1, otherwise 0. */
-static inline int am_atodbln_unit(const char* str, size_t len, double* val)
+/* Parses the first len characters of str for an double expression with an
+ * optional unit prefix (K, M, G, T, P). The value is returned in val. If the
+ * characters do not form a valid expression or if the expression overflows /
+ * underflow, the function returns 1, otherwise 0. */
+static inline int am_safe_atodbln_unit(const char* str, size_t len, double* val)
 {
 	uint64_t mult;
 	size_t i;
+	double convval;
 
 	am_skip_whitespacen(&str, &len);
 
@@ -391,12 +447,15 @@ static inline int am_atodbln_unit(const char* str, size_t len, double* val)
 		if(i == 0 && !isdigit(str[i]))
 			return 1;
 
-		if(am_atodbln(str, i+1, val))
+		if(am_safe_atodbln(str, i+1, &convval))
 			return 1;
 
-		*val *= (double)mult;
+		if(convval > DBL_MAX / (double)mult)
+			return 1;
+
+		*val = convval * (double)mult;
 	} else {
-		if(am_atodbln(str, len, val))
+		if(am_safe_atodbln(str, len, val))
 			return 1;
 	}
 

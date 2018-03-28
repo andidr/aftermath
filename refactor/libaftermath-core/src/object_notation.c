@@ -304,7 +304,7 @@ am_object_notation_parse_int64(struct am_parser* p)
 
 	/* Skip the trailing "i64". Subtraction is safe, since t is guaranteed
 	 * to include the suffix. */
-	if(am_atoi64n(t.str, t.len - 3, &val))
+	if(am_safe_atoi64n(t.str, t.len - 3, &val))
 		return NULL;
 
 	return (struct am_object_notation_node*)
@@ -326,7 +326,7 @@ am_object_notation_parse_uint64(struct am_parser* p)
 
 	/* Skip the trailing "u64". Subtraction is safe, since t is guaranteed
 	 * to include the suffix. */
-	if(am_atou64n(t.str, t.len - 3, &val))
+	if(am_safe_atou64n(t.str, t.len - 3, &val))
 		return NULL;
 
 	return (struct am_object_notation_node*)
@@ -346,7 +346,7 @@ am_object_notation_parse_double(struct am_parser* p)
 	if(am_parser_read_next_double(p, &t))
 		return NULL;
 
-	if(am_atodbln(t.str, t.len, &val))
+	if(am_safe_atodbln(t.str, t.len, &val))
 		return NULL;
 
 	return (struct am_object_notation_node*)
@@ -1208,7 +1208,7 @@ am_object_notation_eval_list(const  struct am_object_notation_node_list* l,
 	if(am_parser_read_next_uint64(p, &t))
 		return NULL;
 
-	if(am_atou64n(t.str, t.len, &idx))
+	if(am_safe_atou64n(t.str, t.len, &idx))
 		return NULL;
 
 	if(am_parser_read_next_char(p, &t, ']'))
