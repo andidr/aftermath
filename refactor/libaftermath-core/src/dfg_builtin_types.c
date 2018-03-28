@@ -21,6 +21,7 @@
 #include <aftermath/core/dfg/types/duration.h>
 #include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/core/dfg/types/histogram.h>
+#include <aftermath/core/dfg/types/histogram_data.h>
 #include <aftermath/core/dfg/types/interval.h>
 #include <aftermath/core/dfg/types/string.h>
 #include <aftermath/core/dfg/types/timestamp.h>
@@ -95,6 +96,9 @@ static struct static_dfg_type_decl types[] = {
 	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int32, INT32),
 	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int64, INT64),
 	AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(double, DOUBLE),
+	{ "am::core::histogram1d_data",
+	  AM_DFG_TYPE_HISTOGRAM1D_DATA_SAMPLE_SIZE,
+	  am_dfg_type_histogram1d_data_free_samples },
 	{ "am::core::interval",
 	  AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE,
 	  NULL,
