@@ -1200,7 +1200,8 @@ am_object_notation_eval_list(const  struct am_object_notation_node_list* l,
 {
 	struct am_parser_token t;
 	struct am_object_notation_node* item;
-	uint64_t idx;
+	uint64_t uidx;
+	size_t idx = 0;
 
 	if(am_parser_read_next_char(p, &t, '['))
 		return NULL;
@@ -1208,7 +1209,11 @@ am_object_notation_eval_list(const  struct am_object_notation_node_list* l,
 	if(am_parser_read_next_uint64(p, &t))
 		return NULL;
 
-	if(am_safe_atou64n(t.str, t.len, &idx))
+	if(am_safe_atou64n(t.str, t.len, &uidx))
+		return NULL;
+
+	/* Check for possible overflow */
+	if(am_safe_size_from_u64(&idx, uidx))
 		return NULL;
 
 	if(am_parser_read_next_char(p, &t, ']'))
