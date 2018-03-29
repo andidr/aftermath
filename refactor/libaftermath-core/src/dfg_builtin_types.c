@@ -78,7 +78,7 @@ static struct static_dfg_type_decl types[] = {
 	  am_dfg_type_timestamp_to_string,
 	  am_dfg_type_timestamp_from_string,
 	  am_dfg_type_timestamp_check_string },
-	{ "am::core::trace",
+	{ "const am::core::trace",
 	  AM_DFG_TYPE_TRACE_SAMPLE_SIZE,
 	  NULL },
 	{ "am::core::duration",
