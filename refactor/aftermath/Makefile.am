@@ -59,6 +59,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/DFGWidget.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h \
+	src/gui/widgets/HierarchyComboBox.cpp \
+	src/gui/widgets/moc_HierarchyComboBox.cpp \
+	src/gui/widgets/HierarchyComboBox.h \
 	src/gui/widgets/HistogramWidget.cpp \
 	src/gui/widgets/HistogramWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
@@ -74,6 +77,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
+	src/gui/widgets/moc_HierarchyComboBox.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp \
@@ -124,6 +128,11 @@ src/models/moc_DFGNodeTypeRegistryTableModel.cpp: \
 	src/models/DFGNodeTypeRegistryTableModel.cpp \
 	src/models/DFGNodeTypeRegistryTableModel.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/models/DFGNodeTypeRegistryTableModel.h -o $@
+
+src/gui/widgets/moc_HierarchyComboBox.cpp: \
+	src/gui/widgets/HierarchyComboBox.cpp \
+	src/gui/widgets/HierarchyComboBox.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/HierarchyComboBox.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 
