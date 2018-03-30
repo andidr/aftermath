@@ -20,6 +20,7 @@
 #include "BoxWidgetCreator.h"
 #include "ButtonWidgetCreator.h"
 #include "DFGWidgetCreator.h"
+#include "HierarchyComboBoxCreator.h"
 #include "HistogramWidgetCreator.h"
 #include "LabelWidgetCreator.h"
 #include "SplitterWidgetCreator.h"
@@ -36,6 +37,7 @@ DefaultGUIFactory::DefaultGUIFactory(class AftermathSession* session) :
 	this->addCreator(new ButtonWidgetCreator());
 	this->addCreator(new DFGWidgetCreator());
 	this->addCreator(new HistogramWidgetCreator());
+	this->addCreator(new HierarchyComboBoxCreator());
 	this->addCreator(new HSplitterWidgetCreator());
 	this->addCreator(new VSplitterWidgetCreator());
 	this->addCreator(new LabelWidgetCreator());

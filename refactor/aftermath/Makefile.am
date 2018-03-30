@@ -37,6 +37,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/DFGWidgetCreator.h \
 	src/gui/factory/GUIFactory.cpp \
 	src/gui/factory/GUIFactory.h \
+	src/gui/factory/HierarchyComboBoxCreator.h \
+	src/gui/factory/HierarchyComboBoxCreator.cpp \
 	src/gui/factory/HistogramWidgetCreator.cpp \
 	src/gui/factory/HistogramWidgetCreator.h \
 	src/gui/factory/LabelWidgetCreator.cpp \
