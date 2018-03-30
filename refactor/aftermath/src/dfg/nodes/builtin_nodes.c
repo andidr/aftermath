@@ -20,6 +20,10 @@
 
 #include <aftermath/core/dfg_builtin_node_impl.h>
 
+#define DEFS_NAME() amgui_hierarchy_combobox_defs
+#include "gui/hierarchy_combobox.h"
+
+#undef DEFS_NAME
 #define DEFS_NAME() amgui_histogram_defs
 #include "gui/histogram.h"
 
@@ -33,6 +37,7 @@
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
+	amgui_hierarchy_combobox_defs,
 	amgui_histogram_defs,
 	amgui_label_defs,
 	amgui_timeline_defs,

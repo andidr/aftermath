@@ -17,7 +17,7 @@
  */
 
 #include "HierarchyComboBox.h"
-
+#include "../../dfg/nodes/gui/hierarchy_combobox.h"
 
 HierarchyComboBox::HierarchyComboBox(QWidget* parent,
 				     struct am_hierarchyp_array* ha) :
@@ -28,7 +28,13 @@ HierarchyComboBox::HierarchyComboBox(QWidget* parent,
 
 	QObject::connect(this, static_cast<void(QComboBox::*)(int)>
 			 (&QComboBox::currentIndexChanged),
-			 this, [=](int idx){ this->processDFGNode(); });
+			 this, [=](int idx){
+				 if(this->dfgNode) {
+					 this->dfgNode->required_mask.push_new =
+						 (1 << AM_DFG_AMGUI_HIERARCHY_COMBOBOX_NODE_HIERARCHY);
+					 this->processDFGNode();
+				 }
+			 });
 }
 
 HierarchyComboBox::~HierarchyComboBox()
