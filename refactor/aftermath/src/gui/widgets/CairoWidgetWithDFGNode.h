@@ -19,16 +19,14 @@
 #define AM_CAIROWIDGETWITHDFGNODE_H
 
 #include "CairoWidget.h"
-
-extern "C" {
-	#include <aftermath/core/dfg_node.h>
-}
+#include "WidgetWithDFGNode.h"
 
 /**
  * A CairoWidget that can have an associatd DFG node
  */
 class CairoWidgetWithDFGNode : public CairoWidget
 {
+	AM_WIDGETWITHDFGNODE_DECLS
 	Q_OBJECT
 
 	public:
@@ -36,17 +34,6 @@ class CairoWidgetWithDFGNode : public CairoWidget
 
 		CairoWidgetWithDFGNode(QWidget* parent = NULL);
 		virtual ~CairoWidgetWithDFGNode();
-
-		void setDFGNode(struct am_dfg_node* n) noexcept;
-		struct am_dfg_node* getDFGNode() noexcept;
-
-	protected:
-		void processDFGNode();
-
-		struct am_dfg_node* dfgNode;
-
-	signals:
-		void processDFGNodeSignal(struct am_dfg_node* n);
 };
 
 #endif

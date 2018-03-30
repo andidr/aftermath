@@ -19,37 +19,10 @@
 #include "CairoWidgetWithDFGNode.h"
 
 CairoWidgetWithDFGNode::CairoWidgetWithDFGNode(QWidget* parent) :
-	super(parent), dfgNode(NULL)
+	super(parent)
 {
 }
 
 CairoWidgetWithDFGNode::~CairoWidgetWithDFGNode()
 {
-}
-
-/**
- * Associates a DFG node with the widgets
- */
-void CairoWidgetWithDFGNode::setDFGNode(struct am_dfg_node* n) noexcept
-{
-	this->dfgNode = n;
-}
-
-/**
- * Returns the currently associated DFG node of the widget
- */
-struct am_dfg_node* CairoWidgetWithDFGNode::getDFGNode() noexcept
-{
-	return this->dfgNode;
-}
-
-/**
- * Triggers processing of the node. If the node is actually processed depends on
- * whether the processDFGNodeSignal of the widget is connected with an
- * appropriate processor.
- */
-void CairoWidgetWithDFGNode::processDFGNode()
-{
-	if(this->dfgNode)
-		emit processDFGNodeSignal(this->dfgNode);
 }

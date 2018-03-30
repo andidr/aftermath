@@ -62,7 +62,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/HistogramWidget.cpp \
 	src/gui/widgets/HistogramWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
-	src/gui/widgets/TimelineWidget.h
+	src/gui/widgets/TimelineWidget.h \
+	src/gui/widgets/WidgetWithDFGNode.h
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
 aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -Wall -Werror
