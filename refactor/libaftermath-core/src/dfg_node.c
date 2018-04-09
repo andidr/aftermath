@@ -178,6 +178,24 @@ void am_dfg_port_destroy(struct am_dfg_port* p)
 	free(p->connections);
 }
 
+/* Returns a pointer to the port type of a node type nt with the name specified
+ * in port_name. If no port type has the specified name, the function returns
+ * NULL.
+ */
+struct am_dfg_port_type*
+am_dfg_node_type_find_port_type(const struct am_dfg_node_type* nt,
+				const char* port_name)
+{
+	struct am_dfg_port_type* pt;
+
+	/* FIXME: speed up linear look-up */
+	am_dfg_node_type_for_each_port_type(nt, pt)
+		if(strcmp(pt->name, port_name) == 0)
+			return pt;
+
+	return NULL;
+}
+
 /* Same as am_dfg_node_type_buildv, but does not initialize ports and properties
  * (but allocates the space for them). */
 int am_dfg_node_type_build_noinit(struct am_dfg_node_type* nt,
