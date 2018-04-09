@@ -358,6 +358,12 @@ int am_dfg_node_type_build(struct am_dfg_node_type* nt,
 			   size_t num_properties,
 			   ...);
 
+/* Iterates over all port types of a node type */
+#define am_dfg_node_type_for_each_port_type(nt, pt)	\
+	for((pt) = &(nt)->ports[0];			\
+	    (pt) != &(nt)->ports[(nt)->num_ports];	\
+	    (pt)++)
+
 /* Instance of a node */
 struct am_dfg_node {
 	/* The node's node type */
