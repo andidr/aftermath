@@ -35,4 +35,8 @@
  * the new pointer as void* */
 #define AM_PTR_SUB(p, val) ((void*)(((char*)p)-(val)))
 
+/* Calculates the index of an element e in an array arr */
+#define AM_ARRAY_INDEX(arr, e) \
+	((((uintptr_t)(e)) - ((uintptr_t)(arr))) / sizeof(*(e)))
+
 #endif
