@@ -41,6 +41,20 @@ struct am_dfg_port_type {
 	long flags;
 };
 
+/* Returns true if a port type pt defines an input port. */
+static inline int
+am_dfg_port_type_is_input_type(const struct am_dfg_port_type* pt)
+{
+	return pt->flags & AM_DFG_PORT_IN;
+}
+
+/* Returns true if a port type pt defines an output port. */
+static inline int
+am_dfg_port_type_is_output_type(const struct am_dfg_port_type* pt)
+{
+	return pt->flags & AM_DFG_PORT_OUT;
+}
+
 /* Static definition of a DFG node port type */
 struct am_dfg_static_port_type_def {
 	/* Name of the port */
@@ -140,13 +154,13 @@ static inline int am_dfg_ports_connected(const struct am_dfg_port* p,
 /* Returns true if a port p is an input port. */
 static inline int am_dfg_port_is_input_port(const struct am_dfg_port* p)
 {
-	return p->type->flags & AM_DFG_PORT_IN;
+	return am_dfg_port_type_is_input_type(p->type);
 }
 
 /* Returns true if a port p is an output port. */
 static inline int am_dfg_port_is_output_port(const struct am_dfg_port* p)
 {
-	return p->type->flags & AM_DFG_PORT_OUT;
+	return am_dfg_port_type_is_output_type(p->type);
 }
 
 /* If a is an input port and b is an output port or the other way around,
