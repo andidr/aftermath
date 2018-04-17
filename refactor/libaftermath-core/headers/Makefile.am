@@ -31,6 +31,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg_type_registry.h \
 	aftermath/core/dfg/nodes/duration_to_string.h \
 	aftermath/core/dfg/nodes/hierarchy_node_attributes.h \
+	aftermath/core/dfg/nodes/hierarchy_node_selector.h \
 	aftermath/core/dfg/nodes/hierarchy_selector.h \
 	aftermath/core/dfg/nodes/histogram_attributes.h \
 	aftermath/core/dfg/nodes/histogram_builder.h \
