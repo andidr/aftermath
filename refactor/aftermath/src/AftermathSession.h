@@ -60,6 +60,21 @@ class AftermathSession {
 				{ }
 		};
 
+		class NoDFGException : public Exception {
+			public:
+				NoDFGException() :
+					Exception("No DFG associated to this "
+						  "session.")
+				{ }
+		};
+
+		class DFGSchedulingException : public Exception {
+			public:
+				DFGSchedulingException() :
+					Exception("Failed to schedule DFG.")
+				{ }
+		};
+
 		AftermathSession();
 		~AftermathSession();
 
@@ -72,6 +87,7 @@ class AftermathSession {
 		void setTrace(struct am_trace* t) noexcept;
 		void setDFG(struct am_dfg_graph* g) noexcept;
 		void setDFGCoordinateMapping(struct am_dfg_coordinate_mapping* m) noexcept;
+		void scheduleDFG();
 
 		struct am_timeline_render_layer_type_registry*
 		getRenderLayerTypeRegistry() noexcept;

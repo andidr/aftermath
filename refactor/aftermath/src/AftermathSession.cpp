@@ -155,3 +155,22 @@ DFGQTProcessor* AftermathSession::getDFGProcessorp()
 {
 	return &this->dfgProcessor;
 }
+
+/* Schedules the entire DFG graph of the session. Throws an exception if
+ * scheduling fails. */
+void AftermathSession::scheduleDFG()
+{
+	int ret;
+
+	if(!this->dfg.graph)
+		throw NoDFGException();
+
+	this->dfgProcessor.disable();
+
+	ret = am_dfg_schedule_graph(this->dfg.graph);
+
+	this->dfgProcessor.enable();
+
+	if(ret)
+		throw DFGSchedulingException();
+}
