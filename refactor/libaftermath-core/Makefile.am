@@ -9,6 +9,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/aux.h \
 				src/base_types.h \
 				src/bsearch.h \
+				src/bits.h \
 				src/bitvector.c \
 				src/bitvector.h \
 				src/buffer.c \

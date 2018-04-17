@@ -2,6 +2,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/arithmetic.h \
 	aftermath/core/aux.h \
 	aftermath/core/base_types.h \
+	aftermath/core/bits.h \
 	aftermath/core/bitvector.h \
 	aftermath/core/bsearch.h \
 	aftermath/core/buffer.h \
