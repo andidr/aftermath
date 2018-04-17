@@ -24,6 +24,10 @@
 #include <aftermath/core/dfg/nodes/hierarchy_node_attributes.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() hierarchy_selector_defs
+#include <aftermath/core/dfg/nodes/hierarchy_selector.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() histogram_attributes_defs
 #include <aftermath/core/dfg/nodes/histogram_attributes.h>
 
@@ -63,6 +67,7 @@
 static struct am_dfg_static_node_type_def** defsets[] = {
 	duration_to_string_defs,
 	hierarchy_node_attributes_defs,
+	hierarchy_selector_defs,
 	histogram_attributes_defs,
 	histogram_builder_defs,
 	interval_attributes_defs,

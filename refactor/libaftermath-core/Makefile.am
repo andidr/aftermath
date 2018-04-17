@@ -52,6 +52,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/duration_to_string.h \
 				src/dfg/nodes/hierarchy_node_attributes.c \
 				src/dfg/nodes/hierarchy_node_attributes.h \
+				src/dfg/nodes/hierarchy_selector.c \
+				src/dfg/nodes/hierarchy_selector.h \
 				src/dfg/nodes/histogram_attributes.c \
 				src/dfg/nodes/histogram_attributes.h \
 				src/dfg/nodes/histogram_builder.c \
