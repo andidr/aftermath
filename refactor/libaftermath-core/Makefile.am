@@ -70,6 +70,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/string_format.h \
 				src/dfg/nodes/timestamp_to_string.c \
 				src/dfg/nodes/timestamp_to_string.h \
+				src/dfg/nodes/timestamp_to_uint64.c \
+				src/dfg/nodes/timestamp_to_uint64.h \
 				src/dfg/nodes/trace.c \
 				src/dfg/nodes/trace.h \
 				src/dfg/types/bool.c \

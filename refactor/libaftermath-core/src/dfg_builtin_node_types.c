@@ -64,6 +64,10 @@
 #include <aftermath/core/dfg/nodes/timestamp_to_string.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() timestamp_to_uint64_defs
+#include <aftermath/core/dfg/nodes/timestamp_to_uint64.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() trace_defs
 #include <aftermath/core/dfg/nodes/trace.h>
 
@@ -80,6 +84,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	state_event_attributes_defs,
 	string_format_defs,
 	timestamp_to_string_defs,
+	timestamp_to_uint64_defs,
 	trace_defs,
 	NULL
 };
