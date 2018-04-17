@@ -58,6 +58,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/interval_attributes.h \
 				src/dfg/nodes/interval_duration.c \
 				src/dfg/nodes/interval_duration.h \
+				src/dfg/nodes/state_event_attributes.c \
+				src/dfg/nodes/state_event_attributes.h \
 				src/dfg/nodes/string_format.c \
 				src/dfg/nodes/string_format.h \
 				src/dfg/nodes/timestamp_to_string.c \

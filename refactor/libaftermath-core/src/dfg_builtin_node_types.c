@@ -40,6 +40,10 @@
 #include <aftermath/core/dfg/nodes/duration_to_string.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() state_event_attributes_defs
+#include <aftermath/core/dfg/nodes/state_event_attributes.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() string_format_defs
 #include <aftermath/core/dfg/nodes/string_format.h>
 
@@ -58,6 +62,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	histogram_builder_defs,
 	interval_attributes_defs,
 	interval_duration_defs,
+	state_event_attributes_defs,
 	string_format_defs,
 	timestamp_to_string_defs,
 	trace_defs,
