@@ -18,6 +18,13 @@
 #include "timeline.h"
 #include "../../../gui/widgets/TimelineWidget.h"
 
+enum port_indexes {
+	TRACE_PORT = 0,
+	HIERARCHY_PORT = 1,
+	INTERVAL_IN_PORT = 2,
+	INTERVAL_OUT_PORT = 3
+};
+
 int am_dfg_amgui_timeline_init(struct am_dfg_node* n)
 {
 	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
@@ -38,11 +45,30 @@ void am_dfg_amgui_timeline_destroy(struct am_dfg_node* n)
 int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 {
 	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
-	struct am_dfg_port* pinterval_in = &n->ports[0];
-	struct am_dfg_port* pinterval_out = &n->ports[1];
+	struct am_dfg_port* phierarchy_in = &n->ports[HIERARCHY_PORT];
+	struct am_dfg_port* ptrace_in = &n->ports[TRACE_PORT];
+	struct am_dfg_port* pinterval_in = &n->ports[INTERVAL_IN_PORT];
+	struct am_dfg_port* pinterval_out = &n->ports[INTERVAL_OUT_PORT];
 	struct am_interval* interval;
 	struct am_interval interval_in;
+	struct am_trace* trace_in = NULL;
+	struct am_hierarchy* hierarchy_in = NULL;
 	void* out;
+
+	if(am_dfg_port_activated_and_has_data(phierarchy_in)) {
+		if(am_dfg_buffer_read_last(phierarchy_in->buffer, &hierarchy_in))
+			return 1;
+
+		t->timeline->setHierarchy(hierarchy_in);
+	}
+
+	if(am_dfg_port_activated_and_has_data(ptrace_in)) {
+		if(am_dfg_buffer_read_last(ptrace_in->buffer, &trace_in))
+			return 1;
+
+		t->timeline->setTrace(trace_in);
+		t->timeline->setVisibleInterval(&trace_in->bounds);
+	}
 
 	if(am_dfg_port_activated_and_has_data(pinterval_in)) {
 		if(am_dfg_buffer_read_last(pinterval_in->buffer, &interval_in))
