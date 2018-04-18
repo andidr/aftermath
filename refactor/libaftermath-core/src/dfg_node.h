@@ -26,6 +26,109 @@
 #include <aftermath/core/object_notation.h>
 #include <aftermath/core/typed_rbtree.h>
 
+struct am_dfg_port_mask {
+	/* For port masks embedded into nodes:
+	 *
+	 *   Included input ports have been marked to consume data from the
+	 *   connected producer only of the data has changed since the last time
+	 *   the connected output port pushed data. If the connected output port
+	 *   does not indicate that it will produce new data, data generation at
+	 *   the output port can be omitted.
+	 *
+	 * For port masks embedded into port types:
+	 *
+	 *   When the port is requested, mark included input ports to pull data
+	 *   in if the data on the connected output port has changed since the
+	 *   last push of that output port.
+	 */
+	uint64_t pull_new;
+
+	/* For port masks embedded into nodes:
+	 *
+	 *   Included input ports have been marked to pull data in from the
+	 *   connected output port, even if this data hasn't changed since the
+	 *   last time the input port was pulled.
+	 *
+	 * For port masks embedded into port types:
+	 *
+	 *   When the port is requested, mark included input ports to pull data
+	 *   in, even if the connected output port would provide the same data
+	 *   as the data from its last push.
+	 */
+	uint64_t pull_old;
+
+	/* For port masks embedded into nodes:
+	 *
+	 *   Included output ports will or are likely to produce new data. This
+	 *   might be conservative choice and the node might actually provide
+	 *   the same data as the last time at the indicated ports.
+	 *
+	 * For port masks embedded into port types:
+	 *
+	 *   When the port is requested, mark included output ports as ports
+	 *   that might push new data.
+	 */
+	uint64_t push_new;
+
+	/* For port masks embedded into nodes:
+	 *
+	 *   Included output ports will produce the same data as at the last
+	 *   push.
+	 *
+	 * For port masks embedded into port types:
+	 *
+	 *   When the port is requested, mark included output ports as ports
+	 *   that will provide the same data as at the last push.
+	 */
+	uint64_t push_old;
+};
+
+/* Sets all fields fo a port masl k to 0 */
+static inline void am_dfg_port_mask_reset(struct am_dfg_port_mask* m)
+{
+	memset(m, 0, sizeof(*m));
+}
+
+/* Copies all bitmaps of a port mask src to dst */
+static inline void am_dfg_port_mask_copy(struct am_dfg_port_mask* dst,
+					 const struct am_dfg_port_mask* src)
+{
+	*dst = *src;
+}
+
+/* Copies all values of src to dst using bitwise or */
+static inline void am_dfg_port_mask_apply(struct am_dfg_port_mask* dst,
+					  const struct am_dfg_port_mask* src)
+{
+	dst->pull_new |= src->pull_new;
+	dst->pull_old |= src->pull_old;
+	dst->push_new |= src->push_new;
+	dst->push_old |= src->push_old;
+}
+
+/* Sets the bits in the bitmaps of dst to 1 where the corresponding bitmaps of a
+ * and b have different values */
+static inline void am_dfg_port_mask_diff(struct am_dfg_port_mask* dst,
+					 const struct am_dfg_port_mask* a,
+					 const struct am_dfg_port_mask* b)
+{
+	dst->pull_new = a->pull_new ^ b->pull_new;
+	dst->pull_old = a->pull_old ^ b->pull_old;
+	dst->push_new = a->push_new ^ b->push_new;
+	dst->push_old = a->push_old ^ b->push_old;
+}
+
+/* Returns true if all bits of all bitmaps of sub set to 1 also have the value 1
+ * in sup. Otherwise, the function returns 0. */
+static inline int am_dfg_port_mask_is_subset(const struct am_dfg_port_mask* sup,
+					     const struct am_dfg_port_mask* sub)
+{
+	return ((sub->pull_new & sup->pull_new) == sub->pull_new &&
+		(sub->pull_old & sup->pull_old) == sub->pull_old &&
+		(sub->push_new & sup->push_new) == sub->push_new &&
+		(sub->push_old & sup->push_old) == sub->push_old);
+}
+
 enum am_dfg_port_flag {
 	AM_DFG_PORT_IN = (1 << 0),
 	AM_DFG_PORT_OUT = (1 << 1),
@@ -91,6 +194,14 @@ struct am_dfg_port {
 	/* The number of connections */
 	size_t num_connections;
 };
+
+/* Iterates over all ports of n included in the bitmask m. The variable p is
+ * used as the iterator and tmp must be a temporary uint64_t*/
+#define am_dfg_node_for_each_masked_port(n, m, p, tmp)				\
+	for(tmp = (m), p = &(n)->ports[am_first_set_bit_idx_u64(tmp)];		\
+	    p != &(n)->ports[64];						\
+	    tmp = tmp & (~(UINT64_C(1) << am_first_set_bit_idx_u64(tmp))),	\
+		    p = &(n)->ports[am_first_set_bit_idx_u64(tmp)])
 
 /* A directed connection between two ports. */
 struct am_dfg_connection {
@@ -382,6 +493,68 @@ am_dfg_node_type_find_port_type(const struct am_dfg_node_type* nt,
 	    (pt) != &(nt)->ports[(nt)->num_ports];	\
 	    (pt)++)
 
+/* Returns a bit mask with bits set to 1 at indexes that correspond to the
+ * indexes of input ports in the node type's array of ports
+ *
+ * FIXME: Use bit masks to indicate input / output ports anyways, such that this
+ * becomes a simple function returning the input mask.
+ */
+static inline uint64_t
+am_dfg_node_type_input_mask(const struct am_dfg_node_type* nt)
+{
+	struct am_dfg_port_type* pt;
+	uint64_t mask = 0;
+	size_t idx = 0;
+
+	am_dfg_node_type_for_each_port_type(nt, pt) {
+		if(am_dfg_port_type_is_input_type(pt))
+			mask |= UINT64_C(1) << idx;
+
+		idx++;
+	}
+
+	return mask;
+}
+
+/* Returns a bit mask with bits set to 1 at indexes that correspond to the
+ * indexes of output ports in the node type's array of ports
+ *
+ * FIXME: Use bit masks to indicate input / output ports anyways, such that this
+ * becomes a simple function returning the output mask.
+ */
+static inline uint64_t
+am_dfg_node_type_output_mask(const struct am_dfg_node_type* nt)
+{
+	struct am_dfg_port_type* pt;
+	uint64_t mask = 0;
+	size_t idx = 0;
+
+	am_dfg_node_type_for_each_port_type(nt, pt) {
+		if(am_dfg_port_type_is_output_type(pt))
+			mask |= UINT64_C(1) << idx;
+
+		idx++;
+	}
+
+	return mask;
+}
+
+/* Returns the zero-based index of the port type pt within the node type nt. */
+static inline size_t am_dfg_port_type_index(const struct am_dfg_port_type* pt,
+					    const struct am_dfg_node_type* nt)
+{
+	return AM_ARRAY_INDEX(nt->ports, pt);
+}
+
+/* Returns a mask with the bit set to 1 at the position correspondign to the
+ * index of the port type pt within the node type nt. */
+static inline uint64_t
+am_dfg_port_type_mask_bits(const struct am_dfg_port_type* pt,
+			   const struct am_dfg_node_type* nt)
+{
+	return UINT64_C(1) << am_dfg_port_type_index(pt, nt);
+}
+
 /* Instance of a node */
 struct am_dfg_node {
 	/* The node's node type */
@@ -402,6 +575,20 @@ struct am_dfg_node {
 	/* The id of this node instance */
 	long id;
 };
+
+/* Returns the zero-based index of the port p within its node. */
+static inline size_t am_dfg_port_index(const struct am_dfg_port* p)
+{
+	return AM_ARRAY_INDEX(p->node->ports, p);
+}
+
+/* Returns a mask with the bit set to one that corresponds to the index of p
+ * within its node. */
+static inline uint64_t am_dfg_port_mask_bits(const struct am_dfg_port* p)
+{
+	return UINT64_C(1) << am_dfg_port_index(p);
+}
+
 
 /* Given a node n and one of its ports curr, the function finds the next port
  * whose flags include all the flags specified in a mask. If no such port is
