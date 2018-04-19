@@ -668,6 +668,8 @@ void DFGWidget::mouseReleasePort(const struct am_point* screen_pos)
 		}
 
 		am_dfg_graph_connectp(this->graph, pin, pout);
+
+		emit portsConnected(this->graph, pout, pin);
 	} else {
 		if(this->draggedPort.disconnectPort) {
 			am_dfg_port_disconnect(this->draggedPort.port,
