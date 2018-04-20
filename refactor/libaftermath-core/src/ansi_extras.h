@@ -93,6 +93,27 @@
   #endif
 #endif
 
+/* It seems that C++ does not include the restrict keyword. Just make it an
+ * empty definition when compiling with a C++ compiler. */
+#ifdef __cplusplus
+  #define restrict /* nothing */
+#endif
+
+/* Swaps the contents of s bytes at address a with the s bytes at address b. The
+ * swapped memory regions may not overlap. */
+static inline void am_memswp(void* restrict a, void* restrict b, size_t s)
+{
+	char tmp;
+	char* ac = (char*)a;
+	char* bc = (char*)b;
+
+	for(size_t i = 0; i < s; i++) {
+		tmp = ac[i];
+		ac[i] = bc[i];
+		bc[i] = tmp;
+	}
+}
+
 /* Very simple string replacement function. Haystack must contain enough space
  * for all replacements*/
 static inline void
