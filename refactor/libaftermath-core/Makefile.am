@@ -119,6 +119,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/on_disk.h \
 				src/parser.h \
 				src/ptr.h \
+				src/qsort.h \
 				src/safe_alloc.h \
 				src/state_description_array.h \
 				src/state_event_array.h \
