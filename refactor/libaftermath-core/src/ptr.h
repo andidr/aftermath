@@ -39,4 +39,11 @@
 #define AM_ARRAY_INDEX(arr, e) \
 	((((uintptr_t)(e)) - ((uintptr_t)(arr))) / sizeof(*(e)))
 
+/* Calculates the distance between two elements of an array. The pointers e1 and
+ * e2 must have the same type.  */
+#define AM_ARRAY_INDEX_DISTANCE(e1, e2)				\
+	(AM_PTR_LEQ(e1, e2) ?						\
+	 ((((uintptr_t)(e2)) - ((uintptr_t)(e1))) / sizeof(*(e1))) :	\
+	 ((((uintptr_t)(e1)) - ((uintptr_t)(e2))) / sizeof(*(e1))))
+
 #endif
