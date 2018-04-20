@@ -21,6 +21,7 @@
 
 #include <aftermath/core/in_memory.h>
 #include <aftermath/core/timestamp.h>
+#include <aftermath/core/qsort.h>
 
 /* Checks if two intervals overlap. Returns true if this is the case, otherwise
  * false. */
@@ -239,5 +240,17 @@ am_interval_overlap_cmp(const struct am_interval* a, const struct am_interval* b
 	return a->end < b->start ? -1 :
 		(a->start > b->end ? 1 : 0);
 }
+
+int am_intervals_merge_overlapping(const struct am_interval* in, size_t n,
+				   struct am_interval** out, size_t* m);
+
+/* Returns 1 i pa starts after pb, -1 if pa starts before pb and 0 if they start
+ * at the same time */
+#define AM_CMP_PINTERVAL_START(pa, pb)		\
+	((pa)->start > (pb)->start) ? 1 :	\
+	  (((pa)->start < (pb)->start) ? -1 : 0)
+
+AM_DECL_QSORT_SUFFIX(am_, _intervals_start, struct am_interval,
+		     AM_CMP_PINTERVAL_START)
 
 #endif
