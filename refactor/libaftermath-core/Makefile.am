@@ -101,6 +101,9 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/event_collection.h \
 				src/event_mapping.c \
 				src/event_mapping.h \
+				src/frame_type_registry.c \
+				src/frame_type_registry.h \
+				src/frame_type_registry.priv.h \
 				src/hierarchy.c \
 				src/hierarchy.h \
 				src/hierarchy_array.h \

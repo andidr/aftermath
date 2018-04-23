@@ -57,6 +57,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/event_mapping.h \
 	aftermath/core/event_collection.h \
 	aftermath/core/event_collection_array.h \
+	aftermath/core/frame_type_registry.h \
 	aftermath/core/hierarchy.h \
 	aftermath/core/hierarchy_array.h \
 	aftermath/core/interval.h \
