@@ -90,12 +90,14 @@ static inline int am_dfg_revpath_ends_closed(const struct am_dfg_path* path)
 }
 
 #define AM_DFG_NODE_ACC_ID(x) ((x).id)
+#define AM_DFG_NODE_CMP_IDS(a, b) (((a) < (b)) ? -1 : (((a) > (b)) ? 1 : 0))
 
 AM_DECL_TYPED_RBTREE_OPS(am_dfg_node_idtree,
 			 struct am_dfg_node_idtree, rb_root,
 			 struct am_dfg_node, rb_node,
 			 long,
-			 AM_DFG_NODE_ACC_ID)
+			 AM_DFG_NODE_ACC_ID,
+			 AM_DFG_NODE_CMP_IDS)
 
 #define am_dfg_graph_for_each_node(g, n)		 \
 	for(n = am_dfg_node_idtree_first(&(g)->id_tree); \

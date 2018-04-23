@@ -29,12 +29,14 @@
  *   TREE_ROOTMEMB: Name of the rb_root element in TREE_T
  *   NODE_T: Data type for a tree node (e.g., struct containing rb_node)
  *   NODE_RBMEMB: Name of the rb_node element in NODE_T
+ *   KEY_T: Type of the key
  *   KEYACC_EXPR: Macro with an expression returning the value used as the key
  *                for a node.
- *   KEY_T: Type of the key
+ *   KEYCMP_EXPR: Macro with two arguments a and b that returns a negative value
+ *                if a < b, a positive value if a > b or 0 if a equals b.
  */
 #define AM_DECL_TYPED_RBTREE_OPS(PREFIX, TREE_T, TREE_ROOTMEMB, NODE_T,	\
-				 NODE_RBMEMB, KEY_T, KEYACC_EXPR)		\
+				 NODE_RBMEMB, KEY_T, KEYACC_EXPR, KEYCMP_EXPR) \
 										\
 	/* Initialize the tree */						\
 	static inline void PREFIX##_init(TREE_T* t)				\
@@ -47,15 +49,19 @@
 	{									\
 		struct rb_node** pnew = &t->TREE_ROOTMEMB.rb_node;		\
 		struct rb_node* parent = NULL;					\
+		int cmpres;							\
 										\
 		/* Figure out where to put pnew node */			\
 		while(*pnew) {							\
-			NODE_T* pthis = container_of(*pnew, NODE_T, NODE_RBMEMB); \
+			NODE_T* pthis = container_of(*pnew, NODE_T, NODE_RBMEMB);\
 			parent = *pnew;					\
 										\
-			if (KEYACC_EXPR(*n) < KEYACC_EXPR(*pthis))		\
+			cmpres = KEYCMP_EXPR(KEYACC_EXPR(*n),			\
+					     KEYACC_EXPR(*pthis));		\
+										\
+			if(cmpres < 0)						\
 				pnew = &((*pnew)->rb_left);			\
-			else if (KEYACC_EXPR(*n) > KEYACC_EXPR(*pthis))	\
+			else if(cmpres > 0)					\
 				pnew = &((*pnew)->rb_right);			\
 			else							\
 				return 1; /* Already in the tree */		\
@@ -163,14 +169,17 @@
 	static inline NODE_T* PREFIX##_find(const TREE_T* t, KEY_T needle)	\
 	{									\
 		struct rb_node* curr = t->TREE_ROOTMEMB.rb_node;		\
+		int cmpres;							\
 										\
 		/* Figure out where to put pnew node */			\
 		while(curr) {							\
 			NODE_T* pthis = container_of(curr, NODE_T, NODE_RBMEMB);\
 										\
-			if (needle < KEYACC_EXPR(*pthis))			\
+			cmpres = KEYCMP_EXPR(needle, KEYACC_EXPR(*pthis));	\
+										\
+			if(cmpres < 0)						\
 				curr = curr->rb_left;				\
-			else if (needle > KEYACC_EXPR(*pthis))			\
+			else if(cmpres > 0)					\
 				curr = curr->rb_right;				\
 			else							\
 				return pthis;					\

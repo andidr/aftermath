@@ -74,11 +74,15 @@ struct am_io_hierarchy_context_tree_node {
 
 
 #define IO_HIERARCHY_CONTEXT_TREE_NODE_ACC_ID(x) ((x).id)
+#define IO_HIERARCHY_CONTEXT_TREE_NODE_CMP_IDS(a, b) \
+	(((a) < (b)) ? -1 : (((a) > (b)) ? 1 : 0))
 
 AM_DECL_TYPED_RBTREE_OPS(am_io_hierarchy_context_tree,
-		      struct am_io_hierarchy_context_tree, rb_root,
-		      struct am_io_hierarchy_context_tree_node, rb_node,
-		      am_hierarchy_node_id_t, IO_HIERARCHY_CONTEXT_TREE_NODE_ACC_ID)
+			 struct am_io_hierarchy_context_tree, rb_root,
+			 struct am_io_hierarchy_context_tree_node, rb_node,
+			 am_hierarchy_node_id_t,
+			 IO_HIERARCHY_CONTEXT_TREE_NODE_ACC_ID,
+			 IO_HIERARCHY_CONTEXT_TREE_NODE_CMP_IDS)
 
 /* I/O hierarchy context with the currently loaded hierarchies. */
 struct am_io_hierarchy_context {
