@@ -1,0 +1,16 @@
+WHAT IS LIBAFTERMATH-TRACE?
+
+  Libaftermath-trace is a library for the instrumentation of parallel
+  programs and run-time systems for generating Aftermath trace files.
+
+LICENSE
+
+  Libaftermath-trace is published under the GNU Lesser General Public
+  License, version 2.1. For each such file, there is an explicit
+  comment at the top referring to the differing License. The terms of
+  this license are specified in the file COPYING.LGPL.
+
+COPYRIGHT
+
+  Copyright (C) Andi Drebes
+  Copyright (C) Antoniu Pop
