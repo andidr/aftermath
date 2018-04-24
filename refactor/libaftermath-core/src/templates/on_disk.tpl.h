@@ -29,20 +29,7 @@
 {% set dsk = am_types.dsk %}
 
 #define AM_TRACE_MAGIC 0x5654534f
-#define AM_TRACE_VERSION 17
-
-enum am_dsk_frame_type {
-	AM_FRAME_TYPE_EVENT_COLLECTION,
-	AM_FRAME_TYPE_HIERARCHY_DESCRIPTION,
-	AM_FRAME_TYPE_HIERARCHY_NODE,
-	AM_FRAME_TYPE_STATE_DESCRIPTION,
-	AM_FRAME_TYPE_STATE_EVENT,
-	AM_FRAME_TYPE_COUNTER_DESCRIPTION,
-	AM_FRAME_TYPE_COUNTER_EVENT,
-	AM_FRAME_TYPE_MEASUREMENT_INTERVAL,
-	AM_FRAME_TYPE_EVENT_MAPPING,
-	AM_FRAME_TYPE_MAX
-};
+#define AM_TRACE_VERSION 18
 
 {% for tname in am_types.topological_sort(dsk.types) -%}
 {% set t = dsk.types[tname] %}
@@ -147,6 +134,7 @@ static inline int am_dsk_write_uint8_t(struct am_io_context* ctx,
 {% include "dsk_write.tpl.fnproto.h" %}
 {% endfor %}
 
+int am_dsk_register_frame_types(struct am_frame_type_registry* r);
 int am_dsk_load_trace(struct am_io_context* ctx, struct am_trace** pt);
 
 #endif

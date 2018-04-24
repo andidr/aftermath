@@ -50,7 +50,7 @@ struct am_frame_type_registry {
 	/* Indexed by the frame type name */
 	struct am_frame_type_tree name_tree;
 
-	/* Indexed by sequentiam ID */
+	/* Indexed by sequential ID */
 	struct am_frame_type** types;
 
 	/* Maximum number of frame types the registry can hold */

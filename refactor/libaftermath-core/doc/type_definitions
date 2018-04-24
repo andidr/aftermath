@@ -233,7 +233,7 @@ AFTERMATH TYPE DEFINITIONS
              instance of the on-disk type into an in-memory type with the same
              name. Requires the attribute to_mem_copy_fields to be set.
 
-     * is_frame [boolean, mandatory, expanded, true implies type_id]:
+     * is_frame [boolean, mandatory, expanded]:
 
          Indicates whether this data structure represents a frame. A frame is a
          data structure in the trace file whose first field encodes the data
@@ -394,7 +394,3 @@ AFTERMATH TYPE DEFINITIONS
            - field:
 
 	       Name of the field with the interval or timestamp.
-
-     * type_id [string, optional]:
-
-         The enum value of enum am_dsk_frame_type identifying the type.

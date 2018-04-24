@@ -218,6 +218,51 @@ static inline int am_dsk_state_event_assert(struct am_io_context* ctx,
 	return 0;
 }
 
+/* Associates the frame type specified in the frame type ID association
+ * structure fti with the specified ID in the context's frame type registry.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static inline int
+am_dsk_frame_type_id_process(struct am_io_context* ctx,
+			     struct am_dsk_frame_type_id* fti)
+{
+	struct am_frame_type* ft;
+	size_t id_size;
+	char* namez;
+	int ret = 1;
+
+	if(!(namez = am_dsk_string_to_stringz(ctx, &fti->type_name))) {
+		AM_IOERR_GOTO_NA(ctx, out_err, AM_IOERR_ASSERT,
+				 "Could not convert string for type name.");
+	}
+
+	if(!(ft = am_frame_type_registry_find(ctx->frame_types, namez))) {
+		AM_IOERR_GOTO(ctx, out_err_free, AM_IOERR_FIND_RELATED,
+			      "Could not find type \"%s\".", namez);
+	}
+
+	if(am_safe_size_from_u32(&id_size, fti->id)) {
+		AM_IOERR_GOTO(ctx, out_err_free, AM_IOERR_ASSERT,
+			      "Invalid value %" PRIu32 " for a type ID.",
+			      fti->id);
+	}
+
+	if(am_frame_type_registry_set_id(ctx->frame_types, ft, id_size)) {
+		AM_IOERR_GOTO(ctx, out_err_free, AM_IOERR_ASSERT,
+			      "Could not associate ID %zu with type \"%s\".",
+			      id_size, namez);
+	}
+
+	ret = 0;
+
+out_err_free:
+	free(namez);
+out_err:
+	return ret;
+
+}
+
 static inline int
 am_dsk_hierarchy_description_process(struct am_io_context* ctx,
 				     struct am_dsk_hierarchy_description* f)
@@ -463,30 +508,41 @@ static inline int am_dsk_event_mapping_process(struct am_io_context* ctx,
  */
 static int am_dsk_read_frames(struct am_io_context* ctx)
 {
-	uint32_t frame_type;
+	uint32_t type_id;
+	size_t type_id_size;
+	struct am_frame_type* ft;
 
 	while(!feof(ctx->fp)) {
-		if(am_dsk_read_uint32_t(ctx, &frame_type)) {
+		if(am_dsk_read_uint32_t(ctx, &type_id)) {
 			if(feof(ctx->fp))
 				return 0;
 			else
 				return 1;
 		}
 
-		switch((enum am_dsk_frame_type)frame_type) {
-		{%- for t in dsk.types_list %}
-		{%- if "dsk_read" in t.defs and t.is_frame %}
-			case {{t.type_id}}:
-				if({{t.name}}_load(ctx)) {
-					AM_IOERR_RET1_NA(ctx, AM_IOERR_LOAD_FRAME,
-							 "Could not load {{t.entity}}.");
-				}
-				break;
-		{%- endif %}
-		{%- endfor -%}
-{# #}
-			default:
-				return 1;
+		if(am_safe_size_from_u32(&type_id_size, type_id)) {
+			AM_IOERR_RET1(ctx, AM_IOERR_CONVERT,
+				      "Could not convert frame type ID "
+				      "%" PRIu32 ".",
+				      type_id);
+		}
+
+		if(!(ft = am_frame_type_registry_by_id(ctx->frame_types,
+						       type_id_size)))
+		{
+			AM_IOERR_RET1(ctx, AM_IOERR_FIND_RELATED,
+				      "Could not find frame type with ID "
+				      "%zu.",
+				      type_id_size);
+		}
+
+		if(ft->load) {
+			if(ft->load(ctx)) {
+				AM_IOERR_RET1(ctx, AM_IOERR_LOAD_FRAME,
+					      "Could not load frame of type "
+					      "%s.",
+					      ft->name);
+			}
 		}
 	}
 
@@ -590,3 +646,29 @@ out_err:
 	return 1;
 }
 
+/* Registers all builtin frame types at the frame type registry r. Returns 0 on
+ * success, otherwise 1. */
+int am_dsk_register_frame_types(struct am_frame_type_registry* r)
+{
+	struct am_frame_type* ft;
+
+	{% for t in dsk.types_list -%}
+	{% if t.is_frame and "dsk_read" in t.defs %}
+	if(am_frame_type_registry_add(r,
+				      "{{t.name}}",
+				      {{t.name}}_load))
+	{
+		return 1;
+	}
+	{% endif %}
+	{%- endfor -%}
+
+	if(!(ft = am_frame_type_registry_find(r, "am_dsk_frame_type_id")))
+		return 1;
+
+	/* Frame type ID frame always has ID 0 */
+	if(am_frame_type_registry_set_id(r, ft, 0))
+		return 1;
+
+	return 0;
+}

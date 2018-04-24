@@ -35,7 +35,6 @@ __default_fields = {
 # Header at the beginning of a trace file
 header = {
     "am_dsk_header" : {
-        "type_id" : None,
         "is_frame" : False,
         "fields" : [
             {"name" : "magic",
@@ -63,8 +62,19 @@ event_frame_fields = type_fields + [
       "comment" : "ID of the event collection this event belongs to"} ]
 
 frames = {
+    "am_dsk_frame_type_id" : {
+        "assert" : False,
+        "entity" : "frame type ID association",
+        "fields" : global_frame_fields + [
+            {"name" : "id",
+             "type" : "uint32_t",
+             "comment" : "Numerical ID that will be associated with the type"},
+            {"name" : "type_name",
+             "type" : "am_dsk_string",
+             "comment" : "Frame type as a string" }]
+    },
+
     "am_dsk_hierarchy_description" : {
-        "type_id" : "AM_FRAME_TYPE_HIERARCHY_DESCRIPTION",
         "assert" : False,
         "entity" : "hierarchy description",
         "fields" : global_frame_fields + [
@@ -77,7 +87,6 @@ frames = {
     },
 
     "am_dsk_hierarchy_node" : {
-        "type_id" : "AM_FRAME_TYPE_HIERARCHY_NODE",
         "assert" : False,
         "entity" : "hierarchy node",
         "fields" : global_frame_fields + [
@@ -96,7 +105,6 @@ frames = {
     },
 
     "am_dsk_state_description" : {
-        "type_id" : "AM_FRAME_TYPE_STATE_DESCRIPTION",
         "assert" : False,
         "entity" : "state description",
         "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
@@ -121,7 +129,6 @@ frames = {
     },
 
     "am_dsk_state_event" : {
-        "type_id" : "AM_FRAME_TYPE_STATE_EVENT",
         "assert" : True,
         "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
         "entity" : "state event",
@@ -152,7 +159,6 @@ frames = {
     },
 
     "am_dsk_counter_description" : {
-        "type_id" : "AM_FRAME_TYPE_COUNTER_DESCRIPTION",
         "assert" : False,
         "entity" : "counter description",
         "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
@@ -177,7 +183,6 @@ frames = {
     },
 
     "am_dsk_counter_event" : {
-        "type_id" : "AM_FRAME_TYPE_COUNTER_EVENT",
         "assert" : False,
         "entity" : "counter sample",
         "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
@@ -213,7 +218,6 @@ frames = {
     },
 
     "am_dsk_event_collection" : {
-        "type_id" : "AM_FRAME_TYPE_EVENT_COLLECTION",
         "assert" : False,
         "entity" : "event collection",
         "fields" : global_frame_fields + [
@@ -226,7 +230,6 @@ frames = {
     },
 
     "am_dsk_measurement_interval" : {
-        "type_id" : "AM_FRAME_TYPE_MEASUREMENT_INTERVAL",
         "assert" : False,
         "entity" : "measurement interval",
         "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
@@ -252,7 +255,6 @@ frames = {
     },
 
     "am_dsk_event_mapping" : {
-        "type_id" : "AM_FRAME_TYPE_EVENT_MAPPING",
         "assert" : False,
         "entity" : "event mapping",
         "fields" : global_frame_fields + [

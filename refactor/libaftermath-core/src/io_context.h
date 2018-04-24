@@ -24,6 +24,7 @@
 #include <aftermath/core/io_error.h>
 #include <aftermath/core/io_hierarchy_context.h>
 #include <aftermath/core/trace.h>
+#include <aftermath/core/frame_type_registry.h>
 
 /* An IO context serves as a compound structure for temporary data needed when
  * loading / writing a trace from / to disk. When an IO operation fails, the
@@ -39,6 +40,7 @@ struct am_io_context {
 	FILE* fp;
 
 	struct am_io_hierarchy_context hierarchy_context;
+	struct am_frame_type_registry* frame_types;
 };
 
 enum am_io_mode {
@@ -46,7 +48,8 @@ enum am_io_mode {
 	AM_IO_WRITE
 };
 
-int am_io_context_init(struct am_io_context* ctx);
+int am_io_context_init(struct am_io_context* ctx,
+		       struct am_frame_type_registry* frame_types);
 void am_io_context_destroy(struct am_io_context* ctx);
 void am_io_context_reset(struct am_io_context* ctx);
 int am_io_context_set_filename(struct am_io_context* ctx, const char* filename);

@@ -21,12 +21,14 @@
 #include <errno.h>
 #include <string.h>
 
-int am_io_context_init(struct am_io_context* ctx)
+int am_io_context_init(struct am_io_context* ctx,
+		       struct am_frame_type_registry* frame_types)
 {
 	ctx->trace = NULL;
 	ctx->filename = NULL;
 	ctx->fp = NULL;
 	ctx->bounds_valid = 0;
+	ctx->frame_types = frame_types;
 
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
 
