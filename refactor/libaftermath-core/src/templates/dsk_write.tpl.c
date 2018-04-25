@@ -4,7 +4,7 @@ int {{t.name}}_write(struct am_io_context* ctx,
 	{%- for field in t.fields -%}
 
 	{%- if am_types.isinttype(field.type) -%}
-		{%- set write_fun = "am_dsk_write_"+field.type -%}
+		{%- set write_fun = "am_dsk_write_"+field.type+"_ctx" -%}
 	{%- else -%}
 		{%- set write_fun = field.type+"_write" -%}
 	{%- endif %}

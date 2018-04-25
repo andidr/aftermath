@@ -3,7 +3,7 @@ static inline int {{fun_name}}(struct am_io_context* ctx, {{t.c_type}}* f)
 	{%- set curr_out = "out_err" -%}
 	{%- for field in t.fields[skip_fields:] %}
 	{%- if am_types.isinttype(field.type) %}
-		{%- set read_fun = "am_dsk_read_"+field.type %}
+		{%- set read_fun = "am_dsk_read_"+field.type+"_ctx" %}
 	{% else %}
 		{%- set read_fun = field.type+"_read" %}
 	{% endif -%}

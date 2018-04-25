@@ -50,20 +50,29 @@
 {% endfor -%}
 
 #define AM_DECL_ON_DISK_READ_INT_FUN(type, bits)				\
-	static inline int am_dsk_read_##type(struct am_io_context* ctx,	\
-					     type* out)			\
+	static inline int am_dsk_read_##type(FILE* fp, type* out)		\
 	{									\
 		type tmp;							\
 										\
-		if(fread(&tmp, sizeof(tmp), 1, ctx->fp) != 1) {		\
+		if(fread(&tmp, sizeof(tmp), 1, fp) != 1)			\
+			return 1;						\
+										\
+		*out = am_int##bits##_letoh(tmp);				\
+										\
+		return 0;							\
+	}
+
+#define AM_DECL_ON_DISK_READ_INT_CTX_FUN(type, bits)				\
+	static inline int am_dsk_read_##type##_ctx(struct am_io_context* ctx,	\
+						   type* out)			\
+	{									\
+		if(am_dsk_read_##type(ctx->fp, out)) {				\
 			am_io_error_stack_push(&ctx->error_stack,		\
-				AM_IOERR_READ,				\
+				AM_IOERR_READ,					\
 				 "Could not read " #type " at offset %jd.",	\
 				 ftello(ctx->fp));				\
 			return 1;						\
 		}								\
-										\
-		*out = am_int##bits##_letoh(tmp);					\
 										\
 		return 0;							\
 	}
@@ -75,12 +84,25 @@ AM_DECL_ON_DISK_READ_INT_FUN(uint32_t, 32)
 AM_DECL_ON_DISK_READ_INT_FUN(int64_t, 64)
 AM_DECL_ON_DISK_READ_INT_FUN(uint64_t, 64)
 
-static inline int am_dsk_read_uint8_t(struct am_io_context* ctx,
-				      uint8_t* out)
-{
-	uint8_t tmp;
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(int16_t, 16)
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(uint16_t, 16)
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(int32_t, 32)
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(uint32_t, 32)
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(int64_t, 64)
+AM_DECL_ON_DISK_READ_INT_CTX_FUN(uint64_t, 64)
 
-	if(fread(&tmp, sizeof(tmp), 1, ctx->fp) != 1) {
+static inline int am_dsk_read_uint8_t(FILE* fp, uint8_t* out)
+{
+	if(fread(out, sizeof(*out), 1, fp) != 1)
+		return 1;
+
+	return 0;
+}
+
+static inline int am_dsk_read_uint8_t_ctx(struct am_io_context* ctx,
+					  uint8_t* out)
+{
+	if(am_dsk_read_uint8_t(ctx->fp, out)) {
 		am_io_error_stack_push(&ctx->error_stack,
 					  AM_IOERR_READ,
 					  "Could not read uint8_t at offset %jd.",
@@ -91,10 +113,10 @@ static inline int am_dsk_read_uint8_t(struct am_io_context* ctx,
 	return 0;
 }
 
-#define AM_DECL_ON_DISK_WRITE_INT_FUN(type, bits)				\
+#define AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(type, bits)				\
 	static inline int							\
-	am_dsk_write_##type(struct am_io_context* ctx,				\
-			    const type* in)					\
+	am_dsk_write_##type##_ctx(struct am_io_context* ctx,			\
+				  const type* in)				\
 	{									\
 		type tmp = am_int##bits##_htole(*in);				\
 										\
@@ -109,14 +131,14 @@ static inline int am_dsk_read_uint8_t(struct am_io_context* ctx,
 		return 0;							\
 	}
 
-AM_DECL_ON_DISK_WRITE_INT_FUN(int16_t, 16)
-AM_DECL_ON_DISK_WRITE_INT_FUN(uint16_t, 16)
-AM_DECL_ON_DISK_WRITE_INT_FUN(int32_t, 32)
-AM_DECL_ON_DISK_WRITE_INT_FUN(uint32_t, 32)
-AM_DECL_ON_DISK_WRITE_INT_FUN(int64_t, 64)
-AM_DECL_ON_DISK_WRITE_INT_FUN(uint64_t, 64)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(int16_t, 16)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(uint16_t, 16)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(int32_t, 32)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(uint32_t, 32)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(int64_t, 64)
+AM_DECL_ON_DISK_WRITE_INT_CTX_FUN(uint64_t, 64)
 
-static inline int am_dsk_write_uint8_t(struct am_io_context* ctx,
+static inline int am_dsk_write_uint8_t_ctx(struct am_io_context* ctx,
 				       const uint8_t* in)
 {
 	if(fwrite(&in, sizeof(*in), 1, ctx->fp) != 1) {

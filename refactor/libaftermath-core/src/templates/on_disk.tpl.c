@@ -148,7 +148,7 @@ static inline int am_dsk_write(struct am_io_context* ctx,
 static inline int am_dsk_string_read(struct am_io_context* ctx,
 				     struct am_dsk_string* s)
 {
-	if(am_dsk_read_uint32_t(ctx, &s->len)) {
+	if(am_dsk_read_uint32_t_ctx(ctx, &s->len)) {
 		AM_IOERR_RET1_NA(ctx, AM_IOERR_READ,
 				 "Could not read string length.");
 	}
@@ -170,7 +170,7 @@ static inline int am_dsk_string_read(struct am_io_context* ctx,
 static inline int am_dsk_string_write(struct am_io_context* ctx,
 				      const struct am_dsk_string* s)
 {
-	if(am_dsk_write_uint32_t(ctx, &s->len)) {
+	if(am_dsk_write_uint32_t_ctx(ctx, &s->len)) {
 		AM_IOERR_RET1_NA(ctx, AM_IOERR_WRITE,
 				 "Could not write string length.");
 	}
@@ -513,7 +513,7 @@ static int am_dsk_read_frames(struct am_io_context* ctx)
 	struct am_frame_type* ft;
 
 	while(!feof(ctx->fp)) {
-		if(am_dsk_read_uint32_t(ctx, &type_id)) {
+		if(am_dsk_read_uint32_t_ctx(ctx, &type_id)) {
 			if(feof(ctx->fp))
 				return 0;
 			else
