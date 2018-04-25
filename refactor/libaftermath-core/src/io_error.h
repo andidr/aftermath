@@ -132,4 +132,11 @@ int am_io_error_stack_push(struct am_io_error_stack* s,
 			   ...);
 void am_io_error_stack_dump(struct am_io_error_stack* s);
 
+/* Returns 1 if the error stack s is empty, i.e., does not contain any
+ * errors. */
+static inline int am_io_error_stack_empty(struct am_io_error_stack* s)
+{
+	return s->pos == 0;
+}
+
 #endif
