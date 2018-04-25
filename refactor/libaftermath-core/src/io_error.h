@@ -19,6 +19,7 @@
 #ifndef IO_ERROR_H
 #define IO_ERROR_H
 
+#include <stdio.h>
 #include <stdlib.h>
 
 /* The I/O error data structures and functions implement basic error handling
@@ -130,7 +131,9 @@ int am_io_error_stack_push(struct am_io_error_stack* s,
 			   enum am_io_error_id error_id,
 			   const char* fmt,
 			   ...);
+void am_io_error_stack_dump_file(struct am_io_error_stack* s, FILE* fp);
 void am_io_error_stack_dump(struct am_io_error_stack* s);
+void am_io_error_stack_dump_stderr(struct am_io_error_stack* s);
 
 /* Returns 1 if the error stack s is empty, i.e., does not contain any
  * errors. */

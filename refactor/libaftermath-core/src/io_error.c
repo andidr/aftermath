@@ -154,11 +154,23 @@ int am_io_error_stack_push(struct am_io_error_stack* s,
 	return 1;
 }
 
-/* Dumps an I/O error stack to stdout. Errors are displayed from the first error
- * at the bottom of the stack to the last error at the top of the stack.
+/* Dumps an I/O error stack to the file fp. Errors are displayed from the first
+ * error at the bottom of the stack to the last error at the top of the stack.
  */
-void am_io_error_stack_dump(struct am_io_error_stack* s)
+void am_io_error_stack_dump_file(struct am_io_error_stack* s, FILE* fp)
 {
 	for(size_t i = 0; i < s->pos; i++)
-		printf("#%zu: %s\n", i, s->errors[i].msgbuf);
+		fprintf(fp, "#%zu: %s\n", i, s->errors[i].msgbuf);
+}
+
+/* Dumps an I/O error stack to stdout. */
+void am_io_error_stack_dump(struct am_io_error_stack* s)
+{
+	am_io_error_stack_dump_file(s, stdout);
+}
+
+/* Dumps an I/O error stack to stderr. */
+void am_io_error_stack_dump_stderr(struct am_io_error_stack* s)
+{
+	am_io_error_stack_dump_file(s, stderr);
 }
