@@ -174,3 +174,23 @@ void am_io_error_stack_dump_stderr(struct am_io_error_stack* s)
 {
 	am_io_error_stack_dump_file(s, stderr);
 }
+
+/* Moves all error messages from the I/O error stack src to dst. Returns 0 on
+ * success, otherwise 1.
+ */
+int am_io_error_stack_move(struct am_io_error_stack* dst,
+			   struct am_io_error_stack* src)
+{
+	if(dst->max_nesting - dst->pos < src->pos)
+		return 1;
+
+	for(size_t i = 0; i < src->pos; i++) {
+		dst->errors[dst->pos + i] = src->errors[i];
+		src->errors[i].msgbuf = NULL;
+	}
+
+	dst->pos += src->pos;
+	src->pos = 0;
+
+	return 0;
+}

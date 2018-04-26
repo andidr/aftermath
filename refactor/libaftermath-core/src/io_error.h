@@ -121,6 +121,9 @@ struct am_io_error_stack {
 	size_t max_msglen;
 };
 
+int am_io_error_stack_move(struct am_io_error_stack* dst,
+			   struct am_io_error_stack* src);
+
 int am_io_error_stack_init(struct am_io_error_stack* s,
 			   size_t max_nesting,
 			   size_t max_msglen);
