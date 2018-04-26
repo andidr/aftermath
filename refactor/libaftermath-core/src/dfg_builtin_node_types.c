@@ -56,6 +56,10 @@
 #include <aftermath/core/dfg/nodes/duration_to_string.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() duration_to_uint64_defs
+#include <aftermath/core/dfg/nodes/duration_to_uint64.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() state_event_attributes_defs
 #include <aftermath/core/dfg/nodes/state_event_attributes.h>
 
@@ -82,6 +86,7 @@
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	duration_to_string_defs,
+	duration_to_uint64_defs,
 	event_mapping_state_events_defs,
 	hierarchy_node_attributes_defs,
 	hierarchy_node_selector_defs,

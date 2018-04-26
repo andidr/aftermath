@@ -50,6 +50,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg_type_registry.h \
 				src/dfg/nodes/duration_to_string.c \
 				src/dfg/nodes/duration_to_string.h \
+				src/dfg/nodes/duration_to_uint64.c \
+				src/dfg/nodes/duration_to_uint64.h \
 				src/dfg/nodes/event_mapping_state_events.c \
 				src/dfg/nodes/event_mapping_state_events.h \
 				src/dfg/nodes/hierarchy_node_attributes.c \
