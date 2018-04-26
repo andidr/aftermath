@@ -414,6 +414,23 @@ am_add_sat_ui64(uint64_t a, int64_t b, uint64_t* out)
 		return am_add_sat_u64(a, b, out);
 }
 
+/* Calculates *out = a + b without overflows if the final value fits into a
+ * 32-bit unsigned integer. The return value indicates whether an overflow took
+ * place. */
+static inline enum am_arithmetic_status
+am_add_safe_u32(uint32_t a, uint32_t b, uint32_t* out)
+{
+	*out = a + b;
+
+	if((a > b && UINT32_MAX - a < b) ||
+	   (b > a && UINT32_MAX - b < a))
+	{
+		return AM_ARITHMETIC_STATUS_OVERFLOW;
+	}
+
+	return AM_ARITHMETIC_STATUS_EXACT;
+}
+
 #define AM_DECL_SAFE_NEGATE_FUN(BITS)						\
 	/* Safely changes the sign of a negative signed 64-bit integer and	\
 	 * returns the corresponding unsigned 64-bit integer without		\
