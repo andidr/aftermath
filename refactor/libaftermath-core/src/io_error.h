@@ -98,7 +98,10 @@ enum am_io_error_id {
 	AM_IOERR_UNKNOWN_FRAME,
 
 	/* Unknown error occurred */
-	AM_IOERR_UNKNOWN
+	AM_IOERR_UNKNOWN,
+
+	/* Overflow happened where it shouldn't */
+	AM_IOERR_OVERFLOW,
 };
 
 struct am_io_error {
