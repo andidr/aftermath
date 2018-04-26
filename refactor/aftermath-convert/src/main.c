@@ -16,12 +16,16 @@
  * USA.
  */
 
+#include <aftermath/core/io_error.h>
+#include <aftermath/core/on_disk.h>
+
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <aftermath/core/io_error.h>
+
+#include "v16.h"
 
 #define MAX_ERRSTACK_NESTING 10
 #define MAX_ERRSTACK_MSGLEN 256
@@ -108,6 +112,56 @@ static int parse_options(struct am_convert_options* o,
 	return 0;
 }
 
+/* Detects the input file format and calls the appropriate conversion function.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static int
+convert_trace(FILE* fp_in, FILE* fp_out, struct am_io_error_stack* estack)
+{
+	struct am_dsk_header header;
+
+	if(fread(&header, sizeof(header), 1, fp_in) != 1) {
+		am_io_error_stack_push(estack,
+				       AM_IOERR_READ,
+				       "Could not read file header.");
+		return 1;
+	}
+
+	header.magic = am_int32_letoh(header.magic);
+	header.version = am_int32_letoh(header.version);
+
+	if(header.magic != AM_TRACE_MAGIC) {
+		am_io_error_stack_push(estack,
+				       AM_IOERR_MAGIC,
+				       "Input file is not a valid trace file "
+				       "(wrong magic number 0x%02X, 0x%02X, "
+				       "0x%02X, 0x%02X).",
+				       (int)((header.magic >> 0) & 0xFF),
+				       (int)((header.magic >> 8) & 0xFF),
+				       (int)((header.magic >> 16) & 0xFF),
+				       (int)((header.magic >> 24) & 0xFF));
+		return 1;
+	}
+
+	switch(header.version) {
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+			return v16_convert_trace(fp_in, fp_out, estack);
+		default:
+			am_io_error_stack_push(estack,
+					       AM_IOERR_READ,
+					       "Version %" PRIu32 " is not "
+					       "supported.",
+					       header.version);
+			break;
+	}
+
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
 	struct am_convert_options options;
@@ -152,8 +206,12 @@ int main(int argc, char** argv)
 		}
 	}
 
+	if(convert_trace(in_file, out_file, &estack))
+		goto out_outfile;
+
 	ret = 0;
 
+out_outfile:
 	if(out_file != stdout)
 		fclose(out_file);
 out_infile:
