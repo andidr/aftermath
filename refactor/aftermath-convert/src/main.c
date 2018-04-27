@@ -34,7 +34,24 @@ struct am_convert_options {
 	const char* input_filename;
 	const char* output_filename;
 	int verbose;
+	int print_usage;
 };
+
+static void print_usage(void)
+{
+	puts("Aftermath-convert, a utility converting Aftermath trace files.\n"
+	     "\n"
+	     "  Usage: aftermath-convert [-i input_file] [-o output_file] [-v]\n"
+	     "\n"
+	     "  -h             Display this help message.\n"
+	     "  -i input_file  Read trace data from input_file. If input_file\n"
+	     "                 is '-' or if the option is omitted, trace data\n"
+	     "                 is read from standard input.\n"
+	     "  -o output_file Write trace data to output_file. If output_file\n"
+	     "                 is '-' or if the option is omitted, trace data\n"
+	     "                 is written to standard output.\n"
+	     "  -v             Verbose output on stderror.\n");
+}
 
 /* Checks if the short option c is specified as an option on a getopt option
  * string options.
@@ -60,7 +77,7 @@ static int parse_options(struct am_convert_options* o,
 			 char** argv,
 			 struct am_io_error_stack* estack)
 {
-	static const char* options_str = "i:o:v";
+	static const char* options_str = "hi:o:v";
 	int opt;
 	char c;
 
@@ -68,6 +85,7 @@ static int parse_options(struct am_convert_options* o,
 	o->input_filename = NULL;
 	o->output_filename = NULL;
 	o->verbose = 0;
+	o->print_usage = 0;
 
 	opterr = 0;
 
@@ -81,6 +99,9 @@ static int parse_options(struct am_convert_options* o,
 				break;
 			case 'v':
 				o->verbose = 1;
+				break;
+			case 'h':
+				o->print_usage = 1;
 				break;
 			default:
 				if(strlen(argv[optind-1]) > 1 &&
@@ -181,6 +202,12 @@ int main(int argc, char** argv)
 		am_io_error_stack_push(&estack,
 				       AM_IOERR_ASSERT,
 				       "Could not parse options.");
+		goto out_errstack;
+	}
+
+	if(options.print_usage) {
+		print_usage();
+		ret = 0;
 		goto out_errstack;
 	}
 
