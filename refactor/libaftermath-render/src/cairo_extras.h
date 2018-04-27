@@ -180,4 +180,17 @@ cairo_bool_t am_point_on_curve(cairo_t* cr,
 			       const struct am_point* p2,
 			       double line_width);
 
+/* Draws a triangle with a base parallel to the vertical axis of the specified
+ * height and width. If width is positive, the triangle points to the right; if
+ * negative, the triangle points to the left. The coordinates x and y indicate
+ * the middle of the triangle's base. */
+static inline void
+am_triangle(cairo_t* cr, double x, double y, double width, double height)
+{
+	cairo_move_to(cr, x, y - height/2.0);
+	cairo_line_to(cr, x, y + height/2.0);
+	cairo_line_to(cr, x+width, y);
+	cairo_line_to(cr, x, y - height/2.0);
+}
+
 #endif
