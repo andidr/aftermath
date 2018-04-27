@@ -21,6 +21,7 @@
 #include <aftermath/render/timeline/layers/background.h>
 #include <aftermath/render/timeline/layers/hierarchy.h>
 #include <aftermath/render/timeline/layers/interval.h>
+#include <aftermath/render/timeline/layers/measurement_intervals.h>
 #include <aftermath/render/timeline/renderer.h>
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/trace.h>
@@ -84,6 +85,7 @@ static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {
 	am_timeline_axes_layer_instantiate_type,
 	am_timeline_background_layer_instantiate_type,
 	am_timeline_hierarchy_layer_instantiate_type,
+	am_timeline_measurement_intervals_layer_instantiate_type,
 	am_timeline_state_layer_instantiate_type
 };
 
