@@ -46,6 +46,21 @@ types = {
         "c_type" : "int"
     },
 
+    "am_source_location" : {
+        "entity" : "source location",
+        "fields" : [
+            {"name" : "file",
+             "type" : "am_string",
+             "comment" : "File containing the source"},
+            {"name" : "line",
+             "type" : "am_source_line_t",
+             "comment" : "Zero-indexed number of the line within the file"},
+            {"name" : "character",
+             "type" : "am_source_character_t",
+             "comment" : "Zero-indexed number of the character within the line"}
+        ]
+    },
+
     "am_time_offset" : {
         "comment" : "Difference between two timestamps",
         "entity" : "timestamp difference",

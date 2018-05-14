@@ -76,7 +76,17 @@ types = {
 
     "char*" : {"c_type" : "char*",
                "defs" : [],
-               "destructor" : "am_free_charp"}
+               "destructor" : "am_free_charp"},
+
+    "am_source_line_t" : {
+        "comment" : "Zero-index number of a line within a source file",
+        "c_def" : "uint64_t"
+    },
+
+    "am_source_character_t" : {
+        "comment" : "Zero-index number of a character within a source line",
+        "c_def" : "uint64_t"
+    }
 }
 
 def __expand_types(types):

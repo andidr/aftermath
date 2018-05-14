@@ -311,6 +311,24 @@ aux_types = {
              "comment" : "End of the interval"}
         ],
         "to_mem_copy_fields" : ["start", "end"]
+    },
+
+    "am_dsk_source_location" : {
+        "comment" : "A source location (filename, line, character).",
+        "is_frame" : False,
+        "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
+        "entity" : "source location",
+        "fields" : [
+            {"name" : "file",
+             "type" : "am_dsk_string",
+             "comment" : "File containing the source"},
+            {"name" : "line",
+             "type" : "uint64_t",
+             "comment" : "Zero-indexed number of the line within the file"},
+            {"name" : "character",
+             "type" : "uint64_t",
+             "comment" : "Zero-indexed number of the character within the line"}
+        ]
     }
 }
 
