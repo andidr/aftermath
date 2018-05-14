@@ -33,6 +33,7 @@ int am_trace_init(struct am_trace* t, const char* filename)
 	am_counter_description_array_init(&t->counter_descriptions);
 	am_event_array_registry_init(&t->event_array_registry);
 	am_measurement_interval_array_init(&t->measurement_intervals);
+	am_openstream_task_type_array_init(&t->openstream_task_types);
 
 	if(am_event_array_registry_add_default(&t->event_array_registry)) {
 		am_trace_destroy(t);
@@ -44,6 +45,7 @@ int am_trace_init(struct am_trace* t, const char* filename)
 
 void am_trace_destroy(struct am_trace* t)
 {
+	am_openstream_task_type_array_destroy(&t->openstream_task_types);
 	am_measurement_interval_array_destroy(&t->measurement_intervals);
 	am_counter_description_array_destroy_elements(&t->counter_descriptions);
 	am_counter_description_array_destroy(&t->counter_descriptions);

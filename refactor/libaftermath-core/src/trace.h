@@ -25,6 +25,7 @@
 #include <aftermath/core/counter_description_array.h>
 #include <aftermath/core/event_collection.h>
 #include <aftermath/core/measurement_interval_array.h>
+#include <aftermath/core/openstream_task_type_array.h>
 
 struct am_trace {
 	char* filename;
@@ -38,6 +39,7 @@ struct am_trace {
 	struct am_counter_description_array counter_descriptions;
 	struct am_event_array_registry event_array_registry;
 	struct am_measurement_interval_array measurement_intervals;
+	struct am_openstream_task_type_array openstream_task_types;
 };
 
 #define am_trace_for_each_event_collection(t, coll) \

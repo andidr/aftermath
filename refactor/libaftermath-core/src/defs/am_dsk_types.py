@@ -278,6 +278,36 @@ frames = {
              "type" : "am_dsk_interval",
              "comment" : "Interval during which the event collection was associated to the node" }
         ]
+    },
+
+    "am_dsk_openstream_task_type" : {
+        "assert" : False,
+        "entity" : "OpenStream task type",
+        "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
+        "fields" : global_frame_fields + [
+            {"name" : "type_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of this task type"},
+
+            {"name" : "name",
+             "type" : "am_dsk_string",
+             "comment" : "Name of this task (e.g., symbol in the executable)"},
+
+            {"name" : "source",
+             "type" : "am_dsk_source_location",
+             "comment" : "Location of the source code for this task type"}
+        ],
+        "process" : [
+            {"type" : "per_trace_array",
+             "args" : {
+                 "trace_array_field" : "openstream_task_types",
+                 "trace_array_struct_name" : "am_openstream_task_type_array",
+                 "mem_struct_name" : "am_openstream_task_type",
+                 "dsk_to_mem_function" : "am_dsk_openstream_task_type_to_mem"
+             }
+            }
+        ],
+        "to_mem_copy_fields" : ["type_id", "name", "source"]
     }
 }
 

@@ -70,6 +70,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/measurement_interval_array.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
+	aftermath/core/openstream_task_type_array.h \
 	aftermath/core/parser.h \
 	aftermath/core/ptr.h \
 	aftermath/core/qsort.h \

@@ -125,6 +125,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/object_notation.h \
 				src/on_disk.c \
 				src/on_disk.h \
+				src/openstream_task_type_array.h \
 				src/parser.h \
 				src/ptr.h \
 				src/qsort.h \

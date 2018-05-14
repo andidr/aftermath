@@ -162,6 +162,24 @@ types = {
              "type" : "am_interval",
              "comment" : "Start and end of the measurement interval"}
         ]
+    },
+
+    "am_openstream_task_type": {
+        "comment" : "An OpenStream task type",
+        "entity" : "OpenStream task type",
+        "fields" : [
+            {"name" : "type_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of this task type"},
+
+            {"name" : "name",
+             "type" : "am_string",
+             "comment" : "Name of this task (e.g., symbol in the executable)"},
+
+            {"name" : "source",
+             "type" : "am_source_location",
+             "comment" : "Location of the source code for this task type"}
+        ]
     }
 }
 
