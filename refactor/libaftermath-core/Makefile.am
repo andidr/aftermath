@@ -159,6 +159,18 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/defs/am_type_aux.py \
 	src/defs/am_dsk_types.py \
 	src/defs/am_mem_types.py \
+	src/templates/dsk/process/fnproto.tpl.h \
+	src/templates/dsk/process/fname.tpl.h \
+	src/templates/dsk/process/impl.tpl.c \
+	src/templates/dsk/process/per_trace_array/fname.tpl.h \
+	src/templates/dsk/process/per_trace_array/fnproto.tpl.h \
+	src/templates/dsk/process/per_trace_array/impl.tpl.c \
+	src/templates/dsk/process/per_event_collection_interval/fname.tpl.h \
+	src/templates/dsk/process/per_event_collection_interval/fnproto.tpl.h \
+	src/templates/dsk/process/per_event_collection_interval/impl.tpl.c \
+	src/templates/dsk/process/per_event_collection_per_id_timestamp/fname.tpl.h \
+	src/templates/dsk/process/per_event_collection_per_id_timestamp/fnproto.tpl.h \
+	src/templates/dsk/process/per_event_collection_per_id_timestamp/impl.tpl.c \
 	src/templates/dsk_load.tpl.c \
 	src/templates/dsk_load.tpl.fnproto.h \
 	src/templates/dsk_read.tpl.c \
@@ -173,10 +185,6 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/id_to_index.tpl.c \
 	src/templates/id_to_index.tpl.fnproto.h \
 	src/templates/id_to_index.tpl.fname.h \
-	src/templates/per_event_collection_interval.tpl.c \
-	src/templates/per_event_collection_per_id_timestamp.tpl.c \
-	src/templates/per_trace_array.tpl.c \
-	src/templates/process.tpl.fnproto.h \
 	src/templates/timestamp_min_max_update.tpl.fnproto.h \
 	src/templates/timestamp_min_max_update.tpl.c \
 	./scripts/template.py

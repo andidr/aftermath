@@ -42,7 +42,7 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 {% endfor -%}
 
 {% for t in am_types.filter_list_hasattrs(dsk.types_list, ["process"]) -%}
-{% include "process.tpl.fnproto.h" %}
+{% include "dsk/process/fnproto.tpl.h" %};
 {% endfor -%}
 
 {%- for t in am_types.filter_list_hasdefs(dsk.types_list, ["dsk_to_mem_copy_function"]) -%}
@@ -480,7 +480,11 @@ static inline int am_dsk_event_mapping_process(struct am_io_context* ctx,
 {%- endfor -%}
 
 {%- for t in am_types.filter_list_hasattrs(dsk.types_list, ["process"]) %}
-{% include t.process.type+".tpl.c" %}
+{%- for process in t.process %}
+{% include "dsk/process/"+process.type+"/impl.tpl.c" %}
+{% endfor -%}
+
+{% include "dsk/process/impl.tpl.c" %}
 {% endfor -%}
 
 {% for t in dsk.types_list %}

@@ -241,7 +241,7 @@ AFTERMATH TYPE DEFINITIONS
          a trace file in order to determine how much data must be read and which
          type must be instantiated.
 
-     * process [dict, optional]
+     * process [list[dict], optional]
 
          Each on-disk data structure is associated to a processing function that
          is called after the structure has been read from the trace file. If the
@@ -250,10 +250,13 @@ AFTERMATH TYPE DEFINITIONS
          structures are processed in a similar way, it makes sense to generate
          processing functions automatically. The process attribute indicates
          that the processing function should be generated automatically. The
-         attribute is encoded as a dictionary, containing at leas the keys
-         "type" indicating which code generator should be used and "args",
-         defining which arguments should be passed to the code generator. The
-         available generators and their required arguments are listed below:
+         attribute is encoded as a list of dictionaries, each defining one
+         processing step. The steps are carried out in order of their
+         appeareance in the list. Each dictonary defining a step must contain at
+         least the keys "type" indicating which code generator should be used
+         and "args", defining which arguments should be passed to the code
+         generator. The available generators and their required arguments are
+         listed below:
 
            - per_trace_array
 

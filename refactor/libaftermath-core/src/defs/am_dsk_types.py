@@ -115,16 +115,17 @@ frames = {
             {"name" : "name",
              "type" : "am_dsk_string",
              "comment" : "Name of the state" }],
-        "process" : {
-            "type" : "per_trace_array",
-            "args" : {
+        "process" : [
+            {"type" : "per_trace_array",
+             "args" : {
                 "trace_array_field" : "state_descriptions",
                 "trace_array_struct_name" : "am_state_description_array",
                 "mem_struct_name" : "am_state_description",
                 "dsk_struct_sort_field" : "state_id",
                 "dsk_to_mem_function" : "am_dsk_state_description_to_mem"
-            },
-        },
+             }
+            }
+        ],
         "to_mem_copy_fields" : ["state_id", "name"]
     },
 
@@ -139,18 +140,19 @@ frames = {
             {"name" : "interval",
              "type" : "am_dsk_interval",
              "comment" : "Interval during which the state was active" }],
-        "process" : {
-            "type" : "per_event_collection_interval",
-            "args" : {
-                "ecoll_array_type_name" : "am::generic::state",
-                "ecoll_array_struct_name" : "am_state_event_array",
-                "mem_struct_name" : "am_state_event",
-                "mem_struct_interval_field" : "interval",
-                "dsk_struct_interval_field" : "interval",
-                "dsk_struct_ecoll_id_field" : "collection_id",
-                "dsk_to_mem_function" : "am_dsk_state_event_to_mem"
+        "process" : [
+            {"type" : "per_event_collection_interval",
+             "args" : {
+                 "ecoll_array_type_name" : "am::generic::state",
+                 "ecoll_array_struct_name" : "am_state_event_array",
+                 "mem_struct_name" : "am_state_event",
+                 "mem_struct_interval_field" : "interval",
+                 "dsk_struct_interval_field" : "interval",
+                 "dsk_struct_ecoll_id_field" : "collection_id",
+                 "dsk_to_mem_function" : "am_dsk_state_event_to_mem"
+             }
             }
-        },
+        ],
         "to_mem_copy_fields" : [("state", "state_idx"), "interval"],
         "timestamp_min_max_update" : {
             "type" : "interval",
@@ -169,16 +171,17 @@ frames = {
             {"name" : "name",
              "type" : "am_dsk_string",
              "comment" : "Name of the counter" }],
-        "process" : {
-            "type" : "per_trace_array",
-            "args" : {
-                "trace_array_field" : "counter_descriptions",
-                "trace_array_struct_name" : "am_counter_description_array",
-                "mem_struct_name" : "am_counter_description",
-                "dsk_struct_sort_field" : "counter_id",
-                "dsk_to_mem_function" : "am_dsk_counter_description_to_mem"
-            },
-        },
+        "process" : [
+            {"type" : "per_trace_array",
+             "args" : {
+                 "trace_array_field" : "counter_descriptions",
+                 "trace_array_struct_name" : "am_counter_description_array",
+                 "mem_struct_name" : "am_counter_description",
+                 "dsk_struct_sort_field" : "counter_id",
+                 "dsk_to_mem_function" : "am_dsk_counter_description_to_mem"
+             }
+            }
+        ],
         "to_mem_copy_fields" : ["counter_id", "name"]
     },
 
@@ -196,20 +199,21 @@ frames = {
             {"name" : "value",
              "type" : "int64_t",
              "comment" : "Value of the counter sample" }],
-        "process" : {
-            "type" : "per_event_collection_per_id_timestamp",
-            "args" : {
-                "ecoll_array_type_name" : "am::generic::counter",
-                "ecoll_array_struct_name" : "am_counter_event_array_collection",
-                "id_array_struct_name" : "am_counter_event_array",
-                "dsk_struct_ecoll_id_field" : "collection_id",
-                "dsk_struct_id_field" : "counter_id",
-                "dsk_struct_timestamp_field" : "time",
-                "mem_struct_name" : "am_counter_event",
-                "mem_struct_timestamp_field" : "time",
-                "dsk_to_mem_function" : "am_dsk_counter_event_to_mem"
+        "process" : [
+            {"type" : "per_event_collection_per_id_timestamp",
+             "args" : {
+                 "ecoll_array_type_name" : "am::generic::counter",
+                 "ecoll_array_struct_name" : "am_counter_event_array_collection",
+                 "id_array_struct_name" : "am_counter_event_array",
+                 "dsk_struct_ecoll_id_field" : "collection_id",
+                 "dsk_struct_id_field" : "counter_id",
+                 "dsk_struct_timestamp_field" : "time",
+                 "mem_struct_name" : "am_counter_event",
+                 "mem_struct_timestamp_field" : "time",
+                 "dsk_to_mem_function" : "am_dsk_counter_event_to_mem"
+             }
             }
-        },
+        ],
         "to_mem_copy_fields" : ["time", "value"],
         "timestamp_min_max_update" : {
             "type" : "discrete",
@@ -237,16 +241,17 @@ frames = {
             {"name" : "interval",
              "type" : "am_dsk_interval",
              "comment" : "Start and end of the measurement interval"}],
-        "process" : {
-            "type" : "per_trace_array",
-            "args" : {
-                "trace_array_field" : "measurement_intervals",
-                "trace_array_struct_name" : "am_measurement_interval_array",
-                "mem_struct_name" : "am_measurement_interval",
-                "dsk_struct_sort_field" : "interval.start",
-                "dsk_to_mem_function" : "am_dsk_measurement_interval_to_mem"
-            },
-        },
+        "process" : [
+            {"type" : "per_trace_array",
+             "args" : {
+                 "trace_array_field" : "measurement_intervals",
+                 "trace_array_struct_name" : "am_measurement_interval_array",
+                 "mem_struct_name" : "am_measurement_interval",
+                 "dsk_struct_sort_field" : "interval.start",
+                 "dsk_to_mem_function" : "am_dsk_measurement_interval_to_mem"
+             }
+            }
+        ],
         "to_mem_copy_fields" : ["interval"],
         "timestamp_min_max_update" : {
             "type" : "interval",

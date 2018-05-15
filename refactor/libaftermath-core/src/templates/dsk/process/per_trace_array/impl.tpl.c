@@ -1,8 +1,7 @@
-{%- set pargs = t.process.args -%}
+{%- set pargs = process.args -%}
 {%- set memtype = mem.find(pargs.mem_struct_name) -%}
 
-static inline int {{t.name}}_process(struct am_io_context* ctx,
-				     {{t.c_type}}* f)
+{% include "fnproto.tpl.h" %}
 {
 	struct {{pargs.trace_array_struct_name}}* a = &ctx->trace->{{pargs.trace_array_field}};
 	{{memtype.c_type}}* mem;
