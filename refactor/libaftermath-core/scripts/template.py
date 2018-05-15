@@ -22,6 +22,11 @@ import jinja2
 import os
 import re
 
+class EnvironmentRelativePaths(jinja2.Environment):
+    """Allows for the inclusion of files using a relative path specification."""
+    def join_path(self, template, parent):
+        return os.path.join(os.path.dirname(parent), template)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Render a template.')
     parser.add_argument('-t', '--template', metavar='T', type=argparse.FileType('r'),
@@ -57,7 +62,7 @@ if __name__ == "__main__":
         tpl_dir = os.path.dirname(args.template.name)
         tpl_basename = os.path.basename(args.template.name)
 
-        env = jinja2.Environment(loader = jinja2.FileSystemLoader(tpl_dir))
+        env = EnvironmentRelativePaths(loader = jinja2.FileSystemLoader(tpl_dir))
         template = env.get_template(tpl_basename)
         content = template.render(**defs)
         outfile.write(content)
