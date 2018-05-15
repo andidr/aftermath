@@ -18,6 +18,7 @@
 
 import am_type_aux
 import am_base_types
+import copy
 
 # Definition of in-memory data structures. See doc/type_definitions for
 # documentation.
@@ -26,8 +27,11 @@ __default_fields = {
     "compound" : True,
     "destructor" : None,
     "needs_constructor" : False,
+    "is_pointer" : False,
     "defs" : ["type"]
 }
+
+__pointer_clear_fields = ["defs", "postprocess" ]
 
 types = {
     "am_string" : {
@@ -35,8 +39,9 @@ types = {
         "entity" : "string",
         "defs" : [],
         "c_type" : "char*",
-        "destructor" : "am_free_charp",
-        "needs_constructor" : True
+        "destructor" : "free",
+        "needs_constructor" : True,
+        "is_pointer" : True
     },
 
     "am_bool" : {
@@ -189,7 +194,26 @@ def __expand_types(types):
     for tname in types.keys():
         t = types[tname]
         t = am_type_aux.dict_set_default(t, __default_fields)
+        t["basename"] = tname
         types[tname] = t
+
+    ptrtypes = {}
+
+    # Create a pointer type for each type
+    for tname in types.keys():
+        t = types[tname]
+        ptrt = copy.deepcopy(t)
+        ptrt["is_pointer"] = True
+        ptrt["basename"] = tname
+
+        for field in __pointer_clear_fields:
+            ptrt.pop(field, None)
+
+        ptrt["defs"] = []
+
+        ptrtypes[tname+"*"] = ptrt
+
+    types = am_type_aux.merge_dicts(types, ptrtypes)
 
     for tname in types.keys():
         t = types[tname]
@@ -200,19 +224,25 @@ def __expand_types(types):
                 t["c_type"] = "struct "+tname
 
             for field in t["fields"]:
-                if find(field["type"])["destructor"]:
+                fieldtype = find_in_sets(field["type"], \
+                                         [am_base_types.types, types])
+
+                if fieldtype["destructor"]:
                     if not "destructor" in t["defs"]:
                         t["defs"].append("destructor")
 
-                    t["destructor"] = tname+"_destroy"
+                    t["destructor"] = t["basename"]+"_destroy"
                     break
 
         ret[tname] = t
 
     return ret
 
+def find_in_sets(tname, sets):
+    return am_type_aux.dicts_find(tname, sets)
+
 def find(tname):
-    return am_type_aux.dicts_find(tname, [types, am_base_types.types])
+    return find_in_sets(tname, [types, am_base_types.types])
 
 def find_same_dsk(dsk_name):
     # Integer types have the same name, without prefix

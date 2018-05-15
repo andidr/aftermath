@@ -23,6 +23,15 @@
 
 {% set mem = am_types.mem %}
 
+/* Forward declarations for pointers used in the struct definitions */
+{% for tname in mem.types -%}
+{% set t = mem.types[tname] -%}
+{% if t.compound and not t.is_pointer -%}
+{{t.c_type}};
+{% endif %}
+{%- endfor -%}
+{# #}
+
 {% for tname in am_types.topological_sort(mem.types) -%}
 {% set t = mem.types[tname] -%}
 {% if "type" in t.defs -%}
@@ -36,7 +45,7 @@
 };
 {# #}
 {% endif -%}
-{% if "destructor" in t.defs -%}
+{% if "destructor" in t.defs and not t.is_pointer -%}
 void {{t.destructor}}({{t.c_type}}* e);
 {# #}
 {% endif -%}

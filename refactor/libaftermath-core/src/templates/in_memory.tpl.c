@@ -23,15 +23,20 @@
 {%- set mem = am_types.mem %}
 
 {%- for t in mem.types_list %}
-{%- if "destructor" in t.defs %}
+{%- if "destructor" in t.defs and not t.is_pointer %}
 void {{t.destructor}}({{t.c_type}}* e)
 {
 	{%- for field in t.fields -%}
 	{%- set field_type = mem.find(field.type) -%}
-	{% if field_type.destructor %}
+	{%- if field_type.destructor %}
+	{%- if field_type.is_pointer %}
+	{{field_type.destructor}}(e->{{field.name}});
+	{%- else %}
 	{{field_type.destructor}}(&e->{{field.name}});
-	{%- endif %}
-	{%- endfor %}
+	{%- endif -%}
+	{%- endif -%}
+	{%- endfor -%}
+{# #}
 }
 {% endif -%}
 {% endfor -%}

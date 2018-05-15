@@ -25,7 +25,8 @@ __default_fields = {
     "compound" : False,
     "destructor" : None,
     "needs_constructor" : False,
-    "defs" : ["type"]
+    "defs" : ["type"],
+    "is_pointer" : False
 }
 
 types = {
@@ -76,7 +77,9 @@ types = {
 
     "char*" : {"c_type" : "char*",
                "defs" : [],
-               "destructor" : "am_free_charp"},
+               "destructor" : "free",
+               "is_pointer" : True
+    },
 
     "am_source_line_t" : {
         "comment" : "Zero-index number of a line within a source file",
