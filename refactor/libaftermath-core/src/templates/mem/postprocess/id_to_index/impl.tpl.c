@@ -10,7 +10,7 @@
  *
  * Returns 0 on success, otherwise 1.
  */
-static int {% include postprocess.type+".tpl.fname.h" %}(struct am_io_context* ctx)
+{% include "fnproto.tpl.h" %}
 {
 	struct am_event_collection* coll;
 	struct am_trace* t = ctx->trace;

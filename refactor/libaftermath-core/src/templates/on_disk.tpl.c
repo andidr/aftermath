@@ -56,7 +56,7 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 
 {%- for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
 {%- for postprocess in memtype.postprocess %}
-{% include postprocess.type+".tpl.fnproto.h" %}
+{% include "mem/postprocess/" + postprocess.type + "/fnproto.tpl.h" %};
 static int {{memtype.name}}_postprocess(struct am_io_context* ctx);
 {% endfor -%}
 {% endfor %}
@@ -569,7 +569,7 @@ static int am_dsk_header_verify(struct am_io_context* ctx)
 
 {% for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
 {%- for postprocess in memtype.postprocess %}
-{% include postprocess.type+".tpl.c" %}
+{% include "mem/postprocess/" + postprocess.type + "/impl.tpl.c" %}
 {% endfor %}
 
 /* Performs postprocessing of all {{memtype.entity}}s. Returns 0 on success,
@@ -577,7 +577,7 @@ static int am_dsk_header_verify(struct am_io_context* ctx)
 static int {{memtype.name}}_postprocess(struct am_io_context* ctx)
 {
 	{%- for postprocess in memtype.postprocess %}
-	if({% include postprocess.type+".tpl.fname.h" %}(ctx))
+	if({% include "mem/postprocess/" + postprocess.type + "/fname.tpl.h" %}(ctx))
 		return 1;
 	{%- endfor %}
 {# #}

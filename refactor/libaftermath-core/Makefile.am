@@ -183,9 +183,9 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/dsk_write.tpl.fnproto.h \
 	src/templates/destructor.tpl.c \
 	src/templates/destructor.tpl.fnproto.h \
-	src/templates/id_to_index.tpl.c \
-	src/templates/id_to_index.tpl.fnproto.h \
-	src/templates/id_to_index.tpl.fname.h \
+	src/templates/mem/postprocess/id_to_index/fname.tpl.h \
+	src/templates/mem/postprocess/id_to_index/fnproto.tpl.h \
+	src/templates/mem/postprocess/id_to_index/impl.tpl.c \
 	src/templates/timestamp_min_max_update.tpl.fnproto.h \
 	src/templates/timestamp_min_max_update.tpl.c \
 	./scripts/template.py
