@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/on_disk.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 

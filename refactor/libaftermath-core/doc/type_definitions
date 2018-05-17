@@ -387,6 +387,29 @@ AFTERMATH TYPE DEFINITIONS
                    conversion function used to convert the on-disk data
                    structure into an in-memory structure
 
+     * process_dsk_mem [list[dict], optional]:
+
+         Specifies a list of processing steps to be carried out immediately
+         after the conversion of an on-disk structure into its in-memory
+         counterpart. The steps are executed in order of specification in the
+         list. Each step is defined as a dictionary of the form {"type" : t,
+         "args" : a }, where t specifies the step name and a a dictionary of
+         step-dependent arguments to be passed to the code generator. The
+         available steps are:
+
+           - store_id_in_pointer
+
+               Uses a pointer field of the in-memory data structure to store a
+               copy of a field of the on-disk structure holding a numerical
+               ID. Multiple such pairs can be defined. The generated code checks
+               if the pointer is large enough to store any possible value of the
+               ID. The mappings are specified in the agument field_mapping:
+
+                - field_mapping [list[pair[string, string]]]
+
+                    The first value of a pair indicates the name of the field
+                    with the numerical ID and the second value indicates the
+                    name of the pointer field.
 
      * to_mem_copy_fields [list[string / (string, string)], optional]:
        If mem_copy_function is specified in the defs attribute, this
