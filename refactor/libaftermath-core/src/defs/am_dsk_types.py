@@ -308,6 +308,42 @@ frames = {
             }
         ],
         "to_mem_copy_fields" : ["type_id", "name", "source"]
+    },
+
+    "am_dsk_openstream_task_instance" : {
+        "assert" : False,
+        "entity" : "OpenStream task instance",
+        "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
+        "fields" : global_frame_fields + [
+            {"name" : "type_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of the task type for this instance"},
+
+            {"name" : "instance_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of this task instance"}
+        ],
+
+        "process" : [
+            {"type" : "per_trace_array",
+             "args" : {
+                 "trace_array_field" : "openstream_task_instances",
+                 "trace_array_struct_name" : "am_openstream_task_instance_array",
+                 "mem_struct_name" : "am_openstream_task_instance",
+                 "dsk_to_mem_function" : "am_dsk_openstream_task_instance_to_mem"
+             }
+            }
+        ],
+
+        "process_dsk_mem" : [
+            { "type" : "store_id_in_pointer",
+              "args" : {
+                  "field_mapping" : [("type_id", "type")]
+              }
+            }
+        ],
+
+        "to_mem_copy_fields" : ["instance_id"]
     }
 }
 

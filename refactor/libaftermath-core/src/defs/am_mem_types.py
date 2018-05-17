@@ -185,6 +185,36 @@ types = {
              "type" : "am_source_location",
              "comment" : "Location of the source code for this task type"}
         ]
+    },
+
+    "am_openstream_task_instance": {
+        "comment" : "An OpenStream task instance",
+        "entity" : "OpenStream task instance",
+        "fields" : [
+            {"name" : "type",
+             "type" : "am_openstream_task_type*",
+             "comment" : "Type of this task instance"},
+
+            {"name" : "instance_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of this task instance"}
+        ],
+        "postprocess" : [
+            {"type" : "id_stored_in_pointer_trace_array",
+             "args" : {
+                 "linking_element" : {
+                     "type_name" : "am_openstream_task_instance",
+                     "field" : "type",
+                     "trace_array_field" : "openstream_task_instances"
+                 },
+                 "linked_element" : {
+                     "type_name" : "am_openstream_task_type",
+                     "id_field" : "type_id",
+                     "trace_array_field" : "openstream_task_types"
+                 }
+             }
+            }
+        ]
     }
 }
 
