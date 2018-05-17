@@ -183,6 +183,9 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/dsk_write.tpl.fnproto.h \
 	src/templates/destructor.tpl.c \
 	src/templates/destructor.tpl.fnproto.h \
+	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/fname.tpl.h \
+	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/fnproto.tpl.h \
+	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/impl.tpl.c \
 	src/templates/mem/postprocess/id_to_index/fname.tpl.h \
 	src/templates/mem/postprocess/id_to_index/fnproto.tpl.h \
 	src/templates/mem/postprocess/id_to_index/impl.tpl.c \

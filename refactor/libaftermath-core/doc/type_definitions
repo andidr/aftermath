@@ -213,6 +213,35 @@ AFTERMATH TYPE DEFINITIONS
                  - description.trace_array_field: Name of the field of the trace
                    with the array of descriptions
 
+           - id_stored_in_pointer_trace_array:
+
+               For each element of a per-trace array, the postprocessor reads
+               the numerical ID stored in a pointer field of the element, finds
+               the instance that this ID belongs to in a per-trace array using
+               binary search and updates the field, such that it does not longer
+               contain the ID of the found entity, but the entity's
+               address. The following step arguments are required:
+
+                 - linking_element.type_name: Name of the type defining the
+                   structure that contains the pointer
+
+                 - linking_element.field: The name of the pointer field with the
+                   numerical ID
+
+                 - linking_element.trace_array_field: The name of the field in
+                   struct am_trace representing the array with the linking
+                   elements
+
+                 - linked_element.type_name: Name of the type defining the
+                   structure of the target entity
+
+                 - linked_element.id_field: The name field of the target entity
+                   that contains the ID
+
+                 - linked_element.trace_array_field: The name of the field in
+                   struct am_trace representing the array with targeted entities
+
+
    ON-DISK TYPES AND IN-MEMORY TYPES
 
      * entity [string, mandatory]:
