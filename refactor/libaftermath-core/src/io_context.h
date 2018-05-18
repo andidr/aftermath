@@ -25,6 +25,7 @@
 #include <aftermath/core/io_hierarchy_context.h>
 #include <aftermath/core/trace.h>
 #include <aftermath/core/frame_type_registry.h>
+#include <aftermath/core/io_index_to_id_maps.h>
 
 /* An IO context serves as a compound structure for temporary data needed when
  * loading / writing a trace from / to disk. When an IO operation fails, the
@@ -41,6 +42,9 @@ struct am_io_context {
 
 	struct am_io_hierarchy_context hierarchy_context;
 	struct am_frame_type_registry* frame_types;
+
+	/* All temporary mappings from array indexes to IDs */
+	struct am_io_index_to_id_maps id_maps;
 };
 
 enum am_io_mode {

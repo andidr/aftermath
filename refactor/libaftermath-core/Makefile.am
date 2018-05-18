@@ -121,6 +121,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/io_error.h \
 				src/io_hierarchy_context.c \
 				src/io_hierarchy_context.h \
+				src/io_index_to_id_maps.c \
+				src/io_index_to_id_maps.h \
 				src/measurement_interval_array.h \
 				src/object_notation.c \
 				src/object_notation.h \
@@ -151,6 +153,8 @@ libaftermath_core_la_LIBADD =
 GENERATED_FILES=src/base_types.h \
 		src/in_memory.c \
 		src/in_memory.h \
+		src/io_index_to_id_maps.c \
+		src/io_index_to_id_maps.h \
 		src/on_disk.c \
 		src/on_disk.h
 
@@ -185,6 +189,8 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/dsk_write.tpl.fnproto.h \
 	src/templates/destructor.tpl.c \
 	src/templates/destructor.tpl.fnproto.h \
+	src/templates/io_index_to_id_maps.tpl.c \
+	src/templates/io_index_to_id_maps.tpl.h \
 	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/fname.tpl.h \
 	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/fnproto.tpl.h \
 	src/templates/mem/postprocess/id_stored_in_pointer_trace_array/impl.tpl.c \
@@ -217,6 +223,22 @@ src/in_memory.h: src/templates/in_memory.tpl.h \
 	$(template_verbose)$(PYTHON) ./scripts/template.py \
 		-m $(srcdir)/src/defs/am_types.py \
 		-t $(srcdir)/src/templates/in_memory.tpl.h \
+		-o $@
+
+src/io_index_to_id_maps.c: src/templates/io_index_to_id_maps.tpl.c \
+		$(TPL_DEPS)
+	@$(MKDIR_P) src/generated
+	$(template_verbose)$(PYTHON) ./scripts/template.py \
+		-m $(srcdir)/src/defs/am_types.py \
+		-t $(srcdir)/src/templates/io_index_to_id_maps.tpl.c \
+		-o $@
+
+src/io_index_to_id_maps.h: src/templates/io_index_to_id_maps.tpl.h \
+		$(TPL_DEPS)
+	@$(MKDIR_P) src/generated
+	$(template_verbose)$(PYTHON) ./scripts/template.py \
+		-m $(srcdir)/src/defs/am_types.py \
+		-t $(srcdir)/src/templates/io_index_to_id_maps.tpl.h \
 		-o $@
 
 src/on_disk.c: src/templates/on_disk.tpl.c \

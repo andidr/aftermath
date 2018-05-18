@@ -68,6 +68,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/io_context.h \
 	aftermath/core/io_error.h \
 	aftermath/core/io_hierarchy_context.h \
+	aftermath/core/io_index_to_id_maps.h \
 	aftermath/core/measurement_interval_array.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
@@ -96,5 +97,9 @@ aftermath/core/on_disk.h: $(top_builddir)/src/on_disk.h
 	ln -sfr $< $@
 
 aftermath/core/in_memory.h: $(top_builddir)/src/in_memory.h
+	$(MKDIR_P) aftermath/core
+	ln -sfr $< $@
+
+aftermath/core/io_index_to_id_maps.h: $(top_builddir)/src/io_index_to_id_maps.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@

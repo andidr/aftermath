@@ -4,3 +4,5 @@ in_memory.h
 on_disk.c
 on_disk.h
 *.lo
+io_index_to_id_maps.c
+io_index_to_id_maps.h

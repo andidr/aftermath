@@ -31,6 +31,7 @@ int am_io_context_init(struct am_io_context* ctx,
 	ctx->frame_types = frame_types;
 
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
+	am_io_index_to_id_maps_init(&ctx->id_maps);
 
 	if(am_io_error_stack_definit(&ctx->error_stack))
 		return 1;
@@ -40,6 +41,7 @@ int am_io_context_init(struct am_io_context* ctx,
 
 void am_io_context_destroy(struct am_io_context* ctx)
 {
+	am_io_index_to_id_maps_destroy(&ctx->id_maps);
 	am_io_context_reset(ctx);
 	am_io_context_close(ctx);
 	am_io_error_stack_destroy(&ctx->error_stack);
