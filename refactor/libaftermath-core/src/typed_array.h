@@ -39,9 +39,17 @@ struct am_typed_array_generic {
 /* Casts an arbitrary typed array into a generic typed array */
 #define AM_TYPED_ARRAY_GENERIC(parr) ((struct am_typed_array_generic*)parr)
 
+#define AM_DECL_TYPED_ARRAY_DEFAULT_DESTRUCTOR(prefix, fname)		\
+	/* Destroys the array. Note that this function does not call */ \
+	/* any destructor on the elements. */				\
+	static inline void fname(struct prefix* a)			\
+	{								\
+		free(a->elements);					\
+	}
+
 /* Declare a new type of arrays. The macro parameter 'prefix' defines the prefix
  * for the type of the structure as well as for all operations. */
-#define AM_DECL_TYPED_ARRAY_EXTRA_FIELDS(prefix, T, extra_fields)	\
+#define AM_DECL_TYPED_ARRAY_EXTRA_FIELDS_NO_DESTRUCTOR(prefix, T, extra_fields) \
 	struct prefix {						\
 		size_t num_elements;					\
 		size_t num_free;					\
@@ -67,7 +75,6 @@ struct am_typed_array_generic {
 					      size_t n);		\
 	static inline int prefix##_prealloc(struct prefix* a);		\
 	static inline void prefix##_init(struct prefix* a);		\
-	static inline void prefix##_destroy(struct prefix* a);		\
 	static inline size_t prefix##_index(const struct prefix* a,	\
 					    const T* e);		\
 									\
@@ -232,13 +239,6 @@ struct am_typed_array_generic {
 		a->elements = NULL;					\
 	}								\
 									\
-	/* Destroys the array. Note that this function does not call */ \
-	/* any destructor on the elements. */				\
-	static inline void prefix##_destroy(struct prefix* a) \
-	{								\
-		free(a->elements);					\
-	}								\
-									\
 	/* Resets the array (sets the number of elements to 0 and the	\
 	 * number of free elements to the total capacity). Note that	\
 	 * this function does not call any destructor on the elements.	\
@@ -249,7 +249,14 @@ struct am_typed_array_generic {
 		a->num_elements = 0;					\
 	}
 
-#define AM_DECL_TYPED_ARRAY(prefix, T) \
+#define AM_DECL_TYPED_ARRAY_EXTRA_FIELDS(prefix, T, extra_fields)		\
+	AM_DECL_TYPED_ARRAY_EXTRA_FIELDS_NO_DESTRUCTOR(prefix, T, extra_fields) \
+	AM_DECL_TYPED_ARRAY_DEFAULT_DESTRUCTOR(prefix, prefix##_destroy)
+
+#define AM_DECL_TYPED_ARRAY_NO_DESTRUCTOR(prefix, T)	\
+	AM_DECL_TYPED_ARRAY_EXTRA_FIELDS_NO_DESTRUCTOR(prefix, T, )
+
+#define AM_DECL_TYPED_ARRAY(prefix, T)	\
 	AM_DECL_TYPED_ARRAY_EXTRA_FIELDS(prefix, T, )
 
 /* Declare a binary seach function for a typed array. prefix and T must be the
