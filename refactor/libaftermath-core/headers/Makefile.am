@@ -1,5 +1,6 @@
 nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/arithmetic.h \
+	aftermath/core/array_registry.h \
 	aftermath/core/aux.h \
 	aftermath/core/base_types.h \
 	aftermath/core/bits.h \
