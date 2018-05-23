@@ -5,6 +5,8 @@ lib_LTLIBRARIES = libaftermath-core.la
 
 libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/ansi_extras.h \
+				src/array_collection.c \
+				src/array_collection.h \
 				src/array_registry.c \
 				src/array_registry.h \
 				src/arithmetic.h \
