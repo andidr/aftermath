@@ -109,6 +109,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/hierarchy.c \
 				src/hierarchy.h \
 				src/hierarchy_array.h \
+				src/index_to_id_map.h \
 				src/interval.c \
 				src/interval.h \
 				src/interval_array.h \
