@@ -64,24 +64,24 @@ static void def_am_counter_event_array_collection_destroy(void* a)
 	am_counter_event_array_collection_destroy(a);
 }
 
-int am_event_array_registry_add_default(struct am_event_array_registry* r)
+int am_build_default_event_array_registry(struct am_array_registry* r)
 {
-	if(am_event_array_registry_add(r,
-				       "am::generic::state",
-				       def_am_state_event_array_allocate,
-				       def_am_state_event_array_free,
-				       def_am_state_event_array_init,
-				       def_am_state_event_array_destroy))
+	if(am_array_registry_add(r,
+				 "am::generic::state",
+				 def_am_state_event_array_allocate,
+				 def_am_state_event_array_free,
+				 def_am_state_event_array_init,
+				 def_am_state_event_array_destroy))
 	{
 		return 1;
 	}
 
-	if(am_event_array_registry_add(r,
-				      "am::generic::counter",
-				      def_am_counter_event_array_collection_allocate,
-				      def_am_counter_event_array_collection_free,
-				      def_am_counter_event_array_collection_init,
-				      def_am_counter_event_array_collection_destroy))
+	if(am_array_registry_add(r,
+				 "am::generic::counter",
+				 def_am_counter_event_array_collection_allocate,
+				 def_am_counter_event_array_collection_free,
+				 def_am_counter_event_array_collection_init,
+				 def_am_counter_event_array_collection_destroy))
 	{
 		return 1;
 	}

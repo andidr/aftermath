@@ -21,6 +21,6 @@
 
 #include <aftermath/core/event_collection.h>
 
-int am_event_array_registry_add_default(struct am_event_array_registry* r);
+int am_build_default_event_array_registry(struct am_array_registry* r);
 
 #endif

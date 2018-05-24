@@ -93,7 +93,7 @@ am_event_collection_array_add_nodup(struct am_event_collection_array* a,
  * neither the space occupied by the elements, nor the array itself. */
 static inline void
 am_event_collection_array_destroy_elements(struct am_event_collection_array* a,
-					   struct am_event_array_registry* r)
+					   struct am_array_registry* r)
 {
 	for(size_t i = 0; i < a->num_elements; i++)
 		am_event_collection_destroy(&a->elements[i], r);

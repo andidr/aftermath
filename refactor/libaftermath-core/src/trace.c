@@ -31,12 +31,12 @@ int am_trace_init(struct am_trace* t, const char* filename)
 	am_event_collection_array_init(&t->event_collections);
 	am_state_description_array_init(&t->state_descriptions);
 	am_counter_description_array_init(&t->counter_descriptions);
-	am_event_array_registry_init(&t->event_array_registry);
+	am_array_registry_init(&t->event_array_registry);
 	am_measurement_interval_array_init(&t->measurement_intervals);
 	am_openstream_task_type_array_init(&t->openstream_task_types);
 	am_openstream_task_instance_array_init(&t->openstream_task_instances);
 
-	if(am_event_array_registry_add_default(&t->event_array_registry)) {
+	if(am_build_default_event_array_registry(&t->event_array_registry)) {
 		am_trace_destroy(t);
 		return 1;
 	}
@@ -62,7 +62,7 @@ void am_trace_destroy(struct am_trace* t)
 	am_hierarchyp_array_destroy_elements(&t->hierarchies);
 	am_hierarchyp_array_destroy(&t->hierarchies);
 
-	am_event_array_registry_destroy(&t->event_array_registry);
+	am_array_registry_destroy(&t->event_array_registry);
 
 	free(t->filename);
 }

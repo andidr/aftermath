@@ -30,100 +30,13 @@
  * event array type.
  */
 
-#include <aftermath/core/hierarchy.h>
-#include <aftermath/core/typed_array.h>
-
-struct am_event_array_registry;
-
-/* A single entry of an event array collection, associating a type with the
- * address of the array. */
-struct am_event_array_type_entry {
-	char* type;
-	void* array;
-};
-
-void am_event_array_type_entry_destroy(struct am_event_array_type_entry* e,
-				       struct am_event_array_registry* r);
-
-#define ACC_TYPE(x) (x).type
-
-AM_DECL_TYPED_ARRAY(am_event_array_collection, struct am_event_array_type_entry)
-AM_DECL_TYPED_ARRAY_BSEARCH(am_event_array_collection,
-			    struct am_event_array_type_entry,
-			    char*,
-			    ACC_TYPE,
-			    strcmp)
-AM_DECL_TYPED_ARRAY_INSERTPOS(am_event_array_collection,
-			      struct am_event_array_type_entry,
-			      char*,
-			      ACC_TYPE,
-			      strcmp)
-
-void event_array_collection_destroy_elements(struct am_event_array_collection* a,
-					     struct am_event_array_registry* r);
-
-/* Single entry specifiying common operations for an event array type */
-struct am_event_array_registry_entry {
-	const char* type;
-
-	void* (*allocate)(void);
-	void (*free)(void* a);
-	int (*init)(void* a);
-	void (*destroy)(void* a);
-};
-
-AM_DECL_TYPED_ARRAY(am_event_array_registry,
-		    struct am_event_array_registry_entry)
-AM_DECL_TYPED_ARRAY_BSEARCH(am_event_array_registry,
-			    struct am_event_array_registry_entry,
-			    char*,
-			    ACC_TYPE,
-			    strcmp)
-AM_DECL_TYPED_ARRAY_INSERTPOS(am_event_array_registry,
-			      struct am_event_array_registry_entry,
-			      char*,
-			      ACC_TYPE,
-			      strcmp)
-AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_event_array_registry,
-				   struct am_event_array_registry_entry,
-				   char*)
-
-struct am_event_array_registry_entry*
-event_array_registry_find(struct am_event_array_registry* r,
-			  const char* type);
-int am_event_array_registry_add(struct am_event_array_registry* r,
-				const char* type,
-				void* (*allocate)(void),
-				void (*free)(void* a),
-				int (*init)(void* a),
-				void (*destroy)(void* a));
-
-void* am_event_registry_allocate_array(struct am_event_array_registry* r,
-				       const char* type,
-				       int* type_found);
-void am_event_registry_free_array(struct am_event_array_registry* r,
-				  const char* type,
-				  int* type_found,
-				  void* a);
-int am_event_registry_init_array(struct am_event_array_registry* r,
-				 const char* type,
-				 int* type_found,
-				 void* a);
-void am_event_registry_destroy_array(struct am_event_array_registry* r,
-				     const char* type,
-				     int* type_found,
-				     void* a);
-void am_event_registry_destroy_and_free_array(struct am_event_array_registry* r,
-					      const char* type,
-					      int* type_found,
-					      void* a);
-void* am_event_registry_allocate_and_init_array(struct am_event_array_registry* r,
-						const char* type,
-						int* type_found);
+#include <aftermath/core/array_collection.h>
+#include <aftermath/core/array_registry.h>
+#include <aftermath/core/base_types.h>
 
 /* Single event collection, respresenting a logical execution stream */
 struct am_event_collection {
-	struct am_event_array_collection event_arrays;
+	struct am_array_collection event_arrays;
 	am_event_collection_id_t id;
 	char* name;
 };
@@ -135,12 +48,12 @@ void am_event_collection_init_nodup(struct am_event_collection* e,
 				    am_event_collection_id_t id,
 				    char* name);
 void am_event_collection_destroy(struct am_event_collection* e,
-				 struct am_event_array_registry* r);
+				 struct am_array_registry* r);
 
 void* am_event_collection_find_event_array(struct am_event_collection* e,
 					   const char* t);
 
-void* am_event_collection_find_or_add_event_array(struct am_event_array_registry* r,
+void* am_event_collection_find_or_add_event_array(struct am_array_registry* r,
 						  struct am_event_collection* e,
 						  const char* t);
 

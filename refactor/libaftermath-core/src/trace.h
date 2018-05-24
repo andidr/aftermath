@@ -38,7 +38,7 @@ struct am_trace {
 	struct am_event_collection_array event_collections;
 	struct am_state_description_array state_descriptions;
 	struct am_counter_description_array counter_descriptions;
-	struct am_event_array_registry event_array_registry;
+	struct am_array_registry event_array_registry;
 	struct am_measurement_interval_array measurement_intervals;
 	struct am_openstream_task_type_array openstream_task_types;
 	struct am_openstream_task_instance_array openstream_task_instances;
