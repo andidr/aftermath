@@ -201,6 +201,9 @@ TPL_DEPS=src/defs/am_base_types.py \
 	src/templates/mem/postprocess/pointer_from_index_to_id_map_event_collection_array/fname.tpl.h \
 	src/templates/mem/postprocess/pointer_from_index_to_id_map_event_collection_array/fnproto.tpl.h \
 	src/templates/mem/postprocess/pointer_from_index_to_id_map_event_collection_array/impl.tpl.c \
+	src/templates/mem/postprocess/pointer_from_index_to_id_map_trace_array/fname.tpl.h \
+	src/templates/mem/postprocess/pointer_from_index_to_id_map_trace_array/fnproto.tpl.h \
+	src/templates/mem/postprocess/pointer_from_index_to_id_map_trace_array/impl.tpl.c \
 	src/templates/mem/postprocess/id_to_index/fname.tpl.h \
 	src/templates/mem/postprocess/id_to_index/fnproto.tpl.h \
 	src/templates/mem/postprocess/id_to_index/impl.tpl.c \
