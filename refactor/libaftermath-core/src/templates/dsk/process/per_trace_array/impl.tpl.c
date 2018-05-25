@@ -25,6 +25,22 @@
 				 "Could not assign values from an on-disk {{memtype.entity}}.");
 	}
 
+	{% if pargs.index_to_id_mappings -%}
+	{% for itim in pargs.index_to_id_mappings -%}
+	struct am_index_to_id_map_u{{itim.id_bits}}_entry entry_{{itim.name}} = {
+		.index = ctx->index_to_id_maps.{{itim.name}}.num_elements,
+		.id = f->{{itim.id_field_name}}
+	};
+
+	if(am_index_to_id_map_u{{itim.id_bits}}_appendp(&ctx->index_to_id_maps.{{itim.name}},
+							&entry_{{itim.name}}))
+	{
+		AM_IOERR_GOTO_NA(ctx, out_err_assign, AM_IOERR_ALLOC,
+				 "Could not allocate space for index to ID mapping for {{memtype.entity}}.");
+	}
+	{% endfor -%}
+	{%- endif -%}
+{# #}
 	return 0;
 
 out_err_assign:

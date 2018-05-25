@@ -44,7 +44,7 @@ struct am_io_context {
 	struct am_frame_type_registry* frame_types;
 
 	/* All temporary mappings from array indexes to IDs */
-	struct am_io_index_to_id_maps id_maps;
+	struct am_io_index_to_id_maps index_to_id_maps;
 };
 
 enum am_io_mode {
