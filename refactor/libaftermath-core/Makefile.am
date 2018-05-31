@@ -140,6 +140,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/on_disk.c \
 				src/on_disk.h \
 				src/openstream_task_instance_array.h \
+				src/openstream_task_period_array.h \
 				src/openstream_task_type_array.h \
 				src/parser.h \
 				src/prng.h \

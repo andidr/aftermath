@@ -230,6 +230,43 @@ types = {
               "id_bits" : 64,
               "sort" : True }
         ]
+    },
+
+    "am_openstream_task_period": {
+        "comment" : "An OpenStream task execution period",
+        "entity" : "OpenStream task execution period",
+        "fields" : [
+            {"name" : "type",
+             "type" : "am_openstream_task_instance*",
+             "comment" : "Task execution instance of this period belongs to"},
+
+            {"name" : "interval",
+             "type" : "am_interval",
+             "comment" : "Interval of the task execution period"}
+        ],
+        "postprocess" : [
+            {"type" : "pointer_from_index_to_id_map_event_collection_array",
+             "args" : {
+                 "id_bits" : 64,
+                 "source" : {
+                     "map" : "am::openstream::task_period::instance_id",
+                     "ecoll_array" : "am::openstream::task_period",
+                     "type_name" : "am_openstream_task_period",
+                     "pointer_field_name" : "type",
+                 },
+                 "target" : {
+                     "map" : "am_openstream_task_instance_id",
+                     "trace_array_type_name" : "am::openstream::task_instance",
+                     "type_name" : "am_openstream_task_instance"
+                 }
+             }
+            }
+        ],
+
+        "index_to_id_maps" : [
+            { "name" : "am_openstream_task_period_instance_id",
+              "id_bits" : 64 }
+        ]
     }
 }
 

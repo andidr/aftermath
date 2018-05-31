@@ -79,6 +79,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
 	aftermath/core/openstream_task_instance_array.h \
+	aftermath/core/openstream_task_period_array.h \
 	aftermath/core/openstream_task_type_array.h \
 	aftermath/core/parser.h \
 	aftermath/core/prng.h \

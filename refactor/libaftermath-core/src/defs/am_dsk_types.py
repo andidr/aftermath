@@ -349,6 +349,42 @@ frames = {
         ],
 
         "to_mem_copy_fields" : ["instance_id"]
+    },
+
+    "am_dsk_openstream_task_period" : {
+        "assert" : False,
+        "entity" : "OpenStream task execution period",
+        "defs" : ["dsk_to_mem_copy_function"] + __default_defs,
+        "fields" : event_frame_fields + [
+            {"name" : "instance_id",
+             "type" : "uint64_t",
+             "comment" : "Numerical ID of the OpenStream task instance this period accounts for"},
+
+            {"name" : "interval",
+             "type" : "am_dsk_interval",
+             "comment" : "Start and end of the execution interval"}
+        ],
+
+        "process" : [
+            {"type" : "per_event_collection_interval",
+             "args" : {
+                 "ecoll_array_type_name" : "am::openstream::task_period",
+                 "ecoll_array_struct_name" : "am_openstream_task_period_array",
+                 "mem_struct_name" : "am_openstream_task_period",
+                 "mem_struct_interval_field" : "interval",
+                 "dsk_struct_interval_field" : "interval",
+                 "dsk_struct_ecoll_id_field" : "collection_id",
+                 "dsk_to_mem_function" : "am_dsk_openstream_task_period_to_mem",
+                 "index_to_id_mappings" : [
+                     {"name" : "am::openstream::task_period::instance_id",
+                      "id_field_name" : "instance_id",
+                      "id_bits" : 64}
+                 ]
+             }
+            }
+        ],
+
+        "to_mem_copy_fields" : ["interval"]
     }
 }
 
