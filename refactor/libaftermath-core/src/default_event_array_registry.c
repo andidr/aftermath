@@ -17,70 +17,20 @@
  */
 
 #include <aftermath/core/default_event_array_registry.h>
+#include <aftermath/core/default_array_registry.h>
 #include <aftermath/core/state_event_array.h>
 #include <aftermath/core/counter_event_array_collection.h>
 #include <stdlib.h>
 
-static void* def_am_state_event_array_allocate(void)
-{
-	return malloc(sizeof(struct am_state_event_array));
-}
-
-static void def_am_state_event_array_free(void* a)
-{
-	free(a);
-}
-
-static int def_am_state_event_array_init(void* a)
-{
-	am_state_event_array_init(a);
-	return 0;
-}
-
-static void def_am_state_event_array_destroy(void* a)
-{
-	am_state_event_array_destroy(a);
-}
-
-static void* def_am_counter_event_array_collection_allocate(void)
-{
-	return malloc(sizeof(struct am_counter_event_array_collection));
-}
-
-static void def_am_counter_event_array_collection_free(void* a)
-{
-	free(a);
-}
-
-static int def_am_counter_event_array_collection_init(void* a)
-{
-	am_counter_event_array_collection_init(a);
-	return 0;
-}
-
-static void def_am_counter_event_array_collection_destroy(void* a)
-{
-	am_counter_event_array_collection_destroy(a);
-}
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_state_event_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_counter_event_array_collection)
 
 int am_build_default_event_array_registry(struct am_array_registry* r)
 {
-	if(am_array_registry_add(r,
-				 "am::generic::state",
-				 def_am_state_event_array_allocate,
-				 def_am_state_event_array_free,
-				 def_am_state_event_array_init,
-				 def_am_state_event_array_destroy))
-	{
-		return 1;
-	}
-
-	if(am_array_registry_add(r,
-				 "am::generic::counter",
-				 def_am_counter_event_array_collection_allocate,
-				 def_am_counter_event_array_collection_free,
-				 def_am_counter_event_array_collection_init,
-				 def_am_counter_event_array_collection_destroy))
+	if(AM_DEFAULT_ARRAY_REGISTRY_REGISTER(
+		   r, am_state_event_array, "am::generic::state") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(
+		   r, am_counter_event_array_collection, "am::generic::counter"))
 	{
 		return 1;
 	}
