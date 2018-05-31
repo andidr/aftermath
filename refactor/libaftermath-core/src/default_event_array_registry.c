@@ -60,7 +60,6 @@ static int def_am_counter_event_array_collection_init(void* a)
 
 static void def_am_counter_event_array_collection_destroy(void* a)
 {
-	am_counter_event_array_collection_destroy_elements(a);
 	am_counter_event_array_collection_destroy(a);
 }
 

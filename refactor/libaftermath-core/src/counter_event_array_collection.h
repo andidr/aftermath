@@ -25,8 +25,8 @@
 
 #define ACC_COUNTER_ID(x) (x).counter_id
 
-AM_DECL_TYPED_ARRAY(am_counter_event_array_collection,
-		    struct am_counter_event_array)
+AM_DECL_TYPED_ARRAY_NO_DESTRUCTOR(am_counter_event_array_collection,
+				  struct am_counter_event_array)
 AM_DECL_TYPED_ARRAY_BSEARCH(am_counter_event_array_collection,
 			    struct am_counter_event_array,
 			    am_counter_t,
@@ -41,13 +41,14 @@ AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_counter_event_array_collection,
 				struct am_counter_event_array,
 				am_counter_t)
 
-/* Destroys all of the elements of the array, but neither frees the array
- * structure itself, nor the space occupied by the array elements. */
 static inline void
-am_counter_event_array_collection_destroy_elements(struct am_counter_event_array_collection* a)
+am_counter_event_array_collection_destroy(
+	struct am_counter_event_array_collection* a)
 {
 	for(size_t i = 0; i < a->num_elements; i++)
 		am_counter_event_array_destroy(&a->elements[i]);
+
+	free(a->elements);
 }
 
 /* Find a counter event array whose ID is counter_id. If no such counter event
