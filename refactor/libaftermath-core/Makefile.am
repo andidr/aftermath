@@ -31,6 +31,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/counter_description_array.h \
 				src/counter_event_array.h \
 				src/counter_event_array_collection.h \
+				src/default_array_registry.h \
 				src/default_event_array_registry.c \
 				src/default_event_array_registry.h \
 				src/dfg_builtin_node_impl.h \
