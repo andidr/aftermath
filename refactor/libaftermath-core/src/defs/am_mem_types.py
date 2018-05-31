@@ -184,6 +184,11 @@ types = {
             {"name" : "source",
              "type" : "am_source_location",
              "comment" : "Location of the source code for this task type"}
+        ],
+        "index_to_id_maps" : [
+            { "name" : "am_openstream_task_type_type_id",
+              "id_bits" : 64,
+              "sort" : True }
         ]
     },
 
@@ -200,20 +205,28 @@ types = {
              "comment" : "Numerical ID of this task instance"}
         ],
         "postprocess" : [
-            {"type" : "id_stored_in_pointer_trace_array",
+            {"type" : "pointer_from_index_to_id_map_trace_array",
              "args" : {
-                 "linking_element" : {
-                     "type_name" : "am_openstream_task_instance",
-                     "field" : "type",
-                     "trace_array_field" : "openstream_task_instances"
+                 "id_bits" : 64,
+                 "source" : {
+                     "map" : "am_openstream_task_instance_type_id",
+                     "trace_array" : "openstream_task_instances",
+                     "pointer_field_name" : "type",
                  },
-                 "linked_element" : {
-                     "type_name" : "am_openstream_task_type",
-                     "id_field" : "type_id",
-                     "trace_array_field" : "openstream_task_types"
+                 "target" : {
+                     "map" : "am_openstream_task_type_type_id",
+                     "trace_array" : "openstream_task_types",
+                     "type_name" : "am_openstream_task_type"
                  }
              }
             }
+        ],
+        "index_to_id_maps" : [
+            { "name" : "am_openstream_task_instance_type_id",
+              "id_bits" : 64 },
+            { "name" : "am_openstream_task_instance_id",
+              "id_bits" : 64,
+              "sort" : True }
         ]
     }
 }

@@ -303,7 +303,12 @@ frames = {
                  "trace_array_field" : "openstream_task_types",
                  "trace_array_struct_name" : "am_openstream_task_type_array",
                  "mem_struct_name" : "am_openstream_task_type",
-                 "dsk_to_mem_function" : "am_dsk_openstream_task_type_to_mem"
+                 "dsk_to_mem_function" : "am_dsk_openstream_task_type_to_mem",
+                 "index_to_id_mappings" : [
+                     {"name" : "am_openstream_task_type_type_id",
+                      "id_field_name" : "type_id",
+                      "id_bits" : 64}
+                 ]
              }
             }
         ],
@@ -330,16 +335,16 @@ frames = {
                  "trace_array_field" : "openstream_task_instances",
                  "trace_array_struct_name" : "am_openstream_task_instance_array",
                  "mem_struct_name" : "am_openstream_task_instance",
-                 "dsk_to_mem_function" : "am_dsk_openstream_task_instance_to_mem"
+                 "dsk_to_mem_function" : "am_dsk_openstream_task_instance_to_mem",
+                 "index_to_id_mappings" : [
+                     {"name" : "am_openstream_task_instance_type_id",
+                      "id_field_name" : "type_id",
+                      "id_bits" : 64},
+                     {"name" : "am_openstream_task_instance_id",
+                      "id_field_name" : "instance_id",
+                      "id_bits" : 64}
+                 ]
              }
-            }
-        ],
-
-        "process_dsk_mem" : [
-            { "type" : "store_id_in_pointer",
-              "args" : {
-                  "field_mapping" : [("type_id", "type")]
-              }
             }
         ],
 
