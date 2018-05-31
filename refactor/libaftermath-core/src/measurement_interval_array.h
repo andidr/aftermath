@@ -21,6 +21,7 @@
 
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/in_memory.h>
+#include <aftermath/core/interval_array.h>
 
 #define ACC_INTERVAL_START(x) (x).interval.start
 
@@ -39,5 +40,15 @@ AM_DECL_TYPED_ARRAY_INSERTPOS(am_measurement_interval_array,
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_measurement_interval_array,
 				struct am_measurement_interval,
 				am_timestamp_t)
+
+AM_DECL_INTERVAL_EVENT_ARRAY_BSEARCH_FIRST_OVERLAPPING(
+	am_measurement_interval_array,
+	struct am_measurement_interval,
+	interval)
+
+AM_DECL_INTERVAL_EVENT_ARRAY_BSEARCH_LAST_OVERLAPPING(
+	am_measurement_interval_array,
+	struct am_measurement_interval,
+	interval)
 
 #endif
