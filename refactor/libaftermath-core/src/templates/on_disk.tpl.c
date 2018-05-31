@@ -21,8 +21,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <aftermath/core/state_event_array.h>
+#include <aftermath/core/counter_description_array.h>
 #include <aftermath/core/measurement_interval_array.h>
+#include <aftermath/core/openstream_task_instance_array.h>
+#include <aftermath/core/openstream_task_type_array.h>
+#include <aftermath/core/state_description_array.h>
+
+#include <aftermath/core/state_event_array.h>
 #include <aftermath/core/counter_event_array_collection.h>
 
 static int am_dsk_read_frames(struct am_io_context* ctx);

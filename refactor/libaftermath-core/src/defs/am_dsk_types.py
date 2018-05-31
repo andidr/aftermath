@@ -118,7 +118,7 @@ frames = {
         "process" : [
             {"type" : "per_trace_array",
              "args" : {
-                "trace_array_field" : "state_descriptions",
+                 "trace_array_type_name" : "am::generic::state_description",
                 "trace_array_struct_name" : "am_state_description_array",
                 "mem_struct_name" : "am_state_description",
                 "dsk_to_mem_function" : "am_dsk_state_description_to_mem"
@@ -173,7 +173,7 @@ frames = {
         "process" : [
             {"type" : "per_trace_array",
              "args" : {
-                 "trace_array_field" : "counter_descriptions",
+                 "trace_array_type_name" : "am::generic::counter_description",
                  "trace_array_struct_name" : "am_counter_description_array",
                  "mem_struct_name" : "am_counter_description",
                  "dsk_struct_sort_field" : "counter_id",
@@ -243,7 +243,7 @@ frames = {
         "process" : [
             {"type" : "per_trace_array",
              "args" : {
-                 "trace_array_field" : "measurement_intervals",
+                 "trace_array_type_name" : "am::generic::measurement_interval",
                  "trace_array_struct_name" : "am_measurement_interval_array",
                  "mem_struct_name" : "am_measurement_interval",
                  "dsk_struct_sort_field" : "interval.start",
@@ -300,7 +300,7 @@ frames = {
         "process" : [
             {"type" : "per_trace_array",
              "args" : {
-                 "trace_array_field" : "openstream_task_types",
+                 "trace_array_type_name" : "am::openstream::task_type",
                  "trace_array_struct_name" : "am_openstream_task_type_array",
                  "mem_struct_name" : "am_openstream_task_type",
                  "dsk_to_mem_function" : "am_dsk_openstream_task_type_to_mem",
@@ -332,7 +332,7 @@ frames = {
         "process" : [
             {"type" : "per_trace_array",
              "args" : {
-                 "trace_array_field" : "openstream_task_instances",
+                 "trace_array_type_name" : "am::openstream::task_instance",
                  "trace_array_struct_name" : "am_openstream_task_instance_array",
                  "mem_struct_name" : "am_openstream_task_instance",
                  "dsk_to_mem_function" : "am_dsk_openstream_task_instance_to_mem",

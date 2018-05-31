@@ -25,6 +25,7 @@
 #include <aftermath/render/timeline/renderer.h>
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/trace.h>
+#include <aftermath/core/state_description_array.h>
 
 struct am_color_map state_colors = AM_STATIC_COLOR_MAP({
 		AM_RGBA255_EL(117, 195, 255, 255),
@@ -41,13 +42,21 @@ struct am_color_map state_colors = AM_STATIC_COLOR_MAP({
 static int state_renderer_trace_changed(struct am_timeline_render_layer* l,
 					struct am_trace* t)
 {
+	struct am_state_description_array* sda;
+
+	if(!t || !(sda = am_trace_find_trace_array(
+			   t, "am::generic::state_description")))
+	{
+		return 0;
+	}
+
 	am_timeline_interval_layer_set_color_map(AM_TIMELINE_INTERVAL_LAYER(l),
 						 &state_colors);
 
-	if(t && t->state_descriptions.num_elements > 0) {
+	if(sda->num_elements > 0) {
 		return am_timeline_interval_layer_set_max_index(
 			AM_TIMELINE_INTERVAL_LAYER(l),
-			t->state_descriptions.num_elements-1);
+			sda->num_elements-1);
 	}
 
 	return 0;

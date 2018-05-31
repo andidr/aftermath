@@ -3,8 +3,13 @@
 
 {% include "fnproto.tpl.h" %}
 {
-	struct {{pargs.trace_array_struct_name}}* a = &ctx->trace->{{pargs.trace_array_field}};
+	struct {{pargs.trace_array_struct_name}}* a;
 	{{memtype.c_type}}* mem;
+
+	if(!(a = am_trace_find_or_add_trace_array(ctx->trace, "{{pargs.trace_array_type_name}}"))) {
+		AM_IOERR_GOTO_NA(ctx, out_err, AM_IOERR_ALLOC,
+				 "Could not allocate trace array of type {{pargs.trace_array_type_name}}.");
+	}
 
 	{% if pargs.dsk_struct_sort_field %}
 	if(!(mem = {{pargs.trace_array_struct_name}}_reserve_sorted(a, f->{{pargs.dsk_struct_sort_field}}))) {

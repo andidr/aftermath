@@ -20,13 +20,9 @@
 #define AM_TRACE_H
 
 #include <aftermath/core/hierarchy_array.h>
-#include <aftermath/core/event_collection_array.h>
-#include <aftermath/core/state_description_array.h>
-#include <aftermath/core/counter_description_array.h>
 #include <aftermath/core/event_collection.h>
-#include <aftermath/core/measurement_interval_array.h>
-#include <aftermath/core/openstream_task_type_array.h>
-#include <aftermath/core/openstream_task_instance_array.h>
+#include <aftermath/core/event_collection_array.h>
+#include <aftermath/core/array_registry.h>
 
 struct am_trace {
 	char* filename;
@@ -36,12 +32,10 @@ struct am_trace {
 
 	struct am_hierarchyp_array hierarchies;
 	struct am_event_collection_array event_collections;
-	struct am_state_description_array state_descriptions;
-	struct am_counter_description_array counter_descriptions;
+
 	struct am_array_registry event_array_registry;
-	struct am_measurement_interval_array measurement_intervals;
-	struct am_openstream_task_type_array openstream_task_types;
-	struct am_openstream_task_instance_array openstream_task_instances;
+	struct am_array_registry trace_array_registry;
+	struct am_array_collection trace_arrays;
 };
 
 #define am_trace_for_each_event_collection(t, coll) \
@@ -51,5 +45,15 @@ struct am_trace {
 
 int am_trace_init(struct am_trace* t, const char* filename);
 void am_trace_destroy(struct am_trace* t);
+
+/* Finds a per-trace array by type. Returns a pointer to the array or NULL if no
+ * such array is associated with the trace. */
+static inline void* am_trace_find_trace_array(struct am_trace* t,
+					      const char* type)
+{
+	return am_array_collection_find(&t->trace_arrays, type);
+}
+
+void* am_trace_find_or_add_trace_array(struct am_trace* t, const char* type);
 
 #endif

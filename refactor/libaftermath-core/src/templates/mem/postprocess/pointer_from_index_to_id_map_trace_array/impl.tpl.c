@@ -3,15 +3,25 @@
 
 {% include "fnproto.tpl.h" %}
 {
-	typeof(&ctx->trace->{{pargs.source.trace_array}}) source_element_arr;
-	typeof(&ctx->trace->{{pargs.target.trace_array}}) target_element_arr;
+	struct {{pargs.source.trace_array_type}}* source_element_arr;
+	struct {{pargs.target.trace_array_type}}* target_element_arr;
 	typeof(source_element_arr->elements) source_element;
 	typeof(target_element_arr->elements) target_element;
 	uint{{pargs.id_bits}}_t target_id;
 	struct am_index_to_id_map_u{{pargs.id_bits}}_entry* target_id_ptr;
 
-	source_element_arr = &ctx->trace->{{pargs.source.trace_array}};
-	target_element_arr = &ctx->trace->{{pargs.target.trace_array}};
+	source_element_arr = am_trace_find_trace_array(ctx->trace, "{{pargs.source.trace_array_type_name}}");
+	target_element_arr = am_trace_find_trace_array(ctx->trace, "{{pargs.target.trace_array_type_name}}");
+
+	if(!source_element_arr)
+		return 0;
+
+	if(!target_element_arr) {
+		AM_IOERR_RET1_NA(ctx, AM_IOERR_POSTPROCESS,
+				 "Could not find trace array for entity "
+				 "'{{target_type.entity}}' (array type name "
+				 "{{pargs.target.trace_array_type_name}}).");
+	}
 
 	for(size_t i = 0; i < source_element_arr->num_elements; i++) {
 		source_element = &source_element_arr->elements[i];

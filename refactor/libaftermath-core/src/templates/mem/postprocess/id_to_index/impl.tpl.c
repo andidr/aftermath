@@ -20,7 +20,11 @@
 	struct {{memtype.name}}* e;
 	size_t num_desc;
 
-	desc_arr = &ctx->trace->{{pargs.description.trace_array_field}};
+	if(!(desc_arr = am_trace_find_trace_array(ctx->trace, "{{pargs.description.trace_array_type_name}}"))) {
+		AM_IOERR_RET1_NA(ctx, AM_IOERR_POSTPROCESS,
+				 "Could not find trace array for entity '{{desctype.entity}}'.");
+	}
+
 	num_desc = desc_arr->num_elements;
 
 	/* If IDs are already sequential? */

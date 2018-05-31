@@ -139,7 +139,7 @@ types = {
                      "type_name" : "am_state_description",
                      "field" : "state_id",
                      "entity" : "state description",
-                     "trace_array_field" : "state_descriptions"
+                     "trace_array_type_name" : "am::generic::state_description"
                  }
              }
             }
@@ -210,12 +210,14 @@ types = {
                  "id_bits" : 64,
                  "source" : {
                      "map" : "am_openstream_task_instance_type_id",
-                     "trace_array" : "openstream_task_instances",
+                     "trace_array_type_name" : "am::openstream::task_instances",
+                     "trace_array_type" : "am_openstream_task_instance_array",
                      "pointer_field_name" : "type",
                  },
                  "target" : {
                      "map" : "am_openstream_task_type_type_id",
-                     "trace_array" : "openstream_task_types",
+                     "trace_array_type_name" : "am::openstream::task_types",
+                     "trace_array_type" : "am_openstream_task_type_array",
                      "type_name" : "am_openstream_task_type"
                  }
              }

@@ -18,6 +18,7 @@
 
 #include <aftermath/render/timeline/layers/axes.h>
 #include <aftermath/render/timeline/renderer.h>
+#include <aftermath/core/measurement_interval_array.h>
 
 struct measurement_intervals_layer_params {
 	struct {
@@ -92,6 +93,7 @@ static void render(struct measurement_intervals_layer* mil, cairo_t* cr)
 {
 	struct am_timeline_renderer* r = mil->super.renderer;
 	struct am_trace* t = r->trace;
+	struct am_measurement_interval_array* mia;
 	struct am_measurement_interval* mi;
 	struct am_interval query_interval;
 	struct am_time_offset triangle_duration;
@@ -103,6 +105,9 @@ static void render(struct measurement_intervals_layer* mil, cairo_t* cr)
 	double screen_end_ty;
 
 	if(!t)
+		return;
+
+	if(!(mia = am_trace_find_trace_array(t, "am::generic::measurement_interval")))
 		return;
 
 	cairo_rectangle(cr, AM_RECT_ARGS(r->rects.lanes));
@@ -136,15 +141,14 @@ static void render(struct measurement_intervals_layer* mil, cairo_t* cr)
 	am_interval_widen_end_u(&query_interval, triangle_duration.abs);
 
 	mi = am_measurement_interval_array_bsearch_first_overlapping(
-		&t->measurement_intervals, &query_interval);
+		mia, &query_interval);
 
 	screen_top = r->rects.lanes.y;
 	screen_bottom = r->rects.lanes.y + r->rects.lanes.height;
 	screen_start_ty = screen_top + p->start.triangle.height / 2.0;
 	screen_end_ty = screen_top + p->end.triangle.height / 2.0;
 
-	while(am_measurement_interval_array_is_element_ptr(
-		      &t->measurement_intervals, mi) &&
+	while(am_measurement_interval_array_is_element_ptr(mia, mi) &&
 	      mi->interval.start < query_interval.end)
 	{
 		/* Start line */

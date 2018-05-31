@@ -210,8 +210,9 @@ AFTERMATH TYPE DEFINITIONS
                  - description.entity: Human-readable name of the entity the
                    description represents
 
-                 - description.trace_array_field: Name of the field of the trace
-                   with the array of descriptions
+                 - description.trace_array_type_name: Name of the field of the
+                   trace with the array of descriptions (e.g.,
+                   am::generic::state_description)
 
            - id_stored_in_pointer_trace_array:
 
