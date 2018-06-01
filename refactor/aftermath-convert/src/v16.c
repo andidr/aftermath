@@ -81,6 +81,51 @@ AM_DECL_TYPED_ARRAY_INSERTPOS(v16_numa_node_array, struct v16_numa_node_def,
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(v16_numa_node_array, struct v16_numa_node_def,
 				   uint32_t)
 
+/* Data structure capturing the necessary data of a texec start event used when
+ * processing the corresponding texec end event. */
+struct v16_texec_start {
+	uint32_t cpu;
+	uint64_t workfn;
+	uint64_t time;
+	int valid;
+};
+
+/* Initializes a texec start data structure from a single event defining a texec
+ * start event. */
+static inline void v16_texec_start_init(
+	struct v16_texec_start* me,
+	struct v16_trace_single_event* sge)
+{
+	me->valid = 0;
+	me->cpu = sge->header.cpu;
+	me->workfn = sge->what;
+	me->time = sge->header.time;
+}
+
+AM_DECL_TYPED_ARRAY(v16_texec_start_array, struct v16_texec_start)
+AM_DECL_TYPED_ARRAY_BSEARCH(v16_texec_start_array,
+			    struct v16_texec_start,
+			    uint32_t,
+			    ACC_CPU,
+			    AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_INSERTPOS(v16_texec_start_array,
+			      struct v16_texec_start,
+			      uint32_t,
+			      ACC_CPU,
+			      AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_RESERVE_SORTED(v16_texec_start_array,
+				   struct v16_texec_start,
+				   uint32_t)
+
+#define ACC_IDENT(x) (x)
+
+AM_DECL_TYPED_ARRAY(u64_array, uint64_t)
+AM_DECL_TYPED_ARRAY_BSEARCH(u64_array, uint64_t, uint64_t, ACC_IDENT,
+			    AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_INSERTPOS(u64_array, uint64_t, uint64_t, ACC_IDENT,
+			      AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_RESERVE_SORTED(u64_array, uint64_t, uint64_t)
+
 /* Conversion context for conversion from format version 16 to the current trace
  * format */
 struct v16ctx {
@@ -114,6 +159,19 @@ struct v16ctx {
 	/* If one, a global single event starting a measurement interval has
 	 * been encountered, but not yet the end interval. */
 	int measurement_interval_started;
+
+	struct {
+		/* Array with (at most) one entry per CPU indicating the last
+		 * encountered texec start event */
+		struct v16_texec_start_array last_texec_start;
+	} per_cpu;
+
+	/* Adresses of work functions for which an OpenStream task type frame
+	 * has been written */
+	struct u64_array task_type_addresses;
+
+	/* Current ID used for ID generation */
+	uint64_t curr_id;
 };
 
 /* IDs used for frame types in the output file */
@@ -128,6 +186,9 @@ enum output_frame_type {
 	AM_FRAME_TYPE_COUNTER_EVENT,
 	AM_FRAME_TYPE_MEASUREMENT_INTERVAL,
 	AM_FRAME_TYPE_EVENT_MAPPING,
+	AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE,
+	AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE,
+	AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD,
 	AM_FRAME_TYPE_NUM
 };
 
@@ -144,7 +205,10 @@ static struct {
 	{ AM_FRAME_TYPE_COUNTER_DESCRIPTION, "am_dsk_counter_description" },
 	{ AM_FRAME_TYPE_COUNTER_EVENT, "am_dsk_counter_event" },
 	{ AM_FRAME_TYPE_MEASUREMENT_INTERVAL, "am_dsk_measurement_interval" },
-	{ AM_FRAME_TYPE_EVENT_MAPPING, "am_dsk_event_mapping" }
+	{ AM_FRAME_TYPE_EVENT_MAPPING, "am_dsk_event_mapping" },
+	{ AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE, "am_dsk_openstream_task_type" },
+	{ AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE, "am_dsk_openstream_task_instance" },
+	{ AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD, "am_dsk_openstream_task_period" }
 };
 
 /* Registers the frame types used in the ouput file at the frame type registry
@@ -189,6 +253,8 @@ static int v16ctx_init(struct v16ctx* v16ctx,
 {
 	v16_cpu_array_init(&v16ctx->cpus);
 	v16_numa_node_array_init(&v16ctx->numa_nodes);
+	v16_texec_start_array_init(&v16ctx->per_cpu.last_texec_start);
+	u64_array_init(&v16ctx->task_type_addresses);
 
 	v16ctx->fp_in = fp_in;
 	v16ctx->estack = estack;
@@ -201,6 +267,7 @@ static int v16ctx_init(struct v16ctx* v16ctx,
 		return 1;
 
 	v16ctx->octx.fp = fp_out;
+	v16ctx->curr_id = 0;
 
 	return 0;
 }
@@ -211,6 +278,8 @@ static void v16ctx_destroy(struct v16ctx* v16ctx)
 {
 	v16_cpu_array_destroy(&v16ctx->cpus);
 	v16_numa_node_array_destroy(&v16ctx->numa_nodes);
+	v16_texec_start_array_destroy(&v16ctx->per_cpu.last_texec_start);
+	u64_array_destroy(&v16ctx->task_type_addresses);
 
 	v16ctx->octx.fp = NULL;
 
@@ -456,6 +525,98 @@ int v16ctx_write_event_collection(struct v16ctx* v16ctx, uint32_t id)
 	}
 
 	return 0;
+}
+
+/* Adds an entry to the array of work function addresses for which an OpenStream
+ * task type frame has already been written. Returns 0 on success, otherwise
+ * 1. */
+static inline int
+v16_task_type_address_add(struct v16ctx* v16ctx, uint64_t addr)
+{
+	uint64_t* pval;
+
+	if(!(pval = u64_array_reserve_sorted(&v16ctx->task_type_addresses,
+					     addr)))
+	{
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Could not allocate task type address "
+				       "array entry for work function "
+				       "0x%" PRIx64 ".",
+				       addr);
+
+		return 1;
+	}
+
+	*pval = addr;
+
+	return 0;
+}
+
+/* Writes an OpenStream task type frame if such a frame hasn't already been
+ * written previously for the work function with the given address. Returns 0 on
+ * success, otherwise 1. */
+static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
+						   uint64_t addr)
+{
+	struct am_dsk_openstream_task_type tt;
+	char buf[64];
+
+	if(u64_array_bsearch(&v16ctx->task_type_addresses, addr))
+		return 0;
+
+	snprintf(buf, sizeof(buf), "workfn_0x%" PRIx64, addr);
+
+	/* Write task type. Use address of the work function as type ID */
+	tt.type = AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE;
+	tt.type_id = addr;
+	tt.name.str = buf;
+	tt.name.len = strlen(buf);
+	tt.source.file.str = "";
+	tt.source.file.len = 0;
+	tt.source.line = 0;
+	tt.source.character = 0;
+
+	if(am_dsk_openstream_task_type_write(&v16ctx->octx, &tt)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenStream task type.");
+		return 1;
+	}
+
+	if(v16_task_type_address_add(v16ctx, addr))
+		return 1;
+
+	return 0;
+}
+
+/* Returns a pointer to the mapping entry for the CPU specified in a single
+ * event. If no such entry exsists, a new entry is added and initialized with
+ * the data from the single event. Returns a pointer to the entry or NULL on
+ * error. */
+static inline struct v16_texec_start*
+v16_texec_start_array_find_add(struct v16_texec_start_array* m,
+				struct v16ctx* v16ctx,
+				struct v16_trace_single_event* sge)
+{
+	struct v16_texec_start* me;
+	uint32_t cpu = sge->header.cpu;
+
+	if(!(me = v16_texec_start_array_bsearch(m, cpu))) {
+		if(!(me = v16_texec_start_array_reserve_sorted(m, cpu))) {
+			am_io_error_stack_push(v16ctx->estack,
+					       AM_IOERR_ALLOC,
+					       "Could not allocate CPU "
+					       "to timestamp mapping for CPU "
+					       "%" PRIu32 ".", cpu);
+
+			return NULL;
+		}
+
+		v16_texec_start_init(me, sge);
+	}
+
+	return me;
 }
 
 /* Finds the definition of a CPU for a given DI in the v16 conversion context or
@@ -1112,6 +1273,127 @@ static int v16ctx_convert_comm_event(struct v16ctx* v16ctx)
 	return 0;
 }
 
+/* Processes a single event defining a task execution start event. The frames
+ * for the task type, task instance and task period are written when the
+ * corresponding single event for the end of the execution is processed.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static int v16ctx_convert_texec_start(struct v16ctx* v16ctx,
+				      struct v16_trace_single_event* sge16)
+{
+	struct v16_texec_start* me;
+
+	if(!(me = v16_texec_start_array_find_add(
+		     &v16ctx->per_cpu.last_texec_start, v16ctx, sge16)))
+	{
+		return 1;
+	}
+
+	if(me->valid) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Found two consecutive texec start "
+				       "events without texec end event in "
+				       "between for CPU %" PRIu32 ".",
+				       sge16->header.cpu);
+		return 1;
+	}
+
+	v16_texec_start_init(me, sge16);
+	me->valid = 1;
+
+	return 0;
+}
+
+/* Processes a single event defining a task execution end event and writes the
+ * frames for the task type (if necessary), task instance and task period.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static int v16ctx_convert_texec_end(struct v16ctx* v16ctx,
+				    struct v16_trace_single_event* sge16_end)
+{
+	struct v16_texec_start* start;
+	uint32_t cpu = sge16_end->header.cpu;
+	uint64_t workfn_addr = sge16_end->what;
+	struct am_dsk_openstream_task_instance ti;
+	struct am_dsk_openstream_task_period tp;
+
+	start = v16_texec_start_array_bsearch(&v16ctx->per_cpu.last_texec_start,
+					       cpu);
+
+	if(!start || !start->valid) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Found texec end event without texec "
+				       "start event for CPU %" PRIu32 ".",
+				       cpu);
+		return 1;
+	}
+
+	if(sge16_end->header.time <= start->time) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Found texec end event with timestamp "
+				       "smaller than or equal to the timestamp "
+				       "of the corresponding texec start event "
+				       "for CPU %" PRIu32 ".",
+				       cpu);
+		return 1;
+	}
+
+	if(workfn_addr != start->workfn) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Found texec end event for a different "
+				       "task than the preceding texec start "
+				       "event for CPU %" PRIu32 ".", cpu);
+		return 1;
+	}
+
+	if(v16_write_task_type_if_necessary(v16ctx, workfn_addr))
+		return 1;
+
+	/* Create OpenStream task instance. The instance will contain only a
+	 * single task execution period, since v16 did not allow for capturing
+	 * task suspension. */
+	ti.type = AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE;
+	ti.type_id = workfn_addr;
+	ti.instance_id = ++(v16ctx->curr_id);
+
+	if(am_dsk_openstream_task_instance_write(&v16ctx->octx, &ti)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenStream task "
+				       "instance.");
+		return 1;
+	}
+
+	/* Create OpenStream task period. */
+	tp.type = AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD;
+	tp.collection_id = cpu;
+	tp.instance_id = ti.instance_id;
+	tp.interval.start = start->time;
+	tp.interval.end = sge16_end->header.time;
+
+	if(am_dsk_openstream_task_period_write(&v16ctx->octx, &tp)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenStream task period "
+				       "for CPU %" PRIu32 " with interval "
+				       "[%" PRIu64 ", %" PRIu64 "].",
+				       cpu,
+				       start->time,
+				       sge16_end->header.time);
+		return 1;
+	}
+
+	start->valid = 0;
+
+	return 0;
+}
+
 /* Reads a single event (except its type field) from the input. Since the
  * corresponding frame types not yet defined for the current trace format,
  * nothing is written to the output trace, only the CPU of the input event is
@@ -1121,7 +1403,6 @@ static int v16ctx_convert_comm_event(struct v16ctx* v16ctx)
  */
 static int v16ctx_convert_single_event(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_single_event sge16;
 
 	if(v16ctx_read_convert_event_header(v16ctx, &sge16.header))
@@ -1129,6 +1410,18 @@ static int v16ctx_convert_single_event(struct v16ctx* v16ctx)
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &sge16, "single event", type, uint32_t);
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &sge16, "single event", what, uint64_t);
+
+	switch(sge16.type) {
+		case V16_SINGLE_TYPE_TEXEC_START:
+			return v16ctx_convert_texec_start(v16ctx, &sge16);
+		case V16_SINGLE_TYPE_TEXEC_END:
+			return v16ctx_convert_texec_end(v16ctx, &sge16);
+
+		/* Not yet supported; just skip */
+		case V16_SINGLE_TYPE_TDESTROY:
+		case V16_SINGLE_TYPE_TCREATE:
+			break;
+	}
 
 	return 0;
 }
