@@ -108,6 +108,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/event_collection_array.h \
 				src/event_collection.c \
 				src/event_collection.h \
+				src/event_collection_array_mapping.c \
+				src/event_collection_array_mapping.h \
 				src/event_mapping.c \
 				src/event_mapping.h \
 				src/frame_type_registry.c \
