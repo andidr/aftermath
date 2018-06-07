@@ -121,7 +121,6 @@ frames = {
                 "trace_array_field" : "state_descriptions",
                 "trace_array_struct_name" : "am_state_description_array",
                 "mem_struct_name" : "am_state_description",
-                "dsk_struct_sort_field" : "state_id",
                 "dsk_to_mem_function" : "am_dsk_state_description_to_mem"
              }
             }
