@@ -100,6 +100,28 @@ am_interval_intersection_duration(const struct am_interval* a,
 	return am_interval_duration(&tmp, out);
 }
 
+/* Widens the interval i by an unsigned value d at the beginning.
+ *
+ * Returns 1 if the interval hasn't been extended entirely by d, otherwise 0. */
+static inline int am_interval_widen_start_u(struct am_interval* i, am_timestamp_t d)
+{
+	if(am_timestamp_sub_sat(&i->start, d) == AM_ARITHMETIC_STATUS_EXACT)
+		return 0;
+
+	return 1;
+}
+
+/* Widens the interval i by an unsigned value d at the beginning.
+ *
+ * Returns 1 if the interval hasn't been extended entirely by d, otherwise 0. */
+static inline int am_interval_widen_end_u(struct am_interval* i, am_timestamp_t d)
+{
+	if(am_timestamp_add_sat(&i->end, d) == AM_ARITHMETIC_STATUS_EXACT)
+		return 0;
+
+	return 1;
+}
+
 /* Widens the interval i by an unsigned value d.
  *
  * Returns 1 if the interval hasn't been extended entirely by d at both ends,
