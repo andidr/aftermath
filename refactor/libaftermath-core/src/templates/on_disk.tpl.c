@@ -585,10 +585,24 @@ static int {{memtype.name}}_postprocess(struct am_io_context* ctx)
 }
 {%- endfor %}
 
+/* Sorts all index to ID maps by ID */
+static inline void am_dsk_sort_index_to_id_maps(struct am_io_context* ctx)
+{
+	{%- for memtype in am_types.filter_list_hasattrs(mem.types_list, ["index_to_id_maps"]) %}
+	{%- for itim in memtype["index_to_id_maps"] %}
+	{%- if not memtype.is_pointer and itim.sort %}
+	am_index_to_id_map_u{{itim.id_bits}}_sort_by_id(&ctx->index_to_id_maps.{{itim.name}});
+	{%- endif %}
+	{%- endfor -%}
+	{% endfor %}
+}
+
 /* Performs postprocessing of a trace after loading it into memory. Returns 0 on
  * success, otherwise 1. */
 int am_dsk_postprocess(struct am_io_context* ctx)
 {
+	am_dsk_sort_index_to_id_maps(ctx);
+{# #}
 	{%- for memtype in am_types.filter_list_hasattrs(mem.types_list, ["postprocess"]) %}
 	if({{memtype.name}}_postprocess(ctx))
 		return 1;
