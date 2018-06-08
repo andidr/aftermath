@@ -62,6 +62,32 @@
 	a->num_elements++;
 	a->num_free--;
 
+	{% if pargs.index_to_id_mappings -%}
+	{% for itim in pargs.index_to_id_mappings -%}
+	struct am_index_to_id_map_u{{itim.id_bits}}* id_arr_{{itim.id_field_name}};
+
+	if(!(id_arr_{{itim.id_field_name}} =
+	     am_io_context_find_or_add_event_collection_associated_array(
+		     ctx, e, "{{itim.name}}")))
+	{
+		AM_IOERR_GOTO_NA(ctx, out_err, AM_IOERR_ALLOC,
+				 "Could not allocate index to ID mapping {{itim.name}} for {{memtype.entity}}.");
+	}
+
+	struct am_index_to_id_map_u{{itim.id_bits}}_entry entry_{{itim.id_field_name}} = {
+		.index = id_arr_{{itim.id_field_name}}->num_elements,
+		.id = f->{{itim.id_field_name}}
+	};
+
+	if(am_index_to_id_map_u{{itim.id_bits}}_appendp(id_arr_{{itim.id_field_name}},
+							&entry_{{itim.id_field_name}}))
+	{
+		AM_IOERR_GOTO_NA(ctx, out_err, AM_IOERR_ALLOC,
+				 "Could not allocate space for index to ID mapping {{itim.name}} for {{memtype.entity}}.");
+	}
+	{% endfor -%}
+	{%- endif -%}
+
 	return 0;
 
 out_err:
