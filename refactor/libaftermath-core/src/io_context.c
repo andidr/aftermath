@@ -33,8 +33,16 @@ int am_io_context_init(struct am_io_context* ctx,
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
 	am_io_index_to_id_maps_init(&ctx->index_to_id_maps);
 
-	if(am_io_error_stack_definit(&ctx->error_stack))
+	am_array_registry_init(&ctx->ecoll_associated_array_registry);
+
+	am_event_collection_array_mapping_init(&ctx->ecoll_associated_arrays);
+
+	if(am_io_error_stack_definit(&ctx->error_stack)) {
+		am_event_collection_array_mapping_destroy(
+			&ctx->ecoll_associated_arrays,
+			&ctx->ecoll_associated_array_registry);
 		return 1;
+	}
 
 	return 0;
 }
@@ -42,6 +50,9 @@ int am_io_context_init(struct am_io_context* ctx,
 void am_io_context_destroy(struct am_io_context* ctx)
 {
 	am_io_index_to_id_maps_destroy(&ctx->index_to_id_maps);
+	am_event_collection_array_mapping_destroy(
+		&ctx->ecoll_associated_arrays,
+		&ctx->ecoll_associated_array_registry);
 	am_io_context_reset(ctx);
 	am_io_context_close(ctx);
 	am_io_error_stack_destroy(&ctx->error_stack);
@@ -147,6 +158,64 @@ void am_io_context_reset(struct am_io_context* ctx)
 	am_io_hierarchy_context_init(&ctx->hierarchy_context);
 
 	ctx->bounds_valid = 0;
+}
+
+/* Returns the array of a given type currently associated to the event
+ * collection ecoll. If no such array is associated to the event collection, the
+ * function returns NULL. */
+void* am_io_context_find_event_collection_associated_array(
+	struct am_io_context* ctx,
+	struct am_event_collection* ecoll,
+	const char* type)
+{
+	struct am_array_collection* ac;
+
+	if(!(ac = am_event_collection_array_mapping_find(
+		     &ctx->ecoll_associated_arrays, ecoll)))
+	{
+		return NULL;
+	}
+
+	return am_array_collection_find(ac, type);
+}
+
+/* Returns the array of a given type currently associated to the event
+ * collection ecoll. If no such array is associated to the event collection, a
+ * new array of the given type is created. If the creation fails, NULL is
+ * returned. */
+void* am_io_context_find_or_add_event_collection_associated_array(
+	struct am_io_context* ctx,
+	struct am_event_collection* ecoll,
+	const char* type)
+{
+	void* ret;
+	struct am_array_collection* ac;
+
+	if(!(ac = am_event_collection_array_mapping_find_or_add(
+		     &ctx->ecoll_associated_arrays, ecoll)))
+	{
+		return NULL;
+	}
+
+	if((ret = am_array_collection_find(ac, type)))
+		return ret;
+
+	if(!(ret = am_array_registry_allocate_and_init_array(
+		     &ctx->ecoll_associated_array_registry,
+		     type, NULL)))
+	{
+		return NULL;
+	}
+
+	if(am_array_collection_add(ac, ret, type)) {
+		am_array_registry_destroy_and_free_array(
+			&ctx->ecoll_associated_array_registry,
+			type, NULL, ret);
+
+		return NULL;
+	}
+
+	return ret;
 }
 
 void am_io_fail(void)
