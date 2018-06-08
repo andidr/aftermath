@@ -1,0 +1,1 @@
+../../../src/default_event_collection_io_array_registry.h

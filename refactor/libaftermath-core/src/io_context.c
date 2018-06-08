@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/io_context.h>
+#include <aftermath/core/default_event_collection_io_array_registry.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -34,6 +35,12 @@ int am_io_context_init(struct am_io_context* ctx,
 	am_io_index_to_id_maps_init(&ctx->index_to_id_maps);
 
 	am_array_registry_init(&ctx->ecoll_associated_array_registry);
+
+	if(am_build_default_event_collection_io_array_registry(
+		   &ctx->ecoll_associated_array_registry))
+	{
+		return 1;
+	}
 
 	am_event_collection_array_mapping_init(&ctx->ecoll_associated_arrays);
 
