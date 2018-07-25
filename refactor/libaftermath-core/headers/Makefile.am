@@ -21,7 +21,6 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/counter_event_array.h \
 	aftermath/core/counter_event_array_collection.h \
 	aftermath/core/default_array_registry.h \
-	aftermath/core/default_event_collection_io_array_registry.h \
 	aftermath/core/default_trace_array_registry.h \
 	aftermath/core/dfg_builtin_node_impl.h \
 	aftermath/core/dfg_builtin_node_types.h \
@@ -62,7 +61,6 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/event_mapping.h \
 	aftermath/core/event_collection.h \
 	aftermath/core/event_collection_array.h \
-	aftermath/core/event_collection_array_mapping.h \
 	aftermath/core/frame_type_registry.h \
 	aftermath/core/hierarchy.h \
 	aftermath/core/hierarchy_array.h \
@@ -70,13 +68,14 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/interval.h \
 	aftermath/core/interval_array.h \
 	aftermath/core/in_memory.h \
+	aftermath/core/in_memory_inline.h \
 	aftermath/core/io_context.h \
 	aftermath/core/io_error.h \
 	aftermath/core/io_hierarchy_context.h \
-	aftermath/core/io_index_to_id_maps.h \
 	aftermath/core/measurement_interval_array.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
+	aftermath/core/on_disk_meta.h \
 	aftermath/core/openstream_task_instance_array.h \
 	aftermath/core/openstream_task_period_array.h \
 	aftermath/core/openstream_task_type_array.h \
@@ -103,10 +102,14 @@ aftermath/core/on_disk.h: $(top_builddir)/src/on_disk.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@
 
+aftermath/core/on_disk_meta.h: $(top_builddir)/src/on_disk_meta.h
+	$(MKDIR_P) aftermath/core
+	ln -sfr $< $@
+
 aftermath/core/in_memory.h: $(top_builddir)/src/in_memory.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@
 
-aftermath/core/io_index_to_id_maps.h: $(top_builddir)/src/io_index_to_id_maps.h
+aftermath/core/in_memory_inline.h: $(top_builddir)/src/in_memory_inline.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@

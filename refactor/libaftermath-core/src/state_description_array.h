@@ -22,31 +22,9 @@
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/in_memory.h>
 
-#define ACC_STATE_ID(x) (x).state_id
-
-AM_DECL_TYPED_ARRAY(am_state_description_array,
-		    struct am_state_description)
-AM_DECL_TYPED_ARRAY_BSEARCH(am_state_description_array,
-			    struct am_state_description,
-			    am_state_t,
-			    ACC_STATE_ID,
-			    AM_VALCMP_EXPR)
-AM_DECL_TYPED_ARRAY_INSERTPOS(am_state_description_array,
-			      struct am_state_description,
-			      am_state_t,
-			      ACC_STATE_ID,
-			      AM_VALCMP_EXPR)
-AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_state_description_array,
-				struct am_state_description,
-				am_state_t)
-
-/* Destroy the elements of the array, but frees neither the memory associated to
- * the elements, nor the array itself. */
-static inline void
-am_state_description_array_destroy_elements(struct am_state_description_array* a)
-{
-	for(size_t i = 0; i < a->num_elements; i++)
-		am_state_description_destroy(&a->elements[i]);
-}
+AM_DECL_TYPED_ARRAY_WITH_ELEMENT_DESTRUCTOR(
+	am_state_description_array,
+	struct am_state_description,
+	am_state_description_destroy)
 
 #endif

@@ -28,6 +28,7 @@
 #include <aftermath/core/openstream_task_type_array.h>
 #include <aftermath/core/openstream_task_instance_array.h>
 #include <aftermath/core/openstream_task_period_array.h>
+#include <aftermath/core/on_disk_meta.h>
 
 #include <stdlib.h>
 
@@ -62,6 +63,9 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 	{
 		return 1;
 	}
+
+	if(am_build_default_meta_array_registry(r))
+		return 1;
 
 	return 0;
 }

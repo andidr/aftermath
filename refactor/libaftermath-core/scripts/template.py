@@ -57,12 +57,13 @@ if __name__ == "__main__":
             m_name = os.path.basename(m)[:-3]
             sys.path.append(m_dir)
             t = __import__(m_name)
-            defs[m_name] = t.definitions()
+            defs.update(t.definitions())
 
         tpl_dir = os.path.dirname(args.template.name)
         tpl_basename = os.path.basename(args.template.name)
 
-        env = EnvironmentRelativePaths(loader = jinja2.FileSystemLoader(tpl_dir))
+        env = EnvironmentRelativePaths(loader = jinja2.FileSystemLoader(tpl_dir),
+                                       undefined=jinja2.StrictUndefined)
         template = env.get_template(tpl_basename)
         content = template.render(**defs)
         outfile.write(content)

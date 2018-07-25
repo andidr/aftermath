@@ -25,8 +25,7 @@
 #include <aftermath/core/io_hierarchy_context.h>
 #include <aftermath/core/trace.h>
 #include <aftermath/core/frame_type_registry.h>
-#include <aftermath/core/io_index_to_id_maps.h>
-#include <aftermath/core/event_collection_array_mapping.h>
+#include <aftermath/core/array_collection.h>
 
 /* An IO context serves as a compound structure for temporary data needed when
  * loading / writing a trace from / to disk. When an IO operation fails, the
@@ -43,17 +42,6 @@ struct am_io_context {
 
 	struct am_io_hierarchy_context hierarchy_context;
 	struct am_frame_type_registry* frame_types;
-
-	/* All temporary mappings from array indexes to IDs */
-	struct am_io_index_to_id_maps index_to_id_maps;
-
-	/* Mapping associating array collections to individual event collections
-	 * by ID. */
-	struct am_event_collection_array_mapping ecoll_associated_arrays;
-
-	/* Array registry for the array collections associated to event
-	 * collections */
-	struct am_array_registry ecoll_associated_array_registry;
 };
 
 enum am_io_mode {
@@ -71,16 +59,6 @@ int am_io_context_open(struct am_io_context* ctx,
 		       enum am_io_mode m);
 void am_io_context_close(struct am_io_context* ctx);
 void am_io_fail(void);
-
-void* am_io_context_find_event_collection_associated_array(
-	struct am_io_context* ctx,
-	struct am_event_collection* ecoll,
-	const char* type);
-
-void* am_io_context_find_or_add_event_collection_associated_array(
-	struct am_io_context* ctx,
-	struct am_event_collection* ecoll,
-	const char* type);
 
 /* Convenience macro that pushes a new error onto the I/O error stack of an I/O
  * context using a printf-style format string and a variable argument list,

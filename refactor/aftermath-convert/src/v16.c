@@ -221,14 +221,14 @@ static int v16ctx_register_frame_types(struct v16ctx* v16ctx)
 	struct am_dsk_frame_type_id id;
 
 	/* 0 is the special ID for frame type ID associations */
-	id.type = 0;
+	uint32_t type = 0;
 
 	for(size_t i = 1; i < AM_FRAME_TYPE_NUM; i++) {
 		id.id = frame_id_to_name[i-1].id;
 		id.type_name.str = frame_id_to_name[i-1].name;
 		id.type_name.len = strlen(id.type_name.str);
 
-		if(am_dsk_frame_type_id_write(&v16ctx->octx, &id)) {
+		if(am_dsk_frame_type_id_write(&v16ctx->octx, type, &id)) {
 			am_io_error_stack_push(v16ctx->estack,
 					       AM_IOERR_WRITE,
 					       "Could not write ID association "
@@ -323,8 +323,8 @@ static int v16ctx_write_event_mappings(struct v16ctx* v16ctx)
 {
 	struct v16_cpu_def* cpu_def;
 	struct am_dsk_event_mapping m;
+	uint32_t type = AM_FRAME_TYPE_EVENT_MAPPING;
 
-	m.type = AM_FRAME_TYPE_EVENT_MAPPING;
 	m.interval.start = 0;
 	m.interval.end = v16ctx->max_timestamp;
 
@@ -335,7 +335,7 @@ static int v16ctx_write_event_mappings(struct v16ctx* v16ctx)
 		m.hierarchy_id = 0;
 		m.node_id = cpu_def->hnode_id;
 
-		if(am_dsk_event_mapping_write(&v16ctx->octx, &m)) {
+		if(am_dsk_event_mapping_write(&v16ctx->octx, type, &m)) {
 			am_io_error_stack_push(v16ctx->estack,
 					       AM_IOERR_WRITE,
 					       "Could not write event mapping "
@@ -369,13 +369,14 @@ static int v16ctx_write_hierarchy(struct v16ctx* v16ctx)
 	uint32_t numa_hnode_shift;
 	struct v16_cpu_def* cpu_def;
 	struct v16_numa_node_def* numa_node_def;
+	uint32_t hd_type = AM_FRAME_TYPE_HIERARCHY_DESCRIPTION;
+	uint32_t hn_type = AM_FRAME_TYPE_HIERARCHY_NODE;
 
-	hd.type = AM_FRAME_TYPE_HIERARCHY_DESCRIPTION;
 	hd.id = 0;
 	hd.name.str = "HW";
 	hd.name.len = 2;
 
-	if(am_dsk_hierarchy_description_write(&v16ctx->octx, &hd)) {
+	if(am_dsk_hierarchy_description_write(&v16ctx->octx, hd_type, &hd)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write hierarchy description.");
@@ -383,14 +384,13 @@ static int v16ctx_write_hierarchy(struct v16ctx* v16ctx)
 	}
 
 	/* Create root node with ID 1 */
-	hn.type = AM_FRAME_TYPE_HIERARCHY_NODE;
 	hn.hierarchy_id = 0;
 	hn.id = 1;
 	hn.parent_id = 0;
 	hn.name.len = 4;
 	hn.name.str = "root";
 
-	if(am_dsk_hierarchy_node_write(&v16ctx->octx, &hn)) {
+	if(am_dsk_hierarchy_node_write(&v16ctx->octx, hn_type, &hn)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write hierarchy node with id "
@@ -430,7 +430,7 @@ static int v16ctx_write_hierarchy(struct v16ctx* v16ctx)
 		hn.name.str = buffer;
 		hn.name.len = strlen(buffer);
 
-		if(am_dsk_hierarchy_node_write(&v16ctx->octx, &hn)) {
+		if(am_dsk_hierarchy_node_write(&v16ctx->octx, hn_type, &hn)) {
 			am_io_error_stack_push(v16ctx->estack,
 					       AM_IOERR_OVERFLOW,
 					       "Could not write hierarchy node "
@@ -487,7 +487,7 @@ static int v16ctx_write_hierarchy(struct v16ctx* v16ctx)
 
 		cpu_def->hnode_id = hnode_id;
 
-		if(am_dsk_hierarchy_node_write(&v16ctx->octx, &hn)) {
+		if(am_dsk_hierarchy_node_write(&v16ctx->octx, hn_type, &hn)) {
 			am_io_error_stack_push(v16ctx->estack,
 					       AM_IOERR_WRITE,
 					       "Could not write hierarchy node "
@@ -509,15 +509,15 @@ int v16ctx_write_event_collection(struct v16ctx* v16ctx, uint32_t id)
 {
 	struct am_dsk_event_collection ec;
 	char buffer[64];
+	uint32_t type = AM_FRAME_TYPE_EVENT_COLLECTION;
 
-	ec.type = AM_FRAME_TYPE_EVENT_COLLECTION;
 	ec.id = id;
 
 	snprintf(buffer, sizeof(buffer), "CPU %" PRIu32, id);
 	ec.name.str = buffer;
 	ec.name.len = strlen(buffer);
 
-	if(am_dsk_event_collection_write(&v16ctx->octx, &ec)) {
+	if(am_dsk_event_collection_write(&v16ctx->octx, type, &ec)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write event collection.");
@@ -561,6 +561,7 @@ static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
 {
 	struct am_dsk_openstream_task_type tt;
 	char buf[64];
+	uint32_t type = AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE;
 
 	if(u64_array_bsearch(&v16ctx->task_type_addresses, addr))
 		return 0;
@@ -568,7 +569,6 @@ static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
 	snprintf(buf, sizeof(buf), "workfn_0x%" PRIx64, addr);
 
 	/* Write task type. Use address of the work function as type ID */
-	tt.type = AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE;
 	tt.type_id = addr;
 	tt.name.str = buf;
 	tt.name.len = strlen(buf);
@@ -577,7 +577,7 @@ static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
 	tt.source.line = 0;
 	tt.source.character = 0;
 
-	if(am_dsk_openstream_task_type_write(&v16ctx->octx, &tt)) {
+	if(am_dsk_openstream_task_type_write(&v16ctx->octx, type, &tt)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write OpenStream task type.");
@@ -655,7 +655,7 @@ v16ctx_find_add_cpu_def(struct v16ctx* v16ctx, uint32_t cpu)
  * error stack of the conversion context and 1 is returned from the function
  * invoking the macro. */
 #define READ_FIELD_OR_ERROR_RET1(v16ctx, s, frame_type, field, field_type)	\
-	if(am_dsk_read_##field_type((v16ctx)->fp_in, &(s)->field)) {		\
+	if(am_dsk_##field_type##_read_fp((v16ctx)->fp_in, &(s)->field)) {		\
 		am_io_error_stack_push((v16ctx)->estack,			\
 				       AM_IOERR_READ_FIELD,			\
 				       "Could not field %s "			\
@@ -798,12 +798,12 @@ static int v16ctx_write_measurement_interval(struct v16ctx* v16ctx,
 					     const struct am_interval* i)
 {
 	struct am_dsk_measurement_interval mi;
+	uint32_t type = AM_FRAME_TYPE_MEASUREMENT_INTERVAL;
 
-	mi.type = AM_FRAME_TYPE_MEASUREMENT_INTERVAL;
 	mi.interval.start = i->start;
 	mi.interval.end = i->end;
 
-	if(am_dsk_measurement_interval_write(&v16ctx->octx, &mi)) {
+	if(am_dsk_measurement_interval_write(&v16ctx->octx, type, &mi)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write measurement interval.");
@@ -888,8 +888,7 @@ int v16ctx_write_missing_default_state_descriptions(struct v16ctx* v16ctx)
 	struct am_dsk_state_description sd;
 	uint64_t tmp;
 	size_t idx;
-
-	sd.type = AM_FRAME_TYPE_STATE_DESCRIPTION;
+	uint32_t type = AM_FRAME_TYPE_STATE_DESCRIPTION;
 
 	am_for_each_bit_idx_u64(v16ctx->default_states_missing_description,
 				tmp,
@@ -899,7 +898,7 @@ int v16ctx_write_missing_default_state_descriptions(struct v16ctx* v16ctx)
 		sd.name.len = strlen(v16_default_state_names[idx]);
 		sd.name.str = v16_default_state_names[idx];
 
-		if(am_dsk_state_description_write(&v16ctx->octx, &sd))
+		if(am_dsk_state_description_write(&v16ctx->octx, type, &sd))
 			return 1;
 	}
 
@@ -918,6 +917,7 @@ static int v16ctx_convert_state_description(struct v16ctx* v16ctx)
 	size_t name_size;
 	char* name;
 	int ret = 1;
+	uint32_t type = AM_FRAME_TYPE_STATE_DESCRIPTION;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &sd16, "state description",
 				 state_id, uint32_t);
@@ -948,12 +948,11 @@ static int v16ctx_convert_state_description(struct v16ctx* v16ctx)
 		goto out_free;
 	}
 
-	sd.type = AM_FRAME_TYPE_STATE_DESCRIPTION;
 	sd.state_id = sd16.state_id;
 	sd.name.len = sd16.name_len;
 	sd.name.str = name;
 
-	if(am_dsk_state_description_write(&v16ctx->octx, &sd))
+	if(am_dsk_state_description_write(&v16ctx->octx, type, &sd))
 		goto out_free;
 
 	if(sd16.state_id < V16_NUM_DEFAULT_STATES) {
@@ -978,6 +977,7 @@ static int v16ctx_convert_state_event(struct v16ctx* v16ctx)
 {
 	struct v16_trace_state_event se16;
 	struct am_dsk_state_event se;
+	uint32_t type = AM_FRAME_TYPE_STATE_EVENT;
 
 	if(!v16_read_convert_event_header_add_cpu(v16ctx, &se16.header))
 		return 1;
@@ -986,7 +986,6 @@ static int v16ctx_convert_state_event(struct v16ctx* v16ctx)
 				 end_time, uint64_t);
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &se16, "state event", state, uint32_t);
 
-	se.type = AM_FRAME_TYPE_STATE_EVENT;
 	se.collection_id = se16.header.cpu;
 	se.state = se16.state;
 	se.interval.start = se16.header.time;
@@ -994,7 +993,7 @@ static int v16ctx_convert_state_event(struct v16ctx* v16ctx)
 
 	v16ctx_check_update_max_timestamp(v16ctx, se16.end_time);
 
-	if(am_dsk_state_event_write(&v16ctx->octx, &se)) {
+	if(am_dsk_state_event_write(&v16ctx->octx, type, &se)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write state_event.");
@@ -1020,6 +1019,7 @@ static int v16ctx_convert_counter_description(struct v16ctx* v16ctx)
 	size_t name_size;
 	char* name;
 	int ret = 1;
+	uint32_t type = AM_FRAME_TYPE_COUNTER_DESCRIPTION;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &cd16, "counter description",
 				 counter_id, uint64_t);
@@ -1050,8 +1050,6 @@ static int v16ctx_convert_counter_description(struct v16ctx* v16ctx)
 		goto out_free;
 	}
 
-	cd.type = AM_FRAME_TYPE_COUNTER_DESCRIPTION;
-
 	if(am_safe_u32_from_u64(&cd.counter_id, cd16.counter_id)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_OVERFLOW,
@@ -1065,7 +1063,7 @@ static int v16ctx_convert_counter_description(struct v16ctx* v16ctx)
 	cd.name.len = cd16.name_len;
 	cd.name.str = name;
 
-	if(am_dsk_counter_description_write(&v16ctx->octx, &cd)) {
+	if(am_dsk_counter_description_write(&v16ctx->octx, type, &cd)) {
 		am_io_error_stack_move(v16ctx->estack,
 				       &v16ctx->octx.error_stack);
 		goto out_free;
@@ -1088,20 +1086,19 @@ static int v16ctx_convert_counter_event(struct v16ctx* v16ctx)
 {
 	struct v16_trace_counter_event ce16;
 	struct am_dsk_counter_event ce;
+	uint32_t type = AM_FRAME_TYPE_COUNTER_EVENT;
 
 	if(!v16_read_convert_event_header_add_cpu(v16ctx, &ce16.header))
 		return 1;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ce16, "counter event", counter_id, uint64_t);
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ce16, "counter event", value, int64_t);
-
-	ce.type = AM_FRAME_TYPE_COUNTER_EVENT;
 	ce.collection_id = ce16.header.cpu;
 	ce.counter_id = ce16.counter_id;
 	ce.time = ce16.header.time;
 	ce.value = ce16.value;
 
-	if(am_dsk_counter_event_write(&v16ctx->octx, &ce)) {
+	if(am_dsk_counter_event_write(&v16ctx->octx, type, &ce)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write counter_event.");
@@ -1319,6 +1316,8 @@ static int v16ctx_convert_texec_end(struct v16ctx* v16ctx,
 	uint64_t workfn_addr = sge16_end->what;
 	struct am_dsk_openstream_task_instance ti;
 	struct am_dsk_openstream_task_period tp;
+	uint32_t ti_type = AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE;
+	uint32_t tp_type = AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD;
 
 	start = v16_texec_start_array_bsearch(&v16ctx->per_cpu.last_texec_start,
 					       cpu);
@@ -1358,11 +1357,10 @@ static int v16ctx_convert_texec_end(struct v16ctx* v16ctx,
 	/* Create OpenStream task instance. The instance will contain only a
 	 * single task execution period, since v16 did not allow for capturing
 	 * task suspension. */
-	ti.type = AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE;
 	ti.type_id = workfn_addr;
 	ti.instance_id = ++(v16ctx->curr_id);
 
-	if(am_dsk_openstream_task_instance_write(&v16ctx->octx, &ti)) {
+	if(am_dsk_openstream_task_instance_write(&v16ctx->octx, ti_type, &ti)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write OpenStream task "
@@ -1371,13 +1369,12 @@ static int v16ctx_convert_texec_end(struct v16ctx* v16ctx,
 	}
 
 	/* Create OpenStream task period. */
-	tp.type = AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD;
 	tp.collection_id = cpu;
 	tp.instance_id = ti.instance_id;
 	tp.interval.start = start->time;
 	tp.interval.end = sge16_end->header.time;
 
-	if(am_dsk_openstream_task_period_write(&v16ctx->octx, &tp)) {
+	if(am_dsk_openstream_task_period_write(&v16ctx->octx, tp_type, &tp)) {
 		am_io_error_stack_push(v16ctx->estack,
 				       AM_IOERR_WRITE,
 				       "Could not write OpenStream task period "
@@ -1436,7 +1433,7 @@ int v16ctx_convert_samples(struct v16ctx* v16ctx)
 	uint32_t event_type;
 
 	while(!feof(v16ctx->fp_in)) {
-		if(am_dsk_read_uint32_t(v16ctx->fp_in, &event_type)) {
+		if(am_dsk_uint32_t_read_fp(v16ctx->fp_in, &event_type)) {
 			if(feof(v16ctx->fp_in)) {
 				/* End reached */
 				return 0;

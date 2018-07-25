@@ -22,30 +22,9 @@
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/in_memory.h>
 
-#define ACC_TYPE_ID(x) (x).type_id
-
-AM_DECL_TYPED_ARRAY(am_openstream_task_type_array, struct am_openstream_task_type)
-AM_DECL_TYPED_ARRAY_BSEARCH(am_openstream_task_type_array,
-			    struct am_openstream_task_type,
-			    am_counter_t,
-			    ACC_TYPE_ID,
-			    AM_VALCMP_EXPR)
-AM_DECL_TYPED_ARRAY_INSERTPOS(am_openstream_task_type_array,
-			      struct am_openstream_task_type,
-			      am_counter_t,
-			      ACC_TYPE_ID,
-			      AM_VALCMP_EXPR)
-AM_DECL_TYPED_ARRAY_RESERVE_SORTED(am_openstream_task_type_array,
-				struct am_openstream_task_type,
-				am_counter_t)
-
-/* Destroys all of the elements of the array, but neither frees the array
- * structure itself, nor the space occupied by the array elements. */
-static inline void
-am_openstream_task_type_array_destroy_elements(struct am_openstream_task_type_array* a)
-{
-	for(size_t i = 0; i < a->num_elements; i++)
-		am_openstream_task_type_destroy(&a->elements[i]);
-}
+AM_DECL_TYPED_ARRAY_WITH_ELEMENT_DESTRUCTOR(
+	am_openstream_task_type_array,
+	struct am_openstream_task_type,
+	am_openstream_task_type_destroy)
 
 #endif

@@ -1,8 +1,8 @@
 base_types.h
 in_memory.c
 in_memory.h
+in_memory_inline.h
 on_disk.c
 on_disk.h
+on_disk_meta.h
 *.lo
-io_index_to_id_maps.c
-io_index_to_id_maps.h

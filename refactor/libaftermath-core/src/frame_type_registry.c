@@ -60,13 +60,22 @@ am_frame_type_registry_find(struct am_frame_type_registry* r,
 
 /* Adds a new frame type to a registry r. The name is duplicated and can safely
  * be freed after the call. The parameter "load" must be a pointer to a function
- * that is able to read and process the frame type using an I/O context or NULL.
+ * that is able to read and process the frame type using an I/O context or
+ * NULL. "dump" is a pointer to a function that reads the frame from disk and
+ * dumps its contents to stdout.
  *
  * Returns 0 on success, otherwise 1.
  */
 int am_frame_type_registry_add(struct am_frame_type_registry* r,
 			       const char* name,
-			       int (*load)(struct am_io_context* ctx))
+			       size_t size,
+			       int (*load)(struct am_io_context* ctx),
+			       int (*read)(struct am_io_context* ctx, void* frame),
+			       void (*destroy)(void* frame),
+			       int (*dump_stdout)(struct am_io_context* ctx,
+						  void* frame,
+						  size_t indent,
+						  size_t next_indent))
 {
 	struct am_frame_type* ft;
 
@@ -77,7 +86,11 @@ int am_frame_type_registry_add(struct am_frame_type_registry* r,
 		goto out_err_free_ft;
 
 	ft->seq_id = 0;
+	ft->size = size;
 	ft->load = load;
+	ft->read = read;
+	ft->destroy = destroy;
+	ft->dump_stdout = dump_stdout;
 
 	if(am_frame_type_tree_insert(&r->name_tree, ft))
 		goto out_err_free_name;

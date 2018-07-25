@@ -39,6 +39,8 @@ AC_PYTHON_MODULE(sys, true)
 AC_PYTHON_MODULE(os, true)
 AC_PYTHON_MODULE(re, true)
 AC_PYTHON_MODULE(jinja2, true)
+AC_PYTHON_MODULE(inspect, true)
+AC_PYTHON_MODULE(pkgutil, true)
 
 AC_CONFIG_LINKS([scripts/template.py:scripts/template.py])
 AC_OUTPUT([Makefile headers/Makefile])
