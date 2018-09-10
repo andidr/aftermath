@@ -21,7 +21,6 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/counter_event_array.h \
 	aftermath/core/counter_event_array_collection.h \
 	aftermath/core/default_array_registry.h \
-	aftermath/core/default_event_array_registry.h \
 	aftermath/core/default_event_collection_io_array_registry.h \
 	aftermath/core/default_trace_array_registry.h \
 	aftermath/core/dfg_builtin_node_impl.h \

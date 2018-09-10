@@ -25,7 +25,7 @@
 			       f->{{pargs.dsk_struct_ecoll_id_field}});
 	}
 
-	if(!(a = am_event_collection_find_or_add_event_array(&ctx->trace->event_array_registry, e, "{{pargs.ecoll_array_type_name}}"))) {
+	if(!(a = am_event_collection_find_or_add_event_array(&ctx->trace->array_registry, e, "{{pargs.ecoll_array_type_name}}"))) {
 		AM_IOERR_GOTO_NA(ctx, out_err, AM_IOERR_FIND_RELATED,
 				  "Could not find / add event collection array for type {{t.entity}}.");
 	}

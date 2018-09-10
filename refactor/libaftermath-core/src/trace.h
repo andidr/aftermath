@@ -33,8 +33,7 @@ struct am_trace {
 	struct am_hierarchyp_array hierarchies;
 	struct am_event_collection_array event_collections;
 
-	struct am_array_registry event_array_registry;
-	struct am_array_registry trace_array_registry;
+	struct am_array_registry array_registry;
 	struct am_array_collection trace_arrays;
 };
 

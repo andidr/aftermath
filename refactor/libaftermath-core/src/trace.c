@@ -17,7 +17,6 @@
  */
 
 #include <aftermath/core/trace.h>
-#include <aftermath/core/default_event_array_registry.h>
 #include <aftermath/core/default_trace_array_registry.h>
 
 int am_trace_init(struct am_trace* t, const char* filename)
@@ -29,14 +28,11 @@ int am_trace_init(struct am_trace* t, const char* filename)
 	t->bounds.end = 0;
 
 	am_event_collection_array_init(&t->event_collections);
-	am_array_registry_init(&t->event_array_registry);
-	am_array_registry_init(&t->trace_array_registry);
+	am_array_registry_init(&t->array_registry);
 	am_array_collection_init(&t->trace_arrays);
 	am_hierarchyp_array_init(&t->hierarchies);
 
-	if(am_build_default_event_array_registry(&t->event_array_registry) ||
-	   am_build_default_trace_array_registry(&t->trace_array_registry))
-	{
+	if(am_build_default_trace_array_registry(&t->array_registry)) {
 		am_trace_destroy(t);
 		return 1;
 	}
@@ -46,9 +42,7 @@ int am_trace_init(struct am_trace* t, const char* filename)
 
 void am_trace_destroy(struct am_trace* t)
 {
-	am_array_collection_destroy(&t->trace_arrays, &t->trace_array_registry);
-	am_array_registry_destroy(&t->event_array_registry);
-	am_array_registry_destroy(&t->trace_array_registry);
+	am_array_collection_destroy(&t->trace_arrays, &t->array_registry);
 
 	am_hierarchyp_array_destroy_elements(&t->hierarchies);
 	am_hierarchyp_array_destroy(&t->hierarchies);
@@ -56,8 +50,9 @@ void am_trace_destroy(struct am_trace* t)
 	free(t->filename);
 
 	am_event_collection_array_destroy_elements(&t->event_collections,
-						   &t->event_array_registry);
+						   &t->array_registry);
 	am_event_collection_array_destroy(&t->event_collections);
+	am_array_registry_destroy(&t->array_registry);
 }
 
 /* Finds a per-trace array by type and returns a pointer to the array. If no no
@@ -73,14 +68,14 @@ void* am_trace_find_or_add_trace_array(struct am_trace* t, const char* type)
 		return a;
 
 	if(!(a = am_array_registry_allocate_and_init_array(
-		     &t->trace_array_registry, type, NULL)))
+		     &t->array_registry, type, NULL)))
 	{
 		return NULL;
 	}
 
 	if(am_array_collection_add(&t->trace_arrays, a, type)) {
 		am_array_registry_destroy_and_free_array(
-			&t->trace_array_registry,
+			&t->array_registry,
 			type,
 			NULL,
 			a);
