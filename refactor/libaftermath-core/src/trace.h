@@ -55,4 +55,22 @@ static inline void* am_trace_find_trace_array(struct am_trace* t,
 
 void* am_trace_find_or_add_trace_array(struct am_trace* t, const char* type);
 
+/* Iterates over all elements of the per-trace array identified by ident. At
+ * each iteration, the address of the current element is assigned to iter.
+ */
+#define am_trace_for_each_trace_array_element(t, ident, iter)			\
+	for(struct {								\
+		size_t idx;							\
+		struct am_typed_array_generic* arr;				\
+		typeof(iter) dummy;						\
+	} __it = {								\
+		.idx = 0,							\
+		.arr = (struct am_typed_array_generic*)			\
+			  am_trace_find_trace_array(t, (ident)),		\
+		.dummy = iter = ((__it.arr && __it.idx < __it.arr->num_elements) ? \
+			&((typeof(iter))__it.arr->elements)[__it.idx] :	\
+			NULL)							\
+	  };									\
+	    __it.arr && __it.idx < __it.arr->num_elements;			\
+	    __it.idx++, (iter) = &((typeof(iter))__it.arr->elements)[__it.idx])
 #endif
