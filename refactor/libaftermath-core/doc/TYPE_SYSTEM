@@ -1,0 +1,498 @@
+DESIGN
+
+  Trace-related data types in Aftermath are generated with the
+  Aftermath type system, a set of python data types and functions that
+  help define data structures and operations. All type definitions are
+  instances of aftermath.types.Type or classes that inherit directly
+  or indirectly from that class.
+
+  Source code in the C programming language is generated from the type
+  system through templates. Entry points for code generation are the
+  toplevel templates in templates/toplevel, which define entire C
+  header and implementation files. Such templates are directly
+  processed by the template rendering script in scripts/template.py,
+  which assembles the type system and passes the configuration to the
+  toplevel template file. Templates can also define reusable code
+  fragments, which are directly or indirectly included by toplevel
+  files.
+
+  Toplevel templates are represented by a single template file written
+  using the Jinja2 template language. Non-toplevel templates are
+  defined through a template class that inherits from
+  aftermath.templates.Template. How the code is generated from a
+  template depends on the actual subclass. Instances of
+  aftermath.template.Jinja2FileTemplate process a file containing
+  Jinja2 template code similar to toplevel templates, while
+  aftermath.templates.Jinja2StringTemplate instances do the same by
+  processing a string containing such code. However, Jinja2 is only
+  used for convenience in the existing templates and nothing prevents
+  the definition of custom templates using a different mechanism.
+
+  The meta-information about a type is added by associating one or
+  more tags to the type. A tag is a class inheriting from
+  aftermath.tags.Tag and can act as a container for arbitrary data,
+  e.g., describing the tagged type itself, an operation that can be
+  carried out on the type or how instances of the type are stored on
+  disk or in memory. Tags might be directly interpreted by a template
+  upon code generation, by other tags or by python functions executed
+  during assembly of the type system (e.g., a function that defines a
+  relationship between two types might add different sets of tags to
+  each type depending on the tags already associated to them).
+
+  The type system itself is defined an instance of
+  aftermath.Configuration, a class that provides an interface to add
+  types and to retrieve all previously defined types. A singleton
+  configuration instance of this class is made available as
+  aftermath.config.
+
+TYPE GROUPS
+
+  This type system defines four fundamental groups of types:
+
+    - On-disk types
+    - In-memory types
+    - Shared types
+    - Meta types
+
+  On-disk types are types that appear in actual traces on disk. These
+  are mainly compound types without any padding between fields
+  (packed) and their data is stored in on-disk byte order (little
+  endian). The purpose of the definition of these types is to provide
+  a specification for the contents of trace files and to provide a
+  structured way of reading traces through the operations associated
+  to on-disk types. Once a trace has been loaded into memory and
+  processed, these types are not used any longer.
+
+  In-memory types represent data that is kept in main memory after a
+  trace has been loaded. Hence, all code for visualization and
+  statistics operates exclusively on in-memory data types. In contrast
+  to on-disk types, which must be defined in a portable way, such that
+  trace files can be interpreted unambiguously by different kinds of
+  machines, in-memory types may be machine-dependent. For example,
+  while all integer values used on-disk must have a fixed width (e.g.,
+  uint32_t), in-memory data types may use integers whose size is
+  defined as the width of a machine word (e.g., a plain C
+  int). However, code processing a trace must ensure that in-memory
+  types created from on-disk data are able to represent all values
+  that are legal in on-disk format.
+
+  Inn-memory types can be further divided into three categories:
+
+    - Builtin types
+    - Base types
+    - Custom types
+
+  Builtin types are simply aliases for types that exist in the C
+  language (e.g., int, size_t, etc.). Their purpose is to seamlessly
+  integrate C data types into Aftermath type system, such that they
+  can be referenced by other types, function definitions, etc.
+
+  Base types are in-memory, non-compound types that may be used in
+  data structures for traces of different programming and execution
+  models. The purpose of this type category is to factor definitions
+  for commonly used data types with characteristics that are valid
+  across programming models in a single place. An example for such a
+  type is am_timestamp_t, Aftermath's data type for time stamps. The
+  common definition as a uint64_t sets the minimum and maximum values
+  for all timestamps and allows for the implementation of generic code
+  for processing timestamps that is usable across models.
+
+  Shared types are types that may be used both on disk and in
+  memory. For example, most of the builtin types can also be used on
+  disk, in particular types defining integers of a fixed width.
+
+  Meta types are types that only exist for trace processing. A good
+  example for this category are types that are created by the join
+  relation. This relation allows for the definition of a relationship
+  between two in-memory types based on the values of their associated
+  on-disk memory types. For example, assume that there are two on-disk
+  types DSKA and SDKB, which both have a field named "id". Their
+  associated in-memory types are MEMA and MEMB. Let further MEMA have
+  pointer field of type MEMB* named "ptr". This allows for the
+  definition of a join relation involving DSKA, DSKB, MEMA, and MEMB,
+  such that the field "ptr" of an instance of MEMA points to an
+  instance of MEMB, if the values for "id" of the two on-disk
+  instances are identical. However, if the field "id" is not part of
+  MEMA and MEMB, the values for ID must be stored somewhere else until
+  the instances of MEMA and MEMB are matched. This is implemented
+  using one meta type for MEMA and MEMB, respectively.
+
+  As soon as a trace has been loaded and processed, the instances of
+  all types are destroyed.
+
+TRACE MODEL
+
+  Since Aftermath is designed as a versatile tool for multiple
+  programming and execution models, it does not restrict trace data to
+  any particular kind of data---a trace file is simply a stream of
+  well-defined data structures. However, Aftermath offers a
+  lightweight interface to structure data in a way that makes it
+  easier to associate data with components of the system that the
+  trace data was recorded on. The main concepts are:
+
+    - Global data
+    - Hierarchies
+    - Event collections
+    - Event mappings
+
+  Global data is not associated to any particular component of the
+  system, e.g., trace-wide meta-data such as the names of run-time
+  states and performance counters.
+
+  Hierarchies provide a structured description of parts of the test
+  system. Each hierarchy defines a tree of an arbitrary shape and
+  depth and each of its nodes may describe a physical component (e.g.,
+  a CPU, GPU, NUMA node, etc.) or a virtual entity (e.g., a process, a
+  thread, etc.). Each node as well as a hierarchy itself may be
+  associated with a human-readable description. A trace can contain an
+  arbitrary number of hierarchies, each describing a different part of
+  the system.
+
+  An event collection groups all trace events generated by some entity
+  of the system, usually a physical or virtual component. The entity
+  generating the events does not necessarily have to be represented by
+  a node in a hierarchy. Each event collection is identified by a
+  numeric value and a trace can define an arbitrary number of
+  collections.
+
+  Event mappings define how the data in event collections is
+  associated to nodes of the hierarchies. Each hierarchy node can have
+  at most one mapping. A mapping is an array of mapping elements, each
+  with an element designating an event collection as the source of
+  events and an interval for which the events of the collection should
+  be associated with the hierarchy node. A trace might contain an
+  arbitrary number of such mappings, which means that an event
+  collection can be associated to different nodes and there can be
+  nodes that are associated with different collections. The only
+  restriction that applies to event mappings is that the intervals of
+  the mapping for a given hierarchy node must not overlap.
+
+  Allowing for multiple mappings for the same set of event collections
+  support multiple "views" on trace data, focusing on different
+  aspects of program execution.  For example, a trace file might
+  contain two hierarchies, one representing the relationship between a
+  process and threads and one hierarchy describing the topology of the
+  hardware. Trace events are generated by threads, which might migrate
+  between different CPUs of the system over time. To represent this
+  adequately, the trace may define multiple mappings. One mapping per
+  event collection associates the collection with exactly one thread
+  for the entire duration of program execution. Another set of
+  mappings associates the collection with multiple CPUs, with one
+  mapping for each interval of execution on the respective CPU.
+
+IN-MEMORY REPRESENTATION OF TRACE DATA
+
+  Before any analysis can be carried out on a trace, all of its data
+  is first read from the trace file and is converted into an in-memory
+  representation. While in-memory data types can define arbitrary
+  relationships (e.g., using pointers), the instances are usually
+  stored in contiguous regions of memory, represented by dynamically
+  allocated arrays. During trace loading, arrays grow dynamically and
+  the address of the elements can change, but once this process has
+  finished, all instances remain at their final location.
+
+  There are a few exceptions to this process, e.g., hierarchy nodes
+  are directly stored as a tree in memory and are never moved in
+  memory, but generally speaking, a data structure is stored in one of
+  the following array types according to its own type:
+
+    - a per-trace array,
+    - a per-event-collection array, or
+    - a per-event-collection subarrays
+
+  Per-trace arrays contain global trace data, with one array per
+  type. These arrays are organized in an array collection---a map that
+  associates each array referenced by it with a string key
+  representing the type of the array elements (e.g.,
+  "am::generic::state_description" for struct am_state_description). A
+  per-trace array can be accessed by calling
+  am_trace_find_trace_array() on an instance of struct am_trace, the
+  data structure representing a trace.
+
+  Data associated to event collections is either stored in a
+  per-event-collection array or a per-event-collection subarray,
+  depending on the event type. Per-event-collection arrays are the
+  equivalent of per-trace arrays with (at most) one array per event
+  collection and per event type. These can be accessed by first
+  retrieving the desired event collection by passing the field
+  "event_collections" of struct am_trace to
+  am_event_collection_array_find() and then passing the collection's
+  field "event_arrays" to am_array_collection_find().
+
+  Per-event-collection subarrays introduce an additional level of
+  structure. Just as for per-event-collection arrays, the first level
+  is distinguished by the event collection and the second level by the
+  event type. The third and final level, however, is distinguished by
+  a numerical ID. The array itself thus contains only events of the
+  same type, for the same collection and with the same ID. The
+  subarray itself is considered a per-event-collection array and is
+  retrieved like any other per-event-array as described above. How the
+  elements are accessed depends on the subarray type.
+
+  One use of per-trace-subarray events are samples for counters. A
+  trace can define an arbitrary amount of counters, each identified by
+  a numerical ID. The actual counter samples are recorded into
+  per-trace-subarrays of type struct am_counter_event_array, using the
+  counter ID at the last level. The associated per-event-collection
+  array type is struct am_counter_event_array_collection, providing a
+  function called am_counter_event_array_collection_find(), which
+  takes the counter ID as a parameter. This allows each event
+  collection to provide samples for multiple counters at once.
+
+COMMON OPERATIONS AND STORAGE
+
+  As mentioned above, a type can be associated with a set of tags that
+  further describe the type, in particular the operations defined for
+  the type. In most cases, such an operation is defined using two tag
+  classes and a template class.
+
+  The first tag inherits from aftermath.tags.FunctionTag and indicates
+  that the operation is defined for the type. The naming scheme for
+  the tag class is usually <NameOfTheOperationInCamelCase>Function. If
+  the code for the operation is not provided verbatim in another C
+  source file, a second class is needed to indicates that the code is
+  generated by a template. This second class is usually named
+  Generate<NameOfTheOperationInCamelCase>Function and inherits from
+  the first tag class as well as from
+  aftermath.tags.TemplatedGenerateFunctionTag. This class also
+  references the template class actually generating the code by
+  passing the python class type as a parameter to the constructor of
+  TemplatedGenerateFunctionTag.
+
+  Common operations for on-disk data types are functions that read an
+  instance of the type from the disk an convert it to the system's
+  endianness (aftermath.tags.dsk.ReadFunction and
+  aftermath.tags.dsk.GenerateReadFunction), functions that write an
+  instance two disk after converting it to on-disk endianness
+  (aftermath.tags.dsk.WriteFunction and
+  aftermath.tags.dsk.GenerateWriteFunction) and dumping a textual
+  representation to standard output
+  (aftermath.tags.dsk.DumpStdoutFunction and
+  aftermath.tags.dsk.GenerateDumpStdoutFunction). These operation are
+  so common that there exists a class
+  aftermath.types.OnDiskCompoundType that automatically adds the
+  respective tags for code generation to the type.
+
+  In order to make the definition of new data types as easy as
+  possible, automation is highly recommended. If there is an entire
+  category of types that all have identical characteristics, such as
+  for the aforementioned on-disk compound types, it is recommended to
+  provide a Python class that can be inherited. If additional
+  information must be passed to a tag, the tag class constructor
+  should be provided with appropriate parameters. For type classes
+  that automatically add a tag that requires additional information,
+  the constructor of the type class should take the information as
+  parameters and pass it to the constructor of the tag constructor.
+
+  For sets of tags, which are common to multiple types without a clear
+  hierarchy, it might make sense to define a Python function with
+  appropriate parameters that instantiates the tags and adds them to
+  the type. A use case for this pattern is the Join relationship
+  described further below.
+
+RELATIONSHIPS
+
+  The Aftermath type system allows for the definition of relationships
+  between instances of types. A relation involves more than one type
+  and defines or requires certain operations to be defined for the
+  involved types and is implemented through a python function that
+  adds appropriate tags with appropriate values to the types.
+
+  Currently, Aftermath only defines a relationship similar to joins in
+  database systems, simply called the "Join" relation, implemented by
+  the function aftermath.join.make_join(). The relation generates code
+  that sets a pointer of a source in-memory data structure to a target
+  in-memory data structure generated from two on-disk data structures
+  with fields whose values are identical.
+
+  This pattern is useful to "connect" instances of a certain type with
+  instances describing the type. For example, an OpenStream program is
+  composed of multiple task types, which are instantiated multiple
+  times. For each task type, an on-disk data structure with a unique
+  ID is generated and for each task instance, the trace contains
+  another data structure with a field referencing this ID. When the
+  trace is loaded, the code generated for the join relation matches
+  the on-disk representations of the task type with the on-disk
+  representation of the task instances and sets a pointer from the
+  in-memory representation of the task instance to the respective
+  in-memory representation of the task type.
+
+LIFE CYCLE AND STAGES DURING TRACE LOADING
+
+  The in-memory representation of a trace is generated in multiple
+  stages. Which of the stages have to be carried out for a data type
+  depends on the tags associated to it and none of the stages is
+  mandatory. The most common ones are:
+
+    1. Read (on-disk)
+       Tag: aftermath.tags.dsk.GenerateReadFunction
+
+       The on-disk data structure is read from the trace file and a
+       temporary copy in on-disk format is allocated in main
+       memory. The temporary copy is converted to host endianness.
+
+    2. Assert (on-disk) [optional]
+       Tag: aftermath.tags.assertion.GenerateAssertFunction
+
+       If the assertion tag has been added to a type, Aftermath
+       executes the assertion function and checks its return value. If
+       the assertion does not hold, the code reading the trace file
+       returns with an error. This is useful to perform basic checks
+       that can be carried out on the on-disk data structure
+       itself. For example, the am_interval type has an assertion that
+       ensures that the end timestamp of the interval is higher than
+       the timestamp for the beginning.
+
+    3. Process (on-disk) [optional]
+       Tag: aftermath.tags.process.GenerateProcessFunction
+
+       The process step carries out a sequence of operations on the
+       on-disk data structure. For on-disk types that are converted
+       into one or more in-memory data structures, the process step
+       triggers allocation and initialization of the in-memory
+       instance:
+
+       3a. Convert (to in-memory)
+           Tag: aftermath.tags.dsk.tomem.GenerateConversionFunction
+
+           The conversion step initializes the in-memory data
+           structure from the on-disk data. By default, the tag and
+           template copy all fields of the two structures with the
+           same name. This mapping can be customized or an entirely
+           different mechanism can be implemented with a custom tag
+           inheriting from aftermath.tags.dsk.tomem.ConversionFunction.
+
+       3b. Append to target array (in-memory)
+           Tag: aftermath.tag.mem.store.pertracearray.GenerateAppendFunction or
+                aftermath.tag.mem.store.pertracearray.GenerateAppendAndSetIndexFunction or
+                aftermath.tag.mem.store.pereventcollectionarray.GenerateAppendFunction or
+                aftermath.tag.mem.store.pereventcollectionarray.GenerateAppendAndSetIndexFunction or
+                aftermath.tag.mem.store.pereventcollectionsubarray.GenerateAppendFunction or
+                aftermath.tag.mem.store.pereventcollectionsubarray.GenerateAppendAndSetIndexFunction
+
+           This step appends the data converted to in-memory format to
+           either a per-trace array, a per-event-collection array or a
+           per-event-collection subarray, depending on the tag
+           associated to the in-memory data type.
+
+           Since the containing array can still be resized by
+           subsequent append operations, the memory location of the
+           newly appended instance is not yet final. The index within
+           the array is, however, final, unless a custom operation
+           reorders the elements, e.g., by sorting them according to
+           some field.
+
+       3c. Post-conversion [optional]
+           Tag: aftermath.tags.dsk.tomem.GeneratePostConversionFunction
+
+           Code for post-conversion is executed immediately after the
+           conversion from on-disk to in-memory format. As a subclass
+           of aftermath.tags.TagWithSteps, the
+           GeneratePostConversionFunction tag is able to carry out
+           multiple custom steps. If one of the steps fails, the
+           entire post-conversion fails and trace loading is aborted.
+
+       3d. Process (in-memory) [optional]
+           Tag: aftermath.tags.process.GenerateProcessFunction
+
+           After the in-memory structure has been appended to an
+           array, it can be processed. An example of a processing step
+           is the update of the lowest and highest timestamp
+           encountered in the trace.
+
+  Once all on-disk data structures of a trace have been treated, the
+  execution passes three phases:
+
+    1. Global postprocessing
+    2. Global finalization
+    3. Global teardown
+
+  In contrast to the steps described for the conversion from on-disk
+  to in-memory format, which are carried out for individual instances
+  of the data structures, each phase is applied per data type. That
+  is, the global postprocessing phase executes a global postprocessing
+  function for the in-memory type for state events, then for the
+  in-memory type counter events, and so on. Only when the global
+  postprocessing phase has been passed for all data types, the global
+  finalization phase is started for all data types. Finally, when the
+  global finalization phase is completed, a global teardown phase is
+  entered.
+
+  The separation into three phases helps coordinating operations after
+  trace loading that involve multiple types. For example, the join
+  relation described above uses the postprocess phase to sort the meta
+  types for target structures by their ID. In the finalization phase,
+  it matches the source data structures with the target structures and
+  sets the source pointers accordingly. Finally, the instances of meta
+  types are destroyed in the teardown phase.
+
+NAMING CONVENTIONS
+
+  Since types in the Aftermath type system are referenced as instances
+  of python classes and the names of types appear only in the code
+  generated by templates at the very end, the system does not require
+  any particular naming. However, there are certain conventions in
+  order to make the generated code easier to understand:
+
+    - On-disk types are prefixed by am_dsk_<model>
+    - In-memory types are prefixed by am_<model>
+    - Base types have the format am_<name>_t
+    - Meta types are prefixed <name of associated type>__meta_
+
+  where <model> is a short name of the programming model the type
+  belongs to (e.g., openstream, openmp, etc.) and <name> is an
+  arbitrary stem for a the base type (e.g., timestamp).
+
+DEFINING CUSTOM TYPES
+
+  Upon invocation of the template script for toplevel templates, the
+  entire filesystem hierarchy below src/defs/aftermath is
+  processed. To add new types, it is thus sufficient to add the
+  definition to an existing python source file or to create a new file
+  in one of the folders. Source files defining types should be part of
+  the aftermath.types package and hence go into a file in
+  src/defs/aftermath/types.
+
+  On-disk types should go into the aftermath.types.on_disk package if
+  they are fundamental on-disk types used across multiple programming
+  models. If they are specific to a model, the definitions should be
+  collected in a subpackage, e.g., aftermath.types.openstream.on_disk
+  for the OpenStream programming model.
+
+  Similarly, definitions for in-memory types should either go into
+  aftermath.types.in_memory or a subpackage, e.g.,
+  aftermath.types.openstream.in_memory.
+
+  When adding new files, please add them to the TPL_DEPS and PYC_FILES
+  (with .py changed to .pyc) variable definitions in Makefile.am in
+  the toplevel directory in order to add them to the list of
+  dependencies for the source files generated by toplevel templates.
+
+  Each type definition must provide a set of mandatory attributes for
+  the type:
+
+    - The name of the type (e.g. "am_state_event")
+
+    - A short, human-readable description of the entity it represents
+      (e.g., "state")
+
+    - A human-readable comment, copied verbatim to the C source code
+      comment above the definition of the type (e.g., A state (e.g., a
+      run-time state)
+
+    - If the type is a compound type, it must also provide an ordered
+      list of fields for the generated structure (an instance of
+      aftermath.types.FieldList)
+
+  Optionally, it might define:
+
+    - An array identifier for array collections with a reference to an
+      array of the newly defined type (e.g., "am::generic::state")
+
+    - A set of tags
+
+  All of the attributes above can be passed directly to the
+  constructor of the appropriate type class.
+
+  For examples of types, consult the packages
+  aftermath.types.*.on_disk and aftermath.types.*.in_memory.
