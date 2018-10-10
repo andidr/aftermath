@@ -168,10 +168,14 @@ struct v16ctx {
 
 	/* Adresses of work functions for which an OpenStream task type frame
 	 * has been written */
-	struct u64_array task_type_addresses;
+	struct u64_array openstream_task_type_addresses;
 
 	/* Current ID used for ID generation */
 	uint64_t curr_id;
+
+	/* Adresses of work functions for which an OpenMP task type frame
+	 * has been written */
+	struct u64_array omp_task_type_addresses;
 };
 
 /* IDs used for frame types in the output file */
@@ -189,6 +193,9 @@ enum output_frame_type {
 	AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE,
 	AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE,
 	AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD,
+	AM_FRAME_TYPE_OPENMP_TASK_TYPE,
+	AM_FRAME_TYPE_OPENMP_TASK_INSTANCE,
+	AM_FRAME_TYPE_OPENMP_TASK_PERIOD,
 	AM_FRAME_TYPE_NUM
 };
 
@@ -208,7 +215,10 @@ static struct {
 	{ AM_FRAME_TYPE_EVENT_MAPPING, "am_dsk_event_mapping" },
 	{ AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE, "am_dsk_openstream_task_type" },
 	{ AM_FRAME_TYPE_OPENSTREAM_TASK_INSTANCE, "am_dsk_openstream_task_instance" },
-	{ AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD, "am_dsk_openstream_task_period" }
+	{ AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD, "am_dsk_openstream_task_period" },
+	{ AM_FRAME_TYPE_OPENMP_TASK_TYPE, "am_dsk_openmp_task_type" },
+	{ AM_FRAME_TYPE_OPENMP_TASK_INSTANCE, "am_dsk_openmp_task_instance" },
+	{ AM_FRAME_TYPE_OPENMP_TASK_PERIOD, "am_dsk_openmp_task_period" }
 };
 
 /* Registers the frame types used in the ouput file at the frame type registry
@@ -254,7 +264,8 @@ static int v16ctx_init(struct v16ctx* v16ctx,
 	v16_cpu_array_init(&v16ctx->cpus);
 	v16_numa_node_array_init(&v16ctx->numa_nodes);
 	v16_texec_start_array_init(&v16ctx->per_cpu.last_texec_start);
-	u64_array_init(&v16ctx->task_type_addresses);
+	u64_array_init(&v16ctx->openstream_task_type_addresses);
+	u64_array_init(&v16ctx->omp_task_type_addresses);
 
 	v16ctx->fp_in = fp_in;
 	v16ctx->estack = estack;
@@ -279,7 +290,8 @@ static void v16ctx_destroy(struct v16ctx* v16ctx)
 	v16_cpu_array_destroy(&v16ctx->cpus);
 	v16_numa_node_array_destroy(&v16ctx->numa_nodes);
 	v16_texec_start_array_destroy(&v16ctx->per_cpu.last_texec_start);
-	u64_array_destroy(&v16ctx->task_type_addresses);
+	u64_array_destroy(&v16ctx->openstream_task_type_addresses);
+	u64_array_destroy(&v16ctx->omp_task_type_addresses);
 
 	v16ctx->octx.fp = NULL;
 
@@ -531,11 +543,11 @@ int v16ctx_write_event_collection(struct v16ctx* v16ctx, uint32_t id)
  * task type frame has already been written. Returns 0 on success, otherwise
  * 1. */
 static inline int
-v16_task_type_address_add(struct v16ctx* v16ctx, uint64_t addr)
+v16_openstream_task_type_address_add(struct v16ctx* v16ctx, uint64_t addr)
 {
 	uint64_t* pval;
 
-	if(!(pval = u64_array_reserve_sorted(&v16ctx->task_type_addresses,
+	if(!(pval = u64_array_reserve_sorted(&v16ctx->openstream_task_type_addresses,
 					     addr)))
 	{
 		am_io_error_stack_push(v16ctx->estack,
@@ -556,14 +568,14 @@ v16_task_type_address_add(struct v16ctx* v16ctx, uint64_t addr)
 /* Writes an OpenStream task type frame if such a frame hasn't already been
  * written previously for the work function with the given address. Returns 0 on
  * success, otherwise 1. */
-static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
-						   uint64_t addr)
+static inline int
+v16_write_openstream_task_type_if_necessary(struct v16ctx* v16ctx, uint64_t addr)
 {
 	struct am_dsk_openstream_task_type tt;
 	char buf[64];
 	uint32_t type = AM_FRAME_TYPE_OPENSTREAM_TASK_TYPE;
 
-	if(u64_array_bsearch(&v16ctx->task_type_addresses, addr))
+	if(u64_array_bsearch(&v16ctx->openstream_task_type_addresses, addr))
 		return 0;
 
 	snprintf(buf, sizeof(buf), "workfn_0x%" PRIx64, addr);
@@ -584,7 +596,7 @@ static inline int v16_write_task_type_if_necessary(struct v16ctx* v16ctx,
 		return 1;
 	}
 
-	if(v16_task_type_address_add(v16ctx, addr))
+	if(v16_openstream_task_type_address_add(v16ctx, addr))
 		return 1;
 
 	return 0;
@@ -1192,36 +1204,114 @@ static int v16ctx_convert_omp_for_chunk_set_part(struct v16ctx* v16ctx)
 	return 0;
 }
 
-/* Reads an OpenMP task instance (except its type field) from the input. Since
- * OpenMP is not yet supported by the current trace format, nothing is written
- * to the output trace.
+/* Adds an entry to the array of work function addresses for which an OpenMP
+ * task type frame has already been written. Returns 0 on success, otherwise
+ * 1. */
+static inline int
+v16_omp_task_type_address_add(struct v16ctx* v16ctx, uint64_t addr)
+{
+	uint64_t* pval;
+
+	if(!(pval = u64_array_reserve_sorted(&v16ctx->omp_task_type_addresses,
+					     addr)))
+	{
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Could not allocate task type address "
+				       "array entry for OpenMP task with "
+				       "address 0x%" PRIx64 ".",
+				       addr);
+
+		return 1;
+	}
+
+	*pval = addr;
+
+	return 0;
+}
+
+/* Writes an OpenMP task type frame if such a frame hasn't already been written
+ * previusly for the work function with the given address. Returns 0 on success,
+ * otherwise 1. */
+static inline int v16_write_omp_task_type_if_necessary(struct v16ctx* v16ctx,
+						       uint64_t addr)
+{
+	struct am_dsk_openmp_task_type tt;
+	char buf[64];
+	uint32_t type = AM_FRAME_TYPE_OPENMP_TASK_TYPE;
+
+	if(u64_array_bsearch(&v16ctx->omp_task_type_addresses, addr))
+		return 0;
+
+	snprintf(buf, sizeof(buf), "omp_task_0x%" PRIx64, addr);
+
+	/* Write task type. Use address of the work function as type ID */
+	tt.type_id = addr;
+	tt.name.str = buf;
+	tt.name.len = strlen(buf);
+	tt.source.file.str = "";
+	tt.source.file.len = 0;
+	tt.source.line = 0;
+	tt.source.character = 0;
+
+	if(am_dsk_openmp_task_type_write(&v16ctx->octx, type, &tt)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP task type.");
+		return 1;
+	}
+
+	if(v16_omp_task_type_address_add(v16ctx, addr))
+		return 1;
+
+	return 0;
+}
+
+/* Reads an OpenMP task instance (except its type field) from the input trace
+ * and writes a corresponding OpenMP task instance to the output trace. If no
+ * frame for the task type has been written to the output trace before, a frame
+ * for the task type is also written to the trace.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int v16ctx_convert_omp_task_instance(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_omp_task_instance oti16;
+	struct am_dsk_openmp_task_instance ti;
+	uint32_t ti_type = AM_FRAME_TYPE_OPENMP_TASK_INSTANCE;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &oti16, "OMP task instance",
 				 addr, uint64_t);
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &oti16, "OMP task instance",
 				 id, uint64_t);
 
+	if(v16_write_omp_task_type_if_necessary(v16ctx, oti16.addr))
+		return 1;
+
+	ti.type_id = oti16.addr;
+	ti.instance_id = oti16.id;
+
+	if(am_dsk_openmp_task_instance_write(&v16ctx->octx, ti_type, &ti)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP task "
+				       "instance.");
+		return 1;
+	}
+
 	return 0;
 }
 
-/* Reads an OpenMP task instance part (except its type field) from the
- * input. Since OpenMP is not yet supported by the current trace format, nothing
- * is written to the output trace, only the CPU of the input event is
- * registered.
+/* Reads an OpenMP task instance part (except its type field) from the input and
+ * writes a corresponding OpenMP task execution period to the output trace.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int v16ctx_convert_omp_task_instance_part(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_omp_task_instance_part otip16;
+	struct am_dsk_openmp_task_period tp;
+	uint32_t tp_type = AM_FRAME_TYPE_OPENMP_TASK_PERIOD;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &otip16, "OMP task instance part",
 				 cpu, uint32_t);
@@ -1236,6 +1326,23 @@ static int v16ctx_convert_omp_task_instance_part(struct v16ctx* v16ctx)
 
 	if(!v16ctx_find_add_cpu_def(v16ctx, otip16.cpu))
 		return 1;
+
+	tp.collection_id = otip16.cpu;
+	tp.instance_id = otip16.task_instance_id;
+	tp.interval.start = otip16.start;
+	tp.interval.end = otip16.end;
+
+	if(am_dsk_openmp_task_period_write(&v16ctx->octx, tp_type, &tp)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP task period "
+				       "for CPU %" PRIu32 " with interval "
+				       "[%" PRIu64 ", %" PRIu64 "].",
+				       otip16.cpu,
+				       otip16.start,
+				       otip16.end);
+		return 1;
+	}
 
 	return 0;
 }
@@ -1351,7 +1458,7 @@ static int v16ctx_convert_texec_end(struct v16ctx* v16ctx,
 		return 1;
 	}
 
-	if(v16_write_task_type_if_necessary(v16ctx, workfn_addr))
+	if(v16_write_openstream_task_type_if_necessary(v16ctx, workfn_addr))
 		return 1;
 
 	/* Create OpenStream task instance. The instance will contain only a
