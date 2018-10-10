@@ -28,6 +28,16 @@
 #include <aftermath/core/openstream_task_type_array.h>
 #include <aftermath/core/openstream_task_instance_array.h>
 #include <aftermath/core/openstream_task_period_array.h>
+
+#include <aftermath/core/openmp_task_instance_array.h>
+#include <aftermath/core/openmp_task_type_array.h>
+#include <aftermath/core/openmp_task_period_array.h>
+
+#include <aftermath/core/openmp_for_loop_type_array.h>
+#include <aftermath/core/openmp_for_loop_instance_array.h>
+#include <aftermath/core/openmp_iteration_set_array.h>
+#include <aftermath/core/openmp_iteration_period_array.h>
+
 #include <aftermath/core/on_disk_meta.h>
 
 #include <stdlib.h>
@@ -42,6 +52,15 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_state_event_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_counter_event_array_collection)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openstream_task_period_array)
 
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_task_instance_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_task_period_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_task_type_array)
+
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_for_loop_instance_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_for_loop_type_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_period_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_set_array)
+
 int am_build_default_trace_array_registry(struct am_array_registry* r)
 {
 	if(AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_state_description_array,
@@ -54,12 +73,26 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 					      "am::openstream::task_type") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_instance_array,
 					      "am::openstream::task_instance") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_period_array,
+					      "am::openstream::task_period") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_state_event_array,
 					      "am::generic::state") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_counter_event_array_collection,
 					      "am::generic::counter_event") ||
-	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_period_array,
-					      "am::openstream::task_period"))
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_task_instance_array,
+					      "am::openmp::task_instance") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_task_period_array,
+					      "am::openmp::task_period") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_task_type_array,
+					      "am::openmp::task_type") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_for_loop_instance_array,
+					      "am::openmp::for_loop_instance")||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_for_loop_type_array,
+					      "am::openmp::for_loop_type") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_iteration_period_array,
+					      "am::openmp::iteration_period") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_iteration_set_array,
+					      "am::openmp::iteration_set"))
 	{
 		return 1;
 	}

@@ -76,6 +76,14 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
 	aftermath/core/on_disk_meta.h \
+	aftermath/core/openmp.h \
+	aftermath/core/openmp_for_loop_instance_array.h \
+	aftermath/core/openmp_for_loop_type_array.h \
+	aftermath/core/openmp_iteration_period_array.h \
+	aftermath/core/openmp_iteration_set_array.h \
+	aftermath/core/openmp_task_instance_array.h \
+	aftermath/core/openmp_task_period_array.h \
+	aftermath/core/openmp_task_type_array.h \
 	aftermath/core/openstream_task_instance_array.h \
 	aftermath/core/openstream_task_period_array.h \
 	aftermath/core/openstream_task_type_array.h \

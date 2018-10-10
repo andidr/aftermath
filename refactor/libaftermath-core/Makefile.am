@@ -135,6 +135,14 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/on_disk.c \
 				src/on_disk.h \
 				src/on_disk_meta.h \
+				src/openmp.h \
+				src/openmp_for_loop_instance_array.h \
+				src/openmp_for_loop_type_array.h \
+				src/openmp_iteration_period_array.h \
+				src/openmp_iteration_set_array.h \
+				src/openmp_task_instance_array.h \
+				src/openmp_task_period_array.h \
+				src/openmp_task_type_array.h \
 				src/openstream_task_instance_array.h \
 				src/openstream_task_period_array.h \
 				src/openstream_task_type_array.h \
@@ -242,6 +250,9 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/types/__init__.py \
 	src/defs/aftermath/types/in_memory.py \
 	src/defs/aftermath/types/on_disk.py \
+	src/defs/aftermath/types/openmp/__init__.py \
+	src/defs/aftermath/types/openmp/in_memory.py \
+	src/defs/aftermath/types/openmp/on_disk.py \
 	src/defs/aftermath/types/openstream/__init__.py \
 	src/defs/aftermath/types/openstream/in_memory.py \
 	src/defs/aftermath/types/openstream/on_disk.py \
@@ -284,6 +295,9 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/types/__init__.pyc \
 	src/defs/aftermath/types/in_memory.pyc \
 	src/defs/aftermath/types/on_disk.pyc \
+	src/defs/aftermath/types/openmp/__init__.pyc \
+	src/defs/aftermath/types/openmp/in_memory.pyc \
+	src/defs/aftermath/types/openmp/on_disk.pyc \
 	src/defs/aftermath/types/openstream/__init__.pyc \
 	src/defs/aftermath/types/openstream/in_memory.pyc \
 	src/defs/aftermath/types/openstream/on_disk.pyc \

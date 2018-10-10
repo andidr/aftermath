@@ -18,6 +18,13 @@
 
 #include <aftermath/core/counter_description_array.h>
 #include <aftermath/core/measurement_interval_array.h>
+#include <aftermath/core/openmp_for_loop_type_array.h>
+#include <aftermath/core/openmp_for_loop_instance_array.h>
+#include <aftermath/core/openmp_iteration_set_array.h>
+#include <aftermath/core/openmp_iteration_period_array.h>
+#include <aftermath/core/openmp_task_instance_array.h>
+#include <aftermath/core/openmp_task_period_array.h>
+#include <aftermath/core/openmp_task_type_array.h>
 #include <aftermath/core/openstream_task_instance_array.h>
 #include <aftermath/core/openstream_task_period_array.h>
 #include <aftermath/core/openstream_task_type_array.h>
