@@ -47,6 +47,18 @@ struct am_typed_array_generic {
 		free(a->elements);					\
 	}
 
+#define AM_DECL_TYPED_ARRAY_DEFAULT_DESTRUCTOR_WITH_ELEMENTS(prefix, fname, \
+							     element_destructor)\
+	/* Destroys the array by invoking element_derstructor() on each	\
+	 * element and by freeing the array containing the elements. */	\
+	static inline void fname(struct prefix* a)				\
+	{									\
+		for(size_t i = 0; i < a->num_elements; i++)			\
+			element_destructor(&a->elements[i]);			\
+										\
+		free(a->elements);						\
+	}
+
 /* Declare a new type of arrays. The macro parameter 'prefix' defines the prefix
  * for the type of the structure as well as for all operations. */
 #define AM_DECL_TYPED_ARRAY_EXTRA_FIELDS_NO_DESTRUCTOR(prefix, T, extra_fields) \
@@ -258,6 +270,12 @@ struct am_typed_array_generic {
 
 #define AM_DECL_TYPED_ARRAY(prefix, T)	\
 	AM_DECL_TYPED_ARRAY_EXTRA_FIELDS(prefix, T, )
+
+#define AM_DECL_TYPED_ARRAY_WITH_ELEMENT_DESTRUCTOR(prefix, T, element_destr)	\
+	AM_DECL_TYPED_ARRAY_EXTRA_FIELDS_NO_DESTRUCTOR(prefix, T, )		\
+	AM_DECL_TYPED_ARRAY_DEFAULT_DESTRUCTOR_WITH_ELEMENTS(prefix,		\
+							     prefix##_destroy,	\
+							     element_destr)
 
 /* Declare a binary seach function for a typed array. prefix and T must be the
  * same values as those used in DECL_TYPED_ARRAY. suffix is simply appended to
