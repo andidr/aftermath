@@ -126,6 +126,28 @@ AM_DECL_TYPED_ARRAY_INSERTPOS(u64_array, uint64_t, uint64_t, ACC_IDENT,
 			      AM_VALCMP_EXPR)
 AM_DECL_TYPED_ARRAY_RESERVE_SORTED(u64_array, uint64_t, uint64_t)
 
+struct for_loop_type {
+	uint64_t addr;
+	uint32_t flags;
+};
+
+#define ACC_ADDR(x) ((x).addr)
+
+AM_DECL_TYPED_ARRAY(for_loop_type_array, struct for_loop_type)
+AM_DECL_TYPED_ARRAY_BSEARCH(for_loop_type_array,
+			    struct for_loop_type,
+			    uint64_t,
+			    ACC_ADDR,
+			    AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_INSERTPOS(for_loop_type_array,
+			      struct for_loop_type,
+			      uint64_t,
+			      ACC_ADDR,
+			      AM_VALCMP_EXPR)
+AM_DECL_TYPED_ARRAY_RESERVE_SORTED(for_loop_type_array,
+				   struct for_loop_type,
+				   uint64_t)
+
 /* Conversion context for conversion from format version 16 to the current trace
  * format */
 struct v16ctx {
@@ -176,6 +198,10 @@ struct v16ctx {
 	/* Adresses of work functions for which an OpenMP task type frame
 	 * has been written */
 	struct u64_array omp_task_type_addresses;
+
+	/* Adresses ad flags of OpenMP for loops for which a for loop type frame
+	 * has been written */
+	struct for_loop_type_array omp_for_loop_types;
 };
 
 /* IDs used for frame types in the output file */
@@ -196,6 +222,10 @@ enum output_frame_type {
 	AM_FRAME_TYPE_OPENMP_TASK_TYPE,
 	AM_FRAME_TYPE_OPENMP_TASK_INSTANCE,
 	AM_FRAME_TYPE_OPENMP_TASK_PERIOD,
+	AM_FRAME_TYPE_OPENMP_FOR_LOOP_TYPE,
+	AM_FRAME_TYPE_OPENMP_FOR_LOOP_INSTANCE,
+	AM_FRAME_TYPE_OPENMP_ITERATION_SET,
+	AM_FRAME_TYPE_OPENMP_ITERATION_PERIOD,
 	AM_FRAME_TYPE_NUM
 };
 
@@ -218,7 +248,11 @@ static struct {
 	{ AM_FRAME_TYPE_OPENSTREAM_TASK_PERIOD, "am_dsk_openstream_task_period" },
 	{ AM_FRAME_TYPE_OPENMP_TASK_TYPE, "am_dsk_openmp_task_type" },
 	{ AM_FRAME_TYPE_OPENMP_TASK_INSTANCE, "am_dsk_openmp_task_instance" },
-	{ AM_FRAME_TYPE_OPENMP_TASK_PERIOD, "am_dsk_openmp_task_period" }
+	{ AM_FRAME_TYPE_OPENMP_TASK_PERIOD, "am_dsk_openmp_task_period" },
+	{ AM_FRAME_TYPE_OPENMP_FOR_LOOP_TYPE, "am_dsk_openmp_for_loop_type" },
+	{ AM_FRAME_TYPE_OPENMP_FOR_LOOP_INSTANCE, "am_dsk_openmp_for_loop_instance" },
+	{ AM_FRAME_TYPE_OPENMP_ITERATION_SET, "am_dsk_openmp_iteration_set" },
+	{ AM_FRAME_TYPE_OPENMP_ITERATION_PERIOD, "am_dsk_openmp_iteration_period" }
 };
 
 /* Registers the frame types used in the ouput file at the frame type registry
@@ -266,6 +300,7 @@ static int v16ctx_init(struct v16ctx* v16ctx,
 	v16_texec_start_array_init(&v16ctx->per_cpu.last_texec_start);
 	u64_array_init(&v16ctx->openstream_task_type_addresses);
 	u64_array_init(&v16ctx->omp_task_type_addresses);
+	for_loop_type_array_init(&v16ctx->omp_for_loop_types);
 
 	v16ctx->fp_in = fp_in;
 	v16ctx->estack = estack;
@@ -292,6 +327,7 @@ static void v16ctx_destroy(struct v16ctx* v16ctx)
 	v16_texec_start_array_destroy(&v16ctx->per_cpu.last_texec_start);
 	u64_array_destroy(&v16ctx->openstream_task_type_addresses);
 	u64_array_destroy(&v16ctx->omp_task_type_addresses);
+	for_loop_type_array_destroy(&v16ctx->omp_for_loop_types);
 
 	v16ctx->octx.fp = NULL;
 
@@ -1123,16 +1159,95 @@ static int v16ctx_convert_counter_event(struct v16ctx* v16ctx)
 	return 0;
 }
 
-/* Reads an OpenMP for instance event (except its type field) from the
- * input. Since OpenMP is not yet supported by the current trace format, nothing
- * is written to the output trace.
+/* Adds an entry to the array of loop addresses for which an OpenMP for loop
+ * type frame has already been written.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static inline int
+v16_omp_for_loop_type_add(struct v16ctx* v16ctx, uint64_t addr, uint32_t flags)
+{
+	struct for_loop_type* ptype;
+
+	if(!(ptype = for_loop_type_array_reserve_sorted(
+		     &v16ctx->omp_for_loop_types, addr)))
+	{
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_ALLOC,
+				       "Could not allocate for loop type address "
+				       "array entry for OpenMP for loop with "
+				       "address 0x%" PRIx64 ".",
+				       addr);
+
+		return 1;
+	}
+
+	ptype->addr = addr;
+	ptype->flags = flags;
+
+	return 0;
+}
+
+/* Writes an OpenMP for_loop type frame if such a frame hasn't already been written
+ * previusly for the work function with the given address. Returns 0 on success,
+ * otherwise 1. */
+static inline int v16_write_omp_for_loop_type_if_necessary(struct v16ctx* v16ctx,
+							   uint64_t addr,
+							   uint32_t flags)
+{
+	struct am_dsk_openmp_for_loop_type flt;
+	struct for_loop_type* pflt;
+	uint32_t type = AM_FRAME_TYPE_OPENMP_FOR_LOOP_TYPE;
+
+	if((pflt = for_loop_type_array_bsearch(&v16ctx->omp_for_loop_types,
+					       addr)))
+	{
+		if(pflt->flags != flags) {
+			am_io_error_stack_push(v16ctx->estack,
+					       AM_IOERR_ASSERT,
+					       "Found two instances of the same "
+					       "OpenMP loop, but with different "
+					       "flags");
+			return 1;
+		}
+
+		return 0;
+	}
+
+	/* Write for loop type. Use address of the outlined function as type
+	 * ID */
+	flt.type_id = addr;
+	flt.flags = flags;
+	flt.source.file.str = "";
+	flt.source.file.len = 0;
+	flt.source.line = 0;
+	flt.source.character = 0;
+
+	if(am_dsk_openmp_for_loop_type_write(&v16ctx->octx, type, &flt)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP for_loop type.");
+		return 1;
+	}
+
+	if(v16_omp_for_loop_type_add(v16ctx, addr, flags))
+		return 1;
+
+	return 0;
+}
+
+/* Reads an OpenMP for instance event (except its type field) from the input and
+ * writes a for loop instance frame to the output trace. If the associated for
+ * loop type frame hasn't been written before, a for loop type frame is
+ * generated, too.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int v16ctx_convert_omp_for_instance(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_omp_for_instance ofi16;
+	struct am_dsk_openmp_for_loop_instance fli;
+	uint32_t fi_type = AM_FRAME_TYPE_OPENMP_FOR_LOOP_INSTANCE;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofi16, "OMP for instance",
 				 flags, uint32_t);
@@ -1149,19 +1264,39 @@ static int v16ctx_convert_omp_for_instance(struct v16ctx* v16ctx)
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofi16, "OMP for instance",
 				 num_workers, uint32_t);
 
+	if(v16_write_omp_for_loop_type_if_necessary(v16ctx, ofi16.addr,
+						    ofi16.flags))
+	{
+		return 1;
+	}
+
+	fli.type_id = ofi16.addr;
+	fli.instance_id = ofi16.id;
+	fli.lower_bound = ofi16.lower_bound;
+	fli.upper_bound = ofi16.upper_bound;
+	fli.num_workers = ofi16.num_workers;
+
+	if(am_dsk_openmp_for_loop_instance_write(&v16ctx->octx, fi_type, &fli)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP for loop "
+				       "instance.");
+		return 1;
+	}
+
 	return 0;
 }
 
-/* Reads an OpenMP for chunk set (except its type field) from the input. Since
- * OpenMP is not yet supported by the current trace format, nothing is written
- * to the output trace.
+/* Reads an OpenMP for chunk set (except its type field) from the input and
+ * writes a corresponding OpenMP iteration set frame to the output file.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int v16ctx_convert_omp_for_chunk_set(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_omp_for_chunk_set ofcs16;
+	struct am_dsk_openmp_iteration_set is;
+	uint32_t is_type = AM_FRAME_TYPE_OPENMP_ITERATION_SET;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofcs16, "OMP for chunk set",
 				 for_id, uint64_t);
@@ -1170,22 +1305,33 @@ static int v16ctx_convert_omp_for_chunk_set(struct v16ctx* v16ctx)
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofcs16, "OMP for chunk set",
 				 first_lower, uint64_t);
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofcs16, "OMP for chunk set",
-				 first_upper, uint64_t);
+				 last_upper, uint64_t);
+
+	is.instance_id = ofcs16.for_id;
+	is.iteration_set_id = ofcs16.id;
+	is.lower_bound = ofcs16.first_lower;
+	is.upper_bound = ofcs16.last_upper;
+
+	if(am_dsk_openmp_iteration_set_write(&v16ctx->octx, is_type, &is)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP iteration set.");
+		return 1;
+	}
 
 	return 0;
 }
 
-/* Reads an OpenMP for chunk set part (except its type field) from the
- * input. Since OpenMP is not yet supported by the current trace format, nothing
- * is written to the output trace, only the CPU of the input event is
- * registered.
+/* Reads an OpenMP for chunk set part (except its type field) from the input and
+ * writes a corresponding OpenMP iteration period frame to the output.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int v16ctx_convert_omp_for_chunk_set_part(struct v16ctx* v16ctx)
 {
-	/* Currently not supported; just skip */
 	struct v16_trace_omp_for_chunk_set_part ofcsp16;
+	struct am_dsk_openmp_iteration_period ip;
+	uint32_t ip_type = AM_FRAME_TYPE_OPENMP_ITERATION_PERIOD;
 
 	READ_FIELD_OR_ERROR_RET1(v16ctx, &ofcsp16, "OMP for chunk set part",
 				 cpu, uint32_t);
@@ -1200,6 +1346,19 @@ static int v16ctx_convert_omp_for_chunk_set_part(struct v16ctx* v16ctx)
 
 	if(!v16ctx_find_add_cpu_def(v16ctx, ofcsp16.cpu))
 		return 1;
+
+	ip.collection_id = ofcsp16.cpu;
+	ip.iteration_set_id = ofcsp16.chunk_set_id;
+	ip.interval.start = ofcsp16.start;
+	ip.interval.end = ofcsp16.end;
+
+	if(am_dsk_openmp_iteration_period_write(&v16ctx->octx, ip_type, &ip)) {
+		am_io_error_stack_push(v16ctx->estack,
+				       AM_IOERR_WRITE,
+				       "Could not write OpenMP iteration "
+				       "period.");
+		return 1;
+	}
 
 	return 0;
 }
