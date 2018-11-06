@@ -1,6 +1,7 @@
 nobase_include_HEADERS = \
 	aftermath/trace/base_types.h \
 	aftermath/trace/buffered_event_collection.h \
+	aftermath/trace/buffered_trace.h \
 	aftermath/trace/on_disk_write_to_buffer.h \
 	aftermath/trace/safe_alloc.h \
 	aftermath/trace/simple_hierarchy.h \

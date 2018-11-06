@@ -15,6 +15,8 @@ libaftermath_trace_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	src/buffered_event_collection.c \
 	src/buffered_event_collection.h \
+	src/buffered_trace.c \
+	src/buffered_trace.h \
 	src/simple_hierarchy.c \
 	src/simple_hierarchy.h
 
