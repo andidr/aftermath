@@ -27,7 +27,28 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_VPRINTF
 
-CHECK_LIB_AND_HEADER_WITH([aftermath-core], [aftermath-core],
-	[aftermath/core/base_types.h], [am_dsk_load_trace])
+#
+# Check for libaftermath-core sources
+#
+AC_ARG_WITH(aftermath-core-builddir,
+	AS_HELP_STRING(
+		[ --with-aftermath-core-builddir=DIR],
+		[Use generated libaftermath-core source files from DIR]),
+
+	AFTERMATH_CORE_BUILDDIR="$withval"
+)
+
+if test "x$AFTERMATH_CORE_BUILDDIR" = "x"
+then
+	AC_MSG_ERROR([Could not find libaftermath-core build directory. Please indicate the base directory using --with-aftermath-core-builddir=DIR.])
+fi
+
+AC_SUBST(AFTERMATH_CORE_BUILDDIR)
+
+for srcfile in src/base_types.h
+do
+	AC_CHECK_FILE([$AFTERMATH_CORE_BUILDDIR/$srcfile],,
+		AC_MSG_ERROR([Could not find required file $srcfile in the libaftermath-core build directory.]))
+done
 
 AC_OUTPUT([Makefile headers/Makefile])
