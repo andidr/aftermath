@@ -1,5 +1,5 @@
 AC_INIT([libaftermath-trace], [0.1])
-AC_CONFIG_SRCDIR([src/dummy.h])
+AC_CONFIG_SRCDIR([src/buffered_event_collection.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
 m4_include([m4/with-check.m4])

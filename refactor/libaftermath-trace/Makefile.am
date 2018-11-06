@@ -10,7 +10,9 @@ BUILT_SOURCES = \
 	src/write_buffer.h
 
 libaftermath_trace_la_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	src/buffered_event_collection.c \
+	src/buffered_event_collection.h
 
 libaftermath_trace_la_CFLAGS =
 libaftermath_trace_la_LIBADD =
