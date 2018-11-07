@@ -70,7 +70,8 @@ do
 		AC_MSG_ERROR([Could not find required file $srcfile in libaftermath-core source directory.]))
 done
 
-for srcfile in src/base_types.h
+for srcfile in src/base_types.h \
+		src/on_disk_write_to_buffer.h
 do
 	AC_CHECK_FILE([$AFTERMATH_CORE_BUILDDIR/$srcfile],,
 		AC_MSG_ERROR([Could not find required file $srcfile in the libaftermath-core build directory.]))

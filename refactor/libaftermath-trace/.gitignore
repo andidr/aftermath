@@ -1,3 +1,4 @@
 src/base_types.h
+src/on_disk_write_to_buffer.h
 src/write_buffer.c
 src/write_buffer.h
