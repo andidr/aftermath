@@ -163,7 +163,9 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/trace.h \
 				src/typed_array.h \
 				src/typed_list.h \
-				src/typed_rbtree.h
+				src/typed_rbtree.h \
+				src/write_buffer.c \
+				src/write_buffer.h
 
 libaftermath_core_la_CFLAGS =
 libaftermath_core_la_LIBADD =

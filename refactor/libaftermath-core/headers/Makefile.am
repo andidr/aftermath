@@ -101,7 +101,8 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/trace.h \
 	aftermath/core/typed_array.h \
 	aftermath/core/typed_list.h \
-	aftermath/core/typed_rbtree.h
+	aftermath/core/typed_rbtree.h \
+	aftermath/core/write_buffer.h
 
 aftermath/core/base_types.h: $(top_builddir)/src/base_types.h
 	$(MKDIR_P) aftermath/core
