@@ -174,6 +174,7 @@ class WriteToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
             self,
             function_name = reqtags["gen_tag"].getFunctionName(),
             return_type = aftermath.types.builtin.int,
+            inline = True,
             arglist = FieldList(
                 [ Field(name = "wb",
                         type = aftermath.types.aux.am_write_buffer,

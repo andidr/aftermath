@@ -136,6 +136,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/on_disk.h \
 				src/on_disk_meta.h \
 				src/on_disk_structs.h \
+				src/on_disk_write_to_buffer.h \
 				src/openmp.h \
 				src/openmp_for_loop_instance_array.h \
 				src/openmp_for_loop_type_array.h \
@@ -177,7 +178,8 @@ GENERATED_FILES=src/base_types.h \
 		src/on_disk.c \
 		src/on_disk.h \
 		src/on_disk_meta.h \
-		src/on_disk_structs.h
+		src/on_disk_structs.h \
+		src/on_disk_write_to_buffer.h
 
 template_verbose = $(template_verbose_@AM_V@)
 template_verbose_ = $(template_verbose_@AM_DEFAULT_V@)
@@ -248,6 +250,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/toplevel/in_memory.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk_meta.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk_structs.tpl.h \
+	src/defs/aftermath/templates/toplevel/on_disk_write_to_buffer.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk.tpl.c \
 	src/defs/aftermath/templates/toplevel/on_disk.tpl.h \
 	src/defs/aftermath/types/aux.py \
@@ -317,6 +320,7 @@ src/on_disk.h: src/defs/aftermath/templates/toplevel/on_disk.tpl.h $(TPL_DEPS)
 src/on_disk.c: src/defs/aftermath/templates/toplevel/on_disk.tpl.c $(TPL_DEPS)
 src/on_disk_meta.h: src/defs/aftermath/templates/toplevel/on_disk_meta.tpl.h $(TPL_DEPS)
 src/on_disk_structs.h: src/defs/aftermath/templates/toplevel/on_disk_structs.tpl.h $(TPL_DEPS)
+src/on_disk_write_to_buffer.h: src/defs/aftermath/templates/toplevel/on_disk_write_to_buffer.tpl.h $(TPL_DEPS)
 
 $(GENERATED_FILES):
 	@$(MKDIR_P) src/generated

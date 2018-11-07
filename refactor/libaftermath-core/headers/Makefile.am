@@ -77,6 +77,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/on_disk.h \
 	aftermath/core/on_disk_meta.h \
 	aftermath/core/on_disk_structs.h \
+	aftermath/core/on_disk_write_to_buffer.h \
 	aftermath/core/openmp.h \
 	aftermath/core/openmp_for_loop_instance_array.h \
 	aftermath/core/openmp_for_loop_type_array.h \
@@ -117,6 +118,10 @@ aftermath/core/on_disk_meta.h: $(top_builddir)/src/on_disk_meta.h
 	ln -sfr $< $@
 
 aftermath/core/on_disk_structs.h: $(top_builddir)/src/on_disk_structs.h
+	$(MKDIR_P) aftermath/core
+	ln -sfr $< $@
+
+aftermath/core/on_disk_write_to_buffer.h: $(top_builddir)/src/on_disk_write_to_buffer.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@
 

@@ -25,7 +25,6 @@
 #include <aftermath/core/base_types.h>
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/on_disk_structs.h>
-#include <aftermath/core/write_buffer.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -146,31 +145,6 @@ AM_DECL_ON_DISK_WRITE_INT_FUN(int32_t, 32)
 AM_DECL_ON_DISK_WRITE_INT_FUN(uint32_t, 32)
 AM_DECL_ON_DISK_WRITE_INT_FUN(int64_t, 64)
 AM_DECL_ON_DISK_WRITE_INT_FUN(uint64_t, 64)
-
-#define AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(type, bits)			\
-	static inline int							\
-	am_dsk_##type##_write_to_buffer(struct am_write_buffer* wb,		\
-			      const type* in)					\
-	{									\
-		type* dst;							\
-										\
-		if(!(dst = (type*)am_write_buffer_reserve_bytes(		\
-			     wb, sizeof(*in))))				\
-		{								\
-			return 1;						\
-		}								\
-										\
-		*dst = am_int##bits##_htole(*in);				\
-										\
-		return 0;							\
-	}
-
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(int16_t, 16)
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(uint16_t, 16)
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(int32_t, 32)
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(uint32_t, 32)
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(int64_t, 64)
-AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(uint64_t, 64)
 
 {% for t in aftermath.config.getDskTypes().filterByTag(aftermath.tags.dsk.GenerateWriteFunction) -%}
 {{ aftermath.templates.dsk.WriteFunction(t).getPrototype() }}

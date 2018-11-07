@@ -4,4 +4,5 @@ headers/aftermath/core/in_memory_inline.h
 headers/aftermath/core/on_disk.h
 headers/aftermath/core/on_disk_meta.h
 headers/aftermath/core/on_disk_structs.h
+headers/aftermath/core/on_disk_write_to_buffer.h
 headers/aftermath/core/tomem_join.h

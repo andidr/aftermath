@@ -47,7 +47,9 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 
 {% for t in dsk_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
+{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) -%}
 {{ tag.instantiateTemplate().getPrototype() }}
+{% endif -%}
 {% endfor -%}
 {% endfor %}
 
@@ -168,25 +170,6 @@ int am_dsk_string_write(struct am_io_context* ctx, const struct am_dsk_string* s
 		AM_IOERR_RET1_NA(ctx, AM_IOERR_WRITE,
 				 "Could not write string.");
 	}
-
-	return 0;
-}
-
-/* Converts s into its final on-disk representation and writes the result into
- * the write buffer wb.
- *
- * Returns 0 on success, otherwise 1.
- */
-int am_dsk_string_write_to_buffer(struct am_write_buffer* wb,
-				  const struct am_dsk_string* s)
-{
-	uint32_t len = strlen(s->str);
-
-	if(am_dsk_uint32_t_write_to_buffer(wb, &len))
-		return 1;
-
-	if(am_write_buffer_write_bytes(wb, len, s->str))
-		return 1;
 
 	return 0;
 }
@@ -949,7 +932,9 @@ out:
 
 {% for t in dsk_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
+{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) %}
 {{ tag.instantiateTemplate() }}
 
+{% endif -%}
 {% endfor -%}
 {% endfor -%}
