@@ -32,6 +32,7 @@ class OnDiskCompoundType(CompoundType):
             tags.Packed(),
             tags.dsk.GenerateReadFunction(),
             tags.dsk.GenerateWriteFunction(),
+            tags.dsk.GenerateWriteToBufferFunction(),
             tags.dsk.GenerateDumpStdoutFunction())
 
 #################################################################################
@@ -48,6 +49,7 @@ class Frame(OnDiskCompoundType):
 
         # A frame is always preceded by an integer indicating its type
         self.getTagInheriting(tags.dsk.WriteFunction).setTypeParam(True)
+        self.getTagInheriting(tags.dsk.WriteToBufferFunction).setTypeParam(True)
 
 #################################################################################
 
@@ -115,12 +117,14 @@ am_dsk_string.addTags(
 
     tags.dsk.ReadFunction(),
     tags.dsk.WriteFunction(),
+    tags.dsk.WriteToBufferFunction(),
     tags.dsk.DumpStdoutFunction())
 
 am_dsk_string.removeTags(
     tags.dsk.GenerateDumpStdoutFunction,
     tags.dsk.GenerateReadFunction,
     tags.dsk.GenerateWriteFunction,
+    tags.dsk.GenerateWriteToBufferFunction,
     tags.Packed,
 )
 
@@ -250,6 +254,8 @@ am_dsk_frame_type_id = Frame(
             comment = "Frame type as a string")]))
 
 am_dsk_frame_type_id.addTag(tags.process.ProcessFunction())
+am_dsk_frame_type_id.getTagInheriting(tags.dsk.WriteToBufferFunction).setTypeParam(False)
+am_dsk_frame_type_id.getTagInheriting(tags.dsk.WriteToBufferFunction).setConstantTypeID(0)
 
 #################################################################################
 

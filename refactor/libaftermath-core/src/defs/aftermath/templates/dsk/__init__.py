@@ -154,3 +154,34 @@ class ProcessFunction(FunctionTemplate, Jinja2FileTemplate):
                       is_pointer = True)
             ]))
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
+class WriteToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateWriteToBufferFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "WriteToBufferFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "gen_tag" : tags.dsk.GenerateWriteToBufferFunction
+        })
+
+        if reqtags["gen_tag"].hasTypeParam():
+            tp = [ Field(name = "type_id", type = aftermath.types.builtin.uint32_t) ]
+        else:
+            tp = []
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["gen_tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            arglist = FieldList(
+                [ Field(name = "wb",
+                        type = aftermath.types.aux.am_write_buffer,
+                        is_pointer = True),
+                Field(name = "e",
+                      type = dsk_type,
+                      is_pointer = True,
+                      is_const = True) ] +
+                tp))
+
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)

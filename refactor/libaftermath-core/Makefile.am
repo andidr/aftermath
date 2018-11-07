@@ -217,6 +217,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/dsk/tomem/PostConversionFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/tomem/SortMetaStructArrayFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteFunction.tpl.c \
+	src/defs/aftermath/templates/dsk/WriteToBufferFunction.tpl.c \
 	src/defs/aftermath/templates/finalize/FinalizeFunction.tpl.c \
 	src/defs/aftermath/templates/finalize/__init__.py \
 	src/defs/aftermath/templates/__init__.py \

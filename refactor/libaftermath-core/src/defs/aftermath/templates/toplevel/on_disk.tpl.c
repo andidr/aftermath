@@ -172,6 +172,25 @@ int am_dsk_string_write(struct am_io_context* ctx, const struct am_dsk_string* s
 	return 0;
 }
 
+/* Converts s into its final on-disk representation and writes the result into
+ * the write buffer wb.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dsk_string_write_to_buffer(struct am_write_buffer* wb,
+				  const struct am_dsk_string* s)
+{
+	uint32_t len = strlen(s->str);
+
+	if(am_dsk_uint32_t_write_to_buffer(wb, &len))
+		return 1;
+
+	if(am_write_buffer_write_bytes(wb, len, s->str))
+		return 1;
+
+	return 0;
+}
+
 static inline int am_dsk_header_assert(struct am_io_context* ctx,
 				       const struct am_dsk_header* f)
 {

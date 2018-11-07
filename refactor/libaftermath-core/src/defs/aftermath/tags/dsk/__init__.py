@@ -105,3 +105,81 @@ class Frame(Tag):
     a numerical identifier for it's type)."""
 
     pass
+
+class WriteToBufferFunction(FunctionTag):
+    """Function that converts the in-memory representation of the on-disk type into
+    the final on-disk representation ready to be written to disk and writes the
+    result into the am_write_buffer passed as an argument.
+    """
+
+    def __init__(self,
+                 function_name = None,
+                 has_type_param = False,
+                 constant_type_id = None):
+        """If `has_type_param` is true, an extra parameter with the numerical
+        value for the on-disk frame is required to invoke this function. If
+        `constant_type_id` is given, the numerical value for the on-disk frame
+        is set automatically."""
+
+        super(WriteToBufferFunction, self).__init__(function_name = function_name,
+                                                    default_suffix = "_write_to_buffer")
+        enforce_type(has_type_param, bool)
+        enforce_type(constant_type_id, [int, type(None)])
+
+        self.__has_type_param = has_type_param
+        self.__constant_type_id = constant_type_id
+        self.checkTypeCompat()
+
+    def checkTypeCompat(self):
+        if self.hasConstantTypeID() and self.hasTypeParam():
+            raise Exception("Cannot have a type parameter and a constant type "
+                            "ID at the same time.")
+
+    def hasTypeParam(self):
+        return self.__has_type_param
+
+    def setTypeParam(self, b):
+        enforce_type(b, bool)
+
+        self.__has_type_param = b
+        self.checkTypeCompat()
+
+    def hasConstantTypeID(self):
+        return not (self.__constant_type_id is None)
+
+    def setConstantTypeID(self, i):
+        enforce_type(i, int)
+
+        self.__constant_type_id = i
+        self.checkTypeCompat()
+
+    def getConstantTypeID(self):
+        return self.__constant_type_id
+
+class GenerateWriteToBufferFunction(TemplatedGenerateFunctionTag,
+                                    WriteToBufferFunction):
+    """Generate a WriteToBufferFunction"""
+
+    def __init__(self, function_name = None, has_type_param = False):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.WriteToBufferFunction)
+        WriteToBufferFunction.__init__(self,
+                                       function_name = function_name,
+                                       has_type_param = has_type_param)
+
+    def instantiateTemplate(self):
+        # If this is a compound type, the types of all fields must also define a
+        # WriteToBufferFunction, since this function is invoked for each field.
+
+        if self.getType().isCompound():
+            for field in self.getType().getFields():
+                if not field.getType().getTagInheriting(WriteToBufferFunction):
+                    raise Exception("Cannot generate WriteToBufferFunction for "
+                                    "compound type "
+                                    "'" + self.getType().getName() + "': Field "
+                                    "'" + field.getName() + "' has type "
+                                    "'" + field.getType().getName() + "', which "
+                                    "does not have a WriteToBufferFunction.")
+
+        return TemplatedGenerateFunctionTag.instantiateTemplate(self)

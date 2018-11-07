@@ -135,6 +135,11 @@ for t in _integers.values():
             function_name = "am_dsk_"+t.getName()+"_write"
         ))
 
+    if not t.hasTag(aftermath.tags.dsk.WriteToBufferFunction):
+        t.addTag(aftermath.tags.dsk.WriteToBufferFunction(
+            function_name = "am_dsk_"+t.getName()+"_write_to_buffer"
+        ))
+
 # Add dump function tag to all types
 for t in all_types:
     if not t.hasTag(aftermath.tags.dsk.DumpStdoutFunction):

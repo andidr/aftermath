@@ -49,6 +49,9 @@ class BaseType(NonCompoundType):
 
         self.__aliased_type = aliased_type
 
+        self.addTags(
+            aftermath.tags.dsk.GenerateWriteToBufferFunction())
+
     def getAliasedType(self):
         """Returns the type this type is an alias for"""
 
