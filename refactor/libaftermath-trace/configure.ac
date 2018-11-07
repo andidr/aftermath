@@ -30,6 +30,16 @@ AC_FUNC_VPRINTF
 #
 # Check for libaftermath-core sources
 #
+AC_ARG_WITH(aftermath-core-sourcedir,
+	AS_HELP_STRING(
+		[ --with-aftermath-core-sourcedir=DIR],
+		[Use libaftermath-core source files from DIR]),
+
+	AFTERMATH_CORE_SOURCEDIR="$withval"
+)
+
+# If the libaftermath-core build is a vpath build, generated
+# files are created in the build directory.
 AC_ARG_WITH(aftermath-core-builddir,
 	AS_HELP_STRING(
 		[ --with-aftermath-core-builddir=DIR],
@@ -38,12 +48,27 @@ AC_ARG_WITH(aftermath-core-builddir,
 	AFTERMATH_CORE_BUILDDIR="$withval"
 )
 
-if test "x$AFTERMATH_CORE_BUILDDIR" = "x"
+if test "x$AFTERMATH_CORE_SOURCEDIR" = "x"
 then
-	AC_MSG_ERROR([Could not find libaftermath-core build directory. Please indicate the base directory using --with-aftermath-core-builddir=DIR.])
+	AC_MSG_ERROR([Could not find libaftermath-core sources. Please indicate the base directory using --with-aftermath-core-sourcedir=DIR.])
+
+	# If no vpath builddir is specified, assume that
+	# libaftermath-core was directly built in its source directory
+	if test "x$AFTERMATH_CORE_BUILDDIR" = "x"
+	then
+		AFTERMATH_CORE_BUILDDIR="$AFTERMATH_CORE_SOURCEDIR"
+	fi
 fi
 
+AC_SUBST(AFTERMATH_CORE_SOURCEDIR)
 AC_SUBST(AFTERMATH_CORE_BUILDDIR)
+
+for srcfile in src/write_buffer.c \
+		src/write_buffer.h
+do
+	AC_CHECK_FILE([$AFTERMATH_CORE_SOURCEDIR/$srcfile],,
+		AC_MSG_ERROR([Could not find required file $srcfile in libaftermath-core source directory.]))
+done
 
 for srcfile in src/base_types.h
 do

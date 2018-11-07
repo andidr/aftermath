@@ -5,7 +5,9 @@ lib_LTLIBRARIES = libaftermath-trace.la
 AM_CPPFLAGS = -I$(srcdir)/headers -I$(builddir)/headers -I$(builddir)/src
 
 BUILT_SOURCES = \
-	src/base_types.h
+	src/base_types.h \
+	src/write_buffer.c \
+	src/write_buffer.h
 
 libaftermath_trace_la_SOURCES = \
 	$(BUILT_SOURCES)
@@ -17,6 +19,12 @@ libaftermath_tracedir = $(includedir)/aftermath/trace
 libaftermath_trace_HEADERS =
 
 src/base_types.h: @AFTERMATH_CORE_BUILDDIR@/src/base_types.h
+	ln -sfr $< $@
+
+src/write_buffer.c: @AFTERMATH_CORE_SOURCEDIR@/src/write_buffer.c
+	ln -sfr $< $@
+
+src/write_buffer.h: @AFTERMATH_CORE_SOURCEDIR@/src/write_buffer.h
 	ln -sfr $< $@
 
 SUBDIRS = headers
