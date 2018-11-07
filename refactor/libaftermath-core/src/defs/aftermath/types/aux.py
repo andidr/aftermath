@@ -24,3 +24,9 @@ am_io_context = CompoundType(
     entity = None,
     fields = FieldList([]),
     comment = None)
+
+am_write_buffer = CompoundType(
+    name = "am_write_buffer",
+    entity = None,
+    fields = FieldList([]),
+    comment = None)
