@@ -24,15 +24,9 @@
 #include <aftermath/core/io_context.h>
 #include <aftermath/core/base_types.h>
 #include <aftermath/core/ansi_extras.h>
+#include <aftermath/core/on_disk_structs.h>
 #include <stdint.h>
 #include <stdio.h>
-
-#define AM_TRACE_MAGIC 0x5654534f
-#define AM_TRACE_VERSION 18
-
-{% for t in aftermath.config.getDskTypes().filterByTag(aftermath.tags.Compound) -%}
-{{ aftermath.templates.StructDefinition(t) }}
-{% endfor %}
 
 #define AM_DECL_ON_DISK_READ_INT_FP_NOCONV_FUN(type)			\
 	static inline int am_dsk_##type##_read_fp_noconv(FILE* fp, type* out)	\

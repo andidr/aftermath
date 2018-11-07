@@ -5,4 +5,5 @@ in_memory_inline.h
 on_disk.c
 on_disk.h
 on_disk_meta.h
+on_disk_structs.h
 *.lo
