@@ -333,7 +333,48 @@ BUILT_SOURCES = $(GENERATED_FILES)
 
 TAGS_FILES = $(TPL_DEPS)
 
+if HAVE_DOXYGEN
+# Doxygen does not seem to be capable of taking into account
+# files that do not contain "@file". Also, comments are
+# ignored unless starting with /** etc.
+#
+# This rule copies the entire source tree to
+# doc/doxygen/transformed-source, adds a "/** @file */" at the
+# beginning if needed and transforms all ordinary comments into
+# Doxygen ones.
+#
+# WARNING: All modifications are done by simple text replacement; no
+# syntax analysis is done on the processes sources, which might result
+# in erroneous replacements.
+doxygen-doc: doc/Doxyfile
+	rm -rf doc/doxygen/transformed-src
+	$(MKDIR_P) doc/doxygen/transformed-src
+	( find "@srcdir@/src" -type f \( -iname "*.c" -o -iname "*.h" -o -iname "*.cpp" -o -iname "*.hpp" -o -iname "*.py" \) ; \
+		find "@builddir@/src" -type f \( -iname "*.c" -o -iname "*.h" -o -iname "*.cpp" -o -iname "*.hpp" -o -iname "*.py" \) ) \
+		| sort | uniq > doxygen-files.list
+	tar c -T doxygen-files.list | ( cd doc/doxygen/transformed-src ; tar x )
+	rm -f doxygen-files.list
+	cd doc/doxygen/transformed-src ; \
+		for FILE in `find -type f \( -iname "*.c" -o -iname "*.h" -o -iname "*.cpp" -o -iname "*.hpp" \) ` ; \
+		do \
+			if $(GREP) "@file" "$$FILE" ; \
+			then \
+				true ; \
+			else \
+				printf "/**\n* @file\n*/\n" > "$$FILE.bak" ; \
+				cat "$$FILE" >> "$$FILE.bak" ; \
+				mv "$$FILE.bak" "$$FILE" ; \
+			fi ; \
+			\
+			sed -i -e 's|/\*\([^*]\)|/**\1|g' "$$FILE" \
+				-e 's|//\([^/]\)|///\1|g' "$$FILE" ; \
+		done
+	$(DOXYGEN) doc/Doxyfile
+	rm -rf doc/doxygen/transformed-src
+endif
+
 clean-local:
 	rm -f $(GENERATED_FILES) $(PYC_FILES)
+	rm -rf $(builddir)/doc/doxygen
 
 SUBDIRS = headers

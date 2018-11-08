@@ -42,5 +42,10 @@ AC_PYTHON_MODULE(jinja2, true)
 AC_PYTHON_MODULE(inspect, true)
 AC_PYTHON_MODULE(pkgutil, true)
 
+# Optional: Doxygen to build code documentation
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
+
 AC_CONFIG_LINKS([scripts/template.py:scripts/template.py])
 AC_OUTPUT([Makefile headers/Makefile])
