@@ -63,7 +63,8 @@ fi
 AC_SUBST(AFTERMATH_CORE_SOURCEDIR)
 AC_SUBST(AFTERMATH_CORE_BUILDDIR)
 
-for srcfile in src/safe_alloc.h \
+for srcfile in src/convert.h \
+		src/safe_alloc.h \
 		src/write_buffer.c \
 		src/write_buffer.h
 do
