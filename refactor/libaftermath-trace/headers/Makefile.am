@@ -8,6 +8,7 @@ nobase_include_HEADERS = \
 	aftermath/trace/on_disk_write_to_buffer.h \
 	aftermath/trace/safe_alloc.h \
 	aftermath/trace/simple_hierarchy.h \
+	aftermath/trace/state_stack.h \
 	aftermath/trace/timestamp.h \
 	aftermath/trace/write_buffer.h
 

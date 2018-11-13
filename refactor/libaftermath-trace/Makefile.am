@@ -22,6 +22,8 @@ libaftermath_trace_la_SOURCES = \
 	src/buffered_trace.h \
 	src/simple_hierarchy.c \
 	src/simple_hierarchy.h \
+	src/state_stack.c \
+	src/state_stack.h \
 	src/timestamp.h
 
 libaftermath_trace_la_CFLAGS =
