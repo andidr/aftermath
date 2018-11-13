@@ -15,6 +15,7 @@ BUILT_SOURCES = \
 
 libaftermath_trace_la_SOURCES = \
 	$(BUILT_SOURCES) \
+	src/arch.h \
 	src/buffered_event_collection.c \
 	src/buffered_event_collection.h \
 	src/buffered_trace.c \
