@@ -1,4 +1,5 @@
 src/base_types.h
+src/on_disk_structs.h
 src/on_disk_write_to_buffer.h
 src/safe_alloc.h
 src/write_buffer.c
