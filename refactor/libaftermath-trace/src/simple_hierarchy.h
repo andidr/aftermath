@@ -21,6 +21,7 @@
 
 #include <aftermath/trace/base_types.h>
 #include <aftermath/trace/write_buffer.h>
+#include <aftermath/trace/on_disk_default_type_ids.h>
 
 struct am_simple_hierarchy_node;
 
@@ -60,10 +61,37 @@ int am_simple_hierarchy_write_to_buffer(struct am_write_buffer* wb,
 					uint32_t hierarchy_description_type,
 					uint32_t hierarchy_node_type);
 
+/* Same as am_simple_hierarchy_write_to_buffer, but uses the default on-disk
+ * type IDs for am_dsk_hierarchy_description and am_dsk_hierarchy_node. */
+static inline int
+am_simple_hierarchy_write_to_buffer_defid(struct am_write_buffer* wb,
+					  struct am_simple_hierarchy* h)
+{
+	return am_simple_hierarchy_write_to_buffer(
+		wb,
+		h,
+		am_default_on_disk_type_ids.am_dsk_hierarchy_description,
+		am_default_on_disk_type_ids.am_dsk_hierarchy_node);
+}
+
 int am_simple_hierarchy_node_write_to_buffer(struct am_write_buffer* wb,
 					     struct am_simple_hierarchy* h,
 					     struct am_simple_hierarchy_node* n,
 					     uint32_t hierarchy_node_type);
+
+/* Same as am_simple_hierarchy_node_write_to_buffer, but uses the default
+ * on-disk type ID for am_dsk_hierarchy_node. */
+static inline int
+am_simple_hierarchy_node_write_to_buffer_defid(
+	struct am_write_buffer* wb,
+	struct am_simple_hierarchy* h,
+	struct am_simple_hierarchy_node* n)
+{
+	return am_simple_hierarchy_node_write_to_buffer(
+		wb, h, n,
+		am_default_on_disk_type_ids.am_dsk_hierarchy_node);
+}
+
 /**
  * Minimal representation of an Aftermath hierarchy node for tracing (i.e.,
  * without data structures needed for a trace loaded into memory event mappings,
