@@ -25,6 +25,7 @@ extern "C" {
 
 #include <aftermath/trace/base_types.h>
 #include <aftermath/trace/buffered_event_collection.h>
+#include <aftermath/trace/on_disk_default_type_ids.h>
 
 /* Single entry on a state stack */
 struct am_state_stack_entry {
@@ -57,16 +58,55 @@ int am_state_stack_push_trace(struct am_state_stack* s,
 			      am_state_t state,
 			      am_timestamp_t start_ts,
 			      uint32_t state_event_type_id);
+
+/* Same as am_state_stack_push_trace, but uses the default on-disk frame type ID
+ * for the state event frame */
+static inline int
+am_state_stack_push_trace_defid(struct am_state_stack* s,
+				struct am_buffered_event_collection* bec,
+				am_state_t state,
+				am_timestamp_t start_ts)
+{
+	return am_state_stack_push_trace(
+		s, bec, state, start_ts,
+		am_default_on_disk_type_ids.am_dsk_state_event);
+}
+
 int am_state_stack_pop(struct am_state_stack* s, am_timestamp_t tsc);
 int am_state_stack_try_pop_trace(struct am_state_stack* s,
 				 struct am_buffered_event_collection* bec,
 				 am_timestamp_t end_ts,
 				 int* err,
 				 uint32_t state_event_type_id);
+
+/* Same as am_state_stack_try_pop_trace, but uses the default on-disk frame type
+ * ID for the state event frame */
+static inline int
+am_state_stack_try_pop_trace_defid(struct am_state_stack* s,
+				   struct am_buffered_event_collection* bec,
+				   am_timestamp_t end_ts,
+				   int* err)
+{
+	return am_state_stack_try_pop_trace(
+		s, bec, end_ts, err,
+		am_default_on_disk_type_ids.am_dsk_state_event);
+}
+
 int am_state_stack_pop_trace(struct am_state_stack* s,
 			     struct am_buffered_event_collection* bec,
 			     am_timestamp_t end_ts,
 			     uint32_t state_event_type_id);
+
+/* Same as am_state_stack_pop_trace, but uses the default on-disk frame type ID
+ * for the state event frame */
+static inline int am_state_stack_pop_trace_defid(
+	struct am_state_stack* s,
+	struct am_buffered_event_collection* bec,
+	am_timestamp_t end_ts)
+{
+	return am_state_stack_pop_trace(
+		s, bec, end_ts, am_default_on_disk_type_ids.am_dsk_state_event);
+}
 
 #ifdef __cplusplus
 }
