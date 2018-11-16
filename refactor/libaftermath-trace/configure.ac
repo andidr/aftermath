@@ -73,6 +73,8 @@ do
 done
 
 for srcfile in src/base_types.h \
+		src/on_disk_default_type_ids.c \
+		src/on_disk_default_type_ids.h \
 		src/on_disk_structs.h \
 		src/on_disk_write_to_buffer.h
 do

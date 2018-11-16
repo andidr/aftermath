@@ -7,6 +7,8 @@ AM_CPPFLAGS = -I$(srcdir)/headers -I$(builddir)/headers -I$(builddir)/src
 BUILT_SOURCES = \
 	src/base_types.h \
 	src/convert.h \
+	src/on_disk_default_type_ids.c \
+	src/on_disk_default_type_ids.h \
 	src/on_disk_structs.h \
 	src/on_disk_write_to_buffer.h \
 	src/safe_alloc.h \
@@ -36,6 +38,12 @@ src/base_types.h: @AFTERMATH_CORE_BUILDDIR@/src/base_types.h
 	ln -sfr $< $@
 
 src/convert.h: @AFTERMATH_CORE_SOURCEDIR@/src/convert.h
+	ln -sfr $< $@
+
+src/on_disk_default_type_ids.c: @AFTERMATH_CORE_BUILDDIR@/src/on_disk_default_type_ids.c
+	ln -sfr $< $@
+
+src/on_disk_default_type_ids.h: @AFTERMATH_CORE_BUILDDIR@/src/on_disk_default_type_ids.h
 	ln -sfr $< $@
 
 src/on_disk_structs.h: @AFTERMATH_CORE_BUILDDIR@/src/on_disk_structs.h

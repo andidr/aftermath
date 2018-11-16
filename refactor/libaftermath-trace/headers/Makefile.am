@@ -4,6 +4,7 @@ nobase_include_HEADERS = \
 	aftermath/trace/buffered_event_collection.h \
 	aftermath/trace/buffered_trace.h \
 	aftermath/trace/convert.h \
+	aftermath/trace/on_disk_default_type_ids.h \
 	aftermath/trace/on_disk_structs.h \
 	aftermath/trace/on_disk_write_to_buffer.h \
 	aftermath/trace/safe_alloc.h \
@@ -17,6 +18,10 @@ aftermath/trace/base_types.h: $(top_builddir)/src/base_types.h
 	ln -srf $< $@
 
 aftermath/trace/convert.h: $(top_builddir)/src/convert.h
+	$(MKDIR_P) aftermath/trace
+	ln -srf $< $@
+
+aftermath/trace/on_disk_default_type_ids.h: $(top_builddir)/src/on_disk_default_type_ids.h
 	$(MKDIR_P) aftermath/trace
 	ln -srf $< $@
 
