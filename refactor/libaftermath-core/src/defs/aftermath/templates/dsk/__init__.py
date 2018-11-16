@@ -186,3 +186,53 @@ class WriteToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
                 tp))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
+class WriteToBufferWithDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateWriteToBufferWithDefaultIDFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "WriteToBufferWithDefaultIDFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "gen_tag" : tags.dsk.GenerateWriteToBufferWithDefaultIDFunction,
+            "wtb_tag" : tags.dsk.WriteToBufferFunction
+        })
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["gen_tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            inline = True,
+            arglist = FieldList(
+                [ Field(name = "wb",
+                        type = aftermath.types.aux.am_write_buffer,
+                        is_pointer = True),
+                Field(name = "e",
+                      type = dsk_type,
+                      is_pointer = True,
+                      is_const = True) ]))
+
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
+
+class WriteDefaultIDToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateWriteDefaultIDToBufferFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "WriteDefaultIDToBufferFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "gen_tag" : tags.dsk.WriteDefaultIDToBufferFunction,
+        })
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["gen_tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            inline = True,
+            arglist = FieldList(
+                [ Field(name = "wb",
+                        type = aftermath.types.aux.am_write_buffer,
+                        is_pointer = True) ]))
+
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)

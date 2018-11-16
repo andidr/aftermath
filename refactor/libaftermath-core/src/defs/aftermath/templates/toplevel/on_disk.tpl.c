@@ -47,7 +47,9 @@ static int am_dsk_read_frames(struct am_io_context* ctx);
 
 {% for t in dsk_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
-{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) -%}
+{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) and
+      not isinstance(tag, aftermath.tags.dsk.WriteToBufferWithDefaultIDFunction) and
+      not isinstance(tag, aftermath.tags.dsk.WriteDefaultIDToBufferFunction) -%}
 {{ tag.instantiateTemplate().getPrototype() }}
 {% endif -%}
 {% endfor -%}
@@ -932,7 +934,9 @@ out:
 
 {% for t in dsk_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
-{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) %}
+{% if not isinstance(tag, aftermath.tags.dsk.WriteToBufferFunction) and
+      not isinstance(tag, aftermath.tags.dsk.WriteToBufferWithDefaultIDFunction) and
+      not isinstance(tag, aftermath.tags.dsk.WriteDefaultIDToBufferFunction) %}
 {{ tag.instantiateTemplate() }}
 
 {% endif -%}

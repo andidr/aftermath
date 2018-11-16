@@ -134,6 +134,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/object_notation.h \
 				src/on_disk.c \
 				src/on_disk.h \
+				src/on_disk_default_type_ids.c \
+				src/on_disk_default_type_ids.h \
 				src/on_disk_meta.h \
 				src/on_disk_structs.h \
 				src/on_disk_write_to_buffer.h \
@@ -177,6 +179,8 @@ GENERATED_FILES=src/base_types.h \
 		src/in_memory_inline.h \
 		src/on_disk.c \
 		src/on_disk.h \
+		src/on_disk_default_type_ids.c \
+		src/on_disk_default_type_ids.h \
 		src/on_disk_meta.h \
 		src/on_disk_structs.h \
 		src/on_disk_write_to_buffer.h
@@ -218,8 +222,10 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/dsk/tomem/PerTraceArrayFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/tomem/PostConversionFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/tomem/SortMetaStructArrayFunction.tpl.c \
+	src/defs/aftermath/templates/dsk/WriteDefaultIDToBufferFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteToBufferFunction.tpl.c \
+	src/defs/aftermath/templates/dsk/WriteToBufferWithDefaultIDFunction.tpl.c \
 	src/defs/aftermath/templates/finalize/FinalizeFunction.tpl.c \
 	src/defs/aftermath/templates/finalize/__init__.py \
 	src/defs/aftermath/templates/__init__.py \
@@ -248,6 +254,8 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/toplevel/in_memory_inline.tpl.h \
 	src/defs/aftermath/templates/toplevel/in_memory.tpl.c \
 	src/defs/aftermath/templates/toplevel/in_memory.tpl.h \
+	src/defs/aftermath/templates/toplevel/on_disk_default_type_ids.tpl.c \
+	src/defs/aftermath/templates/toplevel/on_disk_default_type_ids.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk_meta.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk_structs.tpl.h \
 	src/defs/aftermath/templates/toplevel/on_disk_write_to_buffer.tpl.h \
@@ -318,6 +326,8 @@ src/in_memory.c: src/defs/aftermath/templates/toplevel/in_memory.tpl.c $(TPL_DEP
 src/in_memory_inline.h: src/defs/aftermath/templates/toplevel/in_memory_inline.tpl.h $(TPL_DEPS)
 src/on_disk.h: src/defs/aftermath/templates/toplevel/on_disk.tpl.h $(TPL_DEPS)
 src/on_disk.c: src/defs/aftermath/templates/toplevel/on_disk.tpl.c $(TPL_DEPS)
+src/on_disk_default_type_ids.c: src/defs/aftermath/templates/toplevel/on_disk_default_type_ids.tpl.c $(TPL_DEPS)
+src/on_disk_default_type_ids.h: src/defs/aftermath/templates/toplevel/on_disk_default_type_ids.tpl.h $(TPL_DEPS)
 src/on_disk_meta.h: src/defs/aftermath/templates/toplevel/on_disk_meta.tpl.h $(TPL_DEPS)
 src/on_disk_structs.h: src/defs/aftermath/templates/toplevel/on_disk_structs.tpl.h $(TPL_DEPS)
 src/on_disk_write_to_buffer.h: src/defs/aftermath/templates/toplevel/on_disk_write_to_buffer.tpl.h $(TPL_DEPS)

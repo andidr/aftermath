@@ -75,6 +75,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/measurement_interval_array.h \
 	aftermath/core/object_notation.h \
 	aftermath/core/on_disk.h \
+	aftermath/core/on_disk_default_type_ids.h \
 	aftermath/core/on_disk_meta.h \
 	aftermath/core/on_disk_structs.h \
 	aftermath/core/on_disk_write_to_buffer.h \
@@ -110,6 +111,10 @@ aftermath/core/base_types.h: $(top_builddir)/src/base_types.h
 	ln -sfr $< $@
 
 aftermath/core/on_disk.h: $(top_builddir)/src/on_disk.h
+	$(MKDIR_P) aftermath/core
+	ln -sfr $< $@
+
+aftermath/core/on_disk_default_type_ids.h: $(top_builddir)/src/on_disk_default_type_ids.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@
 

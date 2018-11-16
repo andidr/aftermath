@@ -30,6 +30,7 @@
 #include "convert.h"
 #include "base_types.h"
 #include "on_disk_structs.h"
+#include "on_disk_default_type_ids.h"
 #include "write_buffer.h"
 #include <string.h>
 
@@ -88,6 +89,38 @@ static inline int am_dsk_string_write_to_buffer(struct am_write_buffer* wb,
 
 {% for t in dsk_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.dsk.GenerateWriteToBufferFunction) -%}
+{{ tag.instantiateTemplate() }}
+
+{% endfor -%}
+{% endfor -%}
+
+{% for t in dsk_types -%}
+{% for tag in t.getAllTagsInheriting(aftermath.tags.dsk.GenerateWriteToBufferWithDefaultIDFunction) -%}
+{{ tag.instantiateTemplate() }}
+
+{% endfor -%}
+{% endfor -%}
+
+/* Writes a frame type id frame to the write buffer wb, associating the type
+ * of the specified name with the given id.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static inline int am_dsk_write_default_id_to_buffer(struct am_write_buffer* wb,
+						    char* name,
+						    uint32_t id)
+{
+	struct am_dsk_frame_type_id fti;
+
+	fti.id = id;
+	fti.type_name.str = name;
+	fti.type_name.len = strlen(name);
+
+	return am_dsk_frame_type_id_write_to_buffer(wb, &fti);
+}
+
+{% for t in dsk_types -%}
+{% for tag in t.getAllTagsInheriting(aftermath.tags.dsk.GenerateWriteDefaultIDToBufferFunction) -%}
 {{ tag.instantiateTemplate() }}
 
 {% endfor -%}

@@ -183,3 +183,47 @@ class GenerateWriteToBufferFunction(TemplatedGenerateFunctionTag,
                                     "does not have a WriteToBufferFunction.")
 
         return TemplatedGenerateFunctionTag.instantiateTemplate(self)
+
+class WriteToBufferWithDefaultIDFunction(FunctionTag):
+    """Function that converts the in-memory representation of the on-disk type
+    into the final on-disk representation ready to be written to disk and writes
+    the result into the am_write_buffer passed as an argument using the default
+    on-disk type ID for the type.
+    """
+
+    def __init__(self, function_name = None):
+        super(WriteToBufferWithDefaultIDFunction, self).__init__(
+            function_name = function_name,
+            default_suffix = "_write_to_buffer_defid")
+
+class GenerateWriteToBufferWithDefaultIDFunction(TemplatedGenerateFunctionTag,
+                                                 WriteToBufferWithDefaultIDFunction):
+    """Generate a WriteToBufferWithDefaultIDFunction"""
+
+    def __init__(self):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.WriteToBufferWithDefaultIDFunction)
+
+        WriteToBufferWithDefaultIDFunction.__init__(self)
+
+class WriteDefaultIDToBufferFunction(FunctionTag):
+    """Function that writes a frame type id structure with the default ID for the
+    type to a buffer.
+    """
+
+    def __init__(self, function_name = None):
+        super(WriteDefaultIDToBufferFunction, self).__init__(
+            function_name = function_name,
+            default_suffix = "_write_default_id_to_buffer")
+
+class GenerateWriteDefaultIDToBufferFunction(TemplatedGenerateFunctionTag,
+                                                 WriteDefaultIDToBufferFunction):
+    """Generate a WriteDefaultIDToBufferFunction"""
+
+    def __init__(self):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.WriteDefaultIDToBufferFunction)
+
+        WriteDefaultIDToBufferFunction.__init__(self)

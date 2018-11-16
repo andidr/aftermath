@@ -45,7 +45,9 @@ class Frame(OnDiskCompoundType):
 
         self.addTags(
             tags.dsk.Frame(),
-            tags.dsk.GenerateLoadFunction())
+            tags.dsk.GenerateLoadFunction(),
+            tags.dsk.GenerateWriteToBufferWithDefaultIDFunction(),
+            tags.dsk.GenerateWriteDefaultIDToBufferFunction())
 
         # A frame is always preceded by an integer indicating its type
         self.getTagInheriting(tags.dsk.WriteFunction).setTypeParam(True)
