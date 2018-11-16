@@ -11,6 +11,7 @@ nobase_include_HEADERS = \
 	aftermath/trace/simple_hierarchy.h \
 	aftermath/trace/state_stack.h \
 	aftermath/trace/timestamp.h \
+	aftermath/trace/tsc.h \
 	aftermath/trace/write_buffer.h
 
 aftermath/trace/base_types.h: $(top_builddir)/src/base_types.h
