@@ -21,6 +21,7 @@
 extern "C" {
 	#include <aftermath/render/timeline/layers/hierarchy.h>
 	#include <aftermath/render/timeline/layers/axes.h>
+	#include <aftermath/render/timeline/layers/selection.h>
 	#include <aftermath/core/timestamp.h>
 	#include <aftermath/core/dfg_schedule.h>
 }
@@ -28,7 +29,10 @@ extern "C" {
 TimelineWidget::TimelineWidget(QWidget* parent)
 	: super(parent), mouseMode(MOUSE_MODE_NONE),
 	  zoom({1100, 1000}),
-	  ylegendScrollPx(20)
+	  ylegendScrollPx(20),
+	  defaultSelectionLayer(NULL),
+	  currentSelectionLayer(NULL),
+	  currentSelection(NULL)
 {
 	this->dragStart.visibleInterval = { 0, 0 };
 
@@ -99,6 +103,9 @@ void TimelineWidget::getVisibleInterval(struct am_interval* i)
 void TimelineWidget::addLayer(struct am_timeline_render_layer* l)
 {
 	am_timeline_renderer_add_layer(&this->renderer, l);
+
+	if(strcmp(l->type->name, "selection") == 0)
+		this->defaultSelectionLayer = AM_TIMELINE_SELECTION_LAYER(l);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -189,6 +196,49 @@ void TimelineWidget::handleLanesDragEvent(double x)
 }
 
 /**
+ * Handle a mouse move event with pressed mouse button on the start or end of a
+ * selection. ShiftsResizes the selection accordingly.
+ */
+void TimelineWidget::handleSelectionDragEvent(double x)
+{
+	struct am_timeline_renderer* r = &this->renderer;
+	struct am_interval new_sel = this->currentSelection->interval;
+	am_timestamp_t t;
+
+	if(am_timeline_renderer_x_to_timestamp(r, x, &t))
+		return;
+
+	if(this->mouseMode == MOUSE_MODE_DRAG_SELECTION_START) {
+		if(t > new_sel.end) {
+			new_sel.start = new_sel.end;
+			new_sel.end = t;
+			this->mouseMode = MOUSE_MODE_DRAG_SELECTION_END;
+		} else {
+			new_sel.start = t;
+		}
+	} else if(this->mouseMode == MOUSE_MODE_DRAG_SELECTION_END) {
+		if(t < new_sel.start) {
+			new_sel.end = new_sel.start;
+			new_sel.start = t;
+			this->mouseMode = MOUSE_MODE_DRAG_SELECTION_START;
+		} else {
+			new_sel.end = t;
+		}
+	}
+
+	if(!(this->currentSelection =
+	     am_timeline_selection_layer_update_selection(
+		     this->currentSelectionLayer,
+		     this->currentSelection,
+		     &new_sel)))
+	{
+		this->mouseMode = MOUSE_MODE_NONE;
+	}
+
+	this->update();
+}
+
+/**
  * Handles a mouse move event with the mouse button pressed
  */
 void TimelineWidget::handleDragEvent(QMouseEvent* event)
@@ -203,8 +253,74 @@ void TimelineWidget::handleDragEvent(QMouseEvent* event)
 		case MOUSE_MODE_DRAG_LANES:
 			this->handleLanesDragEvent(event->x());
 			break;
+		case MOUSE_MODE_DRAG_SELECTION_START:
+		case MOUSE_MODE_DRAG_SELECTION_END:
+			this->handleSelectionDragEvent(event->x());
+			break;
 		default:
 			break;
+	}
+}
+
+/**
+ * Handle mouse move event on a position with a selection layer item.
+ */
+void TimelineWidget::handleMouseMoveSelectionLayerItem(
+	QMouseEvent* event,
+	const struct am_timeline_entity* e)
+{
+	struct am_timeline_selection_layer_entity* sle;
+
+	sle = (typeof(sle))e;
+
+	switch(sle->type) {
+		case AM_TIMELINE_SELECTION_LAYER_SELECTION_START:
+		case AM_TIMELINE_SELECTION_LAYER_SELECTION_END:
+			this->setCursor(Qt::SizeHorCursor);
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+ * Handle mouse press event on a position with a selection layer item.
+ */
+void TimelineWidget::handleMousePressSelectionLayerItem(
+	QMouseEvent* event,
+	const struct am_timeline_entity* e)
+{
+	struct am_timeline_selection_layer_entity* sle;
+	struct am_timeline_selection_layer* sl;
+	int is_delete = 0;
+
+	if(e->type == AM_TIMELINE_SELECTION_LAYER_SELECTION) {
+		sl = (struct am_timeline_selection_layer*)e->layer;
+		sle = (typeof(sle))e;
+
+		if((event->buttons() & Qt::RightButton) &&
+		   (event->modifiers() & Qt::ShiftModifier))
+		{
+			is_delete = 1;
+		}
+
+		if(is_delete) {
+			am_timeline_selection_layer_delete_selection(
+				sl, sle->selection);
+		} else {
+			/* Dragging */
+			if(sle->type == AM_TIMELINE_SELECTION_LAYER_SELECTION_START)
+				this->mouseMode = MOUSE_MODE_DRAG_SELECTION_START;
+			else if(sle->type == AM_TIMELINE_SELECTION_LAYER_SELECTION_END)
+				this->mouseMode = MOUSE_MODE_DRAG_SELECTION_END;
+			else
+				return;
+
+			this->currentSelectionLayer = sl;
+			this->currentSelection = sle->selection;
+		}
+
+		this->update();
 	}
 }
 
@@ -232,6 +348,9 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 				break;
 			} else if(strcmp(e->layer->type->name, "axes") == 0) {
 				this->handleMouseMoveAxesLayerItem(event, e);
+				break;
+			} else if(strcmp(e->layer->type->name, "selection") == 0) {
+				this->handleMouseMoveSelectionLayerItem(event, e);
 				break;
 			}
 		}
@@ -289,6 +408,51 @@ void TimelineWidget::handleMousePressAxesLayerItem(
 	}
 }
 
+/* Checks if the current mouse event is the beginning of the creation of a new
+ * selection.
+ *
+ * Returns true if a new selection is started, otherwise false.
+ */
+bool TimelineWidget::checkStartCreateSelection(QMouseEvent* event)
+{
+	struct am_timeline_renderer* r = &this->renderer;
+	struct am_interval i;
+	am_timestamp_t t;
+
+	struct am_point p = {
+		.x = (double)event->x(),
+		.y = (double)event->y()
+	};
+
+	if(!this->defaultSelectionLayer)
+		return false;
+
+	/* Shift + mouse press starts a new selection */
+	if(event->buttons() & Qt::LeftButton &&
+	   event->modifiers() & Qt::ShiftModifier)
+	{
+		if(am_timeline_renderer_x_to_timestamp(r, p.x, &t))
+			return false;
+
+		i.start = t;
+		i.end = t;
+
+		if(!(this->currentSelection =
+		     am_timeline_selection_layer_add_selection(
+			     this->defaultSelectionLayer, &i)))
+		{
+			return false;
+		}
+
+		this->currentSelectionLayer = this->defaultSelectionLayer;
+		this->mouseMode = MOUSE_MODE_DRAG_SELECTION_END;
+
+		return true;
+	}
+
+	return false;
+}
+
 void TimelineWidget::mousePressEvent(QMouseEvent* event)
 {
 	struct list_head l;
@@ -299,6 +463,11 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
 		.x = (double)event->x(),
 		.y = (double)event->y()
 	};
+
+	if(this->checkStartCreateSelection(event)) {
+		this->update();
+		return;
+	}
 
 	/* Find entities below the cursor */
 	am_timeline_renderer_identify_entities(&this->renderer, &l, p.x, p.y);
@@ -311,6 +480,9 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
 			break;
 		} else if(strcmp(e->layer->type->name, "axes") == 0) {
 			this->handleMousePressAxesLayerItem(event, e);
+			break;
+		} else if(strcmp(e->layer->type->name, "selection") == 0) {
+			this->handleMousePressSelectionLayerItem(event, e);
 			break;
 		}
 	}

@@ -73,11 +73,22 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
+		virtual void handleMouseMoveSelectionLayerItem(
+			QMouseEvent* event,
+			const struct am_timeline_entity* e);
+
+		virtual void handleMousePressSelectionLayerItem(
+			QMouseEvent* event,
+			const struct am_timeline_entity* e);
+
 		virtual void handleHorizontalAxisDragEvent(double y);
 		virtual void handleVerticalAxisDragEvent(double x);
 		virtual void handleLanesDragEvent(double x);
+		virtual void handleSelectionDragEvent(double x);
 		virtual void handleDragEvent(QMouseEvent* event);
 		virtual void handleZoomEvent(double x, enum zoomDirection);
+
+		bool checkStartCreateSelection(QMouseEvent* event);
 
 		struct am_timeline_renderer renderer;
 
@@ -85,7 +96,9 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 			MOUSE_MODE_NONE = 0,
 			MOUSE_MODE_DRAG_HORIZONTAL_AXIS,
 			MOUSE_MODE_DRAG_VERTICAL_AXIS,
-			MOUSE_MODE_DRAG_LANES
+			MOUSE_MODE_DRAG_LANES,
+			MOUSE_MODE_DRAG_SELECTION_START,
+			MOUSE_MODE_DRAG_SELECTION_END
 		} mouseMode;
 
 		struct {
@@ -99,6 +112,10 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		} zoom;
 
 		double ylegendScrollPx;
+
+		struct am_timeline_selection_layer* defaultSelectionLayer;
+		struct am_timeline_selection_layer* currentSelectionLayer;
+		const struct am_timeline_selection* currentSelection;
 };
 
 #endif
