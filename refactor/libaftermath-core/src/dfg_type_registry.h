@@ -61,4 +61,7 @@ int am_dfg_type_registry_types_compatible(const struct am_dfg_type_registry* reg
 					  const struct am_dfg_type* tsrc,
 					  const struct am_dfg_type* tdst);
 
+int am_dfg_type_registry_add_static(struct am_dfg_type_registry* tr,
+				    struct am_dfg_static_type_def*** defsets);
+
 #endif

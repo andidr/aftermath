@@ -24,6 +24,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/default_trace_array_registry.h \
 	aftermath/core/dfg_builtin_node_impl.h \
 	aftermath/core/dfg_builtin_node_types.h \
+	aftermath/core/dfg_builtin_type_impl.h \
 	aftermath/core/dfg_builtin_types.h \
 	aftermath/core/dfg_buffer.h \
 	aftermath/core/dfg_graph.h \

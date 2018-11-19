@@ -39,6 +39,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg_builtin_node_impl.h \
 				src/dfg_builtin_node_types.c \
 				src/dfg_builtin_node_types.h \
+				src/dfg_builtin_type_impl.h \
 				src/dfg_builtin_types.c \
 				src/dfg_builtin_types.h \
 				src/dfg_buffer.c \
