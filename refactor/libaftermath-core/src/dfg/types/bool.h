@@ -33,6 +33,15 @@ int am_dfg_type_bool_from_string(const struct am_dfg_type* t,
 int am_dfg_type_bool_check_string(const struct am_dfg_type* t,
 				  const char* str);
 
-#define AM_DFG_TYPE_BOOL_SAMPLE_SIZE sizeof(int)
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_dfg_type_bool,
+	"am::core::bool",
+	sizeof(int),
+	NULL,
+	am_dfg_type_bool_to_string,
+	am_dfg_type_bool_from_string,
+	am_dfg_type_bool_check_string)
+
+AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_bool)
 
 #endif

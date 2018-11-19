@@ -34,6 +34,15 @@ int am_dfg_type_timestamp_from_string(const struct am_dfg_type* t,
 int am_dfg_type_timestamp_check_string(const struct am_dfg_type* t,
 				       const char* str);
 
-#define AM_DFG_TYPE_TIMESTAMP_SAMPLE_SIZE sizeof(am_timestamp_t)
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_dfg_type_timestamp,
+	"am::core::timestamp",
+	sizeof(am_timestamp_t),
+	NULL,
+	am_dfg_type_timestamp_to_string,
+	am_dfg_type_timestamp_from_string,
+	am_dfg_type_timestamp_check_string)
+
+AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_timestamp)
 
 #endif

@@ -34,6 +34,15 @@ int am_dfg_type_interval_from_string(const struct am_dfg_type* t,
 int am_dfg_type_interval_check_string(const struct am_dfg_type* t,
 				      const char* str);
 
-#define AM_DFG_TYPE_INTERVAL_SAMPLE_SIZE sizeof(struct am_interval)
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_dfg_type_interval,
+	"am::core::interval",
+	sizeof(struct am_interval),
+	NULL,
+	am_dfg_type_interval_to_string,
+	am_dfg_type_interval_from_string,
+	am_dfg_type_interval_check_string)
+
+AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_interval)
 
 #endif

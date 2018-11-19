@@ -20,6 +20,7 @@
 #define AM_DFG_TYPE_HISTOGRAM_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 
 struct am_histogram1d_uint8;
 struct am_histogram1d_uint16;
@@ -51,25 +52,36 @@ AM_DFG_TYPE_HISTOGRAM1D_DECL_FREE_SAMPLES(int64)
 
 AM_DFG_TYPE_HISTOGRAM1D_DECL_FREE_SAMPLES(double)
 
-#define AM_DFG_TYPE_HISTOGRAM1D_UINT8_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_uint8*)
-#define AM_DFG_TYPE_HISTOGRAM1D_UINT16_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_uint16*)
-#define AM_DFG_TYPE_HISTOGRAM1D_UINT32_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_uint32*)
-#define AM_DFG_TYPE_HISTOGRAM1D_UINT64_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_uint64*)
+#define AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(SUFFIX, SUFFIX_UPCASE)	\
+	AM_DFG_DECL_BUILTIN_TYPE(					\
+		am_dfg_type_histogram1d_##SUFFIX,			\
+		"am::core::histogram1d<" #SUFFIX ">",			\
+		sizeof(struct am_histogram1d_##SUFFIX*),		\
+		am_dfg_type_histogram1d_##SUFFIX##_free_samples,	\
+		NULL,							\
+		NULL,							\
+		NULL)
 
-#define AM_DFG_TYPE_HISTOGRAM1D_INT8_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_int8*)
-#define AM_DFG_TYPE_HISTOGRAM1D_INT16_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_int16*)
-#define AM_DFG_TYPE_HISTOGRAM1D_INT32_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_int32*)
-#define AM_DFG_TYPE_HISTOGRAM1D_INT64_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_int64*)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint8, UINT8)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint16, UINT16)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint32, UINT32)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(uint64, UINT64)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int8, INT8)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int16, INT16)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int32, INT32)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(int64, INT64)
+AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(double, DOUBLE)
 
-#define AM_DFG_TYPE_HISTOGRAM1D_DOUBLE_SAMPLE_SIZE \
-	sizeof(struct am_histogram1d_double*)
+AM_DFG_ADD_BUILTIN_TYPES(
+	&am_dfg_type_histogram1d_uint8,
+	&am_dfg_type_histogram1d_uint16,
+	&am_dfg_type_histogram1d_uint32,
+	&am_dfg_type_histogram1d_uint64,
+	&am_dfg_type_histogram1d_int8,
+	&am_dfg_type_histogram1d_int16,
+	&am_dfg_type_histogram1d_int32,
+	&am_dfg_type_histogram1d_int64,
+	&am_dfg_type_histogram1d_double
+)
 
 #endif

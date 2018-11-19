@@ -34,6 +34,15 @@ int am_dfg_type_duration_from_string(const struct am_dfg_type* t,
 int am_dfg_type_duration_check_string(const struct am_dfg_type* t,
 				      const char* str);
 
-#define AM_DFG_TYPE_DURATION_SAMPLE_SIZE sizeof(struct am_time_offset)
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_dfg_type_duration,
+	"am::core::duration",
+	sizeof(struct am_time_offset),
+	NULL,
+	am_dfg_type_duration_to_string,
+	am_dfg_type_duration_from_string,
+	am_dfg_type_duration_check_string)
+
+AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_duration)
 
 #endif

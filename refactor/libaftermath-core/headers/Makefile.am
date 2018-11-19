@@ -54,10 +54,10 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/types/generic.h \
 	aftermath/core/dfg/types/histogram.h \
 	aftermath/core/dfg/types/histogram_data.h \
+	aftermath/core/dfg/types/in_memory.h \
 	aftermath/core/dfg/types/interval.h \
 	aftermath/core/dfg/types/string.h \
 	aftermath/core/dfg/types/timestamp.h \
-	aftermath/core/dfg/types/trace.h \
 	aftermath/core/dfg/types/int.h \
 	aftermath/core/event_mapping.h \
 	aftermath/core/event_collection.h \
