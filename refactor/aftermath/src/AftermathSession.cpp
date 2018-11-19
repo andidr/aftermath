@@ -21,6 +21,7 @@
 #include "dfg/nodes/gui/hierarchy_combobox.h"
 #include "dfg/nodes/gui/label.h"
 #include "dfg/nodes/gui/timeline.h"
+#include "dfg/types/builtin_types.h"
 #include "gui/widgets/DFGWidget.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/HistogramWidget.h"
@@ -54,6 +55,11 @@ AftermathSession::AftermathSession() :
 	am_register_common_timeline_layer_types(&this->rltr);
 
 	if(am_dfg_builtin_types_register(&this->dfg.type_registry)) {
+		this->cleanup();
+		throw RegisterDFGTypesException();
+	}
+
+	if(amgui_dfg_builtin_types_register(&this->dfg.type_registry)) {
 		this->cleanup();
 		throw RegisterDFGTypesException();
 	}

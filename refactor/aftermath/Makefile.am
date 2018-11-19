@@ -24,6 +24,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/nodes/gui/label.cpp \
 	src/dfg/nodes/gui/timeline.h \
 	src/dfg/nodes/gui/timeline.cpp \
+	src/dfg/types/builtin_types.h \
+	src/dfg/types/builtin_types.c \
 	src/gui/AftermathGUI.cpp \
 	src/gui/AftermathGUI.h \
 	src/gui/DFGNodePropertyDialog.cpp \
