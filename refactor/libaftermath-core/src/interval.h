@@ -31,6 +31,14 @@ static inline int am_interval_intersect_p(const struct am_interval* a,
 	return !(a->end < b->start || a->start > b->end);
 }
 
+/* Returns true if a timestamp t is included in the interval i (i.e., t in
+ * [i->start; i->end], otherwise false. */
+static inline int am_interval_contains_p(const struct am_interval* i,
+					 am_timestamp_t t)
+{
+	return (i->start <= t && i->end >= t);
+}
+
 /* Calculates the overlap between two intervals. If the intervals do not
  * overlap, the function returns 1. If they do overlap, out is initialized with
  * the intersection and the function returns 0. */
