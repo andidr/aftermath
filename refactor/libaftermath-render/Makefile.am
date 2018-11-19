@@ -29,6 +29,9 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/measurement_intervals.h \
 	src/timeline/layers/interval.c \
 	src/timeline/layers/interval.h \
+	src/timeline/layers/selection.c \
+	src/timeline/layers/selection.h \
+	src/timeline/layers/selection_array_defs.h \
 	src/timeline/renderer.c \
 	src/timeline/renderer.h
 
