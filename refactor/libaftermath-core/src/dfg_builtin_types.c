@@ -40,6 +40,10 @@
 #include <aftermath/core/dfg/types/int.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() am_dfg_type_set_pair_timestamp_const_hierarchy_node
+#include <aftermath/core/dfg/types/pair_timestamp_hierarchy_node.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() am_dfg_type_set_interval
 #include <aftermath/core/dfg/types/interval.h>
 
@@ -63,6 +67,7 @@ static struct am_dfg_static_type_def** defsets[] = {
 	am_dfg_type_set_histogram_data,
 	am_dfg_type_set_int,
 	am_dfg_type_set_interval,
+	am_dfg_type_set_pair_timestamp_const_hierarchy_node,
 	am_dfg_type_set_string,
 	am_dfg_type_set_timestamp,
 	am_dfg_type_set_in_memory,

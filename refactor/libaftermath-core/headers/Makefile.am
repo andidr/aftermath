@@ -56,6 +56,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/types/histogram_data.h \
 	aftermath/core/dfg/types/in_memory.h \
 	aftermath/core/dfg/types/interval.h \
+	aftermath/core/dfg/types/pair_timestamp_hierarchy_node.h \
 	aftermath/core/dfg/types/string.h \
 	aftermath/core/dfg/types/timestamp.h \
 	aftermath/core/dfg/types/int.h \
