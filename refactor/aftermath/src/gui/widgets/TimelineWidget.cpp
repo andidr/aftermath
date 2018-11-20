@@ -97,6 +97,58 @@ void TimelineWidget::getVisibleInterval(struct am_interval* i)
 	am_timeline_renderer_get_visible_interval(&this->renderer, i);
 }
 
+/* Returns the number of selections on the timeline from all selection
+ * layers. */
+size_t TimelineWidget::getNumSelections()
+{
+	size_t ret = 0;
+	size_t s;
+
+	for(auto sl: this->selectionLayers) {
+		s = am_timeline_selection_layer_get_num_selections(sl);
+
+		if(am_size_inc_safe(&ret, s))
+			TimelineWidgetException();
+	}
+
+	return ret;
+}
+
+/* Stores up to max selections in out. */
+void TimelineWidget::storeSelectionIntervals(struct am_interval* out, size_t max)
+{
+	const struct am_timeline_selection* selections;
+	size_t done = 0;
+	size_t done_next = 0;
+	size_t s;
+	size_t n;
+	int ret = 0;
+
+	for(auto sl: this->selectionLayers) {
+		done_next = done;
+		s = am_timeline_selection_layer_get_num_selections(sl);
+		selections = am_timeline_selection_layer_get_selections(sl);
+
+		if(am_size_inc_safe(&done_next, s))
+			TimelineWidgetException();
+
+		if(done_next > max) {
+			n = max - done;
+			ret = 1;
+		} else {
+			n = done_next - done;
+		}
+
+		for(size_t i = 0; i < n; i++)
+			out[done + i] = selections[i].interval;
+
+		if(ret)
+			break;
+
+		done = done_next;
+	}
+}
+
 /**
  * Add a time line render layer to the time line renderer
  */
@@ -104,8 +156,10 @@ void TimelineWidget::addLayer(struct am_timeline_render_layer* l)
 {
 	am_timeline_renderer_add_layer(&this->renderer, l);
 
-	if(strcmp(l->type->name, "selection") == 0)
+	if(strcmp(l->type->name, "selection") == 0) {
+		selectionLayers.push_back(AM_TIMELINE_SELECTION_LAYER(l));
 		this->defaultSelectionLayer = AM_TIMELINE_SELECTION_LAYER(l);
+	}
 }
 
 TimelineWidget::~TimelineWidget()
@@ -329,6 +383,8 @@ bool TimelineWidget::handleMousePressSelectionLayerItem(
 		if(is_delete) {
 			am_timeline_selection_layer_delete_selection(
 				sl, sle->selection);
+
+			this->checkTriggerSelectionPort();
 		} else {
 			/* Dragging */
 			if(sle->type == AM_TIMELINE_SELECTION_LAYER_SELECTION_START)
@@ -489,6 +545,16 @@ bool TimelineWidget::checkStartCreateSelection(QMouseEvent* event)
 	return false;
 }
 
+/* Invokes DFG node processing to notify about changed selections. */
+void TimelineWidget::checkTriggerSelectionPort()
+{
+	if(this->dfgNode) {
+		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+		this->dfgNode->required_mask.push_new = (1 << 4);
+		this->processDFGNode();
+	}
+}
+
 void TimelineWidget::mousePressEvent(QMouseEvent* event)
 {
 	struct list_head l;
@@ -552,6 +618,12 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
 		.x = (double)event->x(),
 		.y = (double)event->y()
 	};
+
+	if(this->mouseMode == MOUSE_MODE_DRAG_SELECTION_START ||
+	   this->mouseMode == MOUSE_MODE_DRAG_SELECTION_END)
+	{
+		this->checkTriggerSelectionPort();
+	}
 
 	if(am_point_in_rect(&p, &r->rects.lanes))
 		this->setCursor(Qt::OpenHandCursor);

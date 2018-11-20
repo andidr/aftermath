@@ -22,7 +22,8 @@ enum port_indexes {
 	TRACE_PORT = 0,
 	HIERARCHY_PORT = 1,
 	INTERVAL_IN_PORT = 2,
-	INTERVAL_OUT_PORT = 3
+	INTERVAL_OUT_PORT = 3,
+	SELECTIONS_OUT_PORT = 4
 };
 
 int am_dfg_amgui_timeline_init(struct am_dfg_node* n)
@@ -49,10 +50,13 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	struct am_dfg_port* ptrace_in = &n->ports[TRACE_PORT];
 	struct am_dfg_port* pinterval_in = &n->ports[INTERVAL_IN_PORT];
 	struct am_dfg_port* pinterval_out = &n->ports[INTERVAL_OUT_PORT];
+	struct am_dfg_port* pselections_out = &n->ports[SELECTIONS_OUT_PORT];
 	struct am_interval* interval;
+	struct am_interval* selection_intervals;
 	struct am_interval interval_in;
 	struct am_trace* trace_in = NULL;
 	struct am_hierarchy* hierarchy_in = NULL;
+	size_t num_selections;
 	void* out;
 
 	if(am_dfg_port_activated_and_has_data(phierarchy_in)) {
@@ -84,6 +88,23 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 		interval = (struct am_interval*)out;
 
 		t->timeline->getVisibleInterval(interval);
+	}
+
+	if(am_dfg_port_activated(pselections_out)) {
+		num_selections = t->timeline->getNumSelections();
+
+		if(num_selections > 0) {
+			if(!(out = am_dfg_buffer_reserve(pselections_out->buffer,
+							 num_selections)))
+			{
+				return 1;
+			}
+
+			selection_intervals = (struct am_interval*)out;
+
+			t->timeline->storeSelectionIntervals(selection_intervals,
+							     num_selections);
+		}
 	}
 
 	return 0;

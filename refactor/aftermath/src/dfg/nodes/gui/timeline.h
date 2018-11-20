@@ -63,11 +63,13 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		{ "trace", "const am::core::trace", AM_DFG_PORT_IN },
 		{ "hierarchy", "const am::core::hierarchy", AM_DFG_PORT_IN },
 		{ "interval in", "am::core::interval", AM_DFG_PORT_IN },
-		{ "interval out", "am::core::interval", AM_DFG_PORT_OUT }),
+		{ "interval out", "am::core::interval", AM_DFG_PORT_OUT },
+		{ "selections", "am::core::interval", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("interval in"),
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("hierarchy"),
 		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("interval out"),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("selections"),
 		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "interval in",
 				AM_DFG_PORT_DEP_PUSH_NEW, "interval out")
 	),

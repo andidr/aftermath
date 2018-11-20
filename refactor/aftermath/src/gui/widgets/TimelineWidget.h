@@ -43,6 +43,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		void addLayer(struct am_timeline_render_layer* l);
 
 		void getVisibleInterval(struct am_interval* i);
+		size_t getNumSelections();
+		void storeSelectionIntervals(struct am_interval* out, size_t max);
 
 	protected:
 		enum zoomDirection {
@@ -89,6 +91,7 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		virtual void handleZoomEvent(double x, enum zoomDirection);
 
 		bool checkStartCreateSelection(QMouseEvent* event);
+		void checkTriggerSelectionPort();
 
 		struct am_timeline_renderer renderer;
 
@@ -113,6 +116,7 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 
 		double ylegendScrollPx;
 
+		std::vector<struct am_timeline_selection_layer*> selectionLayers;
 		struct am_timeline_selection_layer* defaultSelectionLayer;
 		struct am_timeline_selection_layer* currentSelectionLayer;
 		const struct am_timeline_selection* currentSelection;
