@@ -115,8 +115,11 @@ TimelineWidget::~TimelineWidget()
 
 /**
  * Handle mouse move event on a position with a hierarchy layer item.
+ *
+ * Returns true if the event has been handled or false if the event has been
+ * ignored.
  */
-void TimelineWidget::handleMouseMoveHierarchyLayerItem(
+bool TimelineWidget::handleMouseMoveHierarchyLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -128,13 +131,20 @@ void TimelineWidget::handleMouseMoveHierarchyLayerItem(
 
 		if(am_hierarchy_node_has_children(cbtn->node))
 			this->setCursor(Qt::PointingHandCursor);
+
+		return true;
 	}
+
+	return false;
 }
 
 /**
  * Handle mouse move event on a position with a axes layer item.
+ *
+ * Returns true if the event has been handled or false if the event has been
+ * ignored.
  */
-void TimelineWidget::handleMouseMoveAxesLayerItem(
+bool TimelineWidget::handleMouseMoveAxesLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -152,7 +162,11 @@ void TimelineWidget::handleMouseMoveAxesLayerItem(
 				this->setCursor(Qt::SizeHorCursor);
 				break;
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 /**
@@ -264,8 +278,11 @@ void TimelineWidget::handleDragEvent(QMouseEvent* event)
 
 /**
  * Handle mouse move event on a position with a selection layer item.
+ *
+ * Returns true if the event has been handled or false if the event has been
+ * ignored.
  */
-void TimelineWidget::handleMouseMoveSelectionLayerItem(
+bool TimelineWidget::handleMouseMoveSelectionLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -277,16 +294,21 @@ void TimelineWidget::handleMouseMoveSelectionLayerItem(
 		case AM_TIMELINE_SELECTION_LAYER_SELECTION_START:
 		case AM_TIMELINE_SELECTION_LAYER_SELECTION_END:
 			this->setCursor(Qt::SizeHorCursor);
-			break;
+			return true;
 		default:
 			break;
 	}
+
+	return false;
 }
 
 /**
  * Handle mouse press event on a position with a selection layer item.
+ *
+ * Returns true if the event has been handled or false if the event has been
+ * ignored.
  */
-void TimelineWidget::handleMousePressSelectionLayerItem(
+bool TimelineWidget::handleMousePressSelectionLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -314,14 +336,18 @@ void TimelineWidget::handleMousePressSelectionLayerItem(
 			else if(sle->type == AM_TIMELINE_SELECTION_LAYER_SELECTION_END)
 				this->mouseMode = MOUSE_MODE_DRAG_SELECTION_END;
 			else
-				return;
+				return false;
 
 			this->currentSelectionLayer = sl;
 			this->currentSelection = sle->selection;
 		}
 
 		this->update();
+
+		return true;
 	}
+
+	return false;
 }
 
 void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
@@ -344,14 +370,14 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 
 		am_typed_list_for_each_genentry(&l, e, list) {
 			if(strcmp(e->layer->type->name, "hierarchy") == 0) {
-				this->handleMouseMoveHierarchyLayerItem(event, e);
-				break;
+				if(this->handleMouseMoveHierarchyLayerItem(event, e))
+					break;
 			} else if(strcmp(e->layer->type->name, "axes") == 0) {
-				this->handleMouseMoveAxesLayerItem(event, e);
-				break;
+				if(this->handleMouseMoveAxesLayerItem(event, e))
+					break;
 			} else if(strcmp(e->layer->type->name, "selection") == 0) {
-				this->handleMouseMoveSelectionLayerItem(event, e);
-				break;
+				if(this->handleMouseMoveSelectionLayerItem(event, e))
+					break;
 			}
 		}
 
@@ -363,8 +389,11 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 
 /**
  * Handle mouse press event on a position with a hierarchy layer item.
+ *
+ * Returns true if the event has been handled or false if the event has been
+ * ignored.
  */
-void TimelineWidget::handleMousePressHierarchyLayerItem(
+bool TimelineWidget::handleMousePressHierarchyLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -378,14 +407,17 @@ void TimelineWidget::handleMousePressHierarchyLayerItem(
 			am_timeline_renderer_toggle_node_idx(&this->renderer,
 							     cbtn->node_idx);
 			this->update();
+			return true;
 		}
 	}
+
+	return false;
 }
 
 /**
  * Handle mouse press event on a position with a axes layer item.
  */
-void TimelineWidget::handleMousePressAxesLayerItem(
+bool TimelineWidget::handleMousePressAxesLayerItem(
 	QMouseEvent* event,
 	const struct am_timeline_entity* e)
 {
@@ -405,7 +437,11 @@ void TimelineWidget::handleMousePressAxesLayerItem(
 		}
 
 		this->dragStart.pos = event->pos();
+
+		return true;
 	}
+
+	return false;
 }
 
 /* Checks if the current mouse event is the beginning of the creation of a new
@@ -458,6 +494,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
 	struct list_head l;
 	struct am_timeline_entity* e;
 	int empty;
+	bool handled = false;
 
 	struct am_point p = {
 		.x = (double)event->x(),
@@ -476,20 +513,26 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
 
 	am_typed_list_for_each_genentry(&l, e, list) {
 		if(strcmp(e->layer->type->name, "hierarchy") == 0) {
-			this->handleMousePressHierarchyLayerItem(event, e);
-			break;
+			if(this->handleMousePressHierarchyLayerItem(event, e)) {
+				handled = true;
+				break;
+			}
 		} else if(strcmp(e->layer->type->name, "axes") == 0) {
-			this->handleMousePressAxesLayerItem(event, e);
-			break;
+			if(this->handleMousePressAxesLayerItem(event, e)) {
+				handled = true;
+				break;
+			}
 		} else if(strcmp(e->layer->type->name, "selection") == 0) {
-			this->handleMousePressSelectionLayerItem(event, e);
-			break;
+			if(this->handleMousePressSelectionLayerItem(event, e)) {
+				handled = true;
+				break;
+			}
 		}
 	}
 
 	am_timeline_renderer_destroy_entities(&this->renderer, &l);
 
-	if(empty) {
+	if(empty || !handled) {
 		/* Start navigation on the lanes */
 		if(am_point_in_rect(&p, &this->renderer.rects.lanes)) {
 			this->mouseMode = MOUSE_MODE_DRAG_LANES;

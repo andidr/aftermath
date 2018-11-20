@@ -57,27 +57,27 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		virtual void mouseReleaseEvent(QMouseEvent* event);
 		virtual void wheelEvent(QWheelEvent* event);
 
-		virtual void handleMouseMoveHierarchyLayerItem(
+		virtual bool handleMouseMoveHierarchyLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
-		virtual void handleMousePressHierarchyLayerItem(
+		virtual bool handleMousePressHierarchyLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
-		virtual void handleMouseMoveAxesLayerItem(
+		virtual bool handleMouseMoveAxesLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
-		virtual void handleMousePressAxesLayerItem(
+		virtual bool handleMousePressAxesLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
-		virtual void handleMouseMoveSelectionLayerItem(
+		virtual bool handleMouseMoveSelectionLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
-		virtual void handleMousePressSelectionLayerItem(
+		virtual bool handleMousePressSelectionLayerItem(
 			QMouseEvent* event,
 			const struct am_timeline_entity* e);
 
