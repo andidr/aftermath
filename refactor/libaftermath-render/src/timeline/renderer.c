@@ -824,3 +824,49 @@ int am_timeline_renderer_lane_at_y(struct am_timeline_renderer* r,
 
 	return 0;
 }
+
+/* Data for am_timeline_renderer_hierarchy_node_at_y_cb, associating the node
+ * with a lane */
+struct node_at_callback_data {
+	unsigned int lane;
+	struct am_hierarchy_node* node;
+};
+
+/* Callback function for am_timeline_renderer_hierarchy_node_at_y */
+enum am_timeline_renderer_lane_callback_status
+am_timeline_renderer_hierarchy_node_at_y_cb(
+	struct am_timeline_renderer* r,
+	struct am_hierarchy_node* n,
+	unsigned int node_idx,
+	unsigned int lane,
+	void* data)
+{
+	struct node_at_callback_data* d = data;
+
+	if(lane == d->lane) {
+		d->node = n;
+		return AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_STOP;
+	}
+
+	return AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_CONTINUE;
+}
+
+/* Returns the hierarchy node associated to the lane at position (x, y). If */
+struct am_hierarchy_node*
+am_timeline_renderer_hierarchy_node_at_y(struct am_timeline_renderer* r,
+					 double y)
+{
+	struct node_at_callback_data data = {
+		.node = NULL
+	};
+
+	if(am_timeline_renderer_lane_at_y(r, y, &data.lane))
+		return NULL;
+
+	am_timeline_renderer_foreach_visible_lane(
+		r,
+		am_timeline_renderer_hierarchy_node_at_y_cb,
+		&data);
+
+	return data.node;
+}

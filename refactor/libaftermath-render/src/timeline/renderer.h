@@ -381,4 +381,8 @@ int am_timeline_renderer_lane_at_y(struct am_timeline_renderer* r,
 				   double y,
 				   unsigned int* lane);
 
+struct am_hierarchy_node*
+am_timeline_renderer_hierarchy_node_at_y(struct am_timeline_renderer* r,
+					 double y);
+
 #endif
