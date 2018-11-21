@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 
 extern "C" {
+	#include "../../dfg/nodes/gui/timeline.h"
 	#include <aftermath/render/timeline/layers/hierarchy.h>
 	#include <aftermath/render/timeline/layers/axes.h>
 	#include <aftermath/render/timeline/layers/selection.h>
@@ -32,7 +33,9 @@ TimelineWidget::TimelineWidget(QWidget* parent)
 	  ylegendScrollPx(20),
 	  defaultSelectionLayer(NULL),
 	  currentSelectionLayer(NULL),
-	  currentSelection(NULL)
+	  currentSelection(NULL),
+	  lastHierarchyNodeUnderCursor(NULL),
+	  lastTimestampUnderCursor(0)
 {
 	this->dragStart.visibleInterval = { 0, 0 };
 
@@ -406,6 +409,38 @@ bool TimelineWidget::handleMousePressSelectionLayerItem(
 	return false;
 }
 
+/* Checks whether the mouse position is monitored through the widget's DFG node
+ * and emits the new position if needed. */
+void TimelineWidget::checkUpdateMousePos(const struct am_point* pos)
+{
+	if(!am_point_in_rect(pos, &this->renderer.rects.lanes)) {
+		if(this->lastHierarchyNodeUnderCursor)
+			this->lastHierarchyNodeUnderCursor = NULL;
+		else
+			return;
+	} else {
+		this->lastHierarchyNodeUnderCursor =
+			am_timeline_renderer_hierarchy_node_at_y(
+				&this->renderer,
+				pos->y);
+
+		am_timeline_renderer_x_to_timestamp(
+			&this->renderer,
+			pos->x,
+			&this->lastTimestampUnderCursor);
+	}
+
+	if(!this->dfgNode ||
+	   !am_dfg_port_is_connected(&this->dfgNode->ports[AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT]))
+	{
+		return;
+	}
+
+	am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+	this->dfgNode->required_mask.push_new = (1 << AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT);
+	this->processDFGNode();
+}
+
 void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 {
 	struct list_head l;
@@ -441,6 +476,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 	} else {
 		this->handleDragEvent(event);
 	}
+
+	this->checkUpdateMousePos(&p);
 }
 
 /**
@@ -730,7 +767,20 @@ void TimelineWidget::wheelEvent(QWheelEvent* event)
 			this->handleZoomEvent(p.x, ZOOM_IN);
 		else
 			this->handleZoomEvent(p.x, ZOOM_OUT);
+
+		this->checkUpdateMousePos(&p);
 	} else {
 		event->ignore();
 	}
+}
+
+/* Returns the last timestamp of the position the mouse has hovered over */
+am_timestamp_t TimelineWidget::getLastTimestampUnderCursor()
+{
+	return this->lastTimestampUnderCursor;
+}
+
+struct am_hierarchy_node* TimelineWidget::getLastHierarchyNodeUnderCursor()
+{
+	return this->lastHierarchyNodeUnderCursor;
 }

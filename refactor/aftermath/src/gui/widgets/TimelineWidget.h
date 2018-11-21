@@ -46,6 +46,9 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		size_t getNumSelections();
 		void storeSelectionIntervals(struct am_interval* out, size_t max);
 
+		am_timestamp_t getLastTimestampUnderCursor();
+		struct am_hierarchy_node* getLastHierarchyNodeUnderCursor();
+
 	protected:
 		enum zoomDirection {
 			ZOOM_IN,
@@ -93,6 +96,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		bool checkStartCreateSelection(QMouseEvent* event);
 		void checkTriggerSelectionPort();
 
+		void checkUpdateMousePos(const struct am_point* p);
+
 		struct am_timeline_renderer renderer;
 
 		enum {
@@ -120,6 +125,9 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		struct am_timeline_selection_layer* defaultSelectionLayer;
 		struct am_timeline_selection_layer* currentSelectionLayer;
 		const struct am_timeline_selection* currentSelection;
+
+		struct am_hierarchy_node* lastHierarchyNodeUnderCursor;
+		am_timestamp_t lastTimestampUnderCursor;
 };
 
 #endif
