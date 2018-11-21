@@ -364,4 +364,8 @@ int am_timeline_renderer_parent_on_same_lane(struct am_timeline_renderer* r,
 void am_timeline_renderer_set_lane_mode(struct am_timeline_renderer* r,
 					enum am_timeline_renderer_lane_mode m);
 
+int am_timeline_renderer_lane_at_y(struct am_timeline_renderer* r,
+				   double y,
+				   unsigned int* lane);
+
 #endif

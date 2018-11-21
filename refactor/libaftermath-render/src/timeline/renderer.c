@@ -745,3 +745,43 @@ void am_timeline_renderer_set_lane_mode(struct am_timeline_renderer* r,
 	am_timeline_renderer_update_num_visible_lanes(r);
 	am_timeline_renderer_update_first_visible_lane(r);
 }
+
+/* Sets *lane to the lane index corresponding to the on-screen position y.
+ *
+ * Returns 0 on success, otherwise 1 (e.g., if y past the last lane).
+ */
+int am_timeline_renderer_lane_at_y(struct am_timeline_renderer* r,
+				   double y,
+				   unsigned int* lane)
+{
+	/* Y coordinate if all lanes were visible */
+	double abs_y;
+
+	/* Lane index if all lanes were visible */
+	unsigned int abs_lane;
+
+	/* Real lane index on visible lanes */
+	unsigned int rel_lane;
+
+	abs_y = (y - r->rects.lanes.y) + r->lane_offset;
+
+	/* Way above the lane rect? */
+	if(abs_y < 0)
+		return 1;
+
+	abs_lane = (unsigned int)(abs_y / r->lane_height);
+
+	/* On invisible lane? */
+	if(abs_lane < r->num_invisible_lanes)
+		return 1;
+
+	rel_lane = abs_lane - r->num_invisible_lanes;
+
+	/* Below last visible lane? */
+	if(rel_lane >= r->num_visible_lanes)
+		return 1;
+
+	*lane = rel_lane;
+
+	return 0;
+}
