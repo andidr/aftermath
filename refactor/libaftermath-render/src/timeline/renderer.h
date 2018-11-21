@@ -340,15 +340,28 @@ AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_mode)
 AM_DECL_TIMELINE_RENDERER_SETTER_FUN_STRUCT(visible_interval)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN_STRUCT(visible_interval)
 
-typedef void (*am_timeline_renderer_lane_fun_t)(struct am_timeline_renderer* r,
-						struct am_hierarchy_node* n,
-						unsigned int node_idx,
-						unsigned int lane,
-						void* data);
+/* Return value for the callback function passed to
+ * am_timeline_renderer_foreach_visible_lane */
+enum am_timeline_renderer_lane_callback_status {
+	/* Indicates that the callback should be invoked for subsequent visible
+	 * lanes */
+	AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_CONTINUE = 0,
 
-void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
-					       am_timeline_renderer_lane_fun_t cb,
+	/* Indicates that the callback should *NOT* be invoked for subsequent
+	 * visible lanes */
+	AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_STOP = 1
+};
+
+typedef enum am_timeline_renderer_lane_callback_status			\
+(*am_timeline_renderer_lane_fun_t)(struct am_timeline_renderer* r,
+					       struct am_hierarchy_node* n,
+					       unsigned int node_idx,
+					       unsigned int lane,
 					       void* data);
+
+int am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
+					      am_timeline_renderer_lane_fun_t cb,
+					      void* data);
 
 int am_timeline_renderer_lane_extents(struct am_timeline_renderer* r,
 				      struct am_rect* e,

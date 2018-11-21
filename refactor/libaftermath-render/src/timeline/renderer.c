@@ -510,8 +510,11 @@ int am_timeline_renderer_set_vertical_axis_x(struct am_timeline_renderer* r,
  * curr_lane: The 0-indexed lane starting from the top of the timeline for n
  * cb: Callback function called for each visible lane
  * data: Data to be passed verbatim to the callback functions
+ *
+ * Returns 1 if an invocation of the callback function indicated to stop
+ * iterating), otherwise 0.
  */
-static void am_timeline_renderer_foreach_visible_lane_down(
+static int am_timeline_renderer_foreach_visible_lane_down(
 	struct am_timeline_renderer* r,
 	struct am_hierarchy_node* n,
 	unsigned int node_idx,
@@ -524,22 +527,30 @@ static void am_timeline_renderer_foreach_visible_lane_down(
 	unsigned int this_lane = *curr_lane;
 
 	if(*curr_lane > r->num_visible_lanes)
-		return;
+		return 0;
 
 	if(!am_hierarchy_node_has_children(n) ||
 	   am_bitvector_test_bit(&r->collapsed_nodes, node_idx))
 	{
-		cb(r, n, node_idx, this_lane, data);
+		if(cb(r, n, node_idx, this_lane, data) ==
+		   AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_STOP)
+		{
+			return 1;
+		}
 	}
 
 	if(!am_bitvector_test_bit(&r->collapsed_nodes, node_idx)) {
 		am_hierarchy_node_for_each_child(n, child) {
-			am_timeline_renderer_foreach_visible_lane_down(r,
-								       child,
-								       child_idx,
-								       curr_lane,
-								       cb,
-								       data);
+			if(am_timeline_renderer_foreach_visible_lane_down(
+				   r,
+				   child,
+				   child_idx,
+				   curr_lane,
+				   cb,
+				   data))
+			{
+				return 1;
+			}
 
 			child_idx += child->num_descendants + 1;
 		}
@@ -550,6 +561,8 @@ static void am_timeline_renderer_foreach_visible_lane_down(
 	{
 		(*curr_lane)++;
 	}
+
+	return 0;
 }
 
 /* Function that recursively traverses all visible lanes, starting with the lane
@@ -568,8 +581,11 @@ static void am_timeline_renderer_foreach_visible_lane_down(
  * lane_visible: Indicates whether the lane of n itself is visible
  * cb: Callback function called for each visible lane
  * data: Data to be passed verbatim to the callback function
+ *
+ * Returns 1 if an invocation of the callback function indicated to stop
+ * iterating), otherwise 0.
  */
-static void am_timeline_renderer_foreach_visible_lane_up(
+static int am_timeline_renderer_foreach_visible_lane_up(
 	struct am_timeline_renderer* r,
 	struct am_hierarchy_node* n,
 	unsigned int node_idx,
@@ -600,7 +616,11 @@ static void am_timeline_renderer_foreach_visible_lane_up(
 		   (!am_hierarchy_node_has_children(n) ||
 		    am_bitvector_test_bit(&r->collapsed_nodes, node_idx)))
 		{
-			cb(r, n, node_idx, *curr_lane, data);
+			if(cb(r, n, node_idx, *curr_lane, data) ==
+			   AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_STOP)
+			{
+				return 1;
+			}
 		}
 
 		/* The first child is rendered on the same column, so don't
@@ -626,12 +646,16 @@ static void am_timeline_renderer_foreach_visible_lane_up(
 		}
 
 		am_hierarchy_node_for_each_child_start(n, child, calling_child) {
-			am_timeline_renderer_foreach_visible_lane_down(r,
-								       child,
-								       child_idx,
-								       curr_lane,
-								       cb,
-								       data);
+			if(am_timeline_renderer_foreach_visible_lane_down(
+				   r,
+				   child,
+				   child_idx,
+				   curr_lane,
+				   cb,
+				   data))
+			{
+				return 1;
+			}
 
 			child_idx += child->num_descendants + 1;
 		}
@@ -645,38 +669,53 @@ static void am_timeline_renderer_foreach_visible_lane_up(
 		am_hierarchy_node_for_each_child_prev_start(parent, sibling, n)
 			parent_idx -= sibling->num_descendants + 1;
 
-		am_timeline_renderer_foreach_visible_lane_up(r,
-							     n->parent,
-							     parent_idx,
-							     n,
-							     node_idx,
-							     curr_lane,
-							     parent_lane_visible,
-							     cb,
-							     data);
+		if(am_timeline_renderer_foreach_visible_lane_up(
+			   r,
+			   n->parent,
+			   parent_idx,
+			   n,
+			   node_idx,
+			   curr_lane,
+			   parent_lane_visible,
+			   cb,
+			   data))
+		{
+			return 1;
+		}
 	}
+
+	return 0;
 }
 
 /* Calls cb for each visible lane. The data pointer is passed verbatim to the
- * callback function. */
-void am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
-					       am_timeline_renderer_lane_fun_t cb,
-					       void* data)
+ * callback function.
+ *
+ * Returns 1 if an invocation of the callback function has indicated that
+ * processing should be stopped.
+ */
+int am_timeline_renderer_foreach_visible_lane(struct am_timeline_renderer* r,
+					      am_timeline_renderer_lane_fun_t cb,
+					      void* data)
 {
 	unsigned int curr_lane = 0;
 
 	if(!r->first_lane.node)
-		return;
+		return 0;
 
-	am_timeline_renderer_foreach_visible_lane_up(r,
-						     r->first_lane.node,
-						     r->first_lane.node_index,
-						     NULL,
-						     0,
-						     &curr_lane,
-						     1,
-						     cb,
-						     data);
+	if(am_timeline_renderer_foreach_visible_lane_up(r,
+							r->first_lane.node,
+							r->first_lane.node_index,
+							NULL,
+							0,
+							&curr_lane,
+							1,
+							cb,
+							data))
+	{
+		return 1;
+	}
+
+	return 0;
 }
 
 /* Returns the coordinates of the lane-th lane in e. If the lane is invalid, the

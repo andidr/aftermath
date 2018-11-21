@@ -53,7 +53,8 @@ struct render_lane_data {
 };
 
 /* Callback function to render a single lane */
-static void render_lane(struct am_timeline_renderer* r,
+static enum am_timeline_renderer_lane_callback_status
+render_lane(struct am_timeline_renderer* r,
 			struct am_hierarchy_node* n,
 			unsigned int node_idx,
 			unsigned int lane,
@@ -64,10 +65,10 @@ static void render_lane(struct am_timeline_renderer* r,
 		(struct am_timeline_lane_render_layer_type*)data->layer->super.type;
 
 	if(am_timeline_renderer_lane_extents(r, &lane_rect, lane))
-		return;
+		return AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_CONTINUE;
 
 	if(!am_rectangle_intersect(&lane_rect, &r->rects.lanes))
-		return;
+		return AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_CONTINUE;
 
 	cairo_save(data->cr);
 	cairo_rectangle(data->cr, AM_RECT_ARGS(lane_rect));
@@ -82,6 +83,8 @@ static void render_lane(struct am_timeline_renderer* r,
 		  data->cr);
 
 	cairo_restore(data->cr);
+
+	return AM_TIMELINE_RENDERER_LANE_CALLBACK_STATUS_CONTINUE;
 }
 
 /* Invokes the rendering function for all visible lanes */
