@@ -24,6 +24,10 @@
 #include <aftermath/core/dfg/nodes/event_mapping_state_events.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() hierarchy_attributes_defs
+#include <aftermath/core/dfg/nodes/hierarchy_attributes.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() hierarchy_node_attributes_defs
 #include <aftermath/core/dfg/nodes/hierarchy_node_attributes.h>
 
@@ -92,6 +96,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	duration_to_string_defs,
 	duration_to_uint64_defs,
 	event_mapping_state_events_defs,
+	hierarchy_attributes_defs,
 	hierarchy_node_attributes_defs,
 	hierarchy_node_selector_defs,
 	hierarchy_selector_defs,

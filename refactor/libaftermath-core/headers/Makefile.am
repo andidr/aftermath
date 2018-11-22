@@ -36,6 +36,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/duration_to_string.h \
 	aftermath/core/dfg/nodes/duration_to_uint64.h \
 	aftermath/core/dfg/nodes/event_mapping_state_events.h \
+	aftermath/core/dfg/nodes/hierarchy_attributes.h \
 	aftermath/core/dfg/nodes/hierarchy_node_attributes.h \
 	aftermath/core/dfg/nodes/hierarchy_node_selector.h \
 	aftermath/core/dfg/nodes/hierarchy_selector.h \
