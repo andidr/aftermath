@@ -167,3 +167,58 @@ unsigned int am_hierarchy_node_depth(struct am_hierarchy_node* n)
 
 	return depth;
 }
+
+/* Iterates over each descendant of the node n and invokes the function cb until
+ * no nodes are left or cb has indicated to stop iterating.
+ *
+ * Returns 1 if the callback function has indicated that the traversal should be
+ * stopped, otherwise 0.
+ */
+int am_hierarchy_node_for_each_descendant(const struct am_hierarchy* h,
+					  struct am_hierarchy_node* n,
+					  am_hierarchy_node_callback_fun_t cb,
+					  void* data)
+{
+	struct am_hierarchy_node* c;
+
+	am_hierarchy_node_for_each_child(n, c) {
+		if(cb(h, c, data) == AM_HIERARCHY_NODE_CALLBACK_STATUS_STOP)
+			return 1;
+
+		if(am_hierarchy_node_for_each_descendant(h, c, cb, data))
+			return 1;
+	}
+
+	return 0;
+}
+
+/* Same as am_hierarchy_node_for_each_descendant, but also invokes cb for n
+ * itself.
+ */
+int am_hierarchy_node_for_each_descendant_and_self(
+	const struct am_hierarchy* h,
+	struct am_hierarchy_node* n,
+	am_hierarchy_node_callback_fun_t cb,
+	void* data)
+{
+	if(cb(h, n, data) == AM_HIERARCHY_NODE_CALLBACK_STATUS_STOP)
+		return 1;
+
+	return am_hierarchy_node_for_each_descendant(h, n, cb, data);
+}
+
+/* Iterates over each node of the hierarchy h and invokes the function cb until
+ * no nodes are left or cb has indicated to stop iterating.
+ *
+ * Returns 1 if the callback function has indicated that the traversal should be
+ * stopped, otherwise 0.
+ */
+int am_hierarchy_for_each_node(const struct am_hierarchy* h,
+			       am_hierarchy_node_callback_fun_t cb,
+			       void* data)
+{
+	if(!h->root)
+		return 0;
+
+	return am_hierarchy_node_for_each_descendant_and_self(h, h->root, cb, data);
+}

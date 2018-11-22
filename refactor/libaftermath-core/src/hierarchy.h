@@ -44,6 +44,37 @@ int am_hierarchy_init(struct am_hierarchy* h, const char* name, am_hierarchy_id_
 void am_hierarchy_destroy(struct am_hierarchy* h);
 void am_hierarchy_dump(struct am_hierarchy* h);
 
+/* Return value for the callback function passed to
+ * am_hierarchy_for_each_node */
+enum am_hierarchy_node_callback_status {
+	/* Indicates that the callback should be invoked for subsequent nodes */
+	AM_HIERARCHY_NODE_CALLBACK_STATUS_CONTINUE = 0,
+
+	/* Indicates that the callback should *NOT* be invoked for subsequent
+	 * nodes */
+	AM_HIERARCHY_NODE_CALLBACK_STATUS_STOP = 1
+};
+
+typedef enum am_hierarchy_node_callback_status				\
+(*am_hierarchy_node_callback_fun_t)(const struct am_hierarchy* h,	\
+				    struct am_hierarchy_node* n,	\
+				    void* data);
+
+int am_hierarchy_node_for_each_descendant(const struct am_hierarchy* h,
+					  struct am_hierarchy_node* n,
+					  am_hierarchy_node_callback_fun_t cb,
+					  void* data);
+
+int am_hierarchy_node_for_each_descendant_and_self(
+	const struct am_hierarchy* h,
+	struct am_hierarchy_node* n,
+	am_hierarchy_node_callback_fun_t cb,
+	void* data);
+
+int am_hierarchy_for_each_node(const struct am_hierarchy* h,
+			       am_hierarchy_node_callback_fun_t cb,
+			       void* data);
+
 struct am_hierarchy_node {
 	char* name;
 	am_hierarchy_node_id_t id;
