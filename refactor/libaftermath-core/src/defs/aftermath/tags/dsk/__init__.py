@@ -248,3 +248,25 @@ class GenerateWriteDefaultIDFunction(TemplatedGenerateFunctionTag,
             template_type = aftermath.templates.dsk.WriteDefaultIDFunction)
 
         WriteDefaultIDFunction.__init__(self)
+
+class WriteWithDefaultIDFunction(FunctionTag):
+    """Function that converts the in-memory representation of the on-disk type
+    into the final on-disk representation and writes the result to disk using an
+    output context with the default on-disk type ID for the type.
+    """
+
+    def __init__(self, function_name = None):
+        super(WriteWithDefaultIDFunction, self).__init__(
+            function_name = function_name,
+            default_suffix = "_write_defid")
+
+class GenerateWriteWithDefaultIDFunction(TemplatedGenerateFunctionTag,
+                                         WriteWithDefaultIDFunction):
+    """Generate a WriteWithDefaultIDFunction"""
+
+    def __init__(self):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.WriteWithDefaultIDFunction)
+
+        WriteWithDefaultIDFunction.__init__(self)

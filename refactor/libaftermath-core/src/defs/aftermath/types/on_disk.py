@@ -48,6 +48,7 @@ class Frame(OnDiskCompoundType):
             tags.dsk.GenerateLoadFunction(),
             tags.dsk.GenerateWriteToBufferWithDefaultIDFunction(),
             tags.dsk.GenerateWriteDefaultIDToBufferFunction(),
+            tags.dsk.GenerateWriteWithDefaultIDFunction(),
             tags.dsk.GenerateWriteDefaultIDFunction())
 
         # A frame is always preceded by an integer indicating its type

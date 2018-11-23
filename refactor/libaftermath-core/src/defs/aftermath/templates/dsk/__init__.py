@@ -251,10 +251,36 @@ class WriteDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
             self,
             function_name = reqtags["gen_tag"].getFunctionName(),
             return_type = aftermath.types.builtin.int,
-            inline = True,
+            inline = False,
             arglist = FieldList(
                 [ Field(name = "ctx",
                         type = aftermath.types.aux.am_io_context,
                         is_pointer = True) ]))
+
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
+class WriteWithDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateWriteWithDefaultIDFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "WriteWithDefaultIDFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "gen_tag" : tags.dsk.GenerateWriteWithDefaultIDFunction,
+            "wtb_tag" : tags.dsk.WriteFunction
+        })
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["gen_tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            arglist = FieldList(
+                [ Field(name = "ctx",
+                        type = aftermath.types.aux.am_io_context,
+                        is_pointer = True),
+                Field(name = "e",
+                      type = dsk_type,
+                      is_pointer = True,
+                      is_const = True) ]))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)

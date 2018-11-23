@@ -232,6 +232,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/dsk/WriteDefaultIDFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteDefaultIDToBufferFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteFunction.tpl.c \
+	src/defs/aftermath/templates/dsk/WriteWithDefaultIDFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteToBufferFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteToBufferWithDefaultIDFunction.tpl.c \
 	src/defs/aftermath/templates/finalize/FinalizeFunction.tpl.c \

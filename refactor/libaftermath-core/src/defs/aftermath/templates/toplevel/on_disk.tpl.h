@@ -150,6 +150,14 @@ AM_DECL_ON_DISK_WRITE_INT_FUN(uint64_t, 64)
 {{ aftermath.templates.dsk.WriteFunction(t).getPrototype() }}
 {% endfor %}
 
+{% for t in aftermath.config.getDskTypes().filterByTag(aftermath.tags.dsk.GenerateWriteDefaultIDFunction) -%}
+{{ aftermath.templates.dsk.WriteDefaultIDFunction(t).getPrototype() }}
+{% endfor %}
+
+{% for t in aftermath.config.getDskTypes().filterByTag(aftermath.tags.dsk.GenerateWriteWithDefaultIDFunction) -%}
+{{ aftermath.templates.dsk.WriteWithDefaultIDFunction(t).getPrototype() }}
+{% endfor %}
+
 int am_dsk_register_frame_types(struct am_frame_type_registry* r);
 int am_dsk_load_trace(struct am_io_context* ctx, struct am_trace** pt);
 int am_dsk_dump_trace(struct am_io_context* ctx,
