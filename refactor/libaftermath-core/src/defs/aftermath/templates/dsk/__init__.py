@@ -236,3 +236,25 @@ class WriteDefaultIDToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
                         is_pointer = True) ]))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
+class WriteDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateWriteDefaultIDFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "WriteDefaultIDFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "gen_tag" : tags.dsk.WriteDefaultIDFunction,
+        })
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["gen_tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            inline = True,
+            arglist = FieldList(
+                [ Field(name = "ctx",
+                        type = aftermath.types.aux.am_io_context,
+                        is_pointer = True) ]))
+
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)

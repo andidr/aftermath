@@ -227,3 +227,24 @@ class GenerateWriteDefaultIDToBufferFunction(TemplatedGenerateFunctionTag,
             template_type = aftermath.templates.dsk.WriteDefaultIDToBufferFunction)
 
         WriteDefaultIDToBufferFunction.__init__(self)
+
+class WriteDefaultIDFunction(FunctionTag):
+    """Function that writes a frame type id structure with the default ID for the
+    type to an output file using an I/O context.
+    """
+
+    def __init__(self, function_name = None):
+        super(WriteDefaultIDFunction, self).__init__(
+            function_name = function_name,
+            default_suffix = "_write_default_id")
+
+class GenerateWriteDefaultIDFunction(TemplatedGenerateFunctionTag,
+                                     WriteDefaultIDFunction):
+    """Generate a WriteDefaultIDFunction"""
+
+    def __init__(self):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.WriteDefaultIDFunction)
+
+        WriteDefaultIDFunction.__init__(self)

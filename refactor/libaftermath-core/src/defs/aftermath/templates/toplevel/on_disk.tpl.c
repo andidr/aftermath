@@ -33,6 +33,7 @@
 #include <aftermath/core/counter_event_array_collection.h>
 
 #include <aftermath/core/on_disk.h>
+#include <aftermath/core/on_disk_default_type_ids.h>
 #include <aftermath/core/in_memory_inline.h>
 #include <aftermath/core/on_disk_meta.h>
 #include <assert.h>
@@ -930,6 +931,24 @@ out_ctx:
 	am_io_context_close(ctx);
 out:
 	return ret;
+}
+
+/* Writes a frame type id frame to an output file using the output context ctx,
+ * associating the type of the specified name with the given id.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static inline int am_dsk_write_default_id(struct am_io_context* ctx,
+					  char* name,
+					  uint32_t id)
+{
+	struct am_dsk_frame_type_id fti;
+
+	fti.id = id;
+	fti.type_name.str = name;
+	fti.type_name.len = strlen(name);
+
+	return am_dsk_frame_type_id_write(ctx, 0, &fti);
 }
 
 {% for t in dsk_types -%}

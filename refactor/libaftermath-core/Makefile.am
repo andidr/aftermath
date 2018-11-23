@@ -229,6 +229,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/dsk/tomem/PerTraceArrayFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/tomem/PostConversionFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/tomem/SortMetaStructArrayFunction.tpl.c \
+	src/defs/aftermath/templates/dsk/WriteDefaultIDFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteDefaultIDToBufferFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/WriteToBufferFunction.tpl.c \
