@@ -23,6 +23,8 @@
 #include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/color_map.h>
 
+struct am_timeline_interval_layer;
+
 /* Renders events with an embedded interval and index as colored rectangles of a
  * width of one pixel on the time line, with one color corresponding to each
  * interval index. The color of a rectangle is determined by the interval index
@@ -35,7 +37,7 @@
  */
 
 struct am_timeline_render_layer_type*
-am_timeline_interval_layer_instantiate_type(
+am_timeline_interval_layer_instantiate_type_index_member(
 	const char* name,
 	const char* event_array_type_name,
 	size_t element_size,
@@ -43,7 +45,13 @@ am_timeline_interval_layer_instantiate_type(
 	off_t index_offset,
 	unsigned int index_bits);
 
-struct am_timeline_interval_layer;
+struct am_timeline_render_layer_type*
+am_timeline_interval_layer_instantiate_type_index_fun(
+	const char* name,
+	const char* event_array_type_name,
+	size_t element_size,
+	off_t interval_offset,
+	size_t (*calculate_index)(struct am_timeline_interval_layer*, void*));
 
 #define AM_TIMELINE_INTERVAL_LAYER(x) \
 	((struct am_timeline_interval_layer*)x)

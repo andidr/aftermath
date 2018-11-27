@@ -77,7 +77,7 @@ am_timeline_state_layer_instantiate_type(void)
 {
 	struct am_timeline_render_layer_type* t;
 
-	t = am_timeline_interval_layer_instantiate_type(
+	t = am_timeline_interval_layer_instantiate_type_index_member(
 		"state",
 		"am::generic::state",
 		sizeof(struct am_state_event),

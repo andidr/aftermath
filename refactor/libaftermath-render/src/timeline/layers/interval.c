@@ -37,6 +37,8 @@ struct am_timeline_interval_layer_type {
 	off_t interval_offset;
 	off_t index_offset;
 	unsigned int index_bits;
+
+	size_t (*calculate_index)(struct am_timeline_interval_layer*, void*);
 };
 
 /* Sets the set of colors to be used for rendering. */
@@ -107,13 +109,25 @@ static void stats_subtree(struct am_timeline_interval_layer* il,
 		if(!ea)
 			continue;
 
-		am_interval_stats_by_index_collect(&il->statistics,
-						   i,
-						   ea,
-						   ilt->element_size,
-						   ilt->interval_offset,
-						   ilt->index_offset,
-						   ilt->index_bits);
+		if(ilt->calculate_index) {
+			am_interval_stats_by_index_fun_collect(
+				&il->statistics,
+				i,
+				ea,
+				ilt->element_size,
+				ilt->interval_offset,
+				(size_t (*) (void*, void*))ilt->calculate_index,
+				il);
+		} else {
+			am_interval_stats_by_index_collect(
+				&il->statistics,
+				i,
+				ea,
+				ilt->element_size,
+				ilt->interval_offset,
+				ilt->index_offset,
+				ilt->index_bits);
+		}
 	}
 
 	if(il->super.render_mode == AM_TIMELINE_LANE_RENDER_MODE_COMBINE_SUBTREE)
@@ -228,21 +242,15 @@ instantiate(struct am_timeline_interval_layer_type* t)
 	return l;
 }
 
-/* Instatiate an interval layer type. Name is the name of the instantiated type,
- * event_array_type_name the name of the array type whose events are rendered
- * for each event collection, element_size defines the size in bytes of each
- * array element, interval_offset is the offset in bytes of the interval member
- * to extract from each array element, index_offset the offset of the interval
- * index (e.g., interval type) and index_bits specifies the size of each index
- * field in bits. */
-struct am_timeline_render_layer_type*
-am_timeline_interval_layer_instantiate_type(
+/* Common type instantiation function used by
+ * am_timeline_interval_layer_instantiate_type_index_member and
+ * am_timeline_interval_layer_instantiate_type_index_fun */
+struct am_timeline_interval_layer_type*
+am_timeline_interval_layer_instantiate_type_common(
 	const char* name,
 	const char* event_array_type_name,
 	size_t element_size,
-	off_t interval_offset,
-	off_t index_offset,
-	unsigned int index_bits)
+	off_t interval_offset)
 {
 	struct am_timeline_interval_layer_type* t;
 
@@ -263,10 +271,8 @@ am_timeline_interval_layer_instantiate_type(
 
 	t->element_size = element_size;
 	t->interval_offset = interval_offset;
-	t->index_offset = index_offset;
-	t->index_bits = index_bits;
 
-	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
+	return t;
 
 out_err_destroy:
 	am_timeline_render_layer_type_destroy(AM_TIMELINE_RENDER_LAYER_TYPE(t));
@@ -274,4 +280,65 @@ out_err_free:
 	free(t);
 out_err:
 	return NULL;
+}
+
+/* Instatiate an interval layer type. Name is the name of the instantiated type,
+ * event_array_type_name the name of the array type whose events are rendered
+ * for each event collection, element_size defines the size in bytes of each
+ * array element, interval_offset is the offset in bytes of the interval member
+ * to extract from each array element, index_offset the offset of the interval
+ * index (e.g., interval type) and index_bits specifies the size of each index
+ * field in bits.
+ */
+struct am_timeline_render_layer_type*
+am_timeline_interval_layer_instantiate_type_index_member(
+	const char* name,
+	const char* event_array_type_name,
+	size_t element_size,
+	off_t interval_offset,
+	off_t index_offset,
+	unsigned int index_bits)
+{
+	struct am_timeline_interval_layer_type* t;
+
+	if(!(t = am_timeline_interval_layer_instantiate_type_common(
+		     name, event_array_type_name, element_size, interval_offset)))
+	{
+		return NULL;
+	}
+
+	t->index_offset = index_offset;
+	t->index_bits = index_bits;
+
+	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
+}
+
+/* Instatiate an interval layer type. Name is the name of the instantiated type,
+ * event_array_type_name the name of the array type whose events are rendered
+ * for each event collection, element_size defines the size in bytes of each
+ * array element and interval_offset is the offset in bytes of the interval
+ * member to extract from each array element.
+ *
+ * Calculate_index is invoked for each event instance considered by the renderer
+ * in order to obtain an index.
+ */
+struct am_timeline_render_layer_type*
+am_timeline_interval_layer_instantiate_type_index_fun(
+	const char* name,
+	const char* event_array_type_name,
+	size_t element_size,
+	off_t interval_offset,
+	size_t (*calculate_index)(struct am_timeline_interval_layer*, void*))
+{
+	struct am_timeline_interval_layer_type* t;
+
+	if(!(t = am_timeline_interval_layer_instantiate_type_common(
+		     name, event_array_type_name, element_size, interval_offset)))
+	{
+		return NULL;
+	}
+
+	t->calculate_index = calculate_index;
+
+	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
 }
