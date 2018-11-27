@@ -13,6 +13,7 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/nodes/builtin_nodes.h \
 	src/dfg/renderer.c \
 	src/dfg/renderer.h \
+	src/dfg/timeline_layer_common.h \
 	src/dfg/types/builtin_types.c \
 	src/dfg/types/builtin_types.h \
 	src/histogram/renderer.c \
