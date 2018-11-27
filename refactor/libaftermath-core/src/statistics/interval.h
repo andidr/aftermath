@@ -43,4 +43,13 @@ void am_interval_stats_by_index_collect(struct am_interval_stats_by_index* is,
 					off_t idx_field_offset,
 					unsigned int idx_bits);
 
+void am_interval_stats_by_index_fun_collect(
+	struct am_interval_stats_by_index* is,
+	const struct am_interval* query,
+	struct am_typed_array_generic* arr,
+	size_t element_size,
+	off_t interval_field_offset,
+	size_t (*calculate_index)(void*, void*),
+	void* data);
+
 #endif

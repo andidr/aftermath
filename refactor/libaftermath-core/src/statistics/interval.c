@@ -103,3 +103,37 @@ void am_interval_stats_by_index_collect(struct am_interval_stats_by_index* is,
 		am_timestamp_add_sat_offset(&is->times[idx], &offs);
 	}
 }
+
+/* Accumulate the duration of all intervals overlapping with *query for the
+ * respective indexes for all elements of an array of structures
+ * arr. Element_size is the size in bytes of each array element,
+ * interval_field_offset the offset in bytes of the embedded interval of a
+ * structure.
+ *
+ * Calculate_index is a function that is called for each element that return the
+ * index for the element. The pointer data is passed verbatim to the function.
+ */
+void am_interval_stats_by_index_fun_collect(
+	struct am_interval_stats_by_index* is,
+	const struct am_interval* query,
+	struct am_typed_array_generic* arr,
+	size_t element_size,
+	off_t interval_field_offset,
+	size_t (*calculate_index)(void*, void*),
+	void* data)
+{
+	struct am_time_offset offs;
+	struct am_interval* i;
+	size_t idx;
+
+	/* Prevent compiler from complaining about uninitialized variable */
+	idx = 0;
+
+	am_interval_array_for_each_overlapping_offs(
+		arr, i, element_size, interval_field_offset, query)
+	{
+		am_interval_intersection_duration(i, query, &offs);
+		idx = calculate_index(data, AM_PTR_SUB(i, interval_field_offset));
+		am_timestamp_add_sat_offset(&is->times[idx], &offs);
+	}
+}
