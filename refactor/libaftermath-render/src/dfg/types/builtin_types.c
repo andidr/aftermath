@@ -18,6 +18,23 @@
 
 #include <aftermath/core/dfg_builtin_type_impl.h>
 #include <aftermath/render/dfg/types/builtin_types.h>
+#include <aftermath/render/timeline/layer.h>
+
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_render_dfg_type_timeline_layer,
+	"const am::render::timeline::layer*",
+	sizeof(struct am_timeline_render_layer*),
+	NULL, NULL, NULL, NULL)
+
+static struct am_dfg_static_type_def* builtin_defs[] = {
+	&am_render_dfg_type_timeline_layer,
+	NULL
+};
+
+static struct am_dfg_static_type_def** defsets[] = {
+	builtin_defs,
+	NULL
+};
 
 /* Registers all builtin types for libaftermath-render.
  *
@@ -25,5 +42,5 @@
  */
 int am_render_dfg_builtin_types_register(struct am_dfg_type_registry* tr)
 {
-	return 0;
+	return am_dfg_type_registry_add_static(tr, defsets);
 }
