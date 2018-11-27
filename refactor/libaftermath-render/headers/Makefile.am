@@ -2,6 +2,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/color_map.h \
 	aftermath/render/dfg/dfg_coordinate_mapping.h \
 	aftermath/render/dfg/renderer.h \
+	aftermath/render/dfg/types/builtin_types.h \
 	aftermath/render/histogram/renderer.h \
 	aftermath/render/timeline/common_layers.h \
 	aftermath/render/timeline/layer.h \

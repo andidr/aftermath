@@ -11,6 +11,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/dfg_coordinate_mapping.c \
 	src/dfg/renderer.c \
 	src/dfg/renderer.h \
+	src/dfg/types/builtin_types.c \
+	src/dfg/types/builtin_types.h \
 	src/histogram/renderer.c \
 	src/histogram/renderer.h \
 	src/timeline/common_layers.c \
