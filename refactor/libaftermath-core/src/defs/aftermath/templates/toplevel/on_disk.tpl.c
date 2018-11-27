@@ -32,6 +32,9 @@
 #include <aftermath/core/state_event_array.h>
 #include <aftermath/core/counter_event_array_collection.h>
 
+#include <aftermath/core/tensorflow_node_array.h>
+#include <aftermath/core/tensorflow_node_execution_array.h>
+
 #include <aftermath/core/on_disk.h>
 #include <aftermath/core/on_disk_default_type_ids.h>
 #include <aftermath/core/in_memory_inline.h>

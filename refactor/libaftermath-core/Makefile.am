@@ -175,6 +175,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/statistics/histogram.h \
 				src/statistics/interval.c \
 				src/statistics/interval.h \
+				src/tensorflow_node_array.h \
+				src/tensorflow_node_execution_array.h \
 				src/timestamp.h \
 				src/trace.c \
 				src/trace.h \
@@ -296,6 +298,9 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/types/openstream/__init__.py \
 	src/defs/aftermath/types/openstream/in_memory.py \
 	src/defs/aftermath/types/openstream/on_disk.py \
+	src/defs/aftermath/types/tensorflow/__init__.py \
+	src/defs/aftermath/types/tensorflow/in_memory.py \
+	src/defs/aftermath/types/tensorflow/on_disk.py \
 	src/defs/aftermath/util/__init__.py
 
 PYC_FILES=src/defs/aftermath/__init__.pyc \
@@ -342,6 +347,9 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/types/openstream/__init__.pyc \
 	src/defs/aftermath/types/openstream/in_memory.pyc \
 	src/defs/aftermath/types/openstream/on_disk.pyc \
+	src/defs/aftermath/types/tensorflow/__init__.pyc \
+	src/defs/aftermath/types/tensorflow/in_memory.pyc \
+	src/defs/aftermath/types/tensorflow/on_disk.pyc \
 	src/defs/aftermath/util/__init__.pyc
 
 src/base_types.h: src/defs/aftermath/templates/toplevel/base_types.tpl.h $(TPL_DEPS)
