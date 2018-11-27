@@ -45,6 +45,7 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	struct am_dfg_port* phierarchy_in = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_HIERARCHY_PORT];
 	struct am_dfg_port* ptrace_in = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_TRACE_PORT];
 	struct am_dfg_port* pinterval_in = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_IN_PORT];
+	struct am_dfg_port* players_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_LAYERS_OUT_PORT];
 	struct am_dfg_port* pinterval_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_OUT_PORT];
 	struct am_dfg_port* pselections_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_SELECTIONS_OUT_PORT];
 	struct am_dfg_port* pmousepos_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT];
@@ -55,7 +56,12 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	struct am_interval interval_in;
 	struct am_trace* trace_in = NULL;
 	struct am_hierarchy* hierarchy_in = NULL;
+	struct am_timeline_renderer* renderer;
+	struct am_timeline_render_layer* layer;
+	struct am_timeline_render_layer** layers;
+	size_t num_layers;
 	size_t num_selections;
+	size_t i;
 	void* out;
 
 	if(am_dfg_port_activated_and_has_data(phierarchy_in)) {
@@ -78,6 +84,24 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 			return 1;
 
 		t->timeline->setVisibleInterval(&interval_in);
+	}
+
+	if(am_dfg_port_activated(players_out)) {
+		renderer = t->timeline->getRenderer();
+		num_layers = 0;
+
+		/* Count layers */
+		am_timeline_renderer_for_each_layer(renderer, layer)
+			num_layers++;
+
+		if(!(out = am_dfg_buffer_reserve(players_out->buffer, num_layers)))
+		 	return 1;
+
+		i = 0;
+		layers = (typeof(layers))out;
+
+		am_timeline_renderer_for_each_layer(renderer, layer)
+			layers[i++] = layer;
 	}
 
 	if(am_dfg_port_activated(pinterval_out)) {

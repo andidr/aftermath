@@ -164,6 +164,13 @@ void TimelineWidget::addLayer(struct am_timeline_render_layer* l)
 		selectionLayers.push_back(AM_TIMELINE_SELECTION_LAYER(l));
 		this->defaultSelectionLayer = AM_TIMELINE_SELECTION_LAYER(l);
 	}
+
+	if(this->dfgNode) {
+		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+		this->dfgNode->required_mask.push_new =
+			(1 << AM_DFG_AMGUI_TIMELINE_NODE_LAYERS_OUT_PORT);
+		this->processDFGNode();
+	}
 }
 
 TimelineWidget::~TimelineWidget()
@@ -786,4 +793,9 @@ am_timestamp_t TimelineWidget::getLastTimestampUnderCursor()
 struct am_hierarchy_node* TimelineWidget::getLastHierarchyNodeUnderCursor()
 {
 	return this->lastHierarchyNodeUnderCursor;
+}
+
+struct am_timeline_renderer* TimelineWidget::getRenderer()
+{
+	return &this->renderer;
 }

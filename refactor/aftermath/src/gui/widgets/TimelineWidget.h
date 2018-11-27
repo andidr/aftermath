@@ -49,6 +49,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		am_timestamp_t getLastTimestampUnderCursor();
 		struct am_hierarchy_node* getLastHierarchyNodeUnderCursor();
 
+		struct am_timeline_renderer* getRenderer();
+
 	protected:
 		enum zoomDirection {
 			ZOOM_IN,

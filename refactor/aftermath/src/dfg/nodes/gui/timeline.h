@@ -37,9 +37,10 @@ enum am_dfg_amgui_timeline_node_port_indexes {
 	AM_DFG_AMGUI_TIMELINE_NODE_TRACE_PORT = 0,
 	AM_DFG_AMGUI_TIMELINE_NODE_HIERARCHY_PORT = 1,
 	AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_IN_PORT = 2,
-	AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_OUT_PORT = 3,
-	AM_DFG_AMGUI_TIMELINE_NODE_SELECTIONS_OUT_PORT = 4,
-	AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT = 5
+	AM_DFG_AMGUI_TIMELINE_NODE_LAYERS_OUT_PORT = 3,
+	AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_OUT_PORT = 4,
+	AM_DFG_AMGUI_TIMELINE_NODE_SELECTIONS_OUT_PORT = 5,
+	AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT = 6
 };
 
 int am_dfg_amgui_timeline_init(struct am_dfg_node* n);
@@ -72,6 +73,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		{ "trace", "const am::core::trace", AM_DFG_PORT_IN },
 		{ "hierarchy", "const am::core::hierarchy", AM_DFG_PORT_IN },
 		{ "interval in", "am::core::interval", AM_DFG_PORT_IN },
+		{ "layers", "const am::render::timeline::layer", AM_DFG_PORT_OUT },
 		{ "interval out", "am::core::interval", AM_DFG_PORT_OUT },
 		{ "selections", "am::core::interval", AM_DFG_PORT_OUT },
 		{ "mouse position", "am::core::pair<am::core::timestamp,const am::core::hierarchy_node>", AM_DFG_PORT_OUT }),
@@ -81,6 +83,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("interval out"),
 		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("selections"),
 		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("mouse position"),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("layers"),
 		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "interval in",
 				AM_DFG_PORT_DEP_PUSH_NEW, "interval out")
 	),
