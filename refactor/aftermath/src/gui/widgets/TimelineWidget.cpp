@@ -88,7 +88,8 @@ void TimelineWidget::setVisibleInterval(const struct am_interval* i)
 
 	if(this->dfgNode) {
 		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
-		this->dfgNode->required_mask.push_new = (1 << 3);
+		this->dfgNode->required_mask.push_new =
+			(1 << AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_OUT_PORT);
 		this->processDFGNode();
 	}
 }
@@ -437,7 +438,8 @@ void TimelineWidget::checkUpdateMousePos(const struct am_point* pos)
 	}
 
 	am_dfg_port_mask_reset(&this->dfgNode->required_mask);
-	this->dfgNode->required_mask.push_new = (1 << AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT);
+	this->dfgNode->required_mask.push_new =
+		(1 << AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT);
 	this->processDFGNode();
 }
 
@@ -587,7 +589,8 @@ void TimelineWidget::checkTriggerSelectionPort()
 {
 	if(this->dfgNode) {
 		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
-		this->dfgNode->required_mask.push_new = (1 << 4);
+		this->dfgNode->required_mask.push_new =
+			(1 << AM_DFG_AMGUI_TIMELINE_NODE_SELECTIONS_OUT_PORT);
 		this->processDFGNode();
 	}
 }
