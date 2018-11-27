@@ -56,4 +56,11 @@ int
 am_timeline_interval_layer_set_max_index(struct am_timeline_interval_layer* l,
 					 size_t max_idx);
 
+void
+am_timeline_interval_layer_set_extra_data(struct am_timeline_interval_layer* l,
+					 void* extra_data);
+
+void*
+am_timeline_interval_layer_get_extra_data(struct am_timeline_interval_layer* l);
+
 #endif

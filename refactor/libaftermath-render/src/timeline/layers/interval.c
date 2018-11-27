@@ -27,6 +27,7 @@ struct am_timeline_interval_layer {
 	const struct am_color_map* color_map;
 	struct am_interval_stats_by_index statistics;
 	int statistics_init;
+	void* extra_data;
 };
 
 struct am_timeline_interval_layer_type {
@@ -66,6 +67,21 @@ am_timeline_interval_layer_set_max_index(struct am_timeline_interval_layer* l,
 	l->statistics_init = 1;
 
 	return 0;
+}
+
+/* Associates private data with the timeline interval layer l. */
+void
+am_timeline_interval_layer_set_extra_data(struct am_timeline_interval_layer* l,
+					  void* extra_data)
+{
+	l->extra_data = extra_data;
+}
+
+/* Returns the private data associated with the timeline interval layer l. */
+void*
+am_timeline_interval_layer_get_extra_data(struct am_timeline_interval_layer* l)
+{
+	return l->extra_data;
 }
 
 /* Calculates the statistics for an interval i, starting with the hierarchy node
@@ -205,6 +221,7 @@ instantiate(struct am_timeline_interval_layer_type* t)
 
 	l->color_map = NULL;
 	l->statistics_init = 0;
+	l->extra_data = NULL;
 
 	am_timeline_lane_render_layer_init(&l->super, &t->super);
 
