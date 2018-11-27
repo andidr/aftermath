@@ -31,6 +31,7 @@
 
 extern "C" {
 	#include <aftermath/render/timeline/common_layers.h>
+	#include <aftermath/render/dfg/types/builtin_types.h>
 	#include <aftermath/core/dfg_builtin_types.h>
 	#include <aftermath/core/dfg_builtin_node_types.h>
 	#include <aftermath/core/dfg/nodes/trace.h>
@@ -55,6 +56,11 @@ AftermathSession::AftermathSession() :
 	am_register_common_timeline_layer_types(&this->rltr);
 
 	if(am_dfg_builtin_types_register(&this->dfg.type_registry)) {
+		this->cleanup();
+		throw RegisterDFGTypesException();
+	}
+
+	if(am_render_dfg_builtin_types_register(&this->dfg.type_registry)) {
 		this->cleanup();
 		throw RegisterDFGTypesException();
 	}
