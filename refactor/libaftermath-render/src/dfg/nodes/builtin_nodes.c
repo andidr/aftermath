@@ -19,6 +19,16 @@
 #include <aftermath/render/dfg/nodes/builtin_nodes.h>
 #include <aftermath/core/dfg_builtin_node_impl.h>
 
+#undef DEFS_NAME
+#define DEFS_NAME() axes_defs
+#include <aftermath/render/dfg/nodes/timeline/layers/axes.h>
+
+/* Final list of all lists of node types from all headers included above */
+static struct am_dfg_static_node_type_def** defsets[] = {
+	axes_defs,
+	NULL
+};
+
 /* Registers all DFG node types for libaftermath-render.
  *
  * Returns 0 on success, otherwise 1.
@@ -27,5 +37,5 @@ int am_render_dfg_builtin_node_types_register(
 	struct am_dfg_node_type_registry* ntr,
 	struct am_dfg_type_registry* tr)
 {
-	return 0;
+	return am_dfg_node_type_registry_add_static(ntr, tr, defsets);
 }
