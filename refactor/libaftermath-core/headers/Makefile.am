@@ -52,6 +52,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/timestamp_to_uint64.h \
 	aftermath/core/dfg/nodes/trace.h \
 	aftermath/core/dfg/types/bool.h \
+	aftermath/core/dfg/types/double.h \
 	aftermath/core/dfg/types/duration.h \
 	aftermath/core/dfg/types/generic.h \
 	aftermath/core/dfg/types/histogram.h \

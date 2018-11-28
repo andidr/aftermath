@@ -24,6 +24,10 @@
 #include <aftermath/core/dfg/types/bool.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() am_dfg_type_set_double
+#include <aftermath/core/dfg/types/double.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() am_dfg_type_set_duration
 #include <aftermath/core/dfg/types/duration.h>
 
@@ -62,6 +66,7 @@
 
 static struct am_dfg_static_type_def** defsets[] = {
 	am_dfg_type_set_bool,
+	am_dfg_type_set_double,
 	am_dfg_type_set_duration,
 	am_dfg_type_set_histogram,
 	am_dfg_type_set_histogram_data,

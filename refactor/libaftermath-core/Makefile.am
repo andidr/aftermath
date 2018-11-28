@@ -94,6 +94,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/trace.h \
 				src/dfg/types/bool.c \
 				src/dfg/types/bool.h \
+				src/dfg/types/double.c \
+				src/dfg/types/double.h \
 				src/dfg/types/duration.c \
 				src/dfg/types/duration.h \
 				src/dfg/types/generic.c \
