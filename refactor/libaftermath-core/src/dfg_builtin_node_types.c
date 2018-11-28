@@ -20,6 +20,10 @@
 #include <aftermath/core/dfg_builtin_node_impl.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() double_constant_defs
+#include <aftermath/core/dfg/nodes/double_constant.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() event_mapping_state_events_defs
 #include <aftermath/core/dfg/nodes/event_mapping_state_events.h>
 
@@ -97,6 +101,7 @@
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
+	double_constant_defs,
 	duration_to_string_defs,
 	duration_to_uint64_defs,
 	event_mapping_state_events_defs,
