@@ -154,7 +154,14 @@ am_state_event = InMemoryCompoundType(
     entity = "state",
     comment = 'A state (e.g., a run-time state)',
     ident = "am::core::state_event",
-    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
+    tags = [
+        tags.mem.dfg.DeclareConstPointerType(),
+        tags.mem.dfg.DeclareEventMappingOverlappingIntervalExtractionNode(
+            stripname_plural = "state_events",
+            port_name = "state events",
+            include_file = "<aftermath/core/state_event_array.h>",
+            title_hrplural_cap = "State Events")
+    ],
 
     fields = FieldList([
         Field(

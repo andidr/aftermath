@@ -20,12 +20,12 @@
 #include <aftermath/core/dfg_builtin_node_impl.h>
 
 #undef DEFS_NAME
-#define DEFS_NAME() double_constant_defs
-#include <aftermath/core/dfg/nodes/double_constant.h>
+#define DEFS_NAME() in_memory_defs
+#include <aftermath/core/in_memory_dfg_node_types.h>
 
 #undef DEFS_NAME
-#define DEFS_NAME() event_mapping_state_events_defs
-#include <aftermath/core/dfg/nodes/event_mapping_state_events.h>
+#define DEFS_NAME() double_constant_defs
+#include <aftermath/core/dfg/nodes/double_constant.h>
 
 #undef DEFS_NAME
 #define DEFS_NAME() hierarchy_attributes_defs
@@ -101,10 +101,10 @@
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
+	in_memory_defs,
 	double_constant_defs,
 	duration_to_string_defs,
 	duration_to_uint64_defs,
-	event_mapping_state_events_defs,
 	hierarchy_attributes_defs,
 	hierarchy_node_attributes_defs,
 	hierarchy_node_selector_defs,
