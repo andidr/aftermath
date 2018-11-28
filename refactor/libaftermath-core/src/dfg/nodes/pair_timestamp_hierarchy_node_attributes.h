@@ -37,9 +37,9 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.process = am_dfg_pair_timestamp_hierarchy_attributes_node_process
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "pairs", "am::core::pair<am::core::timestamp,const am::core::hierarchy_node>", AM_DFG_PORT_IN },
+		{ "pairs", "am::core::pair<am::core::timestamp,const am::core::hierarchy_node*>", AM_DFG_PORT_IN },
 		{ "timestamp", "am::core::timestamp", AM_DFG_PORT_OUT },
-		{ "hierarchy node", "const am::core::hierarchy_node", AM_DFG_PORT_OUT }),
+		{ "hierarchy node", "const am::core::hierarchy_node*", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 

@@ -68,8 +68,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 			am_dfg_hierarchy_node_selector_node_to_object_notation,
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "hierarchies", "const am::core::hierarchy", AM_DFG_PORT_IN },
-		{ "nodes", "const am::core::hierarchy_node", AM_DFG_PORT_OUT }),
+		{ "hierarchies", "const am::core::hierarchy*", AM_DFG_PORT_IN },
+		{ "nodes", "const am::core::hierarchy_node*", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES(
 		{ "name", "Name", "am::core::string" }))

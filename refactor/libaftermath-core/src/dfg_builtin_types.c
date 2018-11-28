@@ -20,6 +20,10 @@
 #include <aftermath/core/dfg_builtin_type_impl.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() am_dfg_type_set_in_memory
+#include <aftermath/core/in_memory_dfg_types.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() am_dfg_type_set_bool
 #include <aftermath/core/dfg/types/bool.h>
 
@@ -59,12 +63,9 @@
 #define DEFS_NAME() am_dfg_type_set_timestamp
 #include <aftermath/core/dfg/types/timestamp.h>
 
-#undef DEFS_NAME
-#define DEFS_NAME() am_dfg_type_set_in_memory
-#include <aftermath/core/dfg/types/in_memory.h>
-
 
 static struct am_dfg_static_type_def** defsets[] = {
+	am_dfg_type_set_in_memory,
 	am_dfg_type_set_bool,
 	am_dfg_type_set_double,
 	am_dfg_type_set_duration,

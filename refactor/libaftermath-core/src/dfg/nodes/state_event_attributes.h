@@ -35,7 +35,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.process = am_dfg_state_event_attributes_node_process
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "in", "am::core::state_event", AM_DFG_PORT_IN },
+		{ "in", "const am::core::state_event*", AM_DFG_PORT_IN },
 		{ "interval", "am::core::interval", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())

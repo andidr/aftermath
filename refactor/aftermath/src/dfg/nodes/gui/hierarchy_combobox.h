@@ -68,8 +68,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_amgui_hierarchy_combobox_to_object_notation
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "trace", "const am::core::trace", AM_DFG_PORT_IN },
-		{ "hierarchy", "const am::core::hierarchy", AM_DFG_PORT_OUT }),
+		{ "trace", "const am::core::trace*", AM_DFG_PORT_IN },
+		{ "hierarchy", "const am::core::hierarchy*", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(
 		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "trace",
 				AM_DFG_PORT_DEP_PUSH_NEW, "hierarchy"),

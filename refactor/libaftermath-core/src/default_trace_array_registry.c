@@ -64,11 +64,11 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_set_array)
 int am_build_default_trace_array_registry(struct am_array_registry* r)
 {
 	if(AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_state_description_array,
-					      "am::generic::state_description") ||
+					      "am::core::state_description") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_counter_description_array,
-					      "am::generic::counter_description") ||
+					      "am::core::counter_description") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_measurement_interval_array,
-					      "am::generic::measurement_interval") ||
+					      "am::core::measurement_interval") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_type_array,
 					      "am::openstream::task_type") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_instance_array,
@@ -76,9 +76,9 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openstream_task_period_array,
 					      "am::openstream::task_period") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_state_event_array,
-					      "am::generic::state") ||
+					      "am::core::state_event") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_counter_event_array_collection,
-					      "am::generic::counter_event") ||
+					      "am::core::counter_event") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_task_instance_array,
 					      "am::openmp::task_instance") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_task_period_array,

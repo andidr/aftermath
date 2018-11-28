@@ -109,7 +109,6 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/types/histogram.h \
 				src/dfg/types/histogram_data.c \
 				src/dfg/types/histogram_data.h \
-				src/dfg/types/in_memory.h \
 				src/dfg/types/interval.c \
 				src/dfg/types/interval.h \
 				src/dfg/types/pair_timestamp_hierarchy_node.h \

@@ -30,7 +30,7 @@ struct am_dfg_type_pair_timestamp_const_hierarchy_node {
 
 AM_DFG_DECL_BUILTIN_TYPE(
 	am_dfg_type_pair_timestamp_const_hierarchy_node,
-	"am::core::pair<am::core::timestamp,const am::core::hierarchy_node>",
+	"am::core::pair<am::core::timestamp,const am::core::hierarchy_node*>",
 	sizeof(struct am_dfg_type_pair_timestamp_const_hierarchy_node),
 	NULL, NULL, NULL, NULL)
 

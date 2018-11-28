@@ -53,7 +53,8 @@ am_counter_event = InMemoryCompoundType(
     name = "am_counter_event",
     entity = "counter event",
     comment = "A counter event",
-    ident = "am::generic::counter_event",
+    ident = "am::core::counter_event",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(
@@ -71,7 +72,7 @@ am_interval = InMemoryCompoundType(
     name = "am_interval",
     entity = "interval",
     comment = "An interval with a start and end timestamp.",
-    ident = "am::generic::interval",
+    ident = "am::core::interval",
 
     fields = FieldList([
         Field(
@@ -89,7 +90,8 @@ am_measurement_interval = InMemoryCompoundType(
     name = "am_measurement_interval",
     entity = "measurement interval",
     comment = "A measurement interval",
-    ident = "am::generic::measurement_interval",
+    ident = "am::core::measurement_interval",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(
@@ -103,7 +105,7 @@ am_time_offset = InMemoryCompoundType(
     name = "am_time_offset",
     entity = "timestamp difference",
     comment = "Difference between two timestamps",
-    ident = "am::generic::time_offset",
+    ident = "am::core::time_offset",
 
     fields = FieldList([
         Field(
@@ -121,7 +123,8 @@ am_counter_description = InMemoryCompoundType(
     name = "am_counter_description",
     entity = "counter description",
     comment = "A description associating a name with a numerical counter ID",
-    ident = "am::generic::counter_description",
+    ident = "am::core::counter_description",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(
@@ -135,7 +138,8 @@ am_state_description = InMemoryCompoundType(
     name = "am_state_description",
     entity = "state description",
     comment = "A description associating a name with a numerical state ID",
-    ident = "am::generic::state_description",
+    ident = "am::core::state_description",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(
@@ -149,7 +153,8 @@ am_state_event = InMemoryCompoundType(
     name = "am_state_event",
     entity = "state",
     comment = 'A state (e.g., a run-time state)',
-    ident = "am::generic::state",
+    ident = "am::core::state_event",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(
@@ -173,7 +178,8 @@ am_source_location = InMemoryCompoundType(
     name = "am_source_location",
     entity = "source location",
     comment = "A source code location (file, line, character)",
-    ident = "am::generic::source_location",
+    ident = "am::core::source_location",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(

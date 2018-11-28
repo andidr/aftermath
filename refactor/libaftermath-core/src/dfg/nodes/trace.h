@@ -40,7 +40,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 			.init = am_dfg_trace_node_init,
 			.process = am_dfg_trace_node_process
 	}),
-	AM_DFG_NODE_PORTS({ "trace", "const am::core::trace", AM_DFG_PORT_OUT }),
+	AM_DFG_NODE_PORTS({ "trace", "const am::core::trace*", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())
 

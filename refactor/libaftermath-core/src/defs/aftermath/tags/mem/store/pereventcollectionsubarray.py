@@ -78,7 +78,7 @@ class BaseGenerateAppendFunction(TemplatedGenerateFunctionTag):
         identifies the sub array.
 
         `event_collection_array_ident` is the string identifier of the array
-        owned by the event collection (e.g., "am::generic::counter_event"). If
+        owned by the event collection (e.g., "am::core::counter_event"). If
         not specified, it is set to the array identifier of the in-memory
         representationof the event.
 

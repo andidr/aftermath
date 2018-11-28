@@ -23,4 +23,4 @@
 #include <aftermath/core/state_event_array.h>
 
 AM_DFG_IMPL_EVENT_MAPPING_EXTRACT_OVERLAPPING_INTERVAL_NODE(
-	state_events, am_state_event, am_state_event_array, "am::generic::state")
+	state_events, am_state_event, am_state_event_array, "am::core::state_event")

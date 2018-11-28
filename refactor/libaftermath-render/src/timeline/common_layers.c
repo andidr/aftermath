@@ -46,7 +46,7 @@ static int state_renderer_trace_changed(struct am_timeline_render_layer* l,
 	struct am_state_description_array* sda;
 
 	if(!t || !(sda = am_trace_find_trace_array(
-			   t, "am::generic::state_description")))
+			   t, "am::core::state_description")))
 	{
 		return 0;
 	}
@@ -79,7 +79,7 @@ am_timeline_state_layer_instantiate_type(void)
 
 	t = am_timeline_interval_layer_instantiate_type_index_member(
 		"state",
-		"am::generic::state",
+		"am::core::state_event",
 		sizeof(struct am_state_event),
 		offsetof(struct am_state_event, interval),
 		offsetof(struct am_state_event, state_idx),

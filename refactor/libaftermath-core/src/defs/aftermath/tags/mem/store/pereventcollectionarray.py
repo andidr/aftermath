@@ -68,7 +68,7 @@ class BaseGenerateAppendFunction(TemplatedGenerateFunctionTag):
                  event_array_ident = None,
                  event_array_struct_name = None):
         """The string `event_array_ident` is the string identifier of the event
-        collection's event array (e.g., "am::generic::state_event"). If this
+        collection's event array (e.g., "am::core::state_event"). If this
         value is not specified, the string identifier is determined by using the
         string identifier published by the structure that contains the in-memory
         representation of the on-disk data structure.

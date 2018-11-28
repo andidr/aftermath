@@ -70,13 +70,13 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.to_object_notation = am_dfg_amgui_timeline_to_object_notation
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "trace", "const am::core::trace", AM_DFG_PORT_IN },
-		{ "hierarchy", "const am::core::hierarchy", AM_DFG_PORT_IN },
+		{ "trace", "const am::core::trace*", AM_DFG_PORT_IN },
+		{ "hierarchy", "const am::core::hierarchy*", AM_DFG_PORT_IN },
 		{ "interval in", "am::core::interval", AM_DFG_PORT_IN },
-		{ "layers", "const am::render::timeline::layer", AM_DFG_PORT_OUT },
+		{ "layers", "const am::render::timeline::layer*", AM_DFG_PORT_OUT },
 		{ "interval out", "am::core::interval", AM_DFG_PORT_OUT },
 		{ "selections", "am::core::interval", AM_DFG_PORT_OUT },
-		{ "mouse position", "am::core::pair<am::core::timestamp,const am::core::hierarchy_node>", AM_DFG_PORT_OUT }),
+		{ "mouse position", "am::core::pair<am::core::timestamp,const am::core::hierarchy_node*>", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("interval in"),
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("hierarchy"),

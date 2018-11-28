@@ -34,8 +34,8 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.process = am_dfg_hierarchy_attributes_node_process
 	}),
 	AM_DFG_NODE_PORTS(
-		{ "in", "const am::core::hierarchy", AM_DFG_PORT_IN },
-		{ "nodes", "const am::core::hierarchy_node", AM_DFG_PORT_OUT },
+		{ "in", "const am::core::hierarchy*", AM_DFG_PORT_IN },
+		{ "nodes", "const am::core::hierarchy_node*", AM_DFG_PORT_OUT },
 		{ "name", "am::core::string", AM_DFG_PORT_OUT }),
 	AM_DFG_PORT_DEPS(),
 	AM_DFG_NODE_PROPERTIES())

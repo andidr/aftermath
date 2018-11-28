@@ -107,7 +107,7 @@ static void render(struct measurement_intervals_layer* mil, cairo_t* cr)
 	if(!t)
 		return;
 
-	if(!(mia = am_trace_find_trace_array(t, "am::generic::measurement_interval")))
+	if(!(mia = am_trace_find_trace_array(t, "am::core::measurement_interval")))
 		return;
 
 	cairo_rectangle(cr, AM_RECT_ARGS(r->rects.lanes));

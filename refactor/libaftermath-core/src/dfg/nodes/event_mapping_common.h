@@ -43,10 +43,10 @@
 			.process = am_dfg_event_mapping_##NAMES##_node_process	\
 		}),								\
 		AM_DFG_NODE_PORTS(						\
-			{ "event mapping", "const am::core::event_mapping",	\
+			{ "event mapping", "const am::core::event_mapping*",	\
 					AM_DFG_PORT_IN },			\
 			{ "intervals", "am::core::interval", AM_DFG_PORT_IN },	\
-			{ PORT_NAME, IDENT, AM_DFG_PORT_OUT }),		\
+			{ PORT_NAME, "const " IDENT "*", AM_DFG_PORT_OUT }),	\
 		AM_DFG_PORT_DEPS(),						\
 		AM_DFG_NODE_PROPERTIES())
 

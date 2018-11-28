@@ -68,7 +68,7 @@ class BaseGenerateAppendFunction(TemplatedGenerateFunctionTag):
                  trace_array_ident = None,
                  trace_array_struct_name = None):
         """`trace_array_ident` is the string identifier of the per-trace array (e.g.,
-        "am::generic::state_description"). If not specified, it is determined
+        "am::core::state_description"). If not specified, it is determined
         automatically by using the in-memory type's array identifier.
 
         `trace_array_struct_name` is a string indicating the name of the

@@ -204,7 +204,7 @@ IN-MEMORY REPRESENTATION OF TRACE DATA
   type. These arrays are organized in an array collection---a map that
   associates each array referenced by it with a string key
   representing the type of the array elements (e.g.,
-  "am::generic::state_description" for struct am_state_description). A
+  "am::core::state_description" for struct am_state_description). A
   per-trace array can be accessed by calling
   am_trace_find_trace_array() on an instance of struct am_trace, the
   data structure representing a trace.
@@ -487,7 +487,7 @@ DEFINING CUSTOM TYPES
   Optionally, it might define:
 
     - An array identifier for array collections with a reference to an
-      array of the newly defined type (e.g., "am::generic::state")
+      array of the newly defined type (e.g., "am::core::state_event")
 
     - A set of tags
 
