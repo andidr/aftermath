@@ -23,6 +23,7 @@ from aftermath import relations
 import aftermath
 import copy
 import types
+import re
 
 #################################################################################
 
@@ -88,6 +89,10 @@ class Type(object):
 
     def getName(self):
         return self.__name
+
+    def getStripName(self):
+        """Returns the name without preceding "am_" (if present)"""
+        return re.sub("^am_", "", self.__name)
 
     def getIdent(self):
         if not self.__ident:
