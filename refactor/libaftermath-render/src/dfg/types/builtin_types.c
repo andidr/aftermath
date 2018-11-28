@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/dfg_builtin_type_impl.h>
+#include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/dfg/types/builtin_types.h>
 #include <aftermath/render/timeline/layer.h>
 
@@ -26,8 +27,15 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	sizeof(struct am_timeline_render_layer*),
 	NULL, NULL, NULL, NULL)
 
+AM_DFG_DECL_BUILTIN_TYPE(
+	am_render_dfg_type_rgba,
+	"am::render::rgba",
+	sizeof(struct am_rgba),
+	NULL, NULL, NULL, NULL)
+
 static struct am_dfg_static_type_def* builtin_defs[] = {
 	&am_render_dfg_type_timeline_layer,
+	&am_render_dfg_type_rgba,
 	NULL
 };
 
