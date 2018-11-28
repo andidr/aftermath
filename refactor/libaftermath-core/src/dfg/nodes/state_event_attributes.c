@@ -23,7 +23,7 @@ int am_dfg_state_event_attributes_node_process(struct am_dfg_node* n)
 {
 	struct am_dfg_port* pin = &n->ports[0];
 	struct am_dfg_port* pinterval = &n->ports[1];
-	struct am_state_event* events;
+	struct am_state_event** events;
 	struct am_interval* intervals;
 	size_t nin;
 
@@ -39,7 +39,7 @@ int am_dfg_state_event_attributes_node_process(struct am_dfg_node* n)
 	events = pin->buffer->data;
 
 	for(size_t i = 0; i < nin; i++)
-		intervals[i] = events[i].interval;
+		intervals[i] = events[i]->interval;
 
 	return 0;
 }
