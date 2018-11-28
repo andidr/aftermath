@@ -136,6 +136,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/interval_array.h \
 				src/in_memory.c \
 				src/in_memory.h \
+				src/in_memory_dfg_types.h \
 				src/in_memory_inline.h \
 				src/io_context.c \
 				src/io_context.h \
@@ -190,6 +191,7 @@ libaftermath_core_la_LIBADD =
 GENERATED_FILES=src/base_types.h \
 		src/in_memory.c \
 		src/in_memory.h \
+		src/in_memory_dfg_types.h \
 		src/in_memory_inline.h \
 		src/on_disk.c \
 		src/on_disk.h \
@@ -268,6 +270,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/teardown/TeardownFunction.tpl.c \
 	src/defs/aftermath/templates/toplevel/base_types.tpl.h \
 	src/defs/aftermath/templates/toplevel/defs.py \
+	src/defs/aftermath/templates/toplevel/in_memory_dfg_types.tpl.h \
 	src/defs/aftermath/templates/toplevel/in_memory_inline.tpl.h \
 	src/defs/aftermath/templates/toplevel/in_memory.tpl.c \
 	src/defs/aftermath/templates/toplevel/in_memory.tpl.h \
@@ -341,6 +344,7 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 src/base_types.h: src/defs/aftermath/templates/toplevel/base_types.tpl.h $(TPL_DEPS)
 src/in_memory.h: src/defs/aftermath/templates/toplevel/in_memory.tpl.h $(TPL_DEPS)
 src/in_memory.c: src/defs/aftermath/templates/toplevel/in_memory.tpl.c $(TPL_DEPS)
+src/in_memory_dfg_types.h: src/defs/aftermath/templates/toplevel/in_memory_dfg_types.tpl.h $(TPL_DEPS)
 src/in_memory_inline.h: src/defs/aftermath/templates/toplevel/in_memory_inline.tpl.h $(TPL_DEPS)
 src/on_disk.h: src/defs/aftermath/templates/toplevel/on_disk.tpl.h $(TPL_DEPS)
 src/on_disk.c: src/defs/aftermath/templates/toplevel/on_disk.tpl.c $(TPL_DEPS)

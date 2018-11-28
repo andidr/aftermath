@@ -1,5 +1,6 @@
 headers/aftermath/core/base_types.h
 headers/aftermath/core/in_memory.h
+headers/aftermath/core/in_memory_dfg_types.h
 headers/aftermath/core/in_memory_inline.h
 headers/aftermath/core/on_disk.h
 headers/aftermath/core/on_disk_default_type_ids.h
