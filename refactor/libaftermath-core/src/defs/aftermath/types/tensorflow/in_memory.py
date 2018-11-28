@@ -24,6 +24,7 @@ am_tensorflow_node = InMemoryCompoundType(
     entity = "Tensorflow node",
     comment = "A tensorflow node (e.g., an operation or a constant)",
     ident = "am::tensorflow::node",
+    tags = [ tags.mem.dfg.DeclareConstPointerType() ],
 
     fields = FieldList([
         Field(

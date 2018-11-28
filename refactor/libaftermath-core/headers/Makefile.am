@@ -50,6 +50,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/state_event_attributes.h \
 	aftermath/core/dfg/nodes/string_concat.h \
 	aftermath/core/dfg/nodes/string_format.h \
+	aftermath/core/dfg/nodes/tensorflow_node_execution_attributes.h \
 	aftermath/core/dfg/nodes/timestamp_to_string.h \
 	aftermath/core/dfg/nodes/timestamp_to_uint64.h \
 	aftermath/core/dfg/nodes/trace.h \
