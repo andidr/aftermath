@@ -42,6 +42,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/hierarchy_selector.h \
 	aftermath/core/dfg/nodes/histogram_attributes.h \
 	aftermath/core/dfg/nodes/histogram_builder.h \
+	aftermath/core/dfg/nodes/int_constant.h \
 	aftermath/core/dfg/nodes/interval_attributes.h \
 	aftermath/core/dfg/nodes/interval_duration.h \
 	aftermath/core/dfg/nodes/pair_timestamp_hierarchy_node_attributes.h \
