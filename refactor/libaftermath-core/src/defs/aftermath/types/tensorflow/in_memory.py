@@ -38,6 +38,14 @@ am_tensorflow_node_execution = InMemoryCompoundType(
     entity = "on-disk Tensorflow node execution",
     comment = "An Tensorflow node execution",
     ident = "am::tensorflow::node_execution",
+    tags = [
+        tags.mem.dfg.DeclareConstPointerType(),
+        tags.mem.dfg.DeclareEventMappingOverlappingIntervalExtractionNode(
+            stripname_plural = "tensorflow_node_exectutions",
+            port_name = "node executions",
+            include_file = "<aftermath/core/tensorflow_node_execution_array.h>",
+            title_hrplural_cap = "TensorFlow Node Executions")
+    ],
 
     fields = FieldList([
         Field(
