@@ -75,6 +75,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/interval.h \
 	aftermath/core/interval_array.h \
 	aftermath/core/in_memory.h \
+	aftermath/core/in_memory_dfg_node_types.h \
 	aftermath/core/in_memory_dfg_types.h \
 	aftermath/core/in_memory_inline.h \
 	aftermath/core/io_context.h \
@@ -139,6 +140,10 @@ aftermath/core/on_disk_write_to_buffer.h: $(top_builddir)/src/on_disk_write_to_b
 	ln -sfr $< $@
 
 aftermath/core/in_memory.h: $(top_builddir)/src/in_memory.h
+	$(MKDIR_P) aftermath/core
+	ln -sfr $< $@
+
+aftermath/core/in_memory_dfg_node_types.h: $(top_builddir)/src/in_memory_dfg_node_types.h
 	$(MKDIR_P) aftermath/core
 	ln -sfr $< $@
 

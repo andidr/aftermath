@@ -1,6 +1,8 @@
 base_types.h
 in_memory.c
 in_memory.h
+in_memory_dfg_node_types.c
+in_memory_dfg_node_types.h
 in_memory_dfg_types.h
 in_memory_inline.h
 on_disk.c
