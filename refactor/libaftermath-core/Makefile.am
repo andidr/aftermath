@@ -213,6 +213,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/tags/finalize.py \
 	src/defs/aftermath/tags/__init__.py \
 	src/defs/aftermath/tags/mem/__init__.py \
+	src/defs/aftermath/tags/mem/dfg.py \
 	src/defs/aftermath/tags/mem/store/__init__.py \
 	src/defs/aftermath/tags/mem/store/pereventcollectionarray.py \
 	src/defs/aftermath/tags/mem/store/pereventcollectionsubarray.py \
@@ -301,6 +302,7 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/tags/finalize.pyc \
 	src/defs/aftermath/tags/__init__.pyc \
 	src/defs/aftermath/tags/mem/__init__.pyc \
+	src/defs/aftermath/tags/mem/dfg.pyc \
 	src/defs/aftermath/tags/mem/store/__init__.pyc \
 	src/defs/aftermath/tags/mem/store/pereventcollectionarray.pyc \
 	src/defs/aftermath/tags/mem/store/pereventcollectionsubarray.pyc \
