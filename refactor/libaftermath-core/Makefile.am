@@ -89,6 +89,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/state_event_attributes.h \
 				src/dfg/nodes/string_concat.c \
 				src/dfg/nodes/string_concat.h \
+				src/dfg/nodes/string_constant.c \
+				src/dfg/nodes/string_constant.h \
 				src/dfg/nodes/string_format.c \
 				src/dfg/nodes/string_format.h \
 				src/dfg/nodes/timestamp_to_string.c \

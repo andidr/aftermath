@@ -84,6 +84,10 @@
 #include <aftermath/core/dfg/nodes/state_event_attributes.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() string_constant_defs
+#include <aftermath/core/dfg/nodes/string_constant.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() string_concat_defs
 #include <aftermath/core/dfg/nodes/string_concat.h>
 
@@ -130,6 +134,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	pair_timestamp_hierarchy_node_attributes_defs,
 	state_event_attributes_defs,
 	string_concat_defs,
+	string_constant_defs,
 	string_format_defs,
 	timestamp_to_string_defs,
 	timestamp_to_uint64_defs,
