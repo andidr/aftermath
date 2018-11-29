@@ -210,4 +210,24 @@ am_rgba_to_string(const struct am_rgba* rgba, char* out, size_t max_len)
 	return 0;
 }
 
+/* Allocates a new string of sufficient size and prints the string
+ * representation of rgba into it. Returns a pointer to the newly allocated
+ * string on success, otherwise NULL. */
+static inline char* am_rgba_to_string_alloc(const struct am_rgba* rgba)
+{
+	/* Maximum lengths is for rgba(RRR,GGG,BBB,A.AAAA), which is 24 + 1
+	 * bytes*/
+	char* ret;
+
+	if(!(ret = (char*)malloc(25)))
+		return NULL;
+
+	if(am_rgba_to_string(rgba, ret, 25)) {
+		free(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
 #endif
