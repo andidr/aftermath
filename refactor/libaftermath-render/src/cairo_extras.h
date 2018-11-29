@@ -193,4 +193,21 @@ am_triangle(cairo_t* cr, double x, double y, double width, double height)
 	cairo_line_to(cr, x, y - height/2.0);
 }
 
+/* Prints the string representation of rgba into out, using up to max_len
+ * bytes. If the output was truncated, the function returns 1, otherwise 0. */
+static inline int
+am_rgba_to_string(const struct am_rgba* rgba, char* out, size_t max_len)
+{
+	if((size_t)snprintf(out, max_len, "rgba(%d,%d,%d,%.4f)",
+			    (int)(rgba->r * 255.0),
+			    (int)(rgba->g * 255.0),
+			    (int)(rgba->b * 255.0),
+			    rgba->a) >= max_len)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 #endif
