@@ -18,73 +18,12 @@
 
 #include <aftermath/render/timeline/layers/axes.h>
 #include <aftermath/render/timeline/renderer.h>
-#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
 #include <math.h>
 #include <aftermath/core/ansi_extras.h>
 
-struct tick_params {
-	/* Height of the tick line in pixels */
-	double height;
-
-	/* Width of the tick line in pixels */
-	double width;
-
-	/* Number of significant digits for the label */
-	size_t significant_digits;
-
-	/* Indicates whether a label should be drawn or not */
-	int draw_label;
-
-	/* Color of the tick line */
-	struct am_rgba color;
-
-	struct {
-		/* Font family */
-		char* family;
-
-		/* Scaling factor for the font */
-		double size;
-
-		/* Top margin in pixels for labels */
-		double top_margin;
-
-		/* Color for labels */
-		struct am_rgba color;
-
-		/* Rotation in degrees */
-		double rotation;
-	} font;
-};
-
-struct axis_params {
-	/* Color of the axis line */
-	struct am_rgba color;
-
-	/* Width in pixels of the axis line */
-	double width;
-};
-
-struct axes_layer_params {
-	struct {
-		struct axis_params vertical;
-		struct axis_params horizontal;
-	} axes;
-
-	struct tick_params major_ticks;
-	struct tick_params minor_ticks;
-
-	unsigned int min_minor_tick_distance;
-};
-
-
-struct axes_layer {
-	struct am_timeline_render_layer super;
-	struct axes_layer_params params;
-};
-
 /* Default colors: gray 0.5 and black */
-static const struct axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
+static const struct am_timeline_axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
 	.axes = {
 		.vertical = {
 			.color = { 0.8, 0.8, 0.0, 1.0 },
@@ -132,7 +71,7 @@ static const struct axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
 
 /* Calculates the distance in time units between two minor ticks based on the
  * axes layer's minimum required distance in pixels. */
-static inline long double calculate_minor_tick_distance(struct axes_layer* ax)
+static inline long double calculate_minor_tick_distance(struct am_timeline_axes_layer* ax)
 {
 	struct am_timeline_renderer* r = ax->super.renderer;
 	struct am_time_offset width_ud;
@@ -158,8 +97,10 @@ static inline long double calculate_minor_tick_distance(struct axes_layer* ax)
 
 /* Draws a tick and its label at the correct position for a timestamp t using
  * the parameters of p. */
-static void draw_tick(struct axes_layer* ax, cairo_t* cr, am_timestamp_t t,
-		      struct tick_params* p)
+static void draw_tick(struct am_timeline_axes_layer* ax,
+		      cairo_t* cr,
+		      am_timestamp_t t,
+		      struct am_timeline_axes_layer_tick_params* p)
 {
 	struct am_timeline_renderer* r = ax->super.renderer;
 	cairo_text_extents_t extents;
@@ -212,17 +153,20 @@ static void draw_tick(struct axes_layer* ax, cairo_t* cr, am_timestamp_t t,
 	cairo_restore(cr);
 }
 
-static void render(struct axes_layer* ax, cairo_t* cr)
+static void render(struct am_timeline_axes_layer* ax, cairo_t* cr)
 {
 	struct am_timeline_renderer* r = ax->super.renderer;
-	struct axis_params* vp = &ax->params.axes.vertical;
-	struct axis_params* hp = &ax->params.axes.horizontal;
+	struct am_timeline_axes_layer_axis_params* vp;
+	struct am_timeline_axes_layer_axis_params* hp;
 	struct am_rect* lr = &r->rects.lanes;
 	struct am_time_offset dur;
 	long double minor_time;
 	long double major_time;
 	long double vstart_time;
 	long double start_time;
+
+	vp = &ax->params.axes.vertical;
+	hp = &ax->params.axes.horizontal;
 
 	/* Vertical line */
 	cairo_set_source_rgba(cr, AM_RGBA_ARGS(vp->color));
@@ -275,7 +219,7 @@ static void render(struct axes_layer* ax, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
-static void destroy(struct axes_layer* ax)
+static void destroy(struct am_timeline_axes_layer* ax)
 {
 	free(ax->params.major_ticks.font.family);
 	free(ax->params.minor_ticks.font.family);
@@ -284,7 +228,7 @@ static void destroy(struct axes_layer* ax)
 static struct am_timeline_render_layer*
 instantiate(struct am_timeline_render_layer_type* t)
 {
-	struct axes_layer* l;
+	struct am_timeline_axes_layer* l;
 
 	if(!(l = malloc(sizeof(*l))))
 		goto out_err;
@@ -311,7 +255,7 @@ out_err:
 
 /* Allocates, initializes and adds an axis entity to the list of entities
  * lst. Returns 0 on success, otherwise 1. */
-static int add_axis_entity(struct axes_layer* ax,
+static int add_axis_entity(struct am_timeline_axes_layer* ax,
 			   struct list_head* lst,
 			   enum am_timeline_axes_layer_axis_type type)
 {
@@ -330,7 +274,7 @@ static int add_axis_entity(struct axes_layer* ax,
 	return 0;
 }
 
-static int identify_entities(struct axes_layer* ax,
+static int identify_entities(struct am_timeline_axes_layer* ax,
 			     struct list_head* lst,
 			     double x, double y)
 {
@@ -367,7 +311,7 @@ static int identify_entities(struct axes_layer* ax,
 	return 0;
 }
 
-static void destroy_entity(struct axes_layer* ax,
+static void destroy_entity(struct am_timeline_axes_layer* ax,
 			   struct am_timeline_entity* e)
 {
 	am_timeline_entity_destroy(e);
