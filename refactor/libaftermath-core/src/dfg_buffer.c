@@ -189,6 +189,52 @@ int am_dfg_buffer_get(struct am_dfg_buffer* b,
 	return 0;
 }
 
+/* Retrieve num_samples pointers to samples starting at the offset sample_offset
+ * (in samples). If the number of samples is less than the requested number of
+ * sample pointers behind the offset, the function returns 1, otherwise 0. */
+int am_dfg_buffer_ptr(struct am_dfg_buffer* b,
+		      size_t sample_offset,
+		      size_t num_sample_ptrs,
+		      void** ptrs)
+{
+	void* start_addr;
+	void* curr_addr;
+
+	/* Offset already past the end? */
+	if(sample_offset > b->num_samples)
+		return 1;
+
+	if(!(start_addr = am_array_element_ptr_safe(
+		     b->data, sample_offset, b->sample_type->sample_size)))
+	{
+		return 1;
+	}
+
+	/* Not reading past the end? */
+	if(b->num_samples - sample_offset < num_sample_ptrs)
+		return 1;
+
+	curr_addr = start_addr;
+
+	for(size_t i = 0; i < num_sample_ptrs; i++) {
+		ptrs[i] = curr_addr;
+		curr_addr = ((char*)curr_addr) + b->sample_type->sample_size;
+	}
+
+	return 0;
+}
+
+/* Stores a pointer to the last sample in the buffer in *data. If the buffer
+ * does not contain any sample, the function returns 1, otherwise 0.
+ */
+int am_dfg_buffer_last_ptr(struct am_dfg_buffer* b, void** ptrs)
+{
+	if(b->num_samples == 0)
+		return 1;
+
+	return am_dfg_buffer_ptr(b, b->num_samples - 1, 1, ptrs);
+}
+
 /*
  * Read num_saples of data from a buffer. The data read from the buffer is not
  * removed and remains accessible afterwards. Hence, subsequent calls to

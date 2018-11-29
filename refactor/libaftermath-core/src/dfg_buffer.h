@@ -62,5 +62,10 @@ int am_dfg_buffer_get(struct am_dfg_buffer* b,
 		   size_t sample_offset,
 		   size_t num_samples,
 		   void* data);
+int am_dfg_buffer_ptr(struct am_dfg_buffer* b,
+		      size_t sample_offset,
+		      size_t num_sample_ptrs,
+		      void** ptrs);
+int am_dfg_buffer_last_ptr(struct am_dfg_buffer* b, void** ptrs);
 
 #endif
