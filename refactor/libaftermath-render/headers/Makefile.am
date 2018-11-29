@@ -7,6 +7,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/renderer.h \
 	aftermath/render/dfg/timeline_layer_common.h \
 	aftermath/render/dfg/types/builtin_types.h \
+	aftermath/render/dfg/types/rgba.h \
 	aftermath/render/histogram/renderer.h \
 	aftermath/render/timeline/common_layers.h \
 	aftermath/render/timeline/layer.h \

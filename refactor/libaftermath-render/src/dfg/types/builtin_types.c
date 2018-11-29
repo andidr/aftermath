@@ -28,18 +28,15 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	sizeof(struct am_timeline_render_layer*),
 	NULL, NULL, NULL, NULL)
 
-AM_DFG_DECL_BUILTIN_TYPE(
-	am_render_dfg_type_rgba,
-	"am::render::rgba",
-	sizeof(struct am_rgba),
-	NULL, NULL, NULL, NULL)
+#undef DEFS_NAME
+#define DEFS_NAME() am_render_dfg_type_rgba_defs
+#include <aftermath/render/dfg/types/rgba.h>
 
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(axes, "axes")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(tensorflow_node_execution, "tensorflow::node_execution")
 
 static struct am_dfg_static_type_def* builtin_defs[] = {
 	&am_render_dfg_type_timeline_layer,
-	&am_render_dfg_type_rgba,
 	&am_render_dfg_type_timeline_axes_layer,
 	&am_render_dfg_type_timeline_tensorflow_node_execution_layer,
 	NULL
@@ -47,6 +44,7 @@ static struct am_dfg_static_type_def* builtin_defs[] = {
 
 static struct am_dfg_static_type_def** defsets[] = {
 	builtin_defs,
+	am_render_dfg_type_rgba_defs,
 	NULL
 };
 

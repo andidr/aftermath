@@ -20,6 +20,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/timeline_layer_common.h \
 	src/dfg/types/builtin_types.c \
 	src/dfg/types/builtin_types.h \
+	src/dfg/types/rgba.c \
+	src/dfg/types/rgba.h \
 	src/histogram/renderer.c \
 	src/histogram/renderer.h \
 	src/timeline/common_layers.c \
