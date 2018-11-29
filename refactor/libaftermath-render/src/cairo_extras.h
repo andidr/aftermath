@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <math.h>
 #include <aftermath/core/ansi_extras.h>
+#include <aftermath/core/parser.h>
 
 void am_striped_rectangle(cairo_t* cr,
 			  double rect_left, double rect_top,
@@ -228,6 +229,72 @@ static inline char* am_rgba_to_string_alloc(const struct am_rgba* rgba)
 	}
 
 	return ret;
+}
+
+/* Initializes struct am_rgba from a string representation.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+static inline int am_rgba_from_string(struct am_rgba* rgba, const char* str)
+{
+	struct am_parser p;
+	struct am_parser_token t;
+	uint64_t uval_rgb[3];
+	double dval_alpha;
+
+	am_parser_init(&p, str, strlen(str));
+
+	if(am_parser_read_next_identifier(&p, &t))
+		return 1;
+
+	if(!am_parser_token_equals_str(&t, "rgba"))
+		return 1;
+
+	if(am_parser_read_next_char(&p, &t, '('))
+		return 1;
+
+	for(size_t i = 0; i < 3; i++) {
+		if(i != 0) {
+			if(am_parser_read_next_char(&p, &t, ','))
+				return 1;
+		}
+
+		am_parser_skip_ws(&p);
+
+		if(am_parser_read_any_uint(&p, &t))
+			return 1;
+
+		if(am_safe_atou64n(t.str, t.len, &uval_rgb[i]))
+			return 1;
+
+		if(uval_rgb[i] > 255)
+			return 1;
+	}
+
+	if(am_parser_read_next_char(&p, &t, ','))
+		return 1;
+
+	if(am_parser_read_next_double(&p, &t))
+		return 1;
+
+	if(am_safe_atodbln(t.str, t.len, &dval_alpha))
+		return 1;
+
+	if(dval_alpha > 1.0)
+		return 1;
+
+	if(am_parser_read_next_char(&p, &t, ')'))
+		return 1;
+
+	am_parser_skip_ws(&p);
+
+	if(!am_parser_reached_end(&p))
+		return 1;
+
+	*rgba = AM_RGBA255(uval_rgb[0], uval_rgb[1], uval_rgb[2], 0);
+	rgba->a = dval_alpha;
+
+	return 0;
 }
 
 #endif
