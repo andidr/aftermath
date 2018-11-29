@@ -62,6 +62,8 @@ int am_timeline_renderer_init(struct am_timeline_renderer* r)
 
 	r->lane_mode = AM_TIMELINE_RENDERER_LANE_MODE_COLLAPSE_FIRSTCHILD;
 
+	INIT_LIST_HEAD(&r->layer_appearance_change_callbacks);
+
 	return 0;
 }
 
@@ -869,4 +871,41 @@ am_timeline_renderer_hierarchy_node_at_y(struct am_timeline_renderer* r,
 		&data);
 
 	return data.node;
+}
+
+/* Registers a callback function cbfe for layer appearance changes with the
+ * renderer r. The object pointed to by cbfe must remain live until unregistered
+ * or until the renderer is destroyed. */
+void am_timeline_renderer_register_layer_appearance_change_callback(
+	struct am_timeline_renderer* r,
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe)
+{
+	list_add_tail(&cbfe->list, &r->layer_appearance_change_callbacks);
+}
+
+/* Unregisters a callback function cbfe for layer appearance changes from the
+ * renderer r. */
+void am_timeline_renderer_unregister_layer_appearance_change_callback(
+	struct am_timeline_renderer* r,
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe)
+{
+	list_del(&r->layer_appearance_change_callbacks);
+}
+
+/* Notifies the renderer r that the layer l has changed its appearance. Invokes
+ * all callback function registered with
+ * am_timeline_renderer_register_layer_appearance_change_callback.
+ */
+void am_timeline_renderer_indicate_layer_appearance_change(
+	struct am_timeline_renderer* r,
+	struct am_timeline_render_layer* l)
+{
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe;
+
+	am_typed_list_for_each_genentry(
+		&r->layer_appearance_change_callbacks,
+		cbfe, list)
+	{
+		cbfe->callback(r, l, cbfe->data);
+	}
 }

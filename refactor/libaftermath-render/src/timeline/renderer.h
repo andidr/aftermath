@@ -118,7 +118,35 @@ struct am_timeline_renderer {
 	/* Defines how lanes for parents and their children are rendered, e.g.,
 	 * if the lane of a parent should be collapsed with the first child. */
 	enum am_timeline_renderer_lane_mode lane_mode;
+
+	/* List of struct am_timeline_renderer_layer_appearance_change_callback
+	 * structures whose callback functions get invoked when a layer informs
+	 * the timeline renderer that it's appearance has changed. */
+	struct list_head layer_appearance_change_callbacks;
 };
+
+/* Entry for the list of callback functions that get invoked when a layer
+ * changes it's appearance */
+struct am_timeline_renderer_layer_appearance_change_callback {
+	struct list_head list;
+	void* data;
+	void (*callback)(struct am_timeline_renderer*,
+			 struct am_timeline_render_layer* layer,
+			 void* data);
+};
+
+/* Initialize a layer appearance change callback entry */
+static inline void am_timeline_renderer_layer_appearance_change_callback_init(
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe,
+	void (*callback)(struct am_timeline_renderer*,
+			 struct am_timeline_render_layer* layer,
+			 void* data),
+	void* data)
+{
+	INIT_LIST_HEAD(&cbfe->list);
+	cbfe->data = data;
+	cbfe->callback = callback;
+}
 
 #define am_timeline_renderer_for_each_layer(r, layer) \
 	am_typed_list_for_each(r, layers, layer, list)
@@ -238,6 +266,18 @@ int am_timeline_renderer_identify_entities(struct am_timeline_renderer* r,
 
 void am_timeline_renderer_destroy_entities(struct am_timeline_renderer* r,
 					   struct list_head* lst);
+
+void am_timeline_renderer_register_layer_appearance_change_callback(
+	struct am_timeline_renderer* r,
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe);
+
+void am_timeline_renderer_unregister_layer_appearance_change_callback(
+	struct am_timeline_renderer* r,
+	struct am_timeline_renderer_layer_appearance_change_callback* cbfe);
+
+void am_timeline_renderer_indicate_layer_appearance_change(
+	struct am_timeline_renderer* r,
+	struct am_timeline_render_layer* layer);
 
 /* Calculates the X coordinate in pixels for a timestamp t relative to the left
  * of the rectangle for the lanes. */
