@@ -27,6 +27,19 @@ extern "C" {
 	#include <aftermath/core/dfg_schedule.h>
 }
 
+extern "C" {
+	/* Callback function that is invoked when a layer changes its
+	   appearance */
+	static void timeline_widget_layer_appearance_callback(
+		struct am_timeline_renderer*,
+		struct am_timeline_render_layer* layer,
+		void* data)
+	{
+		TimelineWidget* tl = (TimelineWidget*)data;
+		tl->update();
+	}
+}
+
 TimelineWidget::TimelineWidget(QWidget* parent)
 	: super(parent), mouseMode(MOUSE_MODE_NONE),
 	  zoom({1100, 1000}),
@@ -41,6 +54,15 @@ TimelineWidget::TimelineWidget(QWidget* parent)
 
 	if(am_timeline_renderer_init(&this->renderer))
 		throw TimelineWidgetException();
+
+	am_timeline_renderer_layer_appearance_change_callback_init(
+		&this->apperance_change_cb,
+		timeline_widget_layer_appearance_callback,
+		this);
+
+	am_timeline_renderer_register_layer_appearance_change_callback(
+		&this->renderer,
+		&this->apperance_change_cb);
 
 	this->setMouseTracking(true);
 }
@@ -175,6 +197,10 @@ void TimelineWidget::addLayer(struct am_timeline_render_layer* l)
 
 TimelineWidget::~TimelineWidget()
 {
+	am_timeline_renderer_unregister_layer_appearance_change_callback(
+		&this->renderer,
+		&this->apperance_change_cb);
+
 	am_timeline_renderer_destroy(&this->renderer);
 }
 

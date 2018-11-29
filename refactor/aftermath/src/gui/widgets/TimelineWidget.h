@@ -101,6 +101,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 		void checkUpdateMousePos(const struct am_point* p);
 
 		struct am_timeline_renderer renderer;
+		struct am_timeline_renderer_layer_appearance_change_callback
+		apperance_change_cb;
 
 		enum {
 			MOUSE_MODE_NONE = 0,
