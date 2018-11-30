@@ -18,34 +18,17 @@
 
 #include <aftermath/render/timeline/layers/background.h>
 #include <aftermath/render/timeline/renderer.h>
-#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
 
-struct bglayer_params {
-	struct {
-		/* Lane background for lanes with an even index */
-		struct am_rgba even;
-
-		/* Lane background for lanes with an odd index */
-		struct am_rgba odd;
-	} colors;
-};
-
-
-struct bglayer {
-	struct am_timeline_render_layer layer;
-	struct bglayer_params params;
-};
-
 /* Default colors: gray 0.5 and transparent */
-static const struct bglayer_params BACKGROUND_LAYER_DEFAULT_PARAMS = {
+static const struct am_timeline_background_layer_params BACKGROUND_LAYER_DEFAULT_PARAMS = {
 	.colors = {
 		.even = {0.5, 0.5, 0.5, 0.5},
 		.odd = {0.0, 0.0, 0.0, 0.0}
 	}
 };
 
-static void render(struct bglayer* bg, cairo_t* cr)
+static void render(struct am_timeline_background_layer* bg, cairo_t* cr)
 {
 	struct am_timeline_renderer* r = bg->layer.renderer;
 	struct am_rgba* colors[2];
@@ -78,14 +61,14 @@ static void render(struct bglayer* bg, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
-static void destroy(struct bglayer* bg)
+static void destroy(struct am_timeline_background_layer* bg)
 {
 }
 
 static struct am_timeline_render_layer*
 instantiate(struct am_timeline_render_layer_type* t)
 {
-	struct bglayer* l;
+	struct am_timeline_background_layer* l;
 
 	if(!(l = malloc(sizeof(*l))))
 		return NULL;

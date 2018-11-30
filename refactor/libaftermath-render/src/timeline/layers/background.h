@@ -19,10 +19,26 @@
 #ifndef AM_TIMELINE_BACKGROUND_LAYER_H
 #define AM_TIMELINE_BACKGROUND_LAYER_H
 
+#include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/timeline/layer.h>
 
 /* The background layer renders a "lane" per visible hierarchy node with
  * alternating colors for each lane. */
+
+struct am_timeline_background_layer_params {
+	struct {
+		/* Lane background for lanes with an even index */
+		struct am_rgba even;
+
+		/* Lane background for lanes with an odd index */
+		struct am_rgba odd;
+	} colors;
+};
+
+struct am_timeline_background_layer {
+	struct am_timeline_render_layer layer;
+	struct am_timeline_background_layer_params params;
+};
 
 struct am_timeline_render_layer_type*
 am_timeline_background_layer_instantiate_type(void);
