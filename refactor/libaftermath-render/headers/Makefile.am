@@ -4,6 +4,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/nodes/builtin_nodes.h \
 	aftermath/render/dfg/nodes/rgba_constant.h \
 	aftermath/render/dfg/nodes/timeline/layers/axes.h \
+	aftermath/render/dfg/nodes/timeline/layers/background.h \
 	aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	aftermath/render/dfg/renderer.h \
 	aftermath/render/dfg/timeline_layer_common.h \

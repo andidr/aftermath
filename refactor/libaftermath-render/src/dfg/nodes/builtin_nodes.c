@@ -28,12 +28,17 @@
 #include <aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() background_defs
+#include <aftermath/render/dfg/nodes/timeline/layers/background.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() rgba_constant_defs
 #include <aftermath/render/dfg/nodes/rgba_constant.h>
 
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	axes_defs,
+	background_defs,
 	rgba_constant_defs,
 	tfexec_defs,
 	NULL

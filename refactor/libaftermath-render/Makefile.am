@@ -15,6 +15,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/nodes/rgba_constant.h \
 	src/dfg/nodes/timeline/layers/axes.c \
 	src/dfg/nodes/timeline/layers/axes.h \
+	src/dfg/nodes/timeline/layers/background.c \
+	src/dfg/nodes/timeline/layers/background.h \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.c \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	src/dfg/renderer.c \
