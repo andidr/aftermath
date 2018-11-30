@@ -20,6 +20,7 @@
 #define AM_TIMELINE_HIERARCHY_LAYER_H
 
 #include <aftermath/render/timeline/layer.h>
+#include <aftermath/render/cairo_extras.h>
 
 /* The hierarchy render layer renders the hierarchy associated to a time line as
  * a tree-like structure in the left part of the time line, providing each lane
@@ -50,6 +51,51 @@
  *                      |        SMT 1
  *                      +--------O
  */
+
+struct am_timeline_hierarchy_layer_params {
+	struct {
+		/* Colros of the circles representing hierarchy nodes */
+		struct am_rgba circle;
+
+		/* Color of the connecting lines between nodes */
+		struct am_rgba connection;
+
+		/* Color of the plus sign of collapsed nodes */
+		struct am_rgba plus_sign;
+
+		/* Color of labels describing nodes */
+		struct am_rgba labels;
+	} colors;
+
+	/* Radius of circles representing hierarchy nodes */
+	double circle_radius;
+
+	/* Number of horizontal pixels between a node and its children */
+	double column_width;
+
+	/* Margin in pixels on the left side for the entire layer */
+	double left_margin;
+
+	/* Width in pixels of connecting lines between nodes */
+	double connection_width;
+
+	/* Font used to render labels */
+	struct {
+		/* Font family */
+		char* family;
+
+		/* Scaling factor for the font */
+		double size;
+
+		/* Top margin in pixels for labels */
+		double top_margin;
+	} label_font;
+};
+
+struct am_timeline_hierarchy_layer {
+	struct am_timeline_render_layer super;
+	struct am_timeline_hierarchy_layer_params params;
+};
 
 enum am_timeline_hierarchy_layer_entity_type {
 	AM_TIMELINE_HIERARCHY_LAYER_ENTITY_COLLAPSE_BUTTON,

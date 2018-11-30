@@ -18,56 +18,10 @@
 
 #include <aftermath/render/timeline/layers/hierarchy.h>
 #include <aftermath/render/timeline/renderer.h>
-#include <aftermath/render/cairo_extras.h>
 #include <stdlib.h>
 #include <math.h>
 
-struct hierarchy_layer_params {
-	struct {
-		/* Colros of the circles representing hierarchy nodes */
-		struct am_rgba circle;
-
-		/* Color of the connecting lines between nodes */
-		struct am_rgba connection;
-
-		/* Color of the plus sign of collapsed nodes */
-		struct am_rgba plus_sign;
-
-		/* Color of labels describing nodes */
-		struct am_rgba labels;
-	} colors;
-
-	/* Radius of circles representing hierarchy nodes */
-	double circle_radius;
-
-	/* Number of horizontal pixels between a node and its children */
-	double column_width;
-
-	/* Margin in pixels on the left side for the entire layer */
-	double left_margin;
-
-	/* Width in pixels of connecting lines between nodes */
-	double connection_width;
-
-	/* Font used to render labels */
-	struct {
-		/* Font family */
-		char* family;
-
-		/* Scaling factor for the font */
-		double size;
-
-		/* Top margin in pixels for labels */
-		double top_margin;
-	} label_font;
-};
-
-struct hierarchy_layer {
-	struct am_timeline_render_layer super;
-	struct hierarchy_layer_params params;
-};
-
-static const struct hierarchy_layer_params HIERARCHY_LAYER_DEFAULT_PARAMS = {
+static const struct am_timeline_hierarchy_layer_params HIERARCHY_LAYER_DEFAULT_PARAMS = {
 	.colors = {
 		.circle = {0.8, 0.8, 0.0, 1.0},
 		.connection = {0.8, 0.8, 0.0, 1.0},
@@ -86,7 +40,7 @@ static const struct hierarchy_layer_params HIERARCHY_LAYER_DEFAULT_PARAMS = {
 };
 
 /* Calculates the center of a circle for a given lane index and column */
-static inline void circle_center(struct hierarchy_layer* hl,
+static inline void circle_center(struct am_timeline_hierarchy_layer* hl,
 				 unsigned int lane,
 				 unsigned int col,
 				 struct am_point* p)
@@ -103,7 +57,7 @@ static inline void circle_center(struct hierarchy_layer* hl,
 }
 
 /* Parent_lane is only valid if parent_visible is true */
-typedef void (*visible_node_fun_t)(struct hierarchy_layer* hl,
+typedef void (*visible_node_fun_t)(struct am_timeline_hierarchy_layer* hl,
 				   struct am_hierarchy_node* n,
 				   unsigned int node_idx,
 				   unsigned int lane,
@@ -114,7 +68,7 @@ typedef void (*visible_node_fun_t)(struct hierarchy_layer* hl,
 
 /* Lane only valid if visible is true, parent_lane only valid if parent_visible
  * is true */
-typedef void (*visible_connection_fun_t)(struct hierarchy_layer* hl,
+typedef void (*visible_connection_fun_t)(struct am_timeline_hierarchy_layer* hl,
 					 struct am_hierarchy_node* parent,
 					 struct am_hierarchy_node* n,
 					 int visible,
@@ -139,7 +93,7 @@ typedef void (*visible_connection_fun_t)(struct hierarchy_layer* hl,
  * connection_cb: Callback function called for each visible connection
  * data: Data to be passed verbatim to the callback functions
  */
-static void foreach_visible_down(struct hierarchy_layer* hl,
+static void foreach_visible_down(struct am_timeline_hierarchy_layer* hl,
 				 struct am_hierarchy_node* n,
 				 unsigned int node_idx,
 				 unsigned int* curr_lane,
@@ -224,7 +178,7 @@ static void foreach_visible_down(struct hierarchy_layer* hl,
  * connection_cb: Callback function called for each visible connection
  * data: Data to be passed verbatim to the callback functions
  */
-static void foreach_visible_up(struct hierarchy_layer* hl,
+static void foreach_visible_up(struct am_timeline_hierarchy_layer* hl,
 			       struct am_hierarchy_node* n,
 			       unsigned int node_idx,
 			       struct am_hierarchy_node* calling_child,
@@ -349,7 +303,7 @@ static void foreach_visible_up(struct hierarchy_layer* hl,
 
 /* Calls node_cb for each visible node and connection_cb for each visible
  * connection. The data pointer is passed verbatim to the callback functions. */
-static void foreach_visible(struct hierarchy_layer* hl,
+static void foreach_visible(struct am_timeline_hierarchy_layer* hl,
 			    visible_node_fun_t node_cb,
 			    visible_connection_fun_t connection_cb,
 			    void* data)
@@ -377,7 +331,7 @@ static void foreach_visible(struct hierarchy_layer* hl,
 }
 
 /* Visible node callback function for rendering */
-static void render_visible_node(struct hierarchy_layer* hl,
+static void render_visible_node(struct am_timeline_hierarchy_layer* hl,
 				struct am_hierarchy_node* n,
 				unsigned int node_idx,
 				unsigned int lane,
@@ -424,7 +378,7 @@ static void render_visible_node(struct hierarchy_layer* hl,
 }
 
 /* Visible connection callback function for rendering */
-void render_visible_connection(struct hierarchy_layer* hl,
+void render_visible_connection(struct am_timeline_hierarchy_layer* hl,
 			       struct am_hierarchy_node* parent,
 			       struct am_hierarchy_node* n,
 			       int visible,
@@ -498,7 +452,7 @@ void render_visible_connection(struct hierarchy_layer* hl,
 	cairo_stroke(cr);
 }
 
-static void render(struct hierarchy_layer* hl, cairo_t* cr)
+static void render(struct am_timeline_hierarchy_layer* hl, cairo_t* cr)
 {
 	struct am_timeline_renderer* r = hl->super.renderer;
 
@@ -519,7 +473,7 @@ static void render(struct hierarchy_layer* hl, cairo_t* cr)
 	cairo_reset_clip(cr);
 }
 
-static void destroy(struct hierarchy_layer* hl)
+static void destroy(struct am_timeline_hierarchy_layer* hl)
 {
 	free(hl->params.label_font.family);
 }
@@ -527,7 +481,7 @@ static void destroy(struct hierarchy_layer* hl)
 static struct am_timeline_render_layer*
 instantiate(struct am_timeline_render_layer_type* t)
 {
-	struct hierarchy_layer* l;
+	struct am_timeline_hierarchy_layer* l;
 
 	if(!(l = malloc(sizeof(*l))))
 		return NULL;
@@ -555,7 +509,7 @@ struct collapse_button_callback_data {
 	struct am_point p;
 };
 
-void identify_collapse_buttons_callback(struct hierarchy_layer* hl,
+void identify_collapse_buttons_callback(struct am_timeline_hierarchy_layer* hl,
 					struct am_hierarchy_node* n,
 					unsigned int node_idx,
 					unsigned int lane,
@@ -592,7 +546,7 @@ void identify_collapse_buttons_callback(struct hierarchy_layer* hl,
 	}
 }
 
-static int identify_collapse_buttons(struct hierarchy_layer* hl,
+static int identify_collapse_buttons(struct am_timeline_hierarchy_layer* hl,
 				     struct list_head* lst,
 				     double x, double y)
 {
@@ -610,14 +564,14 @@ static int identify_collapse_buttons(struct hierarchy_layer* hl,
 	return cbdata.last_status;
 }
 
-static int identify_entities(struct hierarchy_layer* hl,
+static int identify_entities(struct am_timeline_hierarchy_layer* hl,
 			     struct list_head* lst,
 			     double x, double y)
 {
 	return identify_collapse_buttons(hl, lst, x, y);
 }
 
-static void destroy_entity(struct hierarchy_layer* hl,
+static void destroy_entity(struct am_timeline_hierarchy_layer* hl,
 			   struct am_timeline_entity* e)
 {
 	am_timeline_entity_destroy(e);
