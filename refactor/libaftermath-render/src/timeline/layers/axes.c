@@ -46,6 +46,7 @@ static const struct am_timeline_axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
 			.size = 12,
 			.family = NULL,
 			.top_margin = 3,
+			.left_margin = 0,
 			.color = { 0.8, 0.8, 0.0, 1.0 },
 			.rotation = 0,
 		}
@@ -61,6 +62,7 @@ static const struct am_timeline_axes_layer_params AXES_LAYER_DEFAULT_PARAMS = {
 			.size = 8,
 			.family = NULL,
 			.top_margin = 3,
+			.left_margin = 0,
 			.color = { 0.8, 0.8, 0.0, 1.0 },
 			.rotation = 0,
 		}

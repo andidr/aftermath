@@ -62,6 +62,9 @@ struct am_timeline_axes_layer_tick_params {
 		/* Scaling factor for the font */
 		double size;
 
+		/* Left margin in pixels for labels */
+		double left_margin;
+
 		/* Top margin in pixels for labels */
 		double top_margin;
 
