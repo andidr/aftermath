@@ -1,0 +1,16 @@
+This package was debianized by Andi Drebes <andi@drebesium.org> on
+09/25/2018.
+
+Copyright: 2015 - 2018 Andi Drebes,
+           2015 - 2018 Antoniu Pop,
+           2018 Inria
+
+License: GNU GPL v2
+
+  Libaftermath-render is published under the GNU General Public
+  License (GPL), version 2. The terms of this license are specified in
+  the upstream source package in the file COPYING.GPL2.
+
+  On Debian systems, the text of the GNU GPL version 2 can be found in
+  /usr/share/common-licenses/GPL-2.
+

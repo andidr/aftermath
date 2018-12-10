@@ -58,4 +58,19 @@ libaftermath_render_la_LIBADD = @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 libaftermath_renderdir = $(includedir)/aftermath/render
 libaftermath_render_HEADERS =
 
+clean-local:
+	rm -rf tmp/packaging
+
 SUBDIRS = headers
+EXTRA_DIST = headers
+
+UPSTREAM_VERSION=@PACKAGE_VERSION@
+
+deb:
+	$(MAKE) dist-gzip
+	rm -rf tmp/packaging/debian
+	$(MKDIR_P) tmp/packaging/debian
+	mv libaftermath-render-$(UPSTREAM_VERSION).tar.gz tmp/packaging/debian/libaftermath-render_$(UPSTREAM_VERSION).orig.tar.gz
+	cd tmp/packaging/debian ; tar xf libaftermath-render_$(UPSTREAM_VERSION).orig.tar.gz
+	cp -ar $(srcdir)/distros/debian/build/debian tmp/packaging/debian/libaftermath-render-$(UPSTREAM_VERSION)
+	cd tmp/packaging/debian/libaftermath-render-$(UPSTREAM_VERSION) ; debuild -us -uc

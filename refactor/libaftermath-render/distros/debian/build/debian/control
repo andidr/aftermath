@@ -1,0 +1,23 @@
+Source: libaftermath-render
+Maintainer: Andi Drebes <andi@drebesium.org>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends:
+ debhelper (>= 9),
+ git,
+ libtool,
+ autoconf,
+ automake,
+ pkg-config,
+ libaftermath-core,
+ libglib2.0-dev,
+ libcairo2-dev,
+ dh-autoreconf
+Homepage: https://www.aftermath-tracing.com/
+
+Package: libaftermath-render
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libaftermath-core, libcairo2
+Description: rendering library for the Aftermath trace-based parallel
+ performance analysis tool
