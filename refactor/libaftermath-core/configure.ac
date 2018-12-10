@@ -1,4 +1,4 @@
-AC_INIT([libaftermath-core], [0.1])
+AC_INIT([libaftermath-core], [0.5])
 AC_CONFIG_SRCDIR([src/ansi_extras.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
