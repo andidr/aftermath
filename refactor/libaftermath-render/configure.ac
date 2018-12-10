@@ -1,4 +1,4 @@
-AC_INIT([libaftermath-render], [0.1])
+AC_INIT([libaftermath-render], [0.5])
 AC_CONFIG_SRCDIR([src/cairo_extras.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
