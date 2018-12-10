@@ -31,6 +31,7 @@
 
 extern "C" {
 	#include <aftermath/render/timeline/common_layers.h>
+	#include <aftermath/render/dfg/nodes/builtin_nodes.h>
 	#include <aftermath/render/dfg/types/builtin_types.h>
 	#include <aftermath/core/dfg_builtin_types.h>
 	#include <aftermath/core/dfg_builtin_node_types.h>
@@ -72,6 +73,14 @@ AftermathSession::AftermathSession() :
 
 	if(am_dfg_builtin_node_types_register(&this->dfg.node_type_registry,
 					      &this->dfg.type_registry))
+	{
+		this->cleanup();
+		throw RegisterDFGNodeTypesException();
+	}
+
+	if(am_render_dfg_builtin_node_types_register(
+		   &this->dfg.node_type_registry,
+		   &this->dfg.type_registry))
 	{
 		this->cleanup();
 		throw RegisterDFGNodeTypesException();
