@@ -429,5 +429,18 @@ endif
 clean-local:
 	rm -f $(GENERATED_FILES) $(PYC_FILES)
 	rm -rf $(builddir)/doc/doxygen
+	rm -rf tmp/packaging
 
 SUBDIRS = headers
+EXTRA_DIST = headers scripts src/defs
+
+UPSTREAM_VERSION=@PACKAGE_VERSION@
+
+deb:
+	$(MAKE) dist-gzip
+	rm -rf tmp/packaging/debian
+	$(MKDIR_P) tmp/packaging/debian
+	mv libaftermath-core-$(UPSTREAM_VERSION).tar.gz tmp/packaging/debian/libaftermath-core_$(UPSTREAM_VERSION).orig.tar.gz
+	cd tmp/packaging/debian ; tar xf libaftermath-core_$(UPSTREAM_VERSION).orig.tar.gz
+	cp -ar $(srcdir)/distros/debian/build/debian tmp/packaging/debian/libaftermath-core-$(UPSTREAM_VERSION)
+	cd tmp/packaging/debian/libaftermath-core-$(UPSTREAM_VERSION) ; debuild -us -uc

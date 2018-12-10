@@ -1,0 +1,23 @@
+Source: libaftermath-core
+Maintainer: Andi Drebes <andi@drebesium.org>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends:
+ debhelper (>= 9),
+ git,
+ libtool,
+ autoconf,
+ automake,
+ pkg-config,
+ python-jinja2,
+ python-minimal,
+ libglib2.0-dev,
+ dh-autoreconf
+Homepage: https://www.aftermath-tracing.com/
+
+Package: libaftermath-core
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: core library for the Aftermath trace-based parallel
+ performance analysis tool
