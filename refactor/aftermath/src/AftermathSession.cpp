@@ -17,11 +17,22 @@
 
 #include "AftermathSession.h"
 #include "dfg/nodes/builtin_nodes.h"
+#include "dfg/nodes/gui/histogram.h"
+#include "dfg/nodes/gui/hierarchy_combobox.h"
+#include "dfg/nodes/gui/label.h"
+#include "dfg/nodes/gui/timeline.h"
+#include "gui/widgets/DFGWidget.h"
+#include "gui/widgets/HierarchyComboBox.h"
+#include "gui/widgets/HistogramWidget.h"
+#include "gui/widgets/TimelineWidget.h"
+
+#include <QLabel>
 
 extern "C" {
 	#include <aftermath/render/timeline/common_layers.h>
 	#include <aftermath/core/dfg_builtin_types.h>
 	#include <aftermath/core/dfg_builtin_node_types.h>
+	#include <aftermath/core/dfg/nodes/trace.h>
 	#include <aftermath/core/frame_type_registry.h>
 	#include <aftermath/core/io_context.h>
 	#include <aftermath/core/io_error.h>
@@ -80,6 +91,9 @@ void AftermathSession::cleanup()
 		am_dfg_coordinate_mapping_destroy(this->dfg.coordinate_mapping);
 		free(this->dfg.coordinate_mapping);
 	}
+
+	am_dfg_node_type_registry_set_instantiate_callback_fun(
+		&this->dfg.node_type_registry, NULL, NULL);
 
 	am_dfg_node_type_registry_destroy(&this->dfg.node_type_registry);
 	am_dfg_type_registry_destroy(&this->dfg.type_registry);
@@ -236,4 +250,135 @@ void AftermathSession::loadTrace(const char* filename)
 	am_io_context_destroy(&ioctx);
 	am_frame_type_registry_destroy(&frame_types);
 	this->setTrace(trace);
+}
+
+/* Loads a DFG graph from the specified location. */
+void AftermathSession::loadDFG(const char* filename)
+{
+	struct am_dfg_graph* g;
+	struct am_dfg_coordinate_mapping* m;
+	struct am_dfg_node_type_registry* ntr;
+	struct am_object_notation_node* n_graph;
+
+	ntr = this->getDFGNodeTypeRegistry();
+
+	am_dfg_node_type_registry_set_instantiate_callback_fun(
+		ntr, AftermathSession::DFGNodeInstantiationCallback, this);
+
+	if(!(n_graph = am_object_notation_load(filename)))
+		throw AftermathException("Could not load object notation for DFG");
+
+	if(!(g = ((typeof(g))malloc(sizeof(*g))))) {
+		am_object_notation_node_destroy(n_graph);
+		free(n_graph);
+
+		throw AftermathException("Could not allocate memory for DFG");
+	}
+
+	am_dfg_graph_init(g, AM_DFG_GRAPH_DESTROY_ALL);
+
+	if(!(m = ((typeof(m))malloc(sizeof(*m))))) {
+		throw AftermathException("Could not allocate memory for DFG "
+					 "coordinate mapping");
+	}
+
+	am_dfg_coordinate_mapping_init(m);
+
+	try {
+		if(am_dfg_graph_from_object_notation(g, n_graph, ntr))
+			throw AftermathException("Could not load DFG from "
+						 "object notation");
+		this->setDFG(g);
+
+		struct am_object_notation_node_list* lst =
+			(typeof(lst))am_object_notation_eval(n_graph, "positions");
+
+		if(am_dfg_coordinate_mapping_from_object_notation(m, lst))
+			throw AftermathException("Could not load DFG coordinate "
+						 "mapping from object notation");
+
+		this->setDFGCoordinateMapping(m);
+	} catch(...) {
+		am_object_notation_node_destroy(n_graph);
+		free(n_graph);
+		am_dfg_graph_destroy(g);
+		free(g);
+		am_dfg_node_type_registry_set_instantiate_callback_fun(
+			ntr, NULL, NULL);
+
+		throw;
+	}
+
+	am_object_notation_node_destroy(n_graph);
+	free(n_graph);
+}
+
+/* Gets called on every instantiation of a DFG node. Performs lookup of the
+ * widget for DFG nodes that are associated with a widget.
+ */
+int AftermathSession::DFGNodeInstantiationCallback(
+	struct am_dfg_node_type_registry* reg,
+	struct am_dfg_node* n,
+	void* data)
+{
+	AftermathSession* session = (AftermathSession*)data;
+	QWidget* w;
+
+	if(strcmp(n->type->name, "am::gui::label") == 0) {
+		struct am_dfg_amgui_label_node* l = (typeof(l))n;
+
+		try {
+			w = session->getGUI().getWidget(l->label_id);
+
+			if(!(l->label = dynamic_cast<QLabel*>(w)))
+				return 1;
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::hierarchy_combobox") == 0) {
+		struct am_dfg_amgui_hierarchy_combobox_node* hcb = (typeof(hcb))n;
+
+		try {
+			w = session->getGUI().getWidget(hcb->widget_id);
+
+			if(!(hcb->widget = dynamic_cast<HierarchyComboBox*>(w)))
+				return 1;
+
+			hcb->widget->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::timeline") == 0) {
+		struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
+
+		try {
+			w = session->getGUI().getWidget(t->timeline_id);
+
+			if(!(t->timeline = dynamic_cast<TimelineWidget*>(w)))
+				return 1;
+
+			t->timeline->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::histogram") == 0) {
+		struct am_dfg_amgui_histogram_node* h = (typeof(h))n;
+
+		try {
+			w = session->getGUI().getWidget(h->histogram_id);
+
+			if(!(h->histogram_widget = dynamic_cast<HistogramWidget*>(w)))
+				return 1;
+
+			h->histogram_widget->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::core::trace") == 0) {
+		struct am_dfg_node_trace* t = (typeof(t))n;
+
+		t->trace = session->getTrace();
+	}
+
+	return 0;
 }

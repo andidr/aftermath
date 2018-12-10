@@ -101,6 +101,7 @@ class AftermathSession {
 		DFGQTProcessor* getDFGProcessorp();
 
 		void loadTrace(const char* filename);
+		void loadDFG(const char* filename);
 
 	protected:
 		void cleanup();
@@ -117,6 +118,11 @@ class AftermathSession {
 
 		AftermathGUI gui;
 		DFGQTProcessor dfgProcessor;
+
+		static int DFGNodeInstantiationCallback(
+			struct am_dfg_node_type_registry* reg,
+			struct am_dfg_node* n,
+			void* data);
 };
 
 #endif
