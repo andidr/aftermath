@@ -17,12 +17,34 @@
 
 #include "MainWindow.h"
 #include <QtWidgets/QApplication>
+#include "AftermathController.h"
+#include "AftermathSession.h"
+#include "gui/factory/DefaultGUIFactory.h"
+#include "gui/widgets/DFGWidget.h"
+#include "gui/widgets/CairoWidgetWithDFGNode.h"
+
+extern "C" {
+	#include <aftermath/core/dfg/nodes/trace.h>
+}
 
 int main(int argc, char *argv[])
 {
+	AftermathSession session;
 	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
+	MainWindow mainWindow;
+	DefaultGUIFactory factory(&session);
+
+	AftermathGUI& gui = session.getGUI();
+
+	session.loadTrace(argv[1]);
+	factory.buildGUI(&gui, argv[2]);
+	session.loadDFG(argv[3]);
+
+	AftermathController controller(&session, &mainWindow);
+
+	mainWindow.show();
+
+	session.scheduleDFG();
 
 	return a.exec();
 }
