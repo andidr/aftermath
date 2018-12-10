@@ -33,6 +33,10 @@ extern "C" {
 	#include <aftermath/render/timeline/layer.h>
 }
 
+/* Arbitrary limit for the number of frame types; Might have to be changed in
+ * the future */
+#define AM_MAX_FRAME_TYPES 128
+
 /* The AftermathSession class contains all the run-time data of an Aftermath
  * instance.
  */
@@ -95,6 +99,8 @@ class AftermathSession {
 		AftermathGUI& getGUI();
 		DFGQTProcessor& getDFGProcessor();
 		DFGQTProcessor* getDFGProcessorp();
+
+		void loadTrace(const char* filename);
 
 	protected:
 		void cleanup();

@@ -22,6 +22,10 @@ extern "C" {
 	#include <aftermath/render/timeline/common_layers.h>
 	#include <aftermath/core/dfg_builtin_types.h>
 	#include <aftermath/core/dfg_builtin_node_types.h>
+	#include <aftermath/core/frame_type_registry.h>
+	#include <aftermath/core/io_context.h>
+	#include <aftermath/core/io_error.h>
+	#include <aftermath/core/on_disk.h>
 }
 
 AftermathSession::AftermathSession() :
@@ -173,4 +177,63 @@ void AftermathSession::scheduleDFG()
 
 	if(ret)
 		throw DFGSchedulingException();
+}
+
+/* For each error message in the error stack s, a line with the message is
+ * appended to msg */
+static void errorStackToString(struct am_io_error_stack* s, std::string& msg)
+{
+	for(size_t i = 0; i < s->pos; i++) {
+		msg += s->errors[i].msgbuf;
+		msg += "\n";
+	}
+}
+
+/* Reads the trace file whose filename including its path is given from disk and
+ * sets it as the trace for this Aftermath session.
+ *
+ * Throws an exception on error.
+ */
+void AftermathSession::loadTrace(const char* filename)
+{
+	struct am_trace* trace;
+	struct am_io_context ioctx;
+	struct am_frame_type_registry frame_types;
+
+	if(am_frame_type_registry_init(&frame_types, AM_MAX_FRAME_TYPES)) {
+		throw AftermathException("Could not initialize frame type "
+					 "registry");
+	}
+
+	if(am_dsk_register_frame_types(&frame_types)) {
+		am_frame_type_registry_destroy(&frame_types);
+		throw AftermathException("Could not register builtin frame types");
+	}
+
+	if(am_io_context_init(&ioctx, &frame_types)) {
+		am_frame_type_registry_destroy(&frame_types);
+		throw AftermathException("Could not initialize I/O context");
+	}
+
+	try {
+		if(am_io_context_open(&ioctx, filename, AM_IO_READ)) {
+			throw AftermathException("Could not open trace file "
+						 "for reading");
+		}
+
+		if(am_dsk_load_trace(&ioctx, &trace)) {
+			std::string msg;
+
+			errorStackToString(&ioctx.error_stack, msg);
+			throw AftermathException(msg);
+		}
+	} catch(...) {
+		am_io_context_destroy(&ioctx);
+		am_frame_type_registry_destroy(&frame_types);
+		throw;
+	}
+
+	am_io_context_destroy(&ioctx);
+	am_frame_type_registry_destroy(&frame_types);
+	this->setTrace(trace);
 }
