@@ -1,0 +1,26 @@
+Source: aftermath
+Maintainer: Andi Drebes <andi@drebesium.org>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends:
+ debhelper (>= 9),
+ git,
+ libtool,
+ autoconf,
+ automake,
+ pkg-config,
+ libglib2.0-dev,
+ libaftermath-core,
+ libaftermath-render,
+ qtbase5-dev,
+ qtbase5-dev-tools,
+ qt5-default,
+ dh-autoreconf
+Homepage: https://www.aftermath-tracing.com/
+
+Package: aftermath
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libaftermath-core, libaftermath-render, libqt5core5a, libqt5gui5, libqt5widgets5
+Description: The Aftermath trace-based parallel performance analysis
+ tool

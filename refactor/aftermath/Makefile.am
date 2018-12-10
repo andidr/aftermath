@@ -146,3 +146,17 @@ BUILT_SOURCES = $(GENERATED_FILES)
 
 clean-local:
 	rm -f $(GENERATED_FILES)
+	rm -rf tmp/packaging
+
+EXTRA_DIST = src/MainWindow.ui
+
+UPSTREAM_VERSION=@PACKAGE_VERSION@
+
+deb:
+	$(MAKE) dist-gzip
+	rm -rf tmp/packaging/debian
+	$(MKDIR_P) tmp/packaging/debian
+	mv aftermath-$(UPSTREAM_VERSION).tar.gz tmp/packaging/debian/aftermath_$(UPSTREAM_VERSION).orig.tar.gz
+	cd tmp/packaging/debian ; tar xf aftermath_$(UPSTREAM_VERSION).orig.tar.gz
+	cp -ar $(srcdir)/distros/debian/build/debian tmp/packaging/debian/aftermath-$(UPSTREAM_VERSION)
+	cd tmp/packaging/debian/aftermath-$(UPSTREAM_VERSION) ; debuild -us -uc
