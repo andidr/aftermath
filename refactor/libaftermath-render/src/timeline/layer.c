@@ -115,6 +115,7 @@ void am_timeline_render_layer_init(struct am_timeline_render_layer* l,
 	INIT_LIST_HEAD(&l->list);
 	l->renderer = NULL;
 	l->type = t;
+	l->enabled = 1;
 }
 
 /* Generic interface to destroy a render layer; invokes the layer's

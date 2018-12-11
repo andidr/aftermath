@@ -153,6 +153,9 @@ struct am_timeline_render_layer {
 
 	/* The time line renderer the layer is associated with */
 	struct am_timeline_renderer* renderer;
+
+	/* Indicates if rendering should be carried out at all */
+	int enabled;
 };
 
 #define AM_TIMELINE_RENDER_LAYER(x) \

@@ -205,7 +205,8 @@ void am_timeline_renderer_render(struct am_timeline_renderer* r,
 	cairo_fill(cr);
 
 	am_timeline_renderer_for_each_layer(r, l)
-		l->type->render(l, cr);
+		if(l->enabled)
+			l->type->render(l, cr);
 }
 
 /* Associate a trace with the timeline. Returns 0 on success, 1 otherwise. */
