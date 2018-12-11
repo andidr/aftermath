@@ -1,4 +1,4 @@
-AC_INIT([aftermath-convert], [0.1])
+AC_INIT([aftermath-convert], [0.5])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
