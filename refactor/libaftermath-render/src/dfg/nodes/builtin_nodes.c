@@ -39,12 +39,17 @@
 #define DEFS_NAME() rgba_constant_defs
 #include <aftermath/render/dfg/nodes/rgba_constant.h>
 
+#undef DEFS_NAME
+#define DEFS_NAME() state_defs
+#include <aftermath/render/dfg/nodes/timeline/layers/state.h>
+
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	axes_defs,
 	background_defs,
 	hierarchy_defs,
 	rgba_constant_defs,
+	state_defs,
 	tfexec_defs,
 	NULL
 };
