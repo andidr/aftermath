@@ -1,0 +1,15 @@
+WHAT IS AFTERMATH-DUMP?
+
+  Aftermath-dump is a tool that generates a textutal representation of
+  an Aftermath trace file.
+
+LICENSE
+
+  Aftermath-dump is published under the GNU General Public License
+  (GPL), version 2. The terms of these licenses are specified in the
+  file COPYING.GPL2.
+
+COPYRIGHT
+
+  Copyright (C) Andi Drebes
+  Copyright (C) Inria
