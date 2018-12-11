@@ -1,0 +1,21 @@
+Source: aftermath-convert
+Maintainer: Andi Drebes <andi@drebesium.org>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends:
+ debhelper (>= 9),
+ git,
+ libtool,
+ autoconf,
+ automake,
+ pkg-config,
+ libglib2.0-dev,
+ libaftermath-core,
+ dh-autoreconf
+Homepage: https://www.aftermath-tracing.com/
+
+Package: aftermath-convert
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libaftermath-core
+Description: Converter for Aftermath traces from old to new format
