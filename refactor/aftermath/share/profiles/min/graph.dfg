@@ -1,0 +1,93 @@
+am_dfg_graph {
+	nodes: [
+		am::core::trace {
+				id: 1u64
+			},
+		am::gui::timeline {
+				id: 2u64,
+				timeline_id: "tl1"
+			},
+		am::gui::hierarchy_combobox {
+				id: 3u64,
+				widget_id: "hierarchy_cb1"
+			},
+		am::gui::label {
+				id: 4u64,
+				label_id: "statusbar_label"
+			},
+		am::core::pair<am::core::timestamp,const_am::core::hierarchy_node>::attributes {
+				id: 5u64
+			},
+		am::core::timestamp::to_string {
+				id: 6u64,
+				pretty_print: 0u64
+			},
+		am::core::string_format {
+				id: 7u64,
+				format: "Timestamp: %s"
+			},
+		am::render::timeline::layer::state::configuration {
+				id: 8u64
+			},
+		am::render::timeline::layer::state::filter {
+				id: 9u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 10u64,
+				widget_id: "toolbutton_draw_states"
+			},
+		am::render::timeline::layer::state::dominant_state_at_pos {
+				id: 12u64
+			},
+		am::core::state_description::attributes {
+				id: 13u64
+			},
+		am::core::string_format {
+				id: 14u64,
+				format: "State: %s"
+			},
+		am::core::merge2 {
+				id: 15u64
+			},
+		am::core::string_concat {
+				id: 16u64,
+				separator: ", "
+			}
+		],
+	connections: [
+		[1u64, "trace", 2u64, "trace"],
+		[3u64, "hierarchy", 2u64, "hierarchy"],
+		[1u64, "trace", 3u64, "trace"],
+		[16u64, "out", 4u64, "in"],
+		[2u64, "mouse position", 5u64, "pairs"],
+		[5u64, "timestamp", 6u64, "in"],
+		[6u64, "out", 7u64, "in"],
+		[9u64, "out", 8u64, "layer"],
+		[10u64, "toggled", 8u64, "enable"],
+		[2u64, "layers", 9u64, "in"],
+		[9u64, "out", 12u64, "layer"],
+		[2u64, "mouse position", 12u64, "mouse position"],
+		[12u64, "dominant state", 13u64, "in"],
+		[13u64, "name", 14u64, "in"],
+		[7u64, "out", 15u64, "in0"],
+		[14u64, "out", 15u64, "in1"],
+		[15u64, "out", 16u64, "in"]
+		],
+	positions: [
+		[1u64, 66.259260, 117.074074],
+		[2u64, 298.814815, 116.925926],
+		[3u64, 146.629630, 152.777778],
+		[4u64, 1419.382716, 245.111111],
+		[5u64, 486.092593, 245.092593],
+		[6u64, 745.592593, 245.314815],
+		[7u64, 891.345679, 245.265432],
+		[8u64, 791.629630, 25.000000],
+		[9u64, 463.925926, 25.703704],
+		[10u64, 642.370370, 86.444444],
+		[12u64, 639.987654, 145.814815],
+		[13u64, 835.444444, 145.814815],
+		[14u64, 1027.222222, 145.888889],
+		[15u64, 1167.518519, 245.185185],
+		[16u64, 1282.037037, 245.086420]
+		]
+}

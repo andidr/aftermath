@@ -84,6 +84,47 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/ToolbarButton.h \
 	src/gui/widgets/WidgetWithDFGNode.h
 
+share/profiles/min/interface.amgui: $(srcdir)/share/profiles/min/interface.amgui.in
+	$(MKDIR_P) share/profiles/min/
+	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
+
+GENERATED_PROFILE_TEMPLATES = \
+	$(srcdir)/share/profiles/min/interface.amgui.in
+
+GENERATED_PROFILE_FILES = \
+	share/profiles/min/interface.amgui
+
+STATIC_PROFILE_FILES = \
+	share/profiles/min/graph.dfg
+
+ICONS = \
+	share/icons/draw_states.svg
+
+# Install profiles
+install-data-hook: $(PROFILES) $(ICONS) $(GENERATED_PROFILE_FILES)
+	for pf in $(STATIC_PROFILE_FILES); \
+	do \
+		pfbase=`echo $$pf | sed 's|^share/||g'` || exit $$?; \
+		$(MKDIR_P) `dirname "$(DESTDIR)/$(datarootdir)/aftermath/$$pfbase"` || exit $$? ; \
+		$(INSTALL_DATA) "$(srcdir)/$$pf" "$(DESTDIR)/$(datarootdir)/aftermath/$$pfbase" || exit $$? ; \
+	done
+
+	for pf in $(GENERATED_PROFILE_FILES); \
+	do \
+		pfbase=`echo $$pf | sed 's|^share/||g'` || exit $$?; \
+		$(MKDIR_P) `dirname "$(DESTDIR)/$(datarootdir)/aftermath/$$pfbase"` || exit $$? ; \
+		$(INSTALL_DATA) "$(builddir)/$$pf" "$(DESTDIR)/$(datarootdir)/aftermath/$$pfbase" || exit $$? ; \
+	done
+
+	cd "$(DESTDIR)/$(datarootdir)/aftermath/profiles" && ln -sfr min default
+
+	for icon in $(ICONS); \
+	do \
+		iconbase=`echo $$icon | sed 's|^share/||g'` || exit $$?; \
+		$(MKDIR_P) `dirname "$(DESTDIR)/$(datarootdir)/aftermath/$$iconbase"` || exit $$?; \
+		$(INSTALL_DATA) "$(srcdir)/$$icon" "$(DESTDIR)/$(datarootdir)/aftermath/$$iconbase" || exit $$? ; \
+	done
+
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
 aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -Wall -Werror
 
@@ -98,7 +139,8 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp \
-	src/models/moc_DFGNodeTypeRegistryTableModel.cpp
+	src/models/moc_DFGNodeTypeRegistryTableModel.cpp \
+	$(GENERATED_PROFILE_FILES)
 
 moc_verbose = $(moc_verbose_@AM_V@)
 moc_verbose_ = $(moc_verbose_@AM_DEFAULT_V@)
@@ -162,7 +204,10 @@ clean-local:
 	rm -f $(GENERATED_FILES)
 	rm -rf tmp/packaging
 
-EXTRA_DIST = src/MainWindow.ui
+EXTRA_DIST = src/MainWindow.ui \
+	$(GENERATED_PROFILE_TEMPLATES) \
+	$(STATIC_PROFILE_FILES) \
+	$(ICONS)
 
 UPSTREAM_VERSION=@PACKAGE_VERSION@
 

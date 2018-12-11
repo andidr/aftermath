@@ -1,3 +1,4 @@
 *.o
 moc_*.cpp
 ui_*.h
+share/profiles/min/interface.amgui
