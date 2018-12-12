@@ -35,12 +35,22 @@
 #define DEFS_NAME() amgui_timeline_defs
 #include "gui/timeline.h"
 
+#undef DEFS_NAME
+#define DEFS_NAME() amgui_toolbar_button_defs
+#include "gui/toolbar_button.h"
+
+#undef DEFS_NAME
+#define DEFS_NAME() amgui_toolbar_togglebutton_defs
+#include "gui/toolbar_togglebutton.h"
+
 /* Final list of all lists of node types from all headers included above */
 static struct am_dfg_static_node_type_def** defsets[] = {
 	amgui_hierarchy_combobox_defs,
 	amgui_histogram_defs,
 	amgui_label_defs,
 	amgui_timeline_defs,
+	amgui_toolbar_button_defs,
+	amgui_toolbar_togglebutton_defs,
 	NULL
 };
 

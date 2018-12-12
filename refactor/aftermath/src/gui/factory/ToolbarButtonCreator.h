@@ -19,7 +19,7 @@
 #define AM_TOOLBARBUTTONCREATOR_H
 
 #include "GUIFactory.h"
-#include <QToolButton>
+#include "../widgets/ToolbarButton.h"
 
 /**
  * Virtual class implementing both toolbar push buttons (TOGGLE = false) and
@@ -35,8 +35,13 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 		QWidget* instantiate(const struct am_object_notation_node_group* n)
 		{
 			const char* str;
-			QToolButton* b = new QToolButton();
+			QToolButton* b;
 			uint64_t checked;
+
+			if(TOGGLE)
+				b = new ToolbarToggleButton();
+			else
+				b = new ToolbarButton();
 
 			b->setCheckable(TOGGLE);
 

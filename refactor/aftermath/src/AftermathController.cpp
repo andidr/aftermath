@@ -21,6 +21,7 @@
 #include "gui/DFGNodeTypeSelectionDialog.h"
 #include "gui/widgets/CairoWidgetWithDFGNode.h"
 #include "gui/widgets/HierarchyComboBox.h"
+#include "gui/widgets/ToolbarButton.h"
 #include <QMessageBox>
 
 /* Called when two ports are connected. */
@@ -146,6 +147,18 @@ AftermathController::AftermathController(AftermathSession* session,
 			c = QObject::connect(
 				w,
 				&HierarchyComboBox::processDFGNodeSignal,
+				session->getDFGProcessorp(),
+				&DFGQTProcessor::DFGNodeTriggered);
+			this->connections.push_back(c);
+		});
+
+	gui.applyToWidgetsOfType<ToolbarButton>(
+		[&](ToolbarButton* w) {
+			QMetaObject::Connection c;
+
+			c = QObject::connect(
+				w,
+				&ToolbarButton::processDFGNodeSignal,
 				session->getDFGProcessorp(),
 				&DFGQTProcessor::DFGNodeTriggered);
 			this->connections.push_back(c);

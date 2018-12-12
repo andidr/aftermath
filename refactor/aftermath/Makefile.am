@@ -24,6 +24,10 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/nodes/gui/label.cpp \
 	src/dfg/nodes/gui/timeline.h \
 	src/dfg/nodes/gui/timeline.cpp \
+	src/dfg/nodes/gui/toolbar_button.h \
+	src/dfg/nodes/gui/toolbar_button.cpp \
+	src/dfg/nodes/gui/toolbar_togglebutton.h \
+	src/dfg/nodes/gui/toolbar_togglebutton.cpp \
 	src/dfg/types/builtin_types.h \
 	src/dfg/types/builtin_types.c \
 	src/gui/AftermathGUI.cpp \
@@ -75,6 +79,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/HistogramWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
 	src/gui/widgets/TimelineWidget.h \
+	src/gui/widgets/ToolbarButton.cpp \
+	src/gui/widgets/moc_ToolbarButton.cpp \
+	src/gui/widgets/ToolbarButton.h \
 	src/gui/widgets/WidgetWithDFGNode.h
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
@@ -87,6 +94,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/moc_HierarchyComboBox.cpp \
+	src/gui/widgets/moc_ToolbarButton.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
 	src/dfg/moc_DFGQTProcessor.cpp \
@@ -142,6 +150,11 @@ src/gui/widgets/moc_HierarchyComboBox.cpp: \
 	src/gui/widgets/HierarchyComboBox.cpp \
 	src/gui/widgets/HierarchyComboBox.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/HierarchyComboBox.h -o $@
+
+src/gui/widgets/moc_ToolbarButton.cpp: \
+	src/gui/widgets/ToolbarButton.cpp \
+	src/gui/widgets/ToolbarButton.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/ToolbarButton.h -o $@
 
 BUILT_SOURCES = $(GENERATED_FILES)
 

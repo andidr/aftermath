@@ -21,11 +21,14 @@
 #include "dfg/nodes/gui/hierarchy_combobox.h"
 #include "dfg/nodes/gui/label.h"
 #include "dfg/nodes/gui/timeline.h"
+#include "dfg/nodes/gui/toolbar_button.h"
+#include "dfg/nodes/gui/toolbar_togglebutton.h"
 #include "dfg/types/builtin_types.h"
 #include "gui/widgets/DFGWidget.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/HistogramWidget.h"
 #include "gui/widgets/TimelineWidget.h"
+#include "gui/widgets/ToolbarButton.h"
 
 #include <QLabel>
 
@@ -379,6 +382,32 @@ int AftermathSession::DFGNodeInstantiationCallback(
 				return 1;
 
 			t->timeline->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::toolbar_togglebutton") == 0) {
+		struct am_dfg_amgui_toolbar_togglebutton_node* t = (typeof(t))n;
+
+		try {
+			w = session->getGUI().getWidget(t->widget_id);
+
+			if(!(t->togglebutton = dynamic_cast<ToolbarToggleButton*>(w)))
+				return 1;
+
+			t->togglebutton->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::toolbar_button") == 0) {
+		struct am_dfg_amgui_toolbar_button_node* t = (typeof(t))n;
+
+		try {
+			w = session->getGUI().getWidget(t->widget_id);
+
+			if(!(t->button = dynamic_cast<ToolbarButton*>(w)))
+				return 1;
+
+			t->button->setDFGNode(n);
 		} catch(...) {
 			return 1;
 		}
