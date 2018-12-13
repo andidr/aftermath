@@ -85,6 +85,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/interval_duration.h \
 				src/dfg/nodes/pair_timestamp_hierarchy_node_attributes.c \
 				src/dfg/nodes/pair_timestamp_hierarchy_node_attributes.h \
+				src/dfg/nodes/state_description_attributes.c \
+				src/dfg/nodes/state_description_attributes.h \
 				src/dfg/nodes/state_event_attributes.c \
 				src/dfg/nodes/state_event_attributes.h \
 				src/dfg/nodes/string_concat.c \
