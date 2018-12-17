@@ -28,6 +28,10 @@
 #include <aftermath/core/dfg/nodes/bool_constant.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() count_defs
+#include <aftermath/core/dfg/nodes/count.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() double_constant_defs
 #include <aftermath/core/dfg/nodes/double_constant.h>
 
@@ -123,6 +127,7 @@
 static struct am_dfg_static_node_type_def** defsets[] = {
 	in_memory_defs,
 	bool_constant_defs,
+	count_defs,
 	double_constant_defs,
 	duration_to_string_defs,
 	duration_to_uint64_defs,
