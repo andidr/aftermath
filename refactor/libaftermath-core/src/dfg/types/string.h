@@ -33,11 +33,17 @@ int am_dfg_type_string_from_string(const struct am_dfg_type* t,
 int am_dfg_type_string_check_string(const struct am_dfg_type* t,
 				    const char* str);
 
+int am_dfg_type_string_copy_samples(const struct am_dfg_type* t,
+				    size_t num_samples,
+				    void* ptr_in,
+				    void* ptr_out);
+
 AM_DFG_DECL_BUILTIN_TYPE(
 	am_dfg_type_string,
 	"am::core::string",
 	sizeof(char*),
 	am_dfg_type_generic_free_samples,
+	am_dfg_type_string_copy_samples,
 	am_dfg_type_string_to_string,
 	am_dfg_type_string_from_string,
 	am_dfg_type_string_check_string)

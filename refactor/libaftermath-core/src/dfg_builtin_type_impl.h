@@ -26,12 +26,14 @@
  * AM_DFG_DECL_BUILTIN_TYPE. See AM_DFG_DECL_BUILTIN_TYPE for documentation. */
 #define AM_DFG_DECL_BUILTIN_TYPE_SWITCH(ID, NAME, INSTANCE_SIZE,	\
 					ARRAY_DESTRUCTOR_FUN,		\
+					ARRAY_COPY_FUN,		\
 					TO_STRING_FUN,			\
 					FROM_STRING_FUN,		\
 					CHECK_STRING_FUN)		\
 	static struct am_dfg_static_type_def ID = {			\
 		.name = NAME,						\
 		.sample_size = INSTANCE_SIZE,				\
+		.copy_samples = ARRAY_COPY_FUN,			\
 		.destroy_samples = ARRAY_DESTRUCTOR_FUN,		\
 		.to_string = TO_STRING_FUN,				\
 		.from_string = FROM_STRING_FUN,			\

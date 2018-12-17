@@ -28,6 +28,7 @@ int am_dfg_type_init(struct am_dfg_type* t, const char* name, size_t sample_size
 
 	t->sample_size = sample_size;
 	t->destroy_samples = NULL;
+	t->copy_samples = NULL;
 
 	INIT_LIST_HEAD(&t->list);
 

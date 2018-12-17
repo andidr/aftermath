@@ -20,6 +20,7 @@
 #define AM_DFG_TYPE_DOUBLE_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 
 int am_dfg_type_double_to_string(const struct am_dfg_type* t,
 				 void* ptr,
@@ -38,6 +39,7 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	"am::core::double",
 	sizeof(double),
 	NULL,
+	am_dfg_type_generic_plain_copy_samples,
 	am_dfg_type_double_to_string,
 	am_dfg_type_double_from_string,
 	am_dfg_type_double_check_string)

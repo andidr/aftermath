@@ -20,6 +20,7 @@
 #define AM_DFG_TYPE_INTERVAL_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/core/in_memory.h>
 
 int am_dfg_type_interval_to_string(const struct am_dfg_type* t,
@@ -39,6 +40,7 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	"am::core::interval",
 	sizeof(struct am_interval),
 	NULL,
+	am_dfg_type_generic_plain_copy_samples,
 	am_dfg_type_interval_to_string,
 	am_dfg_type_interval_from_string,
 	am_dfg_type_interval_check_string)

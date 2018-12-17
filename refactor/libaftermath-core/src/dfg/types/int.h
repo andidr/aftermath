@@ -20,6 +20,7 @@
 #define AM_DFG_TYPE_UINT_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <stdint.h>
 
 #define AM_DFG_INT_TYPE_STATIC_DECL(TPREFIX)		\
@@ -28,6 +29,7 @@
 		"am::core::" #TPREFIX,			\
 		sizeof(TPREFIX##_t),			\
 		NULL,					\
+		am_dfg_type_generic_plain_copy_samples, \
 		am_dfg_type_##TPREFIX##_to_string,	\
 		am_dfg_type_##TPREFIX##_from_string,	\
 		am_dfg_type_##TPREFIX##_check_string)

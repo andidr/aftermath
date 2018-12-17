@@ -52,12 +52,32 @@ AM_DFG_TYPE_HISTOGRAM1D_DECL_FREE_SAMPLES(int64)
 
 AM_DFG_TYPE_HISTOGRAM1D_DECL_FREE_SAMPLES(double)
 
+#define AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(SUFFIX)		\
+	int am_dfg_type_histogram1d_##SUFFIX##_copy_samples(		\
+		const struct am_dfg_type* t,				\
+		size_t num_samples,					\
+		void* ptr_in,						\
+		void* ptr_out);
+
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(uint8)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(uint16)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(uint32)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(uint64)
+
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(int8)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(int16)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(int32)
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(int64)
+
+AM_DFG_TYPE_HISTOGRAM1D_DECL_COPY_SAMPLES(double)
+
 #define AM_DFG_HISTOGRAM_1D_STATIC_TYPE_DECL(SUFFIX, SUFFIX_UPCASE)	\
 	AM_DFG_DECL_BUILTIN_TYPE(					\
 		am_dfg_type_histogram1d_##SUFFIX,			\
 		"am::core::histogram1d<" #SUFFIX ">",			\
 		sizeof(struct am_histogram1d_##SUFFIX*),		\
 		am_dfg_type_histogram1d_##SUFFIX##_free_samples,	\
+		am_dfg_type_histogram1d_##SUFFIX##_copy_samples,	\
 		NULL,							\
 		NULL,							\
 		NULL)

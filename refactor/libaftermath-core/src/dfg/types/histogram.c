@@ -44,3 +44,40 @@ AM_DFG_TYPE_HISTOGRAM1D_IMPL_FREE_SAMPLES(int32_t, int32)
 AM_DFG_TYPE_HISTOGRAM1D_IMPL_FREE_SAMPLES(int64_t, int64)
 
 AM_DFG_TYPE_HISTOGRAM1D_IMPL_FREE_SAMPLES(double, double)
+
+#define AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(T, SUFFIX)			\
+	int am_dfg_type_histogram1d_##SUFFIX##_copy_samples(			\
+		const struct am_dfg_type* t,					\
+		size_t num_samples,						\
+		void* ptr_in,							\
+		void* ptr_out)							\
+	{									\
+		struct am_histogram1d_##SUFFIX** hs_in = ptr_in;		\
+		struct am_histogram1d_##SUFFIX** hs_out = ptr_out;		\
+										\
+		for(size_t i = 0; i < num_samples; i++) {			\
+			if(!(hs_out[i] =					\
+			     am_histogram1d_##SUFFIX##_clone(hs_in[i]))) {	\
+				for(size_t j = 0; j < i; j++) {		\
+					am_histogram1d_##SUFFIX##_destroy(hs_out[i]);\
+					free(hs_out[i]);			\
+				}						\
+										\
+				return 1;					\
+			}							\
+		}								\
+										\
+		return 0;							\
+	}
+
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(uint8_t, uint8)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(uint16_t, uint16)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(uint32_t, uint32)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(uint64_t, uint64)
+
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(int8_t, int8)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(int16_t, int16)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(int32_t, int32)
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(int64_t, int64)
+
+AM_DFG_TYPE_HISTOGRAM1D_IMPL_COPY_SAMPLES(double, double)

@@ -25,4 +25,9 @@ void am_dfg_type_generic_free_samples(const struct am_dfg_type* t,
 				      size_t num_samples,
 				      void* ptr);
 
+int am_dfg_type_generic_plain_copy_samples(const struct am_dfg_type* t,
+					   size_t num_samples,
+					   void* ptr_in,
+					   void* ptr_out);
+
 #endif

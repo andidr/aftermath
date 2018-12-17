@@ -26,11 +26,17 @@ struct am_histogram1d_data;
 void am_dfg_type_histogram1d_data_free_samples(const struct am_dfg_type* t,
 					       size_t num_samples,
 					       void* ptr);
+
+int am_dfg_type_histogram1d_data_copy_samples(const struct am_dfg_type* t,
+					      size_t num_samples,
+					      void* ptr_in,
+					      void* ptr_out);
 AM_DFG_DECL_BUILTIN_TYPE(
 	am_dfg_type_histogram1d_data,
 	"am::core::histogram1d_data",
 	sizeof(struct am_histogram1d_data*),
 	am_dfg_type_histogram1d_data_free_samples,
+	am_dfg_type_histogram1d_data_copy_samples,
 	NULL, NULL, NULL)
 
 AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_histogram1d_data)

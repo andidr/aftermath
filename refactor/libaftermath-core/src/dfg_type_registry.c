@@ -127,6 +127,7 @@ int am_dfg_type_registry_add_static(struct am_dfg_type_registry* tr,
 			if(am_dfg_type_init(t, std->name, std->sample_size))
 				goto out_err;
 
+			t->copy_samples = std->copy_samples;
 			t->destroy_samples = std->destroy_samples;
 			t->to_string = std->to_string;
 			t->from_string = std->from_string;

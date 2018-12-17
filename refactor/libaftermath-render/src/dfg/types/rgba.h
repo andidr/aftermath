@@ -20,6 +20,7 @@
 #define AM_RENDER_DFG_TYPE_RGBA_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/render/cairo_extras.h>
 
 int am_render_dfg_type_rgba_to_string(const struct am_dfg_type* t,
@@ -39,6 +40,7 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	"am::render::rgba",
 	sizeof(struct am_rgba),
 	NULL,
+	am_dfg_type_generic_plain_copy_samples,
 	am_render_dfg_type_rgba_to_string,
 	am_render_dfg_type_rgba_from_string,
 	am_render_dfg_type_rgba_check_string)

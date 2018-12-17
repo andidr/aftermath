@@ -20,6 +20,7 @@
 #define AM_DFG_TYPE_TIMESTAMP_H
 
 #include <aftermath/core/dfg_type.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/core/base_types.h>
 
 int am_dfg_type_timestamp_to_string(const struct am_dfg_type* t,
@@ -39,6 +40,7 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	"am::core::timestamp",
 	sizeof(am_timestamp_t),
 	NULL,
+	am_dfg_type_generic_plain_copy_samples,
 	am_dfg_type_timestamp_to_string,
 	am_dfg_type_timestamp_from_string,
 	am_dfg_type_timestamp_check_string)

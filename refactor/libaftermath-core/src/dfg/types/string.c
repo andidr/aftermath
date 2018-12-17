@@ -49,3 +49,23 @@ int am_dfg_type_string_check_string(const struct am_dfg_type* t, const char* str
 {
 	return 1;
 }
+
+int am_dfg_type_string_copy_samples(const struct am_dfg_type* t,
+				    size_t num_samples,
+				    void* ptr_in,
+				    void* ptr_out)
+{
+	char** sptr_in = ptr_in;
+	char** sptr_out = ptr_out;
+
+	for(size_t i = 0; i < num_samples; i++) {
+		if(!(sptr_out[i] = strdup(sptr_in[i]))) {
+			for(size_t j = 0; j < i; j++)
+				free(sptr_out[j]);
+
+			return 1;
+		}
+	}
+
+	return 0;
+}

@@ -21,6 +21,7 @@
 
 #include <aftermath/core/dfg_type.h>
 #include <aftermath/core/base_types.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/core/hierarchy.h>
 
 struct am_dfg_type_pair_timestamp_const_hierarchy_node {
@@ -32,7 +33,9 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	am_dfg_type_pair_timestamp_const_hierarchy_node,
 	"am::core::pair<am::core::timestamp,const am::core::hierarchy_node*>",
 	sizeof(struct am_dfg_type_pair_timestamp_const_hierarchy_node),
-	NULL, NULL, NULL, NULL)
+	NULL,
+	am_dfg_type_generic_plain_copy_samples,
+	NULL, NULL, NULL)
 
 AM_DFG_ADD_BUILTIN_TYPES(&am_dfg_type_pair_timestamp_const_hierarchy_node)
 

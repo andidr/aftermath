@@ -22,6 +22,7 @@
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/dfg_type.h>
 #include <aftermath/core/dfg_node.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/render/cairo_extras.h>
 #include <limits.h>
 
@@ -34,7 +35,9 @@
 		/* The exact type doesn't really matter here, since the size of \
 		 * pointers is the same for all layers */			\
 		sizeof(struct am_timeline_render_layer*),			\
-		NULL, NULL, NULL, NULL)
+		NULL,								\
+		am_dfg_type_generic_plain_copy_samples,			\
+		NULL, NULL, NULL)
 
 /* Declares a DFG node type that takes a list of timeline layers as an input and
  * only writes those layers to the output that are of the DFG type "const

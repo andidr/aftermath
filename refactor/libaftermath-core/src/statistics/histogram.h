@@ -45,6 +45,33 @@ enum am_histogram_bin_mode {
 	AM_HISTOGRAM_BIN_MODE_SAT
 };
 
+#define AM_DECL_HISTOGRAM_1D_CLONE_FUN(SUFFIX)					\
+	static inline struct am_histogram1d_##SUFFIX*				\
+	am_histogram1d_##SUFFIX##_clone(struct am_histogram1d_##SUFFIX* h)	\
+	{									\
+		struct am_histogram1d_##SUFFIX* clone;				\
+										\
+		clone = (struct am_histogram1d_##SUFFIX*)malloc(sizeof(*clone));\
+										\
+		if(!clone)							\
+			return NULL;						\
+										\
+		if(am_histogram1d_data_init(&clone->data, h->data.num_bins)) {	\
+			free(clone);						\
+			return NULL;						\
+		}								\
+										\
+		for(size_t i = 0; i < h->data.num_bins; i++)			\
+			clone->data.bins[i] = h->data.bins[i];			\
+										\
+		clone->mode = h->mode;						\
+		clone->left = h->left;						\
+		clone->right = h->right;					\
+		clone->range = h->range;					\
+										\
+		return clone;							\
+	}									\
+
 /* Creates a histogram for integer values. Assumes that the maximum value of an
  * N-bit signed integer is exactly one less than minus its minimum value.
  *
@@ -121,6 +148,8 @@ enum am_histogram_bin_mode {
 	{									\
 		am_histogram1d_data_destroy(&h->data);				\
 	}									\
+										\
+	AM_DECL_HISTOGRAM_1D_CLONE_FUN(SUFFIX)					\
 										\
 	/* Adds a sample s to the histogram, i.e., increments the count for the \
 	 * corresponding bin by 1. Returns 0 on success, otherwise 1. */	\
@@ -253,6 +282,8 @@ static inline void am_histogram1d_double_destroy(struct am_histogram1d_double* h
 {
 	am_histogram1d_data_destroy(&h->data);
 }
+
+AM_DECL_HISTOGRAM_1D_CLONE_FUN(double)
 
 /* Adds a sample s to a 1D double histogram, i.e., increments the count for the
  * corresponding bin by 1. Returns 0 on success, otherwise 1.

@@ -28,6 +28,11 @@ typedef void (*am_dfg_type_destroy_samples_fun_t)(const struct am_dfg_type* t,
 						  size_t num_samples,
 						  void* ptr);
 
+typedef int (*am_dfg_type_copy_samples_fun_t)(const struct am_dfg_type* t,
+					      size_t num_samples,
+					      void* ptr_in,
+					      void* ptr_out);
+
 typedef int (*am_dfg_type_to_string_fun_t)(const struct am_dfg_type* t,
 					   void* ptr, char** out, int* cst);
 
@@ -54,6 +59,10 @@ struct am_dfg_type {
 	 * prior to freeing the memory. The argument ptr is a pointer to the
 	 * first sample and must not be freed. */
 	am_dfg_type_destroy_samples_fun_t destroy_samples;
+
+	/* Function called when an array of sample of this type is to be
+	 * copied from one buffer to another. */
+	am_dfg_type_copy_samples_fun_t copy_samples;
 
 	/* Function converting a single sample of the type into a
 	 * string. Ownership of the returned string is transferred to the
@@ -88,6 +97,10 @@ struct am_dfg_static_type_def {
 	 * destruction is needed. */
 	am_dfg_type_destroy_samples_fun_t destroy_samples;
 
+	/* Function for copying an array of samples from one location to
+	 * another. */
+	am_dfg_type_copy_samples_fun_t copy_samples;
+
 	/* Conversion to string */
 	am_dfg_type_to_string_fun_t to_string;
 
@@ -115,6 +128,9 @@ struct am_dfg_static_type_def {
  * INSTANCE_SIZE must be a size_t indicating the size of a single instance in
  * bytes
  *
+ * ARRAY_COPY_FUN is a function that copies an array of instances to another
+ * location.
+ *
  * ARRAY_DESTRUCTOR_FUN refers to a function of type
  * am_dfg_type_destroy_samples_fun_t that destroys an array of instances, but
  * does not free the array itself; may be NULL if no destructor is needed
@@ -134,16 +150,19 @@ struct am_dfg_static_type_def {
  *   AM_DFG_DECL_BUILTIN_TYPE(am_dfg_type_bool,
  *   	"am::core::bool",
  *   	AM_DFG_TYPE_BOOL_SAMPLE_SIZE,
+ *   	am_dfg_type_generic_plain_copy_samples,
  *   	NULL,
  *   	am_dfg_type_bool_to_string,
  *   	am_dfg_type_bool_from_string,
  *   	am_dfg_type_bool_check_string)
  */
 #define AM_DFG_DECL_BUILTIN_TYPE(ID, NAME, INSTANCE_SIZE, ARRAY_DESTRUCTOR_FUN, \
+				 ARRAY_COPY_FUN,				\
 				 TO_STRING_FUN, FROM_STRING_FUN,		\
 				 CHECK_STRING_FUN)				\
 	AM_DFG_DECL_BUILTIN_TYPE_SWITCH(ID, NAME, INSTANCE_SIZE,		\
 					ARRAY_DESTRUCTOR_FUN,			\
+					ARRAY_COPY_FUN,			\
 					TO_STRING_FUN, FROM_STRING_FUN,	\
 					CHECK_STRING_FUN)
 

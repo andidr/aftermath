@@ -17,6 +17,7 @@
  */
 
 #include <aftermath/core/dfg_builtin_type_impl.h>
+#include <aftermath/core/dfg/types/generic.h>
 #include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/dfg/types/builtin_types.h>
 #include <aftermath/render/dfg/timeline_layer_common.h>
@@ -26,7 +27,9 @@ AM_DFG_DECL_BUILTIN_TYPE(
 	am_render_dfg_type_timeline_layer,
 	"const am::render::timeline::layer*",
 	sizeof(struct am_timeline_render_layer*),
-	NULL, NULL, NULL, NULL)
+	NULL,
+	am_dfg_type_generic_plain_copy_samples,
+	NULL, NULL, NULL)
 
 #undef DEFS_NAME
 #define DEFS_NAME() am_render_dfg_type_rgba_defs
