@@ -26,6 +26,7 @@
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/typed_rbtree.h>
 #include <aftermath/core/dfg_node_type_registry.h>
+#include <aftermath/core/dfg_type_registry.h>
 #include <stdio.h>
 
 enum am_dfg_graph_flags {
@@ -146,13 +147,16 @@ int am_dfg_graph_remove_node(struct am_dfg_graph* g, struct am_dfg_node* n);
 void am_dfg_graph_remove_node_no_disconnect(struct am_dfg_graph* g,
 					    struct am_dfg_node* n);
 int am_dfg_graph_connectp(struct am_dfg_graph* g,
+			  struct am_dfg_type_registry* tr,
 			  struct am_dfg_port* src_port,
 			  struct am_dfg_port* dst_port);
 int am_dfg_graph_reconnectp(struct am_dfg_graph* g,
+			    struct am_dfg_type_registry* tr,
 			    struct am_dfg_port* src_port,
 			    struct am_dfg_port* old_dst_port,
 			    struct am_dfg_port* new_dst_port);
 int am_dfg_graph_connectn(struct am_dfg_graph* g,
+			  struct am_dfg_type_registry* tr,
 			  struct am_dfg_node* src, const char* src_port_name,
 			  struct am_dfg_node* dst, const char* dst_port_name);
 void am_dfg_graph_reset_buffers(const struct am_dfg_graph* g);
@@ -176,9 +180,11 @@ int am_dfg_graph_save_fp(struct am_dfg_graph* g, FILE* fp);
 
 int am_dfg_graph_load(struct am_dfg_graph* g,
 		      const char* filename,
+		      struct am_dfg_type_registry* tr,
 		      struct am_dfg_node_type_registry* ntr);
 int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
 				      struct am_object_notation_node* n_graph,
+				      struct am_dfg_type_registry* tr,
 				      struct am_dfg_node_type_registry* ntr);
 
 

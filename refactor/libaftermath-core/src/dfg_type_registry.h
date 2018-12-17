@@ -34,6 +34,9 @@ struct am_dfg_type_registry {
 	struct list_head types;
 
 	long flags;
+
+	/* Pointer to special "any" type */
+	struct am_dfg_type* any_type;
 };
 
 #define am_dfg_type_registry_for_each_type(r, t) \

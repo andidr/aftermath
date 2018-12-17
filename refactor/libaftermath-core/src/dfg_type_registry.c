@@ -26,6 +26,9 @@ void am_dfg_type_registry_add(struct am_dfg_type_registry* reg,
 			      struct am_dfg_type* t)
 {
 	list_add(&t->list, &reg->types);
+
+	if(strcmp(t->name, "am::core::any") == 0)
+		reg->any_type = t;
 }
 
 /*
@@ -48,6 +51,7 @@ void am_dfg_type_registry_init(struct am_dfg_type_registry* reg, long flags)
 {
 	INIT_LIST_HEAD(&reg->types);
 	reg->flags = flags;
+	reg->any_type = NULL;
 }
 
 /* Destroy a registry */
@@ -71,8 +75,11 @@ int am_dfg_type_registry_types_compatible(const struct am_dfg_type_registry* reg
 					  const struct am_dfg_type* tsrc,
 					  const struct am_dfg_type* tdst)
 {
-	/* Currently, types are not converted, so types must be identical */
-	return (tsrc == tdst);
+	/* Currently, types are not converted, so types must be identical or one
+	 * of them must be the special "any" type */
+	return ((tsrc == tdst) ||
+		(reg->any_type &&
+		 (tsrc == reg->any_type || tdst == reg->any_type)));
 }
 
 /* Destroys a list of types */

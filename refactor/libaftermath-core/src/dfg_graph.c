@@ -117,6 +117,7 @@ static void am_dfg_graph_add_buffer(struct am_dfg_graph* g,
  * Returns 0 on success, otherwise 1.
  */
 int am_dfg_graph_connectp(struct am_dfg_graph* g,
+			  struct am_dfg_type_registry* tr,
 			  struct am_dfg_port* src_port,
 			  struct am_dfg_port* dst_port)
 {
@@ -132,8 +133,11 @@ int am_dfg_graph_connectp(struct am_dfg_graph* g,
 	}
 
 	/* Port data types compatible? */
-	if(src_port->type->type != dst_port->type->type)
+	if(!am_dfg_type_registry_types_compatible(
+		   tr, src_port->type->type, dst_port->type->type))
+	{
 		goto out_err;
+	}
 
 	/* Destination already connected? */
 	if(dst_port->num_connections != 0)
@@ -191,6 +195,7 @@ out_err:
  * Returns 0 on success, otherwise 1.
  */
 int am_dfg_graph_reconnectp(struct am_dfg_graph* g,
+			    struct am_dfg_type_registry* tr,
 			    struct am_dfg_port* src_port,
 			    struct am_dfg_port* old_dst_port,
 			    struct am_dfg_port* new_dst_port)
@@ -199,7 +204,7 @@ int am_dfg_graph_reconnectp(struct am_dfg_graph* g,
 	am_dfg_buffer_inc_ref(src_port->buffer);
 
 	if(am_dfg_port_disconnect(src_port, old_dst_port) ||
-	   am_dfg_graph_connectp(g, src_port, new_dst_port))
+	   am_dfg_graph_connectp(g, tr, src_port, new_dst_port))
 	{
 		am_dfg_buffer_dec_ref(src_port->buffer);
 		return 1;
@@ -216,6 +221,7 @@ int am_dfg_graph_reconnectp(struct am_dfg_graph* g,
  * Returns 0 on success, otherwise 1.
  */
 int am_dfg_graph_connectn(struct am_dfg_graph* g,
+			  struct am_dfg_type_registry* tr,
 			  struct am_dfg_node* src, const char* src_port_name,
 			  struct am_dfg_node* dst, const char* dst_port_name)
 {
@@ -228,7 +234,7 @@ int am_dfg_graph_connectn(struct am_dfg_graph* g,
 	if(!(dst_pi = am_dfg_node_find_port(dst, dst_port_name)))
 		return 1;
 
-	return am_dfg_graph_connectp(g, src_pi, dst_pi);
+	return am_dfg_graph_connectp(g, tr, src_pi, dst_pi);
 }
 
 enum {
@@ -660,6 +666,7 @@ int am_dfg_graph_save(struct am_dfg_graph* g, const char* filename)
  */
 int am_dfg_graph_connection_from_object_notation(
 	struct am_dfg_graph* g,
+	struct am_dfg_type_registry* tr,
 	struct am_object_notation_node* n_connection)
 {
 	struct am_object_notation_node_list* n_lconnection;
@@ -725,7 +732,7 @@ int am_dfg_graph_connection_from_object_notation(
 	if(!(pdst = am_dfg_node_find_port(dst, n_dst_sport->value)))
 		return 1;
 
-	if(am_dfg_graph_connectp(g, psrc, pdst))
+	if(am_dfg_graph_connectp(g, tr, psrc, pdst))
 		return 1;
 
 	return 0;
@@ -740,6 +747,7 @@ int am_dfg_graph_connection_from_object_notation(
  */
 int am_dfg_graph_connections_from_object_notation(
 	struct am_dfg_graph* g,
+	struct am_dfg_type_registry* tr,
 	struct am_object_notation_node* n_connections)
 {
 	struct am_object_notation_node_list* n_lconnections;
@@ -751,7 +759,7 @@ int am_dfg_graph_connections_from_object_notation(
 	n_lconnections = (struct am_object_notation_node_list*)n_connections;
 
 	am_object_notation_for_each_list_item(n_lconnections, item) {
-		if(am_dfg_graph_connection_from_object_notation(g, item))
+		if(am_dfg_graph_connection_from_object_notation(g, tr, item))
 			return 1;
 	}
 
@@ -801,6 +809,7 @@ int am_dfg_graph_nodes_from_object_notation(
  */
 int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
 				      struct am_object_notation_node* n_graph,
+				      struct am_dfg_type_registry* tr,
 				      struct am_dfg_node_type_registry* ntr)
 {
 	struct am_object_notation_node_group* n_ggraph;
@@ -835,7 +844,7 @@ int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
 		n_ggraph,
 		"connections");
 
-	if(am_dfg_graph_connections_from_object_notation(&tmp, n_connections))
+	if(am_dfg_graph_connections_from_object_notation(&tmp, tr, n_connections))
 		return 1;
 
 	if(am_dfg_graph_merge(g, &tmp)) {
@@ -855,6 +864,7 @@ int am_dfg_graph_from_object_notation(struct am_dfg_graph* g,
  */
 int am_dfg_graph_load(struct am_dfg_graph* g,
 		      const char* filename,
+		      struct am_dfg_type_registry* tr,
 		      struct am_dfg_node_type_registry* ntr)
 {
 	struct am_object_notation_node* n_graph;
@@ -863,7 +873,7 @@ int am_dfg_graph_load(struct am_dfg_graph* g,
 	if(!(n_graph = am_object_notation_load(filename)))
 		goto out_err;
 
-	if(am_dfg_graph_from_object_notation(g, n_graph, ntr))
+	if(am_dfg_graph_from_object_notation(g, n_graph, tr, ntr))
 		goto out_err_dest;
 
 	ret = 0;

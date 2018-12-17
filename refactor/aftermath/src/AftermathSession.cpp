@@ -281,10 +281,12 @@ void AftermathSession::loadDFG(const char* filename)
 {
 	struct am_dfg_graph* g;
 	struct am_dfg_coordinate_mapping* m;
+	struct am_dfg_type_registry* tr;
 	struct am_dfg_node_type_registry* ntr;
 	struct am_object_notation_node* n_graph;
 
 	ntr = this->getDFGNodeTypeRegistry();
+	tr = this->getDFGTypeRegistry();
 
 	am_dfg_node_type_registry_set_instantiate_callback_fun(
 		ntr, AftermathSession::DFGNodeInstantiationCallback, this);
@@ -309,7 +311,7 @@ void AftermathSession::loadDFG(const char* filename)
 	am_dfg_coordinate_mapping_init(m);
 
 	try {
-		if(am_dfg_graph_from_object_notation(g, n_graph, ntr))
+		if(am_dfg_graph_from_object_notation(g, n_graph, tr, ntr))
 			throw AftermathException("Could not load DFG from "
 						 "object notation");
 		this->setDFG(g);
