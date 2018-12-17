@@ -105,6 +105,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/tensorflow_node_execution_attributes.h \
 				src/dfg/nodes/trace.c \
 				src/dfg/nodes/trace.h \
+				src/dfg/types/any.h \
 				src/dfg/types/bool.c \
 				src/dfg/types/bool.h \
 				src/dfg/types/double.c \

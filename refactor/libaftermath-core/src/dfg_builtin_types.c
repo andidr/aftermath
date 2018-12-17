@@ -24,6 +24,10 @@
 #include <aftermath/core/in_memory_dfg_types.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() am_dfg_type_set_any
+#include <aftermath/core/dfg/types/any.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() am_dfg_type_set_bool
 #include <aftermath/core/dfg/types/bool.h>
 
@@ -66,6 +70,7 @@
 
 static struct am_dfg_static_type_def** defsets[] = {
 	am_dfg_type_set_in_memory,
+	am_dfg_type_set_any,
 	am_dfg_type_set_bool,
 	am_dfg_type_set_double,
 	am_dfg_type_set_duration,
