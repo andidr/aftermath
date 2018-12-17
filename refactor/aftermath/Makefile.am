@@ -126,7 +126,7 @@ install-data-hook: $(PROFILES) $(ICONS) $(GENERATED_PROFILE_FILES)
 	done
 
 MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
-aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -Wall -Werror
+aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -DAM_PROFILE_BASEDIR="\"$(datarootdir)/aftermath/profiles\"" -Wall -Werror
 
 aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
