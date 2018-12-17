@@ -120,7 +120,13 @@ class DFGWidget : public CairoWidget {
 
 			/* Trying to add a connection that would introduce a
 			 * cycle */
-			CYCLE
+			CYCLE,
+
+			/* Trying to connect two ports for which at least one of
+			 * the node indicated incompatibility through its
+			 * pre-connect function */
+			PRECONNECT_FAILED
+
 		};
 
 		/* Current error message */
@@ -197,6 +203,11 @@ class DFGWidget : public CairoWidget {
 			struct am_dfg_path* cycle,
 			const struct am_dfg_port* ignore_src,
 			const struct am_dfg_port* ignore_dst);
+
+		virtual bool checkPreconnectPorts(
+			const struct am_dfg_port* pa,
+			const struct am_dfg_port* pb,
+			std::string* error);
 
 		void portsIncompatibilityErrorMessage(
 			enum PortCompatibility compat,

@@ -296,6 +296,9 @@ DFGWidget::portsCompatible(const struct am_dfg_port* pa,
 		return PortCompatibility::TYPES_INCOMPATIBLE;
 	}
 
+	if(!this->checkPreconnectPorts(psrc, pdst, NULL))
+		return PortCompatibility::PRECONNECT_FAILED;
+
 	if(!this->graph)
 		throw DFGWidgetException();
 
@@ -310,6 +313,40 @@ DFGWidget::portsCompatible(const struct am_dfg_port* pa,
 	}
 
 	return PortCompatibility::COMPATIBLE;
+}
+
+/* Checks if the nodes of two ports pa and pb do not complain about a possible
+ * connection. If non-NULL, error will contain one of the node's error message
+ * if the ports are incompatible.
+ *
+ * Returns false if the ports cannot be connected.
+ * Returns true if the ports can be connected.
+ */
+bool DFGWidget::checkPreconnectPorts(
+	const struct am_dfg_port* pa,
+	const struct am_dfg_port* pb,
+	std::string* error)
+{
+	const struct am_dfg_node* na = pa->node;
+	const struct am_dfg_node* nb = pb->node;
+	const struct am_dfg_node_type* nta = na->type;
+	const struct am_dfg_node_type* ntb = nb->type;
+	char cerr[256];
+	size_t max_err = sizeof(cerr) - 1;
+
+	/* Check if nodes complain about connection */
+	if((nta->functions.pre_connect &&
+	    nta->functions.pre_connect(na, pa, pb, max_err, cerr)) ||
+	   (ntb->functions.pre_connect &&
+	    ntb->functions.pre_connect(nb, pb, pa, max_err, cerr)))
+	{
+		if(error)
+			*error = cerr;
+
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -341,6 +378,9 @@ void DFGWidget::portsIncompatibilityErrorMessage(
 			break;
 		case CYCLE:
 			error = "This would create a cycle";
+			break;
+		case PRECONNECT_FAILED:
+			this->checkPreconnectPorts(pa, pb, &error);
 			break;
 		case COMPATIBLE:
 			break;
@@ -634,6 +674,7 @@ void DFGWidget::mouseReleasePort(const struct am_point* screen_pos)
 	struct am_dfg_port* pout;
 	struct am_dfg_port* p;
 	struct am_point graph_pos;
+	char buf[256];
 
 	am_dfg_renderer_screen_to_graph(&this->renderer,
 					screen_pos,
@@ -661,6 +702,14 @@ void DFGWidget::mouseReleasePort(const struct am_point* screen_pos)
 		/* Do nothing for already connected ports */
 		if(am_dfg_ports_connected(pout, pin))
 			return;
+
+		if((pin->node->type->functions.pre_connect &&
+		    pin->node->type->functions.pre_connect(pin->node, pin, pout, sizeof(buf)-1, buf)) ||
+		   (pout->node->type->functions.pre_connect &&
+		    pout->node->type->functions.pre_connect(pout->node, pout, pin, sizeof(buf)-1, buf)))
+		{
+			return;
+		}
 
 		if(this->draggedPort.disconnectPort) {
 			am_dfg_port_disconnect(this->draggedPort.port,

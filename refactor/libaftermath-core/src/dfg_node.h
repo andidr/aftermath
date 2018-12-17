@@ -474,6 +474,21 @@ struct am_dfg_node_type_functions {
 	 * execution */
 	int (*process)(struct am_dfg_node* n);
 
+	/* Function called before a port pi of a node of this type is connected
+	 * to another port pother. A return value of 0 indicates that the two
+	 * ports could be connected, while a return value of 1 indicates that
+	 * the ports are incompatible.
+	 *
+	 * In case of a non-zero return value, the function might also write an
+	 * error message into error_msg that is up to error_msg_characters long,
+	 * excluding the trailing \0 byte.
+	 */
+	int (*pre_connect)(const struct am_dfg_node* n,
+			   const struct am_dfg_port* pi,
+			   const struct am_dfg_port* pother,
+			   size_t max_error_msg,
+			   char* error_msg);
+
 	/* Function called when a port of a node of this type is connected */
 	void (*connect)(struct am_dfg_node* n, struct am_dfg_port* pi);
 
