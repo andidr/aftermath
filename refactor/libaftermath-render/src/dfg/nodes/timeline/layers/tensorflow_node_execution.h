@@ -27,6 +27,25 @@ AM_RENDER_DFG_DECL_TIMELINE_LAYER_FILTER_NODE_TYPE(
 	"tensorflow::node_execution",
 	"Timeline TensorFlow Node Execution Layer Filter")
 
+int am_render_dfg_timeline_tensorflow_node_execution_layer_configuration_node_process(
+	struct am_dfg_node* n);
+
+AM_DFG_DECL_BUILTIN_NODE_TYPE(
+	am_render_dfg_timeline_tensorflow_node_execution_layer_configuration_node_type,
+	"am::render::timeline::layer::tensorflow::node_execution::configuration",
+	"TensorFlow Node Execution Layer Configuration",
+	AM_DFG_NODE_DEFAULT_SIZE,
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
+	AM_DFG_NODE_FUNCTIONS({
+		.process = am_render_dfg_timeline_tensorflow_node_execution_layer_configuration_node_process
+	}),
+	AM_DFG_NODE_PORTS(
+		{ "layer", "const am::render::timeline::layer::tensorflow::node_execution*", AM_DFG_PORT_IN },
+		{ "enable", "am::core::bool", AM_DFG_PORT_IN }
+	),
+	AM_DFG_PORT_DEPS(),
+	AM_DFG_NODE_PROPERTIES())
+
 int am_render_dfg_timeline_tensorflow_node_execution_layer_dominant_node_at_pos_node_type_process(
 	struct am_dfg_node* n);
 
@@ -58,6 +77,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(
 	&am_render_dfg_timeline_tensorflow_node_execution_layer_filter_node_type,
+	&am_render_dfg_timeline_tensorflow_node_execution_layer_configuration_node_type,
 	&am_render_dfg_timeline_tensorflow_node_execution_layer_dominant_node_at_pos_node_type)
 
 #endif

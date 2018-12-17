@@ -28,6 +28,47 @@ AM_RENDER_DFG_IMPL_TIMELINE_LAYER_FILTER_NODE_TYPE(
 	"tensorflow::node_execution",
 	struct am_timeline_interval_layer)
 
+int am_render_dfg_timeline_tensorflow_node_execution_layer_configuration_node_process(
+	struct am_dfg_node* n)
+{
+	size_t num_layers;
+	struct am_timeline_render_layer** layers;
+	int changed = 0;
+	int rendering_enabled;
+
+	/* No input layers -> Exit */
+	if(!am_dfg_port_activated(&n->ports[0]) ||
+	   n->ports[0].buffer->num_samples == 0)
+	{
+		return 0;
+	}
+
+	num_layers = n->ports[0].buffer->num_samples;
+	layers = n->ports[0].buffer->data;
+
+	/* Enable */
+	if(am_dfg_port_activated(&n->ports[1])) {
+		if(am_dfg_buffer_read_last(n->ports[1].buffer, &rendering_enabled))
+			return 1;
+
+		changed = 1;
+
+		for(size_t i = 0; i < num_layers; i++)
+			layers[i]->enabled = rendering_enabled;
+	}
+
+	/* Notify renderers if necessary */
+	if(changed) {
+		for(size_t i = 0; i < num_layers; i++) {
+			am_timeline_renderer_indicate_layer_appearance_change(
+				layers[i]->renderer,
+				layers[i]);
+		}
+	}
+
+	return 0;
+}
+
 int am_render_dfg_timeline_tensorflow_node_execution_layer_dominant_node_at_pos_node_type_process(
 	struct am_dfg_node* n)
 {
