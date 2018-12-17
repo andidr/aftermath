@@ -1,0 +1,72 @@
+am_gui {
+	title: "Aftermath",
+
+	children: [
+		amgui_vbox {
+			children: [
+				amgui_htoolbar {
+					children: [
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw TensorFlow node executions",
+							icon: "@ICON_BASEDIR@/draw_tf_node_executions.svg",
+							checked: 1u64,
+							id: "toolbutton_draw_tf_node_executions"
+						},
+
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw reads",
+							icon: "@ICON_BASEDIR@/draw_states.svg",
+							checked: 1u64,
+							id: "toolbutton_draw_states"
+						},
+					]
+				},
+
+				amgui_hsplitter {
+					stretch: [10u64, 90u64],
+					children: [
+						amgui_tabs {
+							tab_names: [ "Options" ],
+
+							children : [
+								amgui_vbox {
+									children: [
+										amgui_label {
+											text: "Hierarchy:"
+										},
+
+										amgui_hierarchy_combobox {
+											id: "hierarchy_cb1"
+										}
+									]
+								}
+							]
+						},
+
+						amgui_tabs {
+							tab_names: [ "Timeline", "DFG" ],
+
+							children : [
+								amgui_timeline {
+									id: "tl1",
+									layers: ["background", "hierarchy", "axes", "state", "tensorflow::node_execution", "selection"]
+								},
+
+								amgui_dfg { }
+							]
+						}
+					]
+				},
+
+				amgui_statusbar {
+					children: [
+						amgui_label {
+							text: "Ready.",
+							id: "statusbar_label"
+						}
+					]
+				}
+			]
+		}
+	]
+}

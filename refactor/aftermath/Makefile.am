@@ -88,17 +88,25 @@ share/profiles/min/interface.amgui: $(srcdir)/share/profiles/min/interface.amgui
 	$(MKDIR_P) share/profiles/min/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
 
+share/profiles/tensorflow/interface.amgui: $(srcdir)/share/profiles/tensorflow/interface.amgui.in
+	$(MKDIR_P) share/profiles/tensorflow/
+	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
+
 GENERATED_PROFILE_TEMPLATES = \
-	$(srcdir)/share/profiles/min/interface.amgui.in
+	$(srcdir)/share/profiles/min/interface.amgui.in \
+	$(srcdir)/share/profiles/tensorflow/interface.amgui.in
 
 GENERATED_PROFILE_FILES = \
-	share/profiles/min/interface.amgui
+	share/profiles/min/interface.amgui \
+	share/profiles/tensorflow/interface.amgui
 
 STATIC_PROFILE_FILES = \
-	share/profiles/min/graph.dfg
+	share/profiles/min/graph.dfg \
+	share/profiles/tensorflow/graph.dfg
 
 ICONS = \
-	share/icons/draw_states.svg
+	share/icons/draw_states.svg \
+	share/icons/draw_tf_node_executions.svg
 
 # Install profiles
 install-data-hook: $(PROFILES) $(ICONS) $(GENERATED_PROFILE_FILES)
