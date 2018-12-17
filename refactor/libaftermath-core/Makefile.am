@@ -81,6 +81,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/histogram_builder.h \
 				src/dfg/nodes/int_constant.c \
 				src/dfg/nodes/int_constant.h \
+				src/dfg/nodes/int_to_string.c \
+				src/dfg/nodes/int_to_string.h \
 				src/dfg/nodes/interval_attributes.c \
 				src/dfg/nodes/interval_attributes.h \
 				src/dfg/nodes/interval_duration.c \

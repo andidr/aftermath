@@ -64,6 +64,10 @@
 #include <aftermath/core/dfg/nodes/int_constant.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() int_to_string_defs
+#include <aftermath/core/dfg/nodes/int_to_string.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() interval_attributes_defs
 #include <aftermath/core/dfg/nodes/interval_attributes.h>
 
@@ -138,6 +142,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	histogram_attributes_defs,
 	histogram_builder_defs,
 	int_constant_defs,
+	int_to_string_defs,
 	interval_attributes_defs,
 	interval_duration_defs,
 	pair_timestamp_hierarchy_node_attributes_defs,
