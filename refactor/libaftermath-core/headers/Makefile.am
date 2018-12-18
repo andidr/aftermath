@@ -49,6 +49,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/int_to_string.h \
 	aftermath/core/dfg/nodes/interval_attributes.h \
 	aftermath/core/dfg/nodes/interval_duration.h \
+	aftermath/core/dfg/nodes/merge.h \
 	aftermath/core/dfg/nodes/pair_timestamp_hierarchy_node_attributes.h \
 	aftermath/core/dfg/nodes/state_description_attributes.h \
 	aftermath/core/dfg/nodes/state_event_attributes.h \

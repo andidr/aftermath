@@ -84,6 +84,10 @@
 #include <aftermath/core/dfg/nodes/duration_to_uint64.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() merge_defs
+#include <aftermath/core/dfg/nodes/merge.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() pair_timestamp_hierarchy_node_attributes_defs
 #include <aftermath/core/dfg/nodes/pair_timestamp_hierarchy_node_attributes.h>
 
@@ -145,6 +149,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	int_to_string_defs,
 	interval_attributes_defs,
 	interval_duration_defs,
+	merge_defs,
 	pair_timestamp_hierarchy_node_attributes_defs,
 	state_description_attributes_defs,
 	state_event_attributes_defs,
