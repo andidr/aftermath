@@ -71,4 +71,11 @@ am_timeline_interval_layer_set_extra_data(struct am_timeline_interval_layer* l,
 void*
 am_timeline_interval_layer_get_extra_data(struct am_timeline_interval_layer* l);
 
+int am_timeline_interval_layer_get_dominant_index(
+	struct am_timeline_interval_layer* il,
+	struct am_hierarchy_node* hn,
+	const struct am_interval* i,
+	size_t* index,
+	int* index_valid);
+
 #endif

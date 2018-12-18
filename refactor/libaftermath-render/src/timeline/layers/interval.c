@@ -92,6 +92,7 @@ am_timeline_interval_layer_get_extra_data(struct am_timeline_interval_layer* l)
  * children of hn.
  */
 static void stats_subtree(struct am_timeline_interval_layer* il,
+			  struct am_interval_stats_by_index* stats,
 			  struct am_hierarchy_node* hn,
 			  const struct am_interval* i)
 {
@@ -111,7 +112,7 @@ static void stats_subtree(struct am_timeline_interval_layer* il,
 
 		if(ilt->calculate_index) {
 			am_interval_stats_by_index_fun_collect(
-				&il->statistics,
+				stats,
 				i,
 				ea,
 				ilt->element_size,
@@ -120,7 +121,7 @@ static void stats_subtree(struct am_timeline_interval_layer* il,
 				il);
 		} else {
 			am_interval_stats_by_index_collect(
-				&il->statistics,
+				stats,
 				i,
 				ea,
 				ilt->element_size,
@@ -132,7 +133,7 @@ static void stats_subtree(struct am_timeline_interval_layer* il,
 
 	if(il->super.render_mode == AM_TIMELINE_LANE_RENDER_MODE_COMBINE_SUBTREE)
 		am_hierarchy_node_for_each_child(hn, child)
-			stats_subtree(il, child, i);
+			stats_subtree(il, stats, child, i);
 }
 
 /* Render function of the layer */
@@ -170,7 +171,7 @@ void render(struct am_timeline_interval_layer* il,
 
 		am_interval_stats_by_index_reset(&il->statistics);
 
-		stats_subtree(il, hn, &i_px);
+		stats_subtree(il, &il->statistics, hn, &i_px);
 
 		valid = am_interval_stats_by_index_max(&il->statistics, &idx);
 
@@ -341,4 +342,33 @@ am_timeline_interval_layer_instantiate_type_index_fun(
 	t->calculate_index = calculate_index;
 
 	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
+}
+
+/* Calculates the index whose intervals account for most of the time for the
+ * interval i for the hierarchy node hn. The dominant index is returned in
+ * *index. However, if no intervals overlap with i, *index_valid is 0, otherwise
+ * 1.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_timeline_interval_layer_get_dominant_index(
+	struct am_timeline_interval_layer* il,
+	struct am_hierarchy_node* hn,
+	const struct am_interval* i,
+	size_t* index,
+	int* index_valid)
+{
+	struct am_interval_stats_by_index stats;
+
+	if(am_interval_stats_by_index_init(&stats, il->statistics.max_index))
+		return 1;
+
+	am_interval_stats_by_index_reset(&stats);
+
+	stats_subtree(il, &stats, hn, i);
+	*index_valid = am_interval_stats_by_index_max(&stats, index);
+
+	am_interval_stats_by_index_destroy(&stats);
+
+	return 0;
 }
