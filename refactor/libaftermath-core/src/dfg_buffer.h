@@ -48,6 +48,8 @@ struct am_dfg_buffer {
 void am_dfg_buffer_init(struct am_dfg_buffer* b,
 			const struct am_dfg_type* sample_type);
 void am_dfg_buffer_reset(struct am_dfg_buffer* b);
+void am_dfg_buffer_change_type(struct am_dfg_buffer* b,
+			       const struct am_dfg_type* sample_type);
 void am_dfg_buffer_destroy(struct am_dfg_buffer* b);
 void am_dfg_buffer_inc_ref(struct am_dfg_buffer* b);
 void am_dfg_buffer_dec_ref(struct am_dfg_buffer* b);

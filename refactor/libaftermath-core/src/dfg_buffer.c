@@ -295,3 +295,20 @@ void am_dfg_buffer_dec_ref(struct am_dfg_buffer* b)
 {
 	b->num_refs--;
 }
+
+/* Changes the type of samples of a buffer. Existing samples are destroyed and
+ * the buffer is reset. */
+void am_dfg_buffer_change_type(struct am_dfg_buffer* b,
+			       const struct am_dfg_type* sample_type)
+{
+	if(b->sample_type == sample_type)
+		return;
+
+	am_dfg_buffer_reset(b);
+
+	free(b->data);
+	b->data = NULL;
+	b->sample_type = sample_type;
+	b->max_samples = 0;
+}
+
