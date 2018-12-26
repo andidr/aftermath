@@ -26,11 +26,15 @@
  * two arguments are equal, 1 if the first argument is greater than the second
  * and -1 if the first argument is smaller than the second argument. Arguments
  * to the expression are passed as pointers (i.e., they are of type T* and not
- * T). */
-#define AM_DECL_QSORT_SUFFIX(prefix, suffix, T, CMP_EXPR)			\
+ * T). The last argument of the generated sorting function is a pointer named
+ * data of type P* that is passed verbatim to all recursive invocations and that
+ * can thus be used by CMP_EXPR. */
+#define AM_DECL_QSORT_SUFFIX_DATA_ARG(prefix, suffix, T, CMP_EXPR, P)		\
 	/* Sort the array a of type T with num_elements using the quicksort	\
 	 * algorithm. */							\
-	static inline void prefix##qsort##suffix(T* a, size_t num_elements)	\
+	static inline void prefix##qsort##suffix(T* a,				\
+						 size_t num_elements,		\
+						 P* data)			\
 	{									\
 		static const size_t elem_size = sizeof(T);			\
 		T* ppivot_val;							\
@@ -71,8 +75,22 @@
 			}							\
 		}								\
 										\
-		prefix##qsort##suffix(a, lt);					\
-		prefix##qsort##suffix(a + gt + 1, num_elements - gt - 1);	\
+		prefix##qsort##suffix(a, lt, data);				\
+		prefix##qsort##suffix(a + gt + 1, num_elements - gt - 1, data); \
+	}
+
+/* Declare a sorting function <prefix>qsort<suffix> that sorts arrays whose type
+ * is T. The comparison expression must be an expression that returns 0 if the
+ * two arguments are equal, 1 if the first argument is greater than the second
+ * and -1 if the first argument is smaller than the second argument. Arguments
+ * to the expression are passed as pointers (i.e., they are of type T* and not
+ * T). */
+#define AM_DECL_QSORT_SUFFIX(prefix, suffix, T, CMP_EXPR)			\
+	AM_DECL_QSORT_SUFFIX_DATA_ARG(prefix, suffix##_arg, T, CMP_EXPR, void)	\
+										\
+	static inline void prefix##qsort##suffix(T* a, size_t num_elements)	\
+	{									\
+		prefix##qsort##suffix##_arg(a, num_elements, NULL);		\
 	}
 
 #endif
