@@ -77,6 +77,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/HierarchyComboBox.h \
 	src/gui/widgets/HistogramWidget.cpp \
 	src/gui/widgets/HistogramWidget.h \
+	src/gui/widgets/KDTreeWidget.cpp \
+	src/gui/widgets/moc_KDTreeWidget.cpp \
+	src/gui/widgets/KDTreeWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
 	src/gui/widgets/TimelineWidget.h \
 	src/gui/widgets/ToolbarButton.cpp \
@@ -143,6 +146,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/moc_HierarchyComboBox.cpp \
+	src/gui/widgets/moc_KDTreeWidget.cpp \
 	src/gui/widgets/moc_ToolbarButton.cpp \
 	src/gui/moc_DFGNodePropertyDialog.cpp \
 	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
@@ -180,6 +184,11 @@ src/gui/widgets/moc_DFGWidget.cpp: \
 	src/gui/widgets/DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/DFGWidget.h -o $@
+
+src/gui/widgets/moc_KDTreeWidget.cpp: \
+	src/gui/widgets/KDTreeWidget.cpp \
+	src/gui/widgets/KDTreeWidget.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/KDTreeWidget.h -o $@
 
 src/gui/moc_DFGNodePropertyDialog.cpp: \
 	src/gui/DFGNodePropertyDialog.cpp \
