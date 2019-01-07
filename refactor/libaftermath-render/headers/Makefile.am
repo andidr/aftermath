@@ -13,6 +13,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/types/builtin_types.h \
 	aftermath/render/dfg/types/rgba.h \
 	aftermath/render/histogram/renderer.h \
+	aftermath/render/kdtree/renderer.h \
 	aftermath/render/timeline/common_layers.h \
 	aftermath/render/timeline/layer.h \
 	aftermath/render/timeline/layers/axes.h \

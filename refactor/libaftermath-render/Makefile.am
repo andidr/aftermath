@@ -32,6 +32,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/types/rgba.h \
 	src/histogram/renderer.c \
 	src/histogram/renderer.h \
+	src/kdtree/renderer.c \
+	src/kdtree/renderer.h \
 	src/timeline/common_layers.c \
 	src/timeline/common_layers.h \
 	src/timeline/layer.c \
