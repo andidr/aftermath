@@ -81,6 +81,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/hierarchy_array.h \
 	aftermath/core/index_to_id_map.h \
 	aftermath/core/indexes/kdtree.h \
+	aftermath/core/indexes/recttree.h \
 	aftermath/core/interval.h \
 	aftermath/core/interval_array.h \
 	aftermath/core/in_memory.h \
