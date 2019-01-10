@@ -84,6 +84,18 @@ uint16_t = _integers["uint16_t"]
 uint32_t = _integers["uint32_t"]
 uint64_t = _integers["uint64_t"]
 
+float = BuiltinNonCompoundType(
+    alias = "float",
+    entity = "single precision floating point number",
+    comment = None,
+    format_string = "%f")
+
+double = BuiltinNonCompoundType(
+    alias = "double",
+    entity = "double precision floating point number",
+    comment = None,
+    format_string = "%lf")
+
 char = BuiltinNonCompoundType(
     alias = "char",
     entity = "character",
@@ -121,10 +133,11 @@ size_t = BuiltinIntegerType(
     comment = None,
     format_string = "zu")
 
-all_types = TypeList(_integers.values() + [ char, charp, int, size_t ])
+all_types = TypeList(_integers.values() +
+                     [ float, double, char, charp, int, size_t ])
 
 # Add read and write function tags to bultin integer types
-for t in _integers.values():
+for t in _integers.values() + [ float, double ]:
     if not t.hasTag(aftermath.tags.dsk.ReadFunction):
         t.addTag(aftermath.tags.dsk.ReadFunction(
             function_name = "am_dsk_"+t.getName()+"_read"

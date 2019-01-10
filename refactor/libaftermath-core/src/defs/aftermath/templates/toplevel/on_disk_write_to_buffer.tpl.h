@@ -36,6 +36,38 @@
 
 {% set dsk_types = aftermath.config.getDskTypes() %}
 
+static inline int
+am_dsk_float_write_to_buffer(struct am_write_buffer* wb, const float* in)
+{
+	float* dst;
+
+	if(!(dst = (float*)am_write_buffer_reserve_bytes(
+		     wb, sizeof(*in))))
+	{
+		return 1;
+	}
+
+	*dst = am_float32_htole(*in);
+
+	return 0;
+}
+
+static inline int
+am_dsk_double_write_to_buffer(struct am_write_buffer* wb, const double* in)
+{
+	double* dst;
+
+	if(!(dst = (double*)am_write_buffer_reserve_bytes(
+		     wb, sizeof(*in))))
+	{
+		return 1;
+	}
+
+	*dst = am_double64_htole(*in);
+
+	return 0;
+}
+
 #define AM_DECL_ON_DISK_WRITE_TO_BUFFER_INT_FUN(type, bits)			\
 	static inline int							\
 	am_dsk_##type##_write_to_buffer(struct am_write_buffer* wb,		\

@@ -28,6 +28,27 @@ AC_TYPE_SIZE_T
 
 CHECK_INT128
 
+# Check for IEC 60559 floating point arithmetic (needed for float and
+# double in on-disk format)
+AC_LANG_PUSH([C])
+AC_MSG_CHECKING([whether CC supports IEC 60559 floating point arithmetic])
+AC_COMPILE_IFELSE([
+  AC_LANG_SOURCE(
+    [[
+      #ifdef __clang__
+        #include <features.h>
+      #endif
+
+      #ifndef __STDC_IEC_559__
+       #error "IEC 60559 floating point arithmetic not supported by your compiler"
+      #endif
+    ]])],
+    [AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no]) ;
+     AC_MSG_ERROR([C compiler does not support IEC 60559 floating point arithmetic])]
+ )
+AC_LANG_POP
+
 # Checks for library functions.
 AC_FUNC_VPRINTF
 

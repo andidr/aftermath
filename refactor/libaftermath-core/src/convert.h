@@ -27,6 +27,13 @@
 
 #include <endian.h>
 #include <stdint.h>
+#include <math.h>
+
+/* Check for IEC 60559 floating point arithmetic to guarantee 4 bytes for float
+ * and 8 bytes for double */
+#ifndef __STDC_IEC_559__
+	#error "IEC 60559 floating point arithmetic not supported by your compiler"
+#endif
 
 /* Converts from one endianness into the other. Val is the expression to be
  * converted, ret receives the converted value and type is the type of the input
@@ -37,6 +44,42 @@
 		for(unsigned int i = 0; i < 8*sizeof(type); i += 8)	\
 			ret |= ((val >> i) & 0xFF) << ((sizeof(type)*8-8) - i); \
 	} while(0)
+
+/* Converts a float with guaranteed size of 4 bytes from one endianness to the
+ * other */
+static inline float am_float32_swap(float val)
+{
+	union {
+		float fval;
+		uint32_t uival;
+	} u;
+	uint32_t retu;
+
+	u.fval = val;
+
+	AM_SWAP_BITS(u.uival, retu, uint32_t);
+	u.uival = retu;
+
+	return u.fval;
+}
+
+/* Converts a double with guaranteed size of 8 bytes from one endianness to the
+ * other */
+static inline double am_double64_swap(double val)
+{
+	union {
+		double dval;
+		uint64_t uival;
+	} u;
+	uint64_t retu;
+
+	u.dval = val;
+
+	AM_SWAP_BITS(u.uival, retu, uint64_t);
+	u.uival = retu;
+
+	return u.dval;
+}
 
 /* Convert int64_t from one endianness to the other */
 static inline int64_t am_int64_swap(int64_t val)
@@ -69,16 +112,24 @@ static inline int16_t am_int16_swap(int16_t val)
  * host endianness is little endian, this expands to the original value,
  * otherwise to a call to the conversion function. */
 #if __BYTE_ORDER == __LITTLE_ENDIAN
+	#define am_float32_htole(val) val
+	#define am_double64_htole(val) val
 	#define am_int16_htole(val) val
 	#define am_int32_htole(val) val
 	#define am_int64_htole(val) val
+	#define am_float32_letoh(val) val
+	#define am_double64_letoh(val) val
 	#define am_int16_letoh(val) val
 	#define am_int32_letoh(val) val
 	#define am_int64_letoh(val) val
 #elif __BYTE_ORDER == __BIG_ENDIAN
+	#define am_float32_htole(val) am_float32_swap(val)
+	#define am_double64_htole(val) am_double64_swap(val)
 	#define am_int16_htole(val) am_int16_swap(val)
 	#define am_int32_htole(val) am_int32_swap(val)
 	#define am_int64_htole(val) am_int64_swap(val)
+	#define am_float32_letoh(val) am_float32_swap(val)
+	#define am_double64_letoh(val) am_double64_swap(val)
 	#define am_int16_letoh(val) am_int16_swap(val)
 	#define am_int32_letoh(val) am_int32_swap(val)
 	#define am_int64_letoh(val) am_int64_swap(val)

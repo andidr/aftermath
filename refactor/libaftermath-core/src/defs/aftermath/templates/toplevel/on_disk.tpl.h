@@ -28,6 +28,72 @@
 #include <stdint.h>
 #include <stdio.h>
 
+static inline int am_dsk_float_read_fp_noconv(FILE* fp, float* out)
+{
+	if(fread(out, sizeof(*out), 1, fp) != 1)
+		return 1;
+
+	return 0;
+}
+
+static inline int am_dsk_float_read_fp(FILE* fp, float* out)
+{
+	if(am_dsk_float_read_fp_noconv(fp, out))
+		return 1;
+
+	*out = am_float32_letoh(*out);
+
+	return 0;
+}
+
+static inline int am_dsk_float_read(struct am_io_context* ctx,
+				    float* out)
+{
+	if(am_dsk_float_read_fp(ctx->fp, out)) {
+		am_io_error_stack_push(&ctx->error_stack,
+				       AM_IOERR_READ,
+				       "Could not read float at offset %jd.",
+				       ftello(ctx->fp));
+
+		return 1;
+	}
+
+	return 0;
+}
+
+static inline int am_dsk_double_read_fp_noconv(FILE* fp, double* out)
+{
+	if(fread(out, sizeof(*out), 1, fp) != 1)
+		return 1;
+
+	return 0;
+}
+
+static inline int am_dsk_double_read_fp(FILE* fp, double* out)
+{
+	if(am_dsk_double_read_fp_noconv(fp, out))
+		return 1;
+
+	*out = am_double64_letoh(*out);
+
+	return 0;
+}
+
+static inline int am_dsk_double_read(struct am_io_context* ctx,
+				     double* out)
+{
+	if(am_dsk_double_read_fp(ctx->fp, out)) {
+		am_io_error_stack_push(&ctx->error_stack,
+				       AM_IOERR_READ,
+				       "Could not read double at offset %jd.",
+				       ftello(ctx->fp));
+
+		return 1;
+	}
+
+	return 0;
+}
+
 #define AM_DECL_ON_DISK_READ_INT_FP_NOCONV_FUN(type)			\
 	static inline int am_dsk_##type##_read_fp_noconv(FILE* fp, type* out)	\
 	{									\
@@ -99,6 +165,8 @@ AM_DECL_ON_DISK_READ_INT_FUN(uint64_t, 64)
 
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(char, "c")
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(int, "d")
+AM_DECL_ON_DISK_DUMP_STDOUT_FUN(float, "f")
+AM_DECL_ON_DISK_DUMP_STDOUT_FUN(double, "lf")
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(size_t, "zu")
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(int8_t, PRId8)
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(uint8_t, PRIu8)
@@ -108,6 +176,48 @@ AM_DECL_ON_DISK_DUMP_STDOUT_FUN(int32_t, PRId32)
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(uint32_t, PRIu32)
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(int64_t, PRId64)
 AM_DECL_ON_DISK_DUMP_STDOUT_FUN(uint64_t, PRIu64)
+
+static inline int
+am_dsk_float_write_noconv(struct am_io_context* ctx, const float in)
+{
+	if(fwrite(&in, sizeof(in), 1, ctx->fp) != 1) {
+		am_io_error_stack_push(&ctx->error_stack,
+				       AM_IOERR_WRITE,
+				       "Could not write float at offset %jd.",
+				       ftello(ctx->fp));
+		return 1;
+	}
+
+	return 0;
+}
+
+static inline int
+am_dsk_float_write(struct am_io_context* ctx, const float* in)
+{
+	float tmp = am_float32_htole(*in);
+	return am_dsk_float_write_noconv(ctx, tmp);
+}
+
+static inline int
+am_dsk_double_write_noconv(struct am_io_context* ctx, const double in)
+{
+	if(fwrite(&in, sizeof(in), 1, ctx->fp) != 1) {
+		am_io_error_stack_push(&ctx->error_stack,
+				       AM_IOERR_WRITE,
+				       "Could not write double at offset %jd.",
+				       ftello(ctx->fp));
+		return 1;
+	}
+
+	return 0;
+}
+
+static inline int
+am_dsk_double_write(struct am_io_context* ctx, const double* in)
+{
+	double tmp = am_double64_htole(*in);
+	return am_dsk_double_write_noconv(ctx, tmp);
+}
 
 #define AM_DECL_ON_DISK_WRITE_INT_NOCONV_FUN(type)				\
 	static inline int							\
