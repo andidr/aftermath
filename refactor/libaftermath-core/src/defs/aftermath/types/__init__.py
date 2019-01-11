@@ -728,6 +728,7 @@ class Field(object):
 
     def __init__(self, name, type,
                  is_pointer = False,
+                 pointer_depth = None,
                  is_const = False,
                  is_owned = None,
                  comment = None):
@@ -737,6 +738,10 @@ class Field(object):
 
         If `is_pointer` is true, the field points to an instance of the
         specified type.
+
+        If `pointer_depth` is not None, this field becomes a pointer of the
+        specified depth (for a simple pointer the depth is 1, for a double
+        pointer 2, and so on).
 
         If `is_const` is true, the field is read-only.
 
@@ -750,6 +755,7 @@ class Field(object):
 
         enforce_type(type, Type)
         enforce_type(is_pointer, [ bool, types.NoneType ])
+        enforce_type(pointer_depth, [ int, types.NoneType ])
         enforce_type(is_const, [ bool, types.NoneType ])
         enforce_type(is_owned, [ bool, types.NoneType ])
         enforce_type(comment, [ str, types.NoneType ])
@@ -760,10 +766,20 @@ class Field(object):
             else:
                 is_owned = True
 
+        if is_pointer and pointer_depth is None:
+            pointer_depth = 1
+
+        if pointer_depth is not None:
+            is_pointer = True
+
+        if not is_pointer:
+            pointer_depth = 0
+
         self.__name = name
         self.__comment = comment
         self.__type = type
         self.__is_pointer = is_pointer
+        self.__pointer_depth = pointer_depth
         self.__is_const = is_const
         self.__is_owned = is_owned
         self.__compound_type = None
@@ -780,6 +796,12 @@ class Field(object):
         """Returns true if the field is a pointer"""
 
         return self.__is_pointer
+
+    def getPointerDepth(self):
+        """Returns the pointer depth (i.e., 0 for a non-pointer, 1 for a simple pointer,
+        2 for a double pointer, and so on)"""
+
+        return self.__pointer_depth
 
     def isConst(self):
         """Returns true if the field is marked as const"""

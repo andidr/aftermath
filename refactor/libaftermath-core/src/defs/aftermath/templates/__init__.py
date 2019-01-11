@@ -229,7 +229,7 @@ class StructFieldDefinition(Template):
         ret += self.__field.getType().getCType();
 
         if self.__field.isPointer():
-            ret += "*"
+            ret += "*" * self.__field.getPointerDepth()
 
         ret += " "+self.__field.getName()
         return ret
