@@ -37,5 +37,9 @@
 {{ aftermath.templates.Destructor(t).getPrototype() }}
 {% endfor -%}
 
+{% for t in mem_types.filterByTag(aftermath.tags.GenerateDefaultConstructor) -%}
+{{ aftermath.templates.DefaultConstructor(t).getPrototype() }}
+{% endfor -%}
+
 {# #}
 #endif

@@ -6,6 +6,15 @@
  */
 {{ template.getSignature() }}
 {
+	{%- if tag.getMemType().hasDefaultConstructor() %}
+	{%- if can_fail.update({"value": True}) %}{% endif %}
+	if({{tag.getMemType().getDefaultConstructorName()}}(mem)) {
+		AM_IOERR_GOTO_NA(ctx, out_err_constructor,
+				 AM_IOERR_INIT,
+				 "Default constructor for a "
+				 "{{mem_type.getEntity()}} failed.");
+	}
+	{%- endif %}
 	{%- for (dsk_field, mem_field) in tag.getFieldMap() -%}
 	{%- set field_tag = dsk_field.getType().getTagInheriting(aftermath.tags.dsk.tomem.ConversionFunction) %}
 
@@ -63,6 +72,9 @@ out_err_{{dsk_field.getName()}}:
 	{%- endif -%}
 	{%- endfor %}
 	{%- if can_fail["value"] %}
+{%- if tag.getMemType().hasDefaultConstructor() %}
+out_err_constructor:
+{%- endif %}
 	return 1;
 	{%- endif %}
 }

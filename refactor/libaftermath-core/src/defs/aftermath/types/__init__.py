@@ -81,6 +81,10 @@ class Type(object):
             if not self.hasTag(tags.GenerateDestructor):
                 self.addTag(tags.GenerateDestructor())
 
+        if self.hasDefaultConstructor():
+            if not self.hasTag(tags.GenerateDefaultConstructor):
+                self.addTag(tags.GenerateDefaultConstructor())
+
     def getComment(self):
         return self.__comment
 
@@ -131,6 +135,21 @@ class Type(object):
                             "have a destructor")
 
         return self.getTag(tags.Destructor).getFunctionName()
+
+    def hasDefaultConstructor(self):
+        """Returns True if a default constructor must be invoked when an instance
+        of this type is created"""
+
+        return self.hasTag(tags.DefaultConstructor)
+
+    def getDefaultConstructorName(self):
+        """Returns the name of the default constructor for this type"""
+
+        if not self.hasDefaultConstructor():
+            raise Exception("Default constructor name requested, but the type "+
+                            "doesn't have a default constructor")
+
+        return self.getTag(tags.DefaultConstructor).getFunctionName()
 
     def __addMultiTag(self, tag):
         """Add a tag to the type that can be associated multiple times"""
@@ -505,6 +524,14 @@ class CompoundType(Type):
                         self.addTag(aftermath.tags.Destructor())
                         break
 
+        # Add default constructor tag if necessary
+        if not self.hasTag(tags.DefaultConstructor):
+            for field in self.getFields():
+                if not field.isPointer() or field.isOwned():
+                    if field.getType().hasTag(aftermath.tags.DefaultConstructor):
+                        self.addTag(aftermath.tags.DefaultConstructor())
+                        break
+
         Type.finalize(self)
 
     def getFields(self):
@@ -578,6 +605,17 @@ class CompoundType(Type):
                     return True
 
         return self.hasTag(tags.Destructor)
+
+    def hasDefaultConstructor(self):
+        for f in self.__fields:
+            # Constructor is only invoked for fields that are located in the
+            # structure and for pointer fields for which the structure has
+            # been declared the owner
+            if (not f.isPointer()) or f.isOwned():
+                if f.getType().hasDefaultConstructor():
+                    return True
+
+        return self.hasTag(tags.DefaultConstructor)
 
 #################################################################################
 

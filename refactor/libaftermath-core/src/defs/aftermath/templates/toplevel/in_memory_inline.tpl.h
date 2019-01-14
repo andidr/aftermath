@@ -28,7 +28,8 @@
 
 {% for t in mem_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
-{% if not isinstance(tag, aftermath.tags.GenerateDestructor) -%}
+{% if not isinstance(tag, aftermath.tags.GenerateDestructor) and
+      not isinstance(tag, aftermath.tags.GenerateDefaultConstructor) -%}
 {{ tag.instantiateTemplate().getPrototype() }}
 {% endif -%}
 {% endfor -%}
@@ -36,7 +37,8 @@
 
 {% for t in mem_types -%}
 {% for tag in t.getAllTagsInheriting(aftermath.tags.TemplatedGenerateFunctionTag) -%}
-{% if not isinstance(tag, aftermath.tags.GenerateDestructor) -%}
+{% if not isinstance(tag, aftermath.tags.GenerateDestructor) and
+      not isinstance(tag, aftermath.tags.GenerateDefaultConstructor) -%}
 {{ tag.instantiateTemplate() }}
 {% endif -%}
 {% endfor -%}

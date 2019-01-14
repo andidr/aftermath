@@ -22,3 +22,7 @@
 {% for t in aftermath.config.getMemTypes().filterByTag(aftermath.tags.GenerateDestructor) -%}
 {{ aftermath.templates.Destructor(t) }}
 {% endfor -%}
+
+{% for t in aftermath.config.getMemTypes().filterByTag(aftermath.tags.GenerateDefaultConstructor) -%}
+{{ aftermath.templates.DefaultConstructor(t) }}
+{% endfor -%}

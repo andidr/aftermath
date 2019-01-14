@@ -394,6 +394,74 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
         Jinja2StringTemplate.__init__(self, template_content)
         self.addDefaultArguments(t = type)
 
+class DefaultConstructor(FunctionTemplate, Jinja2StringTemplate):
+    """A template implementing a default constructor"""
+
+    def __init__(self, type):
+        enforce_type(type, CompoundType)
+
+        if not type.hasTag(tags.DefaultConstructor):
+            raise Exception("Default constructor template requires "+
+                            "default constructor tag")
+
+        ctag = type.getTag(tags.DefaultConstructor)
+        gen_tag = type.getTag(tags.GenerateDefaultConstructor)
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = ctag.getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            arglist = FieldList([
+                Field(name = "e",
+                      type = type,
+                      is_pointer = True)
+            ]))
+
+        template_content = trimlws("""
+        {%- set can_fail = False -%}
+        /* Initializes a {{ t.getEntity() }} with default values*/
+        {{template.getSignature()}}
+        {
+        	{%- for field in t.getFields() -%}
+        	{%- if not field.isPointer() and field.getType().hasDefaultConstructor() %}
+        	{%- set ctag = field.getType().getTag(aftermath.tags.DefaultConstructor) %}
+        	if({{ctag.getFunctionName()}}(&e->{{field.getName()}}))
+        		goto out_err_{{field.getName()}};
+
+        	{%- if can_fail.update({"value": True}) %}{% endif %}
+        	{%- endif %}
+        	{%- endfor %}
+
+        	{%- for (fieldname, val) in gen_tag.getFieldValues() %}
+        	e->{{fieldname}} = {{val}};
+        	{%- endfor %}
+
+        	return 0;
+
+        	{%- set is_first = True -%}
+        	{%- for field in t.getFields()|reverse -%}
+        	{%- if field.getType().hasDestructor() %}
+        	{%- set dtag = field.getType().getTag(aftermath.tags.Destructor) %}
+         out_err_{{field.getName()}}:
+        	{% if not is_first %}
+        	{%- if field.isPointer() or not dtag.takesAddress()%}
+        	{{dtag.getFunctionName()}}(e->{{field.getName()}});
+        	{%- else %}
+        	{{dtag.getFunctionName()}}(&e->{{field.getName()}});
+        	{%- endif -%}
+        	{%- endif -%}
+        	{%- endif -%}
+        	{% set is_first = False -%}
+        	{%- endfor -%}
+        {%- if can_fail %}
+        	return 1;
+        {%- endif %}
+        {# #}
+        }""")
+
+        Jinja2StringTemplate.__init__(self, template_content)
+        self.addDefaultArguments(t = type, gen_tag = gen_tag)
+
 def gen_function_file_template_class(return_type,
                                      arglist,
                                      class_name,

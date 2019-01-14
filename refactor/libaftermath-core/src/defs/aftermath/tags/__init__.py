@@ -177,6 +177,40 @@ class GenerateDestructor(TemplatedGenerateFunctionTag):
             self,
             template_type = aftermath.templates.Destructor)
 
+class DefaultConstructor(FunctionTag):
+    """Base class for default constructors (without arguments)"""
+
+    def __init__(self, constructor_name = None,
+                 *args, **kwargs):
+        """
+        `constructor_name`: a string indicating the name of the constructor."""
+
+        super(DefaultConstructor, self).__init__(
+            function_name = constructor_name,
+            default_suffix = "_default_init")
+
+        self.__constructor_name = constructor_name
+
+class GenerateDefaultConstructor(TemplatedGenerateFunctionTag, DefaultConstructor):
+    """Indicates that a default constructor should be generated for the type"""
+
+    def __init__(self, field_values = None):
+        """`field_values` may be a list of pairs composed of field names and their
+        initial value."""
+
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.DefaultConstructor)
+        DefaultConstructor.__init__(self)
+
+        if field_values is None:
+            self.__field_values = []
+        else:
+            self.__field_values = field_values
+
+    def getFieldValues(self):
+        return self.__field_values;
+
 class Compound(Tag):
     """Base tag for classes defining compound types"""
     pass
