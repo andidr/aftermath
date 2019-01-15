@@ -41,6 +41,8 @@
 #include <aftermath/core/tensorflow_node_array.h>
 #include <aftermath/core/tensorflow_node_execution_array.h>
 
+#include <aftermath/core/telamon_candidate_array.h>
+
 #include <aftermath/core/on_disk_meta.h>
 
 #include <stdlib.h>
@@ -66,6 +68,9 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_set_array)
 
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_execution_array)
+
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidatep_array)
 
 int am_build_default_trace_array_registry(struct am_array_registry* r)
 {
@@ -102,7 +107,11 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_array,
 					      "am::tensorflow::node") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_execution_array,
-					      "am::tensorflow::node_execution"))
+					      "am::tensorflow::node_execution") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_array,
+					      "am::telamon::candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidatep_array,
+					      "am::telamon::candidate_root"))
 	{
 		return 1;
 	}

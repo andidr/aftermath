@@ -32,6 +32,8 @@
 #include <aftermath/core/state_event_array.h>
 #include <aftermath/core/counter_event_array_collection.h>
 
+#include <aftermath/core/telamon_candidate_array.h>
+
 #include <aftermath/core/tensorflow_node_array.h>
 #include <aftermath/core/tensorflow_node_execution_array.h>
 
