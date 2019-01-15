@@ -497,6 +497,9 @@ class CompoundType(Type):
         # Add destructor tag if necessary
         if not self.hasTag(tags.Destructor):
             for field in self.getFields():
+                if field.hasCustomDestructor():
+                    self.addTag(aftermath.tags.Destructor())
+                    break
                 if not field.isPointer() or field.isOwned():
                     if field.getType().hasTag(aftermath.tags.Destructor):
                         self.addTag(aftermath.tags.Destructor())
@@ -562,6 +565,11 @@ class CompoundType(Type):
 
     def hasDestructor(self):
         for f in self.__fields:
+            # If there is at least one field with a custom destructor, a
+            # destructor for the whole structure is needed
+            if f.hasCustomDestructor():
+                return True
+
             # Destructor is only invoked for fields that are located in the
             # structure and for pointer fields for which the structure has
             # been declared the owner
@@ -731,6 +739,7 @@ class Field(object):
                  pointer_depth = None,
                  is_const = False,
                  is_owned = None,
+                 custom_destructor_name = None,
                  comment = None):
         """`name` is the name of the field as a string.
 
@@ -750,6 +759,9 @@ class Field(object):
         thus the memory region for the instance is not necessarily embedded into
         the structure itself.
 
+        If `custom_destructor` is not None, a custom destructor is invoked upon
+        destruction of the owning compound type.
+
         `comment` is a human-readable comment for the field.
         """
 
@@ -758,6 +770,7 @@ class Field(object):
         enforce_type(pointer_depth, [ int, types.NoneType ])
         enforce_type(is_const, [ bool, types.NoneType ])
         enforce_type(is_owned, [ bool, types.NoneType ])
+        enforce_type(custom_destructor_name, [ str, types.NoneType ])
         enforce_type(comment, [ str, types.NoneType ])
 
         if is_owned is None:
@@ -783,6 +796,25 @@ class Field(object):
         self.__is_const = is_const
         self.__is_owned = is_owned
         self.__compound_type = None
+        self.__custom_destructor_name = custom_destructor_name
+
+    def hasCustomDestructor(self):
+        """Returns true if a custom destructor has been set for the field."""
+
+        return self.getCustomDestructorName() is not None
+
+    def getCustomDestructorName(self):
+        """Returns the name of the field's custom destructor or None if no such
+        destructor has been set."""
+
+        return self.__custom_destructor_name
+
+    def setCustomDestructorName(self, custom_destructor_name):
+        """Sets the name of the field's custom destructor to be invoked upon
+        destruction of an instance of the compound type."""
+
+        enforce_type(custom_destructor_name, str)
+        self.__custom_destructor_name = custom_destructor_name
 
     def getType(self):
         """Returns the type of this field. If this is a pointer, the base type of

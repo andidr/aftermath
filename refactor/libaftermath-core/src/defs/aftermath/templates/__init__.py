@@ -368,6 +368,13 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
         {{template.getSignature()}}
         {
         	{%- for field in t.getFields() -%}
+        	{%- if field.hasCustomDestructor() %}
+        	{%- if field.isPointer() %}
+        	{{field.getCustomDestructorName()}}(e->{{field.getName()}});
+        	{%- else %}
+        	{{field.getCustomDestructorName()}}(&e->{{field.getName()}});
+        	{%- endif %}
+        	{%- else %}
         	{%- if field.getType().hasDestructor() %}
         	{%- set dtag = field.getType().getTag(aftermath.tags.Destructor) %}
 
@@ -376,6 +383,7 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
         	{{dtag.getFunctionName()}}(e->{{field.getName()}});
         	{%- else %}
         	{{dtag.getFunctionName()}}(&e->{{field.getName()}});
+        	{%- endif -%}
         	{%- endif -%}
         	{%- endif -%}
         	{%- endif -%}
