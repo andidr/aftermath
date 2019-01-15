@@ -231,6 +231,7 @@ template_verbose_0 = @echo "  TEMPLATE" $@;
 
 TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/relations/__init__.py \
+	src/defs/aftermath/relations/collect.py \
 	src/defs/aftermath/relations/join.py \
 	src/defs/aftermath/tags/assertion.py \
 	src/defs/aftermath/tags/dsk/__init__.py \
@@ -239,6 +240,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/tags/finalize.py \
 	src/defs/aftermath/tags/__init__.py \
 	src/defs/aftermath/tags/mem/__init__.py \
+	src/defs/aftermath/tags/mem/collect.py \
 	src/defs/aftermath/tags/mem/dfg.py \
 	src/defs/aftermath/tags/mem/store/__init__.py \
 	src/defs/aftermath/tags/mem/store/pereventcollectionarray.py \
@@ -273,6 +275,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/finalize/__init__.py \
 	src/defs/aftermath/templates/__init__.py \
 	src/defs/aftermath/templates/mem/__init__.py \
+	src/defs/aftermath/templates/mem/GenerateProcessCollectSourcesFunction.tpl.c \
 	src/defs/aftermath/templates/mem/store/__init__.py \
 	src/defs/aftermath/templates/mem/store/pereventcollectionarray/AppendAndSetIndexFunction.tpl.c \
 	src/defs/aftermath/templates/mem/store/pereventcollectionarray/AppendFunction.tpl.c \
@@ -326,6 +329,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 
 PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/relations/__init__.pyc \
+	src/defs/aftermath/relations/collect.pyc \
 	src/defs/aftermath/relations/join.pyc \
 	src/defs/aftermath/tags/assertion.pyc \
 	src/defs/aftermath/tags/dsk/__init__.pyc \
@@ -334,6 +338,7 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/tags/finalize.pyc \
 	src/defs/aftermath/tags/__init__.pyc \
 	src/defs/aftermath/tags/mem/__init__.pyc \
+	src/defs/aftermath/tags/mem/collect.pyc \
 	src/defs/aftermath/tags/mem/dfg.pyc \
 	src/defs/aftermath/tags/mem/store/__init__.pyc \
 	src/defs/aftermath/tags/mem/store/pereventcollectionarray.pyc \

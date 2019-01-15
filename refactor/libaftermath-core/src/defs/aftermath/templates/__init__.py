@@ -418,7 +418,7 @@ class DefaultConstructor(FunctionTemplate, Jinja2StringTemplate):
             ]))
 
         template_content = trimlws("""
-        {%- set can_fail = False -%}
+        {%- set can_fail = {"value" : False} -%}
         /* Initializes a {{ t.getEntity() }} with default values*/
         {{template.getSignature()}}
         {
@@ -438,22 +438,30 @@ class DefaultConstructor(FunctionTemplate, Jinja2StringTemplate):
 
         	return 0;
 
+        {%- if can_fail.value %}
         	{%- set is_first = True -%}
         	{%- for field in t.getFields()|reverse -%}
-        	{%- if field.getType().hasDestructor() %}
+        	{%- if field.hasCustomDestructor() %}
+        	{%- if field.isPointer() %}
+        	{{field.getCustomDestructorName()}}(e->{{field.getName()}});
+        	{%- else -%}
+        	{{field.getCustomDestructorName()}}(&e->{{field.getName()}});
+        	{%- endif -%}
+        	{%- elif field.getType().hasDestructor() %}
         	{%- set dtag = field.getType().getTag(aftermath.tags.Destructor) %}
          out_err_{{field.getName()}}:
         	{% if not is_first %}
-        	{%- if field.isPointer() or not dtag.takesAddress()%}
+        	{% if not field.isPointer() or field.isOwned() %}
+        	{%- if field.isPointer() or not dtag.takesAddress() %}
         	{{dtag.getFunctionName()}}(e->{{field.getName()}});
         	{%- else %}
         	{{dtag.getFunctionName()}}(&e->{{field.getName()}});
         	{%- endif -%}
         	{%- endif -%}
         	{%- endif -%}
+        	{%- endif -%}
         	{% set is_first = False -%}
         	{%- endfor -%}
-        {%- if can_fail %}
         	return 1;
         {%- endif %}
         {# #}
