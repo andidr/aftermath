@@ -56,7 +56,9 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/selection.h \
 	src/timeline/layers/selection_array_defs.h \
 	src/timeline/renderer.c \
-	src/timeline/renderer.h
+	src/timeline/renderer.h \
+	src/tree_layout.c \
+	src/tree_layout.h
 
 libaftermath_render_la_CFLAGS = @AFTERMATH_CORE_INCLUDES@ @CAIRO_CFLAGS@
 libaftermath_render_la_LIBADD = @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@

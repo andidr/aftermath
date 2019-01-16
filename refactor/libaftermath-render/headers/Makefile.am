@@ -24,4 +24,5 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layers/measurement_intervals.h \
 	aftermath/render/timeline/layers/interval.h \
 	aftermath/render/timeline/layers/selection.h \
-	aftermath/render/timeline/renderer.h
+	aftermath/render/timeline/renderer.h \
+	aftermath/render/tree_layout.h
