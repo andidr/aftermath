@@ -590,6 +590,13 @@ static inline uint64_t am_dfg_port_mask_bits(const struct am_dfg_port* p)
 }
 
 
+/* Returns true if at least one sample is present at port p. Otherwise, returns
+ * false. */
+static inline int am_dfg_port_has_data(const struct am_dfg_port* p)
+{
+	return p->buffer->num_samples > 0;
+}
+
 /* Given a node n and one of its ports curr, the function finds the next port
  * whose flags include all the flags specified in a mask. If no such port is
  * exists, the function returns NULL.
