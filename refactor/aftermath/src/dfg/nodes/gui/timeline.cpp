@@ -63,6 +63,7 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	size_t num_selections;
 	size_t i;
 	void* out;
+	struct am_interval bounds;
 
 	if(am_dfg_port_activated_and_has_data(phierarchy_in)) {
 		if(am_dfg_buffer_read_last(phierarchy_in->buffer, &hierarchy_in))
@@ -76,7 +77,17 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 			return 1;
 
 		t->timeline->setTrace(trace_in);
-		t->timeline->setVisibleInterval(&trace_in->bounds);
+
+		/* Bounds may be "invalid" if the trace does not contain any
+		 * event with a timestamp */
+		if(trace_in->bounds.start > trace_in->bounds.end) {
+			bounds.start = 0;
+			bounds.end = 0;
+		} else {
+			bounds = trace_in->bounds;
+		}
+
+		t->timeline->setVisibleInterval(&bounds);
 	}
 
 	if(am_dfg_port_activated_and_has_data(pinterval_in)) {
