@@ -484,6 +484,8 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
 	double y = (double)event->y();
 	struct am_point p = { .x = x, .y = y };
 
+	this->mouseMovedSincePress = true;
+
 	if(this->mouseMode == MOUSE_MODE_NONE) {
 		/* Hovering over lanes? */
 		if((am_point_in_rect(&p, &this->renderer.rects.lanes)))
@@ -679,6 +681,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
 				this->renderer.visible_interval;
 			this->dragStart.pos = event->pos();
 			this->setCursor(Qt::ClosedHandCursor);
+			this->mouseMovedSincePress = false;
 		}
 	}
 }
@@ -704,6 +707,17 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
 		this->setCursor(Qt::ArrowCursor);
 
 	this->mouseMode = MOUSE_MODE_NONE;
+
+	if(!this->mouseMovedSincePress &&
+	   am_point_in_rect(&p, &r->rects.lanes))
+	{
+		if(this->dfgNode) {
+			am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+			this->dfgNode->required_mask.push_new =
+				(1 << AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_CLICK_OUT_PORT);
+			this->processDFGNode();
+		}
+	}
 }
 
 /* Handle a zoom event at X position x*/

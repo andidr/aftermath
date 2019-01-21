@@ -49,6 +49,7 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	struct am_dfg_port* pinterval_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_INTERVAL_OUT_PORT];
 	struct am_dfg_port* pselections_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_SELECTIONS_OUT_PORT];
 	struct am_dfg_port* pmousepos_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_POSITION_OUT_PORT];
+	struct am_dfg_port* pmouseclick_out = &n->ports[AM_DFG_AMGUI_TIMELINE_NODE_MOUSE_CLICK_OUT_PORT];
 	struct am_interval* interval;
 	struct am_interval* selection_intervals;
 	struct am_dfg_type_pair_timestamp_const_hierarchy_node* mousepos;
@@ -153,6 +154,23 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 			mousepos = (struct am_dfg_type_pair_timestamp_const_hierarchy_node*)out;
 
 			mousepos->timestamp = t->timeline->getLastTimestampUnderCursor();
+			mousepos->node = hnode;
+		}
+	}
+
+	if(am_dfg_port_activated(pmouseclick_out)) {
+		hnode = t->timeline->getLastHierarchyNodeUnderCursor();
+
+		/* Only write a sample, in which both the timestamp and the
+		 * hierarchy node are valid */
+		if(hnode) {
+			if(!(out = am_dfg_buffer_reserve(pmouseclick_out->buffer, 1)))
+				return 1;
+
+			mousepos = (struct am_dfg_type_pair_timestamp_const_hierarchy_node*)out;
+
+			mousepos->timestamp =
+				t->timeline->getLastTimestampUnderCursor();
 			mousepos->node = hnode;
 		}
 	}

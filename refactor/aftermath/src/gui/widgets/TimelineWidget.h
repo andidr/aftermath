@@ -118,6 +118,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 			struct am_interval visibleInterval;
 		} dragStart;
 
+		bool mouseMovedSincePress;
+
 		struct {
 			uint64_t value;
 			uint64_t multiplier;
