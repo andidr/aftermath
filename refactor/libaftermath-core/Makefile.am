@@ -18,6 +18,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/bitvector.h \
 				src/buffer.c \
 				src/buffer.h \
+				src/circular_buffer.h \
 				src/contrib/linux-kernel/kernel.h \
 				src/contrib/linux-kernel/list.h \
 				src/contrib/linux-kernel/poison.h \
