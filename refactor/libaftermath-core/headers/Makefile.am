@@ -9,6 +9,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/bsearch.h \
 	aftermath/core/buffer.h \
 	aftermath/core/circular_buffer.h \
+	aftermath/core/circular_buffer_size.h \
 	aftermath/core/contrib/linux-kernel/kernel.h \
 	aftermath/core/contrib/linux-kernel/list.h \
 	aftermath/core/contrib/linux-kernel/poison.h \
