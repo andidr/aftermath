@@ -22,3 +22,8 @@ CollectGraphRootsFunction = gen_function_file_template_class_int_ctx(
     class_name = "CollectGraphRootsFunction",
     required_tags = { "gen_tag" : tags.postprocess.graph.GenerateCollectGraphRootsFunction },
     directory = os.path.dirname(__file__))
+
+CheckRootCountFunction = gen_function_file_template_class_int_ctx(
+    class_name = "CheckRootCountFunction",
+    required_tags = { "gen_tag" : tags.postprocess.graph.GenerateCheckRootCountFunction },
+    directory = os.path.dirname(__file__))

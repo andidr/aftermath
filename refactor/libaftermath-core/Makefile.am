@@ -296,6 +296,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/postprocess/__init__.py \
 	src/defs/aftermath/templates/postprocess/PostprocessFunction.tpl.c \
 	src/defs/aftermath/templates/postprocess/graph/__init__.py \
+	src/defs/aftermath/templates/postprocess/graph/CheckRootCountFunction.tpl.c \
 	src/defs/aftermath/templates/postprocess/graph/CollectGraphRootsFunction.tpl.c \
 	src/defs/aftermath/templates/process/__init__.py \
 	src/defs/aftermath/templates/process/TraceMinMaxTimestampCompoundScan.tpl.c \

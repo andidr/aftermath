@@ -73,3 +73,89 @@ class GenerateCollectGraphRootsFunction(CollectGraphRootsFunction,
 
     def getParentField(self):
         return self.__parent_field
+
+class CheckRootCountFunction(FunctionTag):
+    """A function that checks if the root count for a graph is correct."""
+
+    def __init__(self, function_name = None):
+        super(CheckRootCountFunction, self).__init__(
+            function_name = function_name,
+            default_suffix = "_check_root_count")
+
+class GenerateCheckRootCountFunction(CheckRootCountFunction,
+                                     TemplatedGenerateFunctionTag):
+    """Generate a CheckGraphRootsFunction
+
+    `node_array_struct_name` is the name of the structure representing arrays of
+    nodes.
+
+    `node_array_ident` is the array identifier for arrays of nodes.
+
+    `rootp_array_struct_name` is the name of the structure for the array of
+    pointers to root nodes.
+
+    `rootp_array_ident` is the array identifier for the per-trace array of
+    pointers to root nodes.
+
+    `min_count` is the minimum expected root count.
+
+    `max_count` is the minimum expected root count.
+
+    `triggers_only_if_at_leats_one_node` is a boolean indicating whether the
+    root count check should only be triggered if there is at least one node.
+    """
+
+    def __init__(self,
+                 node_array_struct_name,
+                 node_array_ident,
+                 rootp_array_struct_name,
+                 rootp_array_ident,
+                 min_count,
+                 max_count,
+                 triggers_only_if_at_leats_one_node = True,
+                 function_name = None):
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.postprocess.graph.CheckRootCountFunction)
+        CheckRootCountFunction.__init__(self, function_name = function_name)
+
+        enforce_type(node_array_struct_name, str)
+        enforce_type(node_array_ident, str)
+        enforce_type(rootp_array_struct_name, str)
+        enforce_type(rootp_array_ident, str)
+        enforce_type(min_count, int)
+        enforce_type(max_count, int)
+        enforce_type(triggers_only_if_at_leats_one_node, bool)
+
+        if min_count > max_count:
+            raise Exception("Maximum count must be greater than or equal to " +
+                            "the minimum count")
+
+        self.__node_array_struct_name = node_array_struct_name
+        self.__node_array_ident = node_array_ident
+        self.__rootp_array_struct_name = rootp_array_struct_name
+        self.__rootp_array_ident = rootp_array_ident
+        self.__min_count = min_count
+        self.__max_count = max_count
+        self.__triggers_only_if_at_leats_one_node = triggers_only_if_at_leats_one_node
+
+    def getNodeArrayStructName(self):
+        return self.__node_array_struct_name
+
+    def getNodeArrayIdent(self):
+        return self.__node_array_ident
+
+    def getRootPointerArrayStructName(self):
+        return self.__rootp_array_struct_name
+
+    def getRootPointerArrayIdent(self):
+        return self.__rootp_array_ident
+
+    def getMinCount(self):
+        return self.__min_count
+
+    def getMaxCount(self):
+        return self.__max_count
+
+    def triggersOnlyIfAtLeatsOneNode(self):
+        return self.__triggers_only_if_at_leats_one_node
