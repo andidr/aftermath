@@ -201,6 +201,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/statistics/histogram.h \
 				src/statistics/interval.c \
 				src/statistics/interval.h \
+				src/telamon.c \
 				src/telamon.h \
 				src/telamon_candidate_array.h \
 				src/tensorflow_node_array.h \
