@@ -1,0 +1,28 @@
+am_dfg_graph {
+	nodes: [
+		am::core::trace {
+				id: 1u64
+			},
+		am::gui::label {
+				id: 4u64,
+				label_id: "statusbar_label"
+			},
+		am::gui::telamon::candidate_tree {
+				id: 17u64,
+				tree_id: "ct1"
+			},
+		am::telamon::candidate_tree::roots {
+				id: 18u64
+			}
+		],
+	connections: [
+		[18u64, "roots", 17u64, "root"],
+		[1u64, "trace", 18u64, "in"]
+		],
+	positions: [
+		[1u64, 66.259260, 117.074074],
+		[4u64, 1419.382716, 245.111111],
+		[17u64, 341.407407, -41.740741],
+		[18u64, 147.370370, -41.777778]
+		]
+}

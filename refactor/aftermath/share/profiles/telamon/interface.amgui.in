@@ -1,0 +1,38 @@
+am_gui {
+	title: "Aftermath",
+
+	children: [
+		amgui_vbox {
+			children: [
+				amgui_htoolbar {
+					children: []
+				},
+
+				amgui_hsplitter {
+					stretch: [10u64, 90u64],
+					children: [
+						amgui_tabs {
+							tab_names: [ "Candidates", "DFG" ],
+
+							children : [
+								amgui_telamon_candidate_tree {
+									id: "ct1"
+								},
+								amgui_dfg { }
+							]
+						}
+					]
+				},
+
+				amgui_statusbar {
+					children: [
+						amgui_label {
+							text: "Ready.",
+							id: "statusbar_label"
+						}
+					]
+				}
+			]
+		}
+	]
+}

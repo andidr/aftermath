@@ -2,4 +2,5 @@
 moc_*.cpp
 ui_*.h
 share/profiles/min/interface.amgui
+share/profiles/telamon/interface.amgui
 share/profiles/tensorflow/interface.amgui
