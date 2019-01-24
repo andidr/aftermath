@@ -83,6 +83,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/RectTreeWidget.cpp \
 	src/gui/widgets/moc_RectTreeWidget.cpp \
 	src/gui/widgets/RectTreeWidget.h \
+	src/gui/widgets/TelamonCandidateTreeWidget.cpp \
+	src/gui/widgets/TelamonCandidateTreeWidget.h \
 	src/gui/widgets/TimelineWidget.cpp \
 	src/gui/widgets/TimelineWidget.h \
 	src/gui/widgets/ToolbarButton.cpp \
