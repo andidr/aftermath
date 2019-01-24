@@ -122,6 +122,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/state_event_array.h \
 	aftermath/core/statistics/histogram.h \
 	aftermath/core/statistics/interval.h \
+	aftermath/core/telamon.h \
 	aftermath/core/telamon_candidate_array.h \
 	aftermath/core/tensorflow_node_array.h \
 	aftermath/core/tensorflow_node_execution_array.h \
