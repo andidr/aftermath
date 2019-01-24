@@ -22,6 +22,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/dfg/nodes/gui/histogram.cpp \
 	src/dfg/nodes/gui/label.h \
 	src/dfg/nodes/gui/label.cpp \
+	src/dfg/nodes/gui/telamon_candidate_tree.h \
+	src/dfg/nodes/gui/telamon_candidate_tree.cpp \
 	src/dfg/nodes/gui/timeline.h \
 	src/dfg/nodes/gui/timeline.cpp \
 	src/dfg/nodes/gui/toolbar_button.h \

@@ -32,6 +32,10 @@
 #include "gui/label.h"
 
 #undef DEFS_NAME
+#define DEFS_NAME() amgui_telamon_candidate_tree_defs
+#include "gui/telamon_candidate_tree.h"
+
+#undef DEFS_NAME
 #define DEFS_NAME() amgui_timeline_defs
 #include "gui/timeline.h"
 
@@ -48,6 +52,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	amgui_hierarchy_combobox_defs,
 	amgui_histogram_defs,
 	amgui_label_defs,
+	amgui_telamon_candidate_tree_defs,
 	amgui_timeline_defs,
 	amgui_toolbar_button_defs,
 	amgui_toolbar_togglebutton_defs,

@@ -20,6 +20,7 @@
 #include "dfg/nodes/gui/histogram.h"
 #include "dfg/nodes/gui/hierarchy_combobox.h"
 #include "dfg/nodes/gui/label.h"
+#include "dfg/nodes/gui/telamon_candidate_tree.h"
 #include "dfg/nodes/gui/timeline.h"
 #include "dfg/nodes/gui/toolbar_button.h"
 #include "dfg/nodes/gui/toolbar_togglebutton.h"
@@ -27,6 +28,7 @@
 #include "gui/widgets/DFGWidget.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/HistogramWidget.h"
+#include "gui/widgets/TelamonCandidateTreeWidget.h"
 #include "gui/widgets/TimelineWidget.h"
 #include "gui/widgets/ToolbarButton.h"
 
@@ -371,6 +373,19 @@ int AftermathSession::DFGNodeInstantiationCallback(
 				return 1;
 
 			hcb->widget->setDFGNode(n);
+		} catch(...) {
+			return 1;
+		}
+	} else if(strcmp(n->type->name, "am::gui::telamon::candidate_tree") == 0) {
+		struct am_dfg_amgui_telamon_candidate_tree_node* t = (typeof(t))n;
+
+		try {
+			w = session->getGUI().getWidget(t->tree_id);
+
+			if(!(t->tree = dynamic_cast<TelamonCandidateTreeWidget*>(w)))
+				return 1;
+
+			t->tree->setDFGNode(n);
 		} catch(...) {
 			return 1;
 		}
