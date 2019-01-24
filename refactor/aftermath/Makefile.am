@@ -59,6 +59,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/factory/StatusbarWidgetCreator.h \
 	src/gui/factory/TabWidgetCreator.cpp \
 	src/gui/factory/TabWidgetCreator.h \
+	src/gui/factory/TelamonCandidateTreeWidgetCreator.cpp \
+	src/gui/factory/TelamonCandidateTreeWidgetCreator.h \
 	src/gui/factory/TimelineWidgetCreator.cpp \
 	src/gui/factory/TimelineWidgetCreator.h \
 	src/gui/factory/ToolbarButtonCreator.h \
