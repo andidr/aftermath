@@ -107,6 +107,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/timestamp_to_string.h \
 				src/dfg/nodes/timestamp_to_uint64.c \
 				src/dfg/nodes/timestamp_to_uint64.h \
+				src/dfg/nodes/telamon_candidate_tree_roots.c \
+				src/dfg/nodes/telamon_candidate_tree_roots.h \
 				src/dfg/nodes/tensorflow_node_attributes.c \
 				src/dfg/nodes/tensorflow_node_attributes.h \
 				src/dfg/nodes/tensorflow_node_execution_attributes.c \
