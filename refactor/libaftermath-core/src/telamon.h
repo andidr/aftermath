@@ -96,4 +96,32 @@ am_telamon_candidate_tree_depth(const struct am_telamon_candidate* n)
 	return depth + 1;
 }
 
+void am_telamon_count_nodes_dfs_callback(const struct am_telamon_candidate* node,
+					 size_t depth,
+					 void* data);
+
+/* Define an iterative depth-first search function to determine the number of
+ * nodes of a tree rooted at a candidate */
+AM_DECL_DFS_FUNCTION(_telamon_candidate_count_nodes,
+		     const struct am_telamon_candidate,
+		     size_t*,
+		     am_telamon_candidate_parent,
+		     am_telamon_candidate_nth_child,
+		     am_telamon_candidate_is_last_child,
+		     am_telamon_candidate_child_idx,
+		     am_telamon_candidate_has_children,
+		     am_telamon_count_nodes_dfs_callback)
+
+/* Returns the number of nodes (including the root) of the candidate tree rooted
+ * at n using an iterative method. */
+static inline size_t
+am_telamon_candidate_tree_count_nodes(const struct am_telamon_candidate* n)
+{
+	size_t num_nodes = 0;
+
+	am_dfs_norec_telamon_candidate_count_nodes(n, 20, &num_nodes);
+
+	return num_nodes;
+}
+
 #endif

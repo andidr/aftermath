@@ -28,3 +28,12 @@ void am_telamon_depth_dfs_callback(const struct am_telamon_candidate* node,
 	if(depth > *pmax_depth)
 		*pmax_depth = depth;
 }
+
+/* Internal callback function for am_dfs_norec_telamon_candidate_count_nodes */
+void am_telamon_count_nodes_dfs_callback(const struct am_telamon_candidate* node,
+				   size_t depth,
+				   void* data)
+{
+	size_t* count = (size_t*)data;
+	(*count)++;
+}
