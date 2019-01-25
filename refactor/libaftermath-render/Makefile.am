@@ -36,6 +36,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/kdtree/renderer.h \
 	src/recttree/renderer.c \
 	src/recttree/renderer.h \
+	src/telamon/candidate_tree_renderer.c \
+	src/telamon/candidate_tree_renderer.h \
 	src/timeline/common_layers.c \
 	src/timeline/common_layers.h \
 	src/timeline/layer.c \
