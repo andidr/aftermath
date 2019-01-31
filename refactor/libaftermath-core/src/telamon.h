@@ -23,6 +23,24 @@
 #include <aftermath/core/in_memory.h>
 #include <stdlib.h>
 
+enum am_telamon_candidate_flags {
+	AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE = (1 << 0),
+	AM_TELAMON_CANDIDATE_FLAG_ROLLOUT_NODE = (1 << 1),
+	AM_TELAMON_CANDIDATE_FLAG_IMPLEMENTATION = (1 << 2),
+	AM_TELAMON_CANDIDATE_FLAG_DEADEND = (1 << 3),
+	AM_TELAMON_CANDIDATE_FLAG_PERFMODEL_BOUND_VALID = (1 << 4),
+};
+
+enum am_telamon_candidate_type {
+	AM_TELAMON_CANDIDATE_UNKNOWN,
+	AM_TELAMON_CANDIDATE_INTERNAL_NODE,
+	AM_TELAMON_CANDIDATE_ROLLOUT_NODE,
+	AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE,
+	AM_TELAMON_CANDIDATE_INTERNAL_DEADEND,
+	AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND,
+	AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND
+};
+
 /* Returns the parent of a candidate c. */
 static inline struct am_telamon_candidate*
 am_telamon_candidate_parent(const struct am_telamon_candidate* c)
@@ -122,6 +140,110 @@ am_telamon_candidate_tree_count_nodes(const struct am_telamon_candidate* n)
 	am_dfs_norec_telamon_candidate_count_nodes(n, 20, &num_nodes);
 
 	return num_nodes;
+}
+
+/* Returns the classification of a candidate at time t (including t) */
+static inline enum am_telamon_candidate_type
+am_telamon_candidate_get_type(const struct am_telamon_candidate* c,
+			      am_timestamp_t t)
+{
+	uint32_t flags = 0;
+	int is_known = 0;
+	am_timestamp_t tmax = 0;
+
+	/* First determine kind: internal / rollout / implementation */
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_ROLLOUT_NODE) {
+		if(c->rollout_time <= t && c->rollout_time >= tmax) {
+			flags = AM_TELAMON_CANDIDATE_FLAG_ROLLOUT_NODE;
+			tmax = c->rollout_time;
+			is_known = 1;
+		}
+	}
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_IMPLEMENTATION) {
+		/* Implementations use rollout time */
+		if(c->rollout_time <= t && c->rollout_time >= tmax) {
+			flags = AM_TELAMON_CANDIDATE_FLAG_IMPLEMENTATION;
+			tmax = c->rollout_time;
+			is_known = 1;
+		}
+	}
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE) {
+		if(c->exploration_time <= t && c->exploration_time >= tmax) {
+			flags = AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE;
+			tmax = c->exploration_time;
+			is_known = 1;
+		}
+	}
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE) {
+		if(c->exploration_time <= t && c->exploration_time >= tmax) {
+			flags = AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE;
+			tmax = c->exploration_time;
+			is_known = 1;
+		}
+	}
+
+	/* Then check if this is also a deadend */
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_DEADEND) {
+		if(c->deadend_time <= t) {
+			flags |= AM_TELAMON_CANDIDATE_FLAG_DEADEND;
+			is_known = 1;
+		}
+	}
+
+	if(!is_known)
+		return AM_TELAMON_CANDIDATE_UNKNOWN;
+
+	if(flags & AM_TELAMON_CANDIDATE_FLAG_ROLLOUT_NODE) {
+		if(flags & AM_TELAMON_CANDIDATE_FLAG_DEADEND)
+			return AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND;
+		else
+			return AM_TELAMON_CANDIDATE_ROLLOUT_NODE;
+	} else if(flags & AM_TELAMON_CANDIDATE_FLAG_IMPLEMENTATION) {
+		if(flags & AM_TELAMON_CANDIDATE_FLAG_DEADEND)
+			return AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND;
+		else
+			return AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE;
+	} else {
+		if(flags & AM_TELAMON_CANDIDATE_FLAG_DEADEND)
+			return AM_TELAMON_CANDIDATE_INTERNAL_DEADEND;
+		else
+			return AM_TELAMON_CANDIDATE_INTERNAL_NODE;
+	}
+}
+
+/* Returns true if the value for the minimal bound of the performance model is
+ * valid for c */
+static inline int
+am_telamon_candidate_perfmodel_bound_valid(const struct am_telamon_candidate* c)
+{
+	return c->flags & AM_TELAMON_CANDIDATE_FLAG_PERFMODEL_BOUND_VALID;
+}
+
+/* Returns the timestamp of the first encounter of a candidate */
+static inline am_timestamp_t
+am_telamon_candidate_first_encounter(const struct am_telamon_candidate* c)
+{
+	am_timestamp_t t = AM_TIMESTAMP_T_MAX;
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_ROLLOUT_NODE) {
+		if(c->rollout_time < t)
+			t = c->rollout_time;
+	}
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_INTERNAL_NODE) {
+		if(c->exploration_time < t)
+			t = c->exploration_time;
+	}
+
+	if(c->flags & AM_TELAMON_CANDIDATE_FLAG_DEADEND) {
+		if(c->deadend_time < t)
+			t = c->deadend_time;
+	}
+
+	return t;
 }
 
 #endif

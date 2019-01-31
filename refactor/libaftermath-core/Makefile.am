@@ -204,6 +204,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/telamon.c \
 				src/telamon.h \
 				src/telamon_candidate_array.h \
+				src/telamon_evaluation_array.h \
 				src/tensorflow_node_array.h \
 				src/tensorflow_node_execution_array.h \
 				src/timestamp.h \

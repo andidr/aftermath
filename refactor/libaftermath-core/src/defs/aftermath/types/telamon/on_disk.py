@@ -34,9 +34,32 @@ am_dsk_telamon_candidate = Frame(
             type = aftermath.types.builtin.uint64_t,
             comment = "ID of the parent of this candidate"),
         Field(
-            name = "score",
+            name = "exploration_time",
+            type = aftermath.types.builtin.uint64_t,
+            comment = "Timestamp when the candidate was first encountered " +
+            "as an exploration node (if applicable)"),
+        Field(
+            name = "rollout_time",
+            type = aftermath.types.builtin.uint64_t,
+            comment = "Timestamp when the candidate was first encountered " +
+            "as a rollout node (if applicable)"),
+        Field(
+            name = "deadend_time",
+            type = aftermath.types.builtin.uint64_t,
+            comment = "Timestamp when the candidate was first identified as " +
+            "a deadend (if applicable)"),
+        Field(
+            name = "flags",
+            type = aftermath.types.builtin.uint32_t,
+            comment = "Flags (e.g., deadend, etc.)"),
+        Field(
+            name = "perfmodel_bound",
             type = aftermath.types.builtin.double,
-            comment = "Score")
+            comment = "Lower bound as calculated by the performance model"),
+        Field(
+            name = "action",
+            type = aftermath.types.on_disk.am_dsk_string,
+            comment = "Action for this candidate wrt its parent")
     ]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -54,8 +77,31 @@ relations.graph.make_tree_relation(
 
 ################################################################################
 
+am_dsk_telamon_evaluation = EventFrame(
+    name = "am_dsk_telamon_evaluation",
+    entity = "on-disk Telamon evaluation",
+    comment = "A Telamon Evaluation",
+    fields = FieldList([
+        Field(
+            name = "candidate_id",
+            type = aftermath.types.builtin.uint64_t,
+            comment = "ID of the candidate that was evaluated"),
+        Field(
+            name = "interval",
+            type = aftermath.types.on_disk.am_dsk_interval,
+            comment = "Interval during which the evaluation took place")
+    ]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_telamon_evaluation,
+    aftermath.types.telamon.in_memory.am_telamon_evaluation,
+    "collection_id")
+
+################################################################################
+
 all_types = TypeList([
-    am_dsk_telamon_candidate
+    am_dsk_telamon_candidate,
+    am_dsk_telamon_evaluation
 ])
 
 aftermath.config.addDskTypes(*all_types)

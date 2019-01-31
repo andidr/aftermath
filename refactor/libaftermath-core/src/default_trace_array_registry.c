@@ -42,6 +42,7 @@
 #include <aftermath/core/tensorflow_node_execution_array.h>
 
 #include <aftermath/core/telamon_candidate_array.h>
+#include <aftermath/core/telamon_evaluation_array.h>
 
 #include <aftermath/core/on_disk_meta.h>
 
@@ -71,6 +72,7 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_execution_array)
 
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidatep_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_evaluation_array)
 
 int am_build_default_trace_array_registry(struct am_array_registry* r)
 {
@@ -111,7 +113,9 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_array,
 					      "am::telamon::candidate") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidatep_array,
-					      "am::telamon::candidate_root"))
+					      "am::telamon::candidate_root") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_evaluation_array,
+					      "am::telamon::evaluation"))
 	{
 		return 1;
 	}

@@ -32,9 +32,32 @@ am_telamon_candidate = InMemoryCompoundType(
 
     fields = FieldList([
         Field(
-            name = "score",
+            name = "exploration_time",
+            type = aftermath.types.base.am_timestamp_t,
+            comment = "Timestamp when the candidate was first encountered " +
+            "as an exploration node (if applicable)"),
+        Field(
+            name = "rollout_time",
+            type = aftermath.types.base.am_timestamp_t,
+            comment = "Timestamp when the candidate was first encountered " +
+            "as a rollout node (if applicable)"),
+        Field(
+            name = "deadend_time",
+            type = aftermath.types.base.am_timestamp_t,
+            comment = "Timestamp when the candidate was first identified as " +
+            "a deadend (if applicable)"),
+        Field(
+            name = "flags",
+            type = aftermath.types.builtin.uint32_t,
+            comment = "Flags (e.g., deadend, etc.)"),
+        Field(
+            name = "perfmodel_bound",
             type = aftermath.types.builtin.double,
-            comment = "Score")]))
+            comment = "Lower bound as calculated by the performance model"),
+        Field(
+            name = "action",
+            type = aftermath.types.base.am_string,
+            comment = "Action for this candidate wrt its parent")]))
 
 am_telamon_candidate.getFields().prependFields([
     Field(
@@ -64,8 +87,24 @@ am_telamon_candidate.addTag(
 
 ################################################################################
 
+am_telamon_evaluation = InMemoryCompoundType(
+    name = "am_telamon_evaluation",
+    entity = "Telamon evaluation",
+    comment = 'A Telamon evaluation event',
+    ident = "am::telamon::evaluation",
+
+    fields = FieldList([
+        Field(
+            name = "interval",
+            type = aftermath.types.in_memory.am_interval,
+        )])
+)
+
+################################################################################
+
 all_types = TypeList([
-    am_telamon_candidate
+    am_telamon_candidate,
+    am_telamon_evaluation
 ])
 
 aftermath.config.addMemTypes(*all_types)
