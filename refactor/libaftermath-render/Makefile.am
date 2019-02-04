@@ -21,6 +21,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/nodes/timeline/layers/hierarchy.h \
 	src/dfg/nodes/timeline/layers/state.c \
 	src/dfg/nodes/timeline/layers/state.h \
+	src/dfg/nodes/timeline/layers/telamon_evaluation.c \
+	src/dfg/nodes/timeline/layers/telamon_evaluation.h \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.c \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	src/dfg/renderer.c \

@@ -38,7 +38,10 @@ AM_DFG_DECL_BUILTIN_TYPE(
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(axes, "axes")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(background, "background")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(hierarchy, "hierarchy")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(measurement_intervals, "measurement_intervals")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(selection, "selection")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(state, "state")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(telamon_evaluation, "telamon::evaluation")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(tensorflow_node_execution, "tensorflow::node_execution")
 
 static struct am_dfg_static_type_def* builtin_defs[] = {
@@ -46,7 +49,10 @@ static struct am_dfg_static_type_def* builtin_defs[] = {
 	&am_render_dfg_type_timeline_axes_layer,
 	&am_render_dfg_type_timeline_background_layer,
 	&am_render_dfg_type_timeline_hierarchy_layer,
+	&am_render_dfg_type_timeline_measurement_intervals_layer,
+	&am_render_dfg_type_timeline_selection_layer,
 	&am_render_dfg_type_timeline_state_layer,
+	&am_render_dfg_type_timeline_telamon_evaluation_layer,
 	&am_render_dfg_type_timeline_tensorflow_node_execution_layer,
 	NULL
 };
