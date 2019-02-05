@@ -20,6 +20,8 @@
 #define AM_TELAMON_CANDIDATE_TREE_RENDERER_H
 
 #include <aftermath/render/recttree/renderer.h>
+#include <aftermath/core/base_types.h>
+#include <aftermath/core/interval.h>
 
 #define AM_TELAMON_CANDIDATE_TREE_RENDERER_NODE_WIDTH 100
 #define AM_TELAMON_CANDIDATE_TREE_RENDERER_NODE_HEIGHT 50
@@ -38,12 +40,42 @@ struct am_telamon_candidate_tree_renderer_params {
 			struct {
 				struct am_rgba fill;
 				struct am_rgba stroke;
-			} normal;
+			} internal_node;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} internal_deadend;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} rollout_node;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} rollout_deadend;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} implementation_node;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} implementation_deadend;
 
 			struct {
 				struct am_rgba fill;
 				struct am_rgba stroke;
 			} highlighted;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} unknown;
 		} nodes;
 
 		struct {
@@ -109,6 +141,12 @@ struct am_telamon_candidate_tree_edge {
 
 	/* If true, the edge is rendered as a selected edge */
 	int selected:1;
+
+	/* Source node of this edge (where the edge starts) */
+	const struct am_telamon_candidate_tree_node* src_node;
+
+	/* Destination node of this edge (where the edge points to) */
+	const struct am_telamon_candidate_tree_node* dst_node;
 };
 
 /* Renderer for Telamon candidate trees */
@@ -136,6 +174,12 @@ struct am_telamon_candidate_tree_renderer {
 	/* Indicates whether the renderer has been initialized and is currently
 	 * associated with a candidate tree */
 	int valid;
+
+	/* If set, limits rendering of nodes whose creation time is within one
+	 * of the specified intervals */
+	const struct am_interval* intervals;
+	size_t num_intervals;
+	am_timestamp_t max_interval_end;
 };
 
 void am_telamon_candidate_tree_renderer_init(
@@ -314,6 +358,34 @@ am_telamon_candidate_tree_renderer_graph_y_to_screen(
 	const struct am_telamon_candidate_tree_renderer* r, double y)
 {
 	return am_recttree_renderer_graph_y_to_screen(&r->node_renderer, y);
+}
+
+/* Limits rendering to candidates whose creation timestamp is within at least
+ * one of the specified intervals */
+static inline void
+am_telamon_candidate_tree_renderer_set_intervals(
+	struct am_telamon_candidate_tree_renderer* r,
+	const struct am_interval* intervals,
+	size_t num_intervals)
+{
+	r->num_intervals = num_intervals;
+	r->intervals = intervals;
+	r->max_interval_end = 0;
+
+	for(size_t i = 0; i < num_intervals; i++) {
+		if(intervals[i].end > r->max_interval_end)
+			r->max_interval_end = intervals[i].end;
+	}
+}
+
+/* Resets the interval rendering filter, such that all candidates are rendered */
+static inline void
+am_telamon_candidate_tree_renderer_reset_intervals(
+	struct am_telamon_candidate_tree_renderer* r)
+{
+	r->intervals = NULL;
+	r->num_intervals = 0;
+	r->max_interval_end = AM_TIMESTAMP_T_MAX;
 }
 
 #endif

@@ -18,6 +18,7 @@
 
 #include <aftermath/render/telamon/candidate_tree_renderer.h>
 #include <aftermath/render/tree_layout.h>
+#include <aftermath/core/interval.h>
 #include <aftermath/core/telamon.h>
 
 static double am_telamon_candidate_tree_node_get_x(
@@ -85,6 +86,63 @@ AM_DECL_TREE_LAYOUT_FUN(
 	am_telamon_candidate_tree_node_get_num_children,
 	am_telamon_candidate_tree_node_get_nth_child)
 
+/* Assigns the fill and stroke color for a candidate depending on its
+ * classification at time t */
+static void am_telamon_candidate_tree_node_colors(
+	const struct am_telamon_candidate_tree_renderer* r,
+	const struct am_telamon_candidate* c,
+	am_timestamp_t t,
+	const struct am_rgba** fill_color,
+	const struct am_rgba** stroke_color)
+{
+	switch(am_telamon_candidate_get_type(c, t)) {
+		case AM_TELAMON_CANDIDATE_UNKNOWN:
+			*fill_color = &r->params.color.nodes.unknown.fill;
+			*stroke_color = &r->params.color.nodes.unknown.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_INTERNAL_NODE:
+			*fill_color = &r->params.color.nodes.internal_node.fill;
+			*stroke_color = &r->params.color.nodes.internal_node.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_INTERNAL_DEADEND:
+			*fill_color = &r->params.color.nodes.internal_deadend.fill;
+			*stroke_color = &r->params.color.nodes.internal_deadend.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_ROLLOUT_NODE:
+			*fill_color = &r->params.color.nodes.rollout_node.fill;
+			*stroke_color = &r->params.color.nodes.rollout_node.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND:
+			*fill_color = &r->params.color.nodes.rollout_deadend.fill;
+			*stroke_color = &r->params.color.nodes.rollout_deadend.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE:
+			*fill_color = &r->params.color.nodes.implementation_node.fill;
+			*stroke_color = &r->params.color.nodes.implementation_node.stroke;
+			break;
+		case AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND:
+			*fill_color = &r->params.color.nodes.implementation_deadend.fill;
+			*stroke_color = &r->params.color.nodes.implementation_deadend.stroke;
+			break;
+	}
+}
+
+/* Returns true if the creation timestamp of c is within at least one of the
+ * given intervals. */
+static inline int am_telamon_candidate_tree_node_in_intervals(
+	const struct am_telamon_candidate* c,
+	const struct am_interval* intervals,
+	size_t num_intervals)
+{
+	am_timestamp_t first_ts = am_telamon_candidate_first_encounter(c);
+
+	for(size_t i = 0; i < num_intervals; i++)
+		if(am_interval_contains_p(&intervals[i], first_ts))
+			return 1;
+
+	return 0;
+}
+
 static void
 am_telamon_candidate_tree_renderer_render_node(
 	cairo_t* cr,
@@ -95,10 +153,17 @@ am_telamon_candidate_tree_renderer_render_node(
 {
 	struct am_telamon_candidate_tree_renderer* r = data;
 	const struct am_telamon_candidate_tree_node* n = (const void*)rtn;
-	struct am_rgba* fill_color;
-	struct am_rgba* stroke_color;
+	const struct am_rgba* fill_color;
+	const struct am_rgba* stroke_color;
 	struct am_rect real_rect;
 	double corner_radius = 5 * r->node_renderer.zoom;
+
+	if(r->intervals &&
+	   !am_telamon_candidate_tree_node_in_intervals(
+		   n->candidate, r->intervals, r->num_intervals))
+	{
+		return;
+	}
 
 	real_rect = screen_rect;
 
@@ -112,18 +177,21 @@ am_telamon_candidate_tree_renderer_render_node(
 		fill_color = &r->params.color.nodes.highlighted.fill;
 		stroke_color = &r->params.color.nodes.highlighted.stroke;
 	} else {
-		fill_color = &r->params.color.nodes.normal.fill;
-		stroke_color = &r->params.color.nodes.normal.stroke;
+		am_telamon_candidate_tree_node_colors(
+			r,
+			n->candidate,
+			r->max_interval_end,
+			&fill_color,
+			&stroke_color);
 	}
 
 	cairo_set_source_rgba(cr, AM_PRGBA_ARGS(fill_color));
 
-	/* Paint really small rectangles without rounded corner */
-	if(corner_radius < 1) {
+	/* Paint small rectangles without rounded corners */
+	if(corner_radius < 1)
 		cairo_rectangle(cr, AM_RECT_ARGS(real_rect));
-	} else {
+	else
 		am_rounded_rectangle(cr, &real_rect, corner_radius);
-	}
 
 	cairo_fill_preserve(cr);
 
@@ -145,6 +213,21 @@ am_telamon_candidate_tree_renderer_render_edge(
 	const struct am_telamon_candidate_tree_edge* e = (const void*)n;
 	double line_width = 2 * r->edge_renderer.zoom;
 	struct am_rgba* color;
+
+	/* Only paint edges for node, which are visible */
+	if(r->intervals) {
+		if(!am_telamon_candidate_tree_node_in_intervals(
+			   e->src_node->candidate,
+			   r->intervals,
+			   r->num_intervals) ||
+		   !am_telamon_candidate_tree_node_in_intervals(
+			   e->dst_node->candidate,
+			   r->intervals,
+			   r->num_intervals))
+		{
+			return;
+		}
+	}
 
 	if(line_width < 0.1)
 		line_width = 0.1;
@@ -283,6 +366,10 @@ void am_telamon_candidate_tree_renderer_init_edge(
 		e->bb_lower_right = start;
 		e->mode = AM_TELAMON_CANDIDATE_TREE_EDGE_LINE_MODE_LR_UL;
 	}
+
+	e->selected = 0;
+	e->src_node = src;
+	e->dst_node = dst;
 }
 
 static void am_telamon_candidate_tree_renderer_init_edges(
@@ -436,8 +523,26 @@ void am_telamon_candidate_tree_renderer_init(struct am_telamon_candidate_tree_re
 	p->color.edges.normal = AM_RGBA255(0x00, 0x00, 0x00, 0xFF);
 	p->color.edges.highlighted = AM_RGBA255(127, 0x00, 127, 0xFF);
 
-	p->color.nodes.normal.fill = AM_RGBA255(200, 200, 200, 255);
-	p->color.nodes.normal.stroke = AM_RGBA255(127, 127, 127, 255);
+	p->color.nodes.unknown.fill = AM_RGBA255(0, 0, 0, 0);
+	p->color.nodes.unknown.stroke = AM_RGBA255(0, 0, 0, 0);
+
+	p->color.nodes.internal_node.fill = AM_RGBA255(200, 200, 200, 255);
+	p->color.nodes.internal_node.stroke = AM_RGBA255(127, 127, 127, 255);
+
+	p->color.nodes.rollout_node.fill = AM_RGBA255(180, 212, 255, 255);
+	p->color.nodes.rollout_node.stroke = AM_RGBA255(0, 100, 234, 255);
+
+	p->color.nodes.implementation_node.fill = AM_RGBA255(0, 140, 0, 255);
+	p->color.nodes.implementation_node.stroke = AM_RGBA255(0, 80, 0, 255);
+
+	p->color.nodes.internal_deadend.fill = AM_RGBA255(255, 132, 132, 255);
+	p->color.nodes.internal_deadend.stroke = AM_RGBA255(255, 0, 0, 255);
+
+	p->color.nodes.rollout_deadend.fill = AM_RGBA255(221, 118, 255, 255);
+	p->color.nodes.rollout_deadend.stroke = AM_RGBA255(161, 0, 212, 255);
+
+	p->color.nodes.implementation_deadend.fill = AM_RGBA255(255, 111, 0, 255);
+	p->color.nodes.implementation_deadend.stroke = AM_RGBA255(168, 74, 0, 255);
 
 	p->color.nodes.highlighted.fill = AM_RGBA255(200, 200, 0, 255);
 	p->color.nodes.highlighted.stroke = AM_RGBA255(127, 127, 0, 255);
@@ -445,6 +550,9 @@ void am_telamon_candidate_tree_renderer_init(struct am_telamon_candidate_tree_re
 	r->valid = 0;
 	r->nodes = NULL;
 	r->edges = NULL;
+	r->intervals = NULL;
+	r->num_intervals = 0;
+	r->max_interval_end = AM_TIMESTAMP_T_MAX;
 }
 
 void am_telamon_candidate_tree_renderer_render(
