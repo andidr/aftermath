@@ -314,6 +314,60 @@ static const uint64_t si_values_u64[] = {
 	100000000000000000
 };
 
+static const uint64_t si_values_double[] = {
+	1.0,
+	1000.0,
+	1000000.0,
+	1000000000.0,
+	1000000000000.0,
+	1000000000000000.0,
+	1000000000000000000.0
+};
+
+/* Formats a double using K, M, G, ... suffixes with max_sigd significant digits
+ * and writes the result to buf of size max_len characters. Returns 0 if the
+ * entire formatted string fitted into buf and 1 if characters were omitted.
+ */
+int am_siformat_double(double value, size_t max_sigd, char* buf, size_t max_len)
+{
+	size_t si_idx;
+
+	/* Early exit if we don't even have the space for the terminating zero
+	 * byte */
+	if(max_len == 0)
+		return 1;
+
+	/* If just space for terminating 0, just write zero */
+	if(max_len == 1) {
+		buf[0] = '\0';
+		return 1;
+	}
+
+	if(value > 0) {
+		/* Determine prefix */
+		for(si_idx = AM_ARRAY_SIZE(si_values_double); si_idx != 0; si_idx--)
+			if(value / si_values_double[si_idx-1] > 1.0)
+				break;
+
+		/* Adjust si_idx from loop condition */
+		si_idx--;
+	} else {
+		si_idx = 0;
+	}
+
+	if(snprintf(buf,
+		    max_len,
+		    "%.*f%c",
+		    (int)max_sigd,
+		    value / si_values_double[si_idx],
+		    si_prefixes[si_idx]) > max_len)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 /* Formats a uint64_t using K, M, G, ... suffixes with max_sigd significant
  * digits and writes the result to buf of size max_len characters. Returns 0 if
  * the entire formatted string fitted into buf and 1 if characters were omitted.
