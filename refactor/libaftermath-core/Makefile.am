@@ -64,6 +64,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/count.h \
 				src/dfg/nodes/double_constant.c \
 				src/dfg/nodes/double_constant.h \
+				src/dfg/nodes/double_to_string.c \
+				src/dfg/nodes/double_to_string.h \
 				src/dfg/nodes/duration_to_string.c \
 				src/dfg/nodes/duration_to_string.h \
 				src/dfg/nodes/duration_to_uint64.c \

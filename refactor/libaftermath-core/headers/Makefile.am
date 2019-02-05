@@ -38,6 +38,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/bool_constant.h \
 	aftermath/core/dfg/nodes/count.h \
 	aftermath/core/dfg/nodes/double_constant.h \
+	aftermath/core/dfg/nodes/double_to_string.h \
 	aftermath/core/dfg/nodes/duration_to_string.h \
 	aftermath/core/dfg/nodes/duration_to_uint64.h \
 	aftermath/core/dfg/nodes/event_mapping_common.h \

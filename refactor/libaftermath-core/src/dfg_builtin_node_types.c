@@ -36,6 +36,10 @@
 #include <aftermath/core/dfg/nodes/double_constant.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() double_to_string_defs
+#include <aftermath/core/dfg/nodes/double_to_string.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() hierarchy_attributes_defs
 #include <aftermath/core/dfg/nodes/hierarchy_attributes.h>
 
@@ -141,6 +145,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	bool_constant_defs,
 	count_defs,
 	double_constant_defs,
+	double_to_string_defs,
 	duration_to_string_defs,
 	duration_to_uint64_defs,
 	hierarchy_attributes_defs,
