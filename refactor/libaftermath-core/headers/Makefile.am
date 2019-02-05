@@ -59,6 +59,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg/nodes/string_concat.h \
 	aftermath/core/dfg/nodes/string_constant.h \
 	aftermath/core/dfg/nodes/string_format.h \
+	aftermath/core/dfg/nodes/telamon_candidate_attributes.h \
 	aftermath/core/dfg/nodes/telamon_candidate_tree_roots.h \
 	aftermath/core/dfg/nodes/tensorflow_node_attributes.h \
 	aftermath/core/dfg/nodes/tensorflow_node_execution_attributes.h \
