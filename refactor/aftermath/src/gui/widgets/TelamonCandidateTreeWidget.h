@@ -45,6 +45,10 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 
 		typedef CairoWidgetWithDFGNode super;
 
+		void setIntervals(const struct am_interval* intervals,
+				  size_t num_intervals);
+		void resetIntervals();
+
 	protected:
 		/* Current mode */
 		enum {
@@ -79,6 +83,9 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 		void toggleCandidateSelectionAt(const struct am_point* p);
 		void clearSelection();
 		void startNavigation(const struct am_point* p);
+
+		std::vector<struct am_interval> intervals;
+		bool useIntervals;
 };
 
 #endif

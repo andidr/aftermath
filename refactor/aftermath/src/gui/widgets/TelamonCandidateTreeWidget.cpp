@@ -23,7 +23,8 @@
 #include <QMouseEvent>
 #include <iostream>
 
-TelamonCandidateTreeWidget::TelamonCandidateTreeWidget()
+TelamonCandidateTreeWidget::TelamonCandidateTreeWidget() :
+	useIntervals(false)
 {
 	am_telamon_candidate_tree_renderer_init(&this->renderer);
 }
@@ -224,4 +225,41 @@ void TelamonCandidateTreeWidget::checkTriggerSelectionPort()
 			(1 << AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_SELECTIONS_OUT_PORT);
 		this->processDFGNode();
 	}
+}
+
+/* Limits rendering to candidates whose discovery was within at least one of the
+ * intervals passed as an argument */
+void TelamonCandidateTreeWidget::setIntervals(
+	const struct am_interval* intervals,
+	size_t num_intervals)
+{
+	try {
+		this->resetIntervals();
+
+		for(size_t i = 0; i < num_intervals; i++)
+			this->intervals.push_back(intervals[i]);
+
+		this->useIntervals = true;
+
+		am_telamon_candidate_tree_renderer_set_intervals(
+			&this->renderer,
+			&this->intervals[0],
+			num_intervals);
+	} catch(...) {
+		this->resetIntervals();
+		throw;
+	}
+
+	this->update();
+}
+
+/* Resets the intervals for rendering, such that all candidates become
+ * visible */
+void TelamonCandidateTreeWidget::resetIntervals()
+{
+	this->intervals.clear();
+	this->useIntervals = false;
+
+	am_telamon_candidate_tree_renderer_reset_intervals(&this->renderer);
+	this->update();
 }
