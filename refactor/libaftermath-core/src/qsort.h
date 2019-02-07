@@ -37,6 +37,7 @@
 						 P* data)			\
 	{									\
 		static const size_t elem_size = sizeof(T);			\
+		size_t initial_pivot_idx = num_elements / 2;			\
 		T* ppivot_val;							\
 		size_t lt;							\
 		size_t gt;							\
@@ -45,6 +46,10 @@
 										\
 		if(num_elements < 2)						\
 			return;						\
+										\
+		/* Make sure pivot element is at index 0 */			\
+		if(initial_pivot_idx != 0)					\
+			am_memswp(&a[0], &a[initial_pivot_idx], elem_size);	\
 										\
 		lt = 0;							\
 		i = 0;								\
