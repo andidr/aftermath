@@ -5,16 +5,38 @@ am_gui {
 		amgui_vbox {
 			children: [
 				amgui_htoolbar {
-					children: []
+					children: [ ]
 				},
 
 				amgui_hsplitter {
 					stretch: [10u64, 90u64],
 					children: [
 						amgui_tabs {
-							tab_names: [ "Candidates", "DFG" ],
+							tab_names: [ "Options" ],
 
 							children : [
+								amgui_vbox {
+									children: [
+										amgui_label {
+											text: "Hierarchy:"
+										},
+
+										amgui_hierarchy_combobox {
+											id: "hierarchy_cb1"
+										}
+									]
+								}
+							]
+						},
+
+						amgui_tabs {
+							tab_names: [ "Timeline", "Candidates", "DFG" ],
+
+							children : [
+								amgui_timeline {
+									id: "tl1",
+									layers: ["background", "hierarchy", "axes", "telamon::evaluation", "selection"]
+								},
 								amgui_telamon_candidate_tree {
 									id: "ct1"
 								},
