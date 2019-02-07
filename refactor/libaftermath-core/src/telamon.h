@@ -72,6 +72,14 @@ am_telamon_candidate_is_last_child(const struct am_telamon_candidate* c,
 		c->children[c->num_children-1] == child;
 }
 
+/* Returns true if child is the first child of c, otherwise false. */
+static inline int
+am_telamon_candidate_is_first_child(const struct am_telamon_candidate* c,
+				    const struct am_telamon_candidate* child)
+{
+	return am_telamon_candidate_has_children(c) && c->children[0] == child;
+}
+
 /* Returns the index of a child in the list of children of a candidate c. The
  * child node must be a child of c, otherwise the function returns SIZE_MAX. */
 static inline
