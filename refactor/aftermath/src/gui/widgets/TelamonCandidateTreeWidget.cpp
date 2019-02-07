@@ -111,7 +111,10 @@ void TelamonCandidateTreeWidget::updateCandidateUnderMouse(
 	c = am_telamon_candidate_tree_renderer_candidate_at(
 		&this->renderer, p);
 
-	this->candidateUnderMouse = c;
+	if(c != this->candidateUnderMouse) {
+		this->candidateUnderMouse = c;
+		this->checkTriggerHoverCandidatePort();
+	}
 }
 
 /* Adds the first candidate found at position p (in screen coordinates) to the
@@ -211,7 +214,10 @@ void TelamonCandidateTreeWidget::setCandidateTree(struct am_telamon_candidate* r
 	if(am_telamon_candidate_tree_renderer_set_root(&this->renderer, root))
 		throw AftermathException("Could not set root");
 
-	this->candidateUnderMouse = NULL;
+	if(this->candidateUnderMouse) {
+		this->candidateUnderMouse = NULL;
+		this->checkTriggerHoverCandidatePort();
+	}
 
 	this->update();
 }
@@ -240,6 +246,18 @@ void TelamonCandidateTreeWidget::checkTriggerSelectionPort()
 		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
 		this->dfgNode->required_mask.push_new =
 			(1 << AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_SELECTIONS_OUT_PORT);
+		this->processDFGNode();
+	}
+}
+
+/* Invokes DFG node processing to notify about changed candidate under the mouse
+ * cursor. */
+void TelamonCandidateTreeWidget::checkTriggerHoverCandidatePort()
+{
+	if(this->dfgNode) {
+		am_dfg_port_mask_reset(&this->dfgNode->required_mask);
+		this->dfgNode->required_mask.push_new =
+			(1 << AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_HOVER_CANDIDATE_OUT_PORT);
 		this->processDFGNode();
 	}
 }

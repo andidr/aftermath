@@ -81,6 +81,7 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 		virtual void cairoPaintEvent(cairo_t* cr);
 
 		void checkTriggerSelectionPort();
+		void checkTriggerHoverCandidatePort();
 
 		void toggleCandidateSelectionAt(const struct am_point* p);
 		void clearSelection();

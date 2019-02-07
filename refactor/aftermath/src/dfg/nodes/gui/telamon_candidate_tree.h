@@ -37,6 +37,7 @@ enum am_dfg_amgui_telamon_candidate_tree_node_port_indexes {
 	AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_ROOT_IN_PORT = 0,
 	AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_INTERVALS_IN_PORT,
 	AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_SELECTIONS_OUT_PORT,
+	AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_HOVER_CANDIDATE_OUT_PORT
 };
 
 int am_dfg_amgui_telamon_candidate_tree_init(struct am_dfg_node* n);
@@ -69,13 +70,15 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		{ "root", "const am::telamon::candidate*", AM_DFG_PORT_IN },
 		{ "intervals", "am::core::interval", AM_DFG_PORT_IN },
 		{ "selections", "const am::telamon::candidate*", AM_DFG_PORT_OUT },
+		{ "hover candidate", "const am::telamon::candidate*", AM_DFG_PORT_OUT }
 	),
 	AM_DFG_PORT_DEPS(
 		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "root",
 				AM_DFG_PORT_DEP_PUSH_NEW, "selections"),
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("root"),
 		AM_DFG_PORT_DEP_UPDATE_IN_PORT("intervals"),
-		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("selections")),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("selections"),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("hover candidate")),
 	AM_DFG_NODE_PROPERTIES())
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_telamon_candidate_tree_node_type)

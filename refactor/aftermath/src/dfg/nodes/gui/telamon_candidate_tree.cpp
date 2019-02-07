@@ -46,6 +46,7 @@ int am_dfg_amgui_telamon_candidate_tree_process(struct am_dfg_node* n)
 	struct am_dfg_port* proot_in = &n->ports[AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_ROOT_IN_PORT];
 	struct am_dfg_port* pintervals_in = &n->ports[AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_INTERVALS_IN_PORT];
 	struct am_dfg_port* psel_out = &n->ports[AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_SELECTIONS_OUT_PORT];
+	struct am_dfg_port* phover_out = &n->ports[AM_DFG_AMGUI_TELAMON_CANDIDATE_TREE_NODE_HOVER_CANDIDATE_OUT_PORT];
 	struct am_telamon_candidate* root = NULL;
 
 	if(am_dfg_port_activated(proot_in)) {
@@ -83,6 +84,18 @@ int am_dfg_amgui_telamon_candidate_tree_process(struct am_dfg_node* n)
 				{
 					return 1;
 				}
+			}
+		}
+	}
+
+	if(am_dfg_port_activated(phover_out)) {
+		if(t->tree) {
+			struct am_telamon_candidate* c =
+				t->tree->getCandidateUnderMouse();
+
+			if(c) {
+				if(am_dfg_buffer_write(phover_out->buffer, 1, &c))
+					return 1;
 			}
 		}
 	}
