@@ -388,4 +388,9 @@ am_telamon_candidate_tree_renderer_reset_intervals(
 	r->max_interval_end = AM_TIMESTAMP_T_MAX;
 }
 
+struct am_telamon_candidate_tree_node*
+am_telamon_candidate_tree_renderer_lookup_node(
+	struct am_telamon_candidate_tree_renderer* r,
+	struct am_telamon_candidate* c);
+
 #endif

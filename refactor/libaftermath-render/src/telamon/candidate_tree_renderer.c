@@ -566,7 +566,7 @@ void am_telamon_candidate_tree_renderer_render(
 /* Returns the candidate tree node corresponding to the candidate c. If no such
  * node exists in the candidate tree currently assigned to r, the function
  * returns NULL. */
-static struct am_telamon_candidate_tree_node*
+struct am_telamon_candidate_tree_node*
 am_telamon_candidate_tree_renderer_lookup_node(
 	struct am_telamon_candidate_tree_renderer* r,
 	struct am_telamon_candidate* c)
