@@ -37,8 +37,18 @@ am_gui {
 									id: "tl1",
 									layers: ["background", "hierarchy", "axes", "telamon::evaluation", "selection"]
 								},
-								amgui_telamon_candidate_tree {
-									id: "ct1"
+								amgui_vsplitter {
+									stretch: [90u64, 10u64],
+									children: [
+										amgui_telamon_candidate_tree {
+											id: "ct1"
+										},
+
+										amgui_timeline {
+											id: "tl2",
+											layers: ["background", "axes", "selection"]
+										}
+									]
 								},
 								amgui_dfg { }
 							]

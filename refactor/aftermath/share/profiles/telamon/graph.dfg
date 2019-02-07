@@ -15,26 +15,95 @@ am_dfg_graph {
 				id: 4u64,
 				label_id: "statusbar_label"
 			},
+		am::core::string_concat {
+				id: 16u64,
+				separator: ", "
+			},
 		am::gui::telamon::candidate_tree {
 				id: 17u64,
 				tree_id: "ct1"
 			},
 		am::telamon::candidate_tree::roots {
 				id: 18u64
+			},
+		am::gui::timeline {
+				id: 19u64,
+				timeline_id: "tl2"
+			},
+		am::telamon::candidate::attributes {
+				id: 20u64
+			},
+		am::core::timestamp::to_string {
+				id: 21u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 22u64,
+				format: "<b>Deadend time</b>: <font color=\"red\">%s</font>"
+			},
+		am::core::timestamp::to_string {
+				id: 23u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 24u64,
+				format: "<b>Rollout time</b>: <font color=\"blue\">%s</font>"
+			},
+		am::core::timestamp::to_string {
+				id: 25u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 26u64,
+				format: "<b>Exploration time:</b> %s"
+			},
+		am::core::string_format {
+				id: 27u64,
+				format: "<b>Action</b>: %s"
+			},
+		am::core::double::to_string {
+				id: 29u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 30u64,
+				format: "<b>Performance Model bound:</b> %s"
+			},
+		am::core::merge8 {
+				id: 32u64
 			}
 		],
 	connections: [
 		[1u64, "trace", 2u64, "trace"],
 		[3u64, "hierarchy", 2u64, "hierarchy"],
 		[1u64, "trace", 3u64, "trace"],
+		[16u64, "out", 4u64, "in"],
+		[32u64, "out", 16u64, "in"],
 		[18u64, "roots", 17u64, "root"],
-		[1u64, "trace", 18u64, "in"]
+		[19u64, "selections", 17u64, "intervals"],
+		[1u64, "trace", 18u64, "in"],
+		[1u64, "trace", 19u64, "trace"],
+		[17u64, "hover candidate", 20u64, "in"],
+		[20u64, "deadend_time", 21u64, "in"],
+		[21u64, "out", 22u64, "in"],
+		[20u64, "rollout_time", 23u64, "in"],
+		[23u64, "out", 24u64, "in"],
+		[20u64, "exploration_time", 25u64, "in"],
+		[25u64, "out", 26u64, "in"],
+		[20u64, "action", 27u64, "in"],
+		[20u64, "perfmodel_bound", 29u64, "in"],
+		[29u64, "out", 30u64, "in"],
+		[27u64, "out", 32u64, "in0"],
+		[26u64, "out", 32u64, "in1"],
+		[24u64, "out", 32u64, "in2"],
+		[22u64, "out", 32u64, "in3"],
+		[30u64, "out", 32u64, "in4"]
 		],
 	positions: [
 		[1u64, 66.259260, 117.074074],
 		[2u64, 298.814815, 116.925926],
 		[3u64, 146.629630, 152.777778],
-		[4u64, 518.049383, 115.333333],
+		[4u64, 1351.827160, -238.444445],
 		[5u64, 486.092593, 245.092593],
 		[6u64, 745.592593, 245.314815],
 		[7u64, 891.345679, 245.265432],
@@ -45,8 +114,22 @@ am_dfg_graph {
 		[13u64, 835.444444, 145.814815],
 		[14u64, 1027.222222, 145.888889],
 		[15u64, 1167.518519, 245.185185],
-		[16u64, 1282.037037, 245.086420],
+		[16u64, 1210.925926, -238.469136],
 		[17u64, 341.407407, -41.740741],
-		[18u64, 147.370370, -41.777778]
+		[18u64, 147.370370, -41.777778],
+		[19u64, 154.518519, 12.098765],
+		[20u64, 571.518519, -108.111111],
+		[21u64, 778.333333, -67.222222],
+		[22u64, 915.079561, -67.310014],
+		[23u64, 777.888889, -125.666667],
+		[24u64, 914.909465, -125.688615],
+		[25u64, 779.666667, -185.518519],
+		[26u64, 919.156379, -185.573388],
+		[27u64, 781.444444, -237.666667],
+		[28u64, 1050.283951, -237.074074],
+		[29u64, 789.853224, -5.809328],
+		[30u64, 916.174211, -6.698217],
+		[31u64, 1195.285322, -110.401920],
+		[32u64, 1087.235940, -238.303155]
 		]
 }
