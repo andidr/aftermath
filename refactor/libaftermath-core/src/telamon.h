@@ -85,6 +85,21 @@ size_t am_telamon_candidate_child_idx(const struct am_telamon_candidate* c,
 	return SIZE_MAX;
 }
 
+/* Returns the next sibling of a candidate c or NULL if c does not have a parent
+ * or if c is the last child of its parent. */
+static inline struct am_telamon_candidate*
+am_telamon_candidate_get_next_sibling(const struct am_telamon_candidate* c)
+{
+	size_t idx;
+
+	if(!c->parent || am_telamon_candidate_is_last_child(c->parent, c))
+		return NULL;
+
+	idx = am_telamon_candidate_child_idx(c->parent, c);
+
+	return c->parent->children[idx+1];
+}
+
 /* Internal callback function for am_dfs_norec_telamon_candidate_depth */
 void am_telamon_depth_dfs_callback(const struct am_telamon_candidate* node,
 				   size_t depth,
