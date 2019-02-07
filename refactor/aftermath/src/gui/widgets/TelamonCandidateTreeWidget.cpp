@@ -28,7 +28,7 @@ extern "C" {
 }
 
 TelamonCandidateTreeWidget::TelamonCandidateTreeWidget() :
-	useIntervals(false), candidateUnderMouse(NULL)
+	fitSetMargin(10), useIntervals(false), candidateUnderMouse(NULL)
 {
 	am_telamon_candidate_tree_renderer_init(&this->renderer);
 	this->setMouseTracking(true);
@@ -343,6 +343,7 @@ TelamonCandidateTreeWidget::modifySelection(F& f, bool keepOld)
 		am_telamon_candidate_tree_renderer_select(&this->renderer, c);
 
 	this->selections.swap(newSel);
+	this->fitToSelection();
 	this->update();
 	this->checkTriggerSelectionPort();
 }
@@ -415,4 +416,100 @@ void TelamonCandidateTreeWidget::keyPressEvent(QKeyEvent* event)
 		this->selectNextSiblings(event->modifiers() & Qt::ShiftModifier);
 	else
 		super::keyPressEvent(event);
+}
+
+/* Modifies the visual portion, such that all selected candidates are visible */
+void TelamonCandidateTreeWidget::fitToSelection()
+{
+	struct am_telamon_candidate_tree_node* tn;
+	struct am_point bbox_ul = { 0 };
+	struct am_point bbox_lr = { 0 };
+	struct am_point offset;
+	double bbox_w;
+	double bbox_h;
+	struct am_point curr_bbox_ul;
+	struct am_point curr_bbox_lr;
+	double curr_bbox_w;
+	double curr_bbox_h;
+	double graph_margin_w;
+	double graph_margin_h;
+	int init = 0;
+
+	if(this->selections.size() == 0)
+		return;
+
+	/* Determine current bounding box in graph coordinates */
+	am_telamon_candidate_tree_renderer_get_graph_bounds(
+		&this->renderer, &curr_bbox_ul, &curr_bbox_lr);
+
+	curr_bbox_w = curr_bbox_lr.x - curr_bbox_ul.x;
+	curr_bbox_h = curr_bbox_lr.y - curr_bbox_ul.y;
+
+	/* Determine bounding box for all selected nodes in graph coordinates */
+	for(auto c: this->selections) {
+		tn = am_telamon_candidate_tree_renderer_lookup_node(
+			&this->renderer, c);
+
+		if(!tn)
+			continue;
+
+		if(!init) {
+			bbox_ul = tn->upper_left;
+			bbox_lr = tn->lower_right;
+			init = 1;
+		} else {
+			if(tn->upper_left.x < bbox_ul.x)
+				bbox_ul.x = tn->upper_left.x;
+
+			if(tn->upper_left.y < bbox_ul.y)
+				bbox_ul.y = tn->upper_left.y;
+
+			if(tn->lower_right.x > bbox_lr.x)
+				bbox_lr.x = tn->lower_right.x;
+
+			if(tn->lower_right.y > bbox_lr.y)
+				bbox_lr.y = tn->lower_right.y;
+		}
+	}
+
+	/* Calculate margins in graph coordinates */
+	graph_margin_w = am_telamon_candidate_tree_renderer_screen_w_to_graph(
+		&this->renderer, this->fitSetMargin);
+
+	graph_margin_h = am_telamon_candidate_tree_renderer_screen_h_to_graph(
+		&this->renderer, this->fitSetMargin);
+
+	/* Extend bounding box by margins */
+	bbox_ul.x -= graph_margin_w;
+	bbox_lr.x += graph_margin_w;
+	bbox_ul.y -= graph_margin_h;
+	bbox_lr.y += graph_margin_h;
+
+	bbox_w = bbox_lr.x - bbox_ul.x;
+	bbox_h = bbox_lr.y - bbox_ul.y;
+
+	/* If bounding box is already big enough, just shift */
+	if(curr_bbox_w >= bbox_w && curr_bbox_h >= bbox_h) {
+		am_telamon_candidate_tree_renderer_get_offset(
+			&this->renderer, &offset.x, &offset.y);
+
+		if(bbox_ul.x < curr_bbox_ul.x)
+			offset.x -= curr_bbox_ul.x - bbox_ul.x;
+		else if(bbox_lr.x > curr_bbox_lr.x)
+			offset.x += bbox_lr.x - curr_bbox_lr.x;
+
+		if(bbox_ul.y < curr_bbox_ul.y)
+			offset.y -= curr_bbox_ul.y - bbox_ul.y;
+		else if(bbox_lr.y > curr_bbox_lr.y)
+			offset.y += bbox_lr.y - curr_bbox_lr.y;
+
+		am_telamon_candidate_tree_renderer_set_offset(
+			&this->renderer, offset.x, offset.y);
+	} else {
+		/* Otherwise zoom */
+		am_telamon_candidate_tree_renderer_set_graph_bounds(
+			&this->renderer, &bbox_ul, &bbox_lr);
+	}
+
+	this->update();
 }

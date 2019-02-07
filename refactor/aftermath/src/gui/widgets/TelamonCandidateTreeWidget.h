@@ -50,6 +50,7 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 		void setIntervals(const struct am_interval* intervals,
 				  size_t num_intervals);
 		void resetIntervals();
+		void fitToSelection();
 
 	protected:
 		/* Current mode */
@@ -68,6 +69,10 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 			double x;
 			double y;
 		} graphStartPos;
+
+		/* Minimum space (in pixels) around the selection when fitting
+		 * the view to the current selection */
+		double fitSetMargin;
 
 		/* Set with all currently selected candidates */
 		std::set<struct am_telamon_candidate*> selections;
