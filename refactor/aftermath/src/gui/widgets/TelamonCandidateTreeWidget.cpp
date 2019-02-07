@@ -23,11 +23,16 @@
 #include <QMouseEvent>
 #include <iostream>
 
+extern "C" {
+	#include <aftermath/core/telamon.h>
+}
+
 TelamonCandidateTreeWidget::TelamonCandidateTreeWidget() :
 	useIntervals(false), candidateUnderMouse(NULL)
 {
 	am_telamon_candidate_tree_renderer_init(&this->renderer);
 	this->setMouseTracking(true);
+	this->setFocusPolicy(Qt::ClickFocus);
 }
 
 TelamonCandidateTreeWidget::~TelamonCandidateTreeWidget()
@@ -305,4 +310,109 @@ void TelamonCandidateTreeWidget::resetIntervals()
 struct am_telamon_candidate* TelamonCandidateTreeWidget::getCandidateUnderMouse()
 {
 	return this->candidateUnderMouse;
+}
+
+/* Modifies the selection by applying the functor f on each currently selected
+ * candidate. The functor has the following prototype:
+
+     f(struct am_telamon_candidate* c,
+       std::set<struct am_telamon_candidate*>& newset)
+
+   The functor may modify the set newset, e.g., add new elements. If keepOld is
+   true, the elements in newset will be added to the current
+   selection. Otherwise, the current selection is replaced with the final set.
+*/
+template<typename F> void
+TelamonCandidateTreeWidget::modifySelection(F& f, bool keepOld)
+{
+	if(this->selections.size() == 0)
+		return;
+
+	std::set<struct am_telamon_candidate*> newSel;
+
+	for(auto c: this->selections) {
+		f(c, newSel);
+
+		if(keepOld)
+			newSel.insert(c);
+
+		am_telamon_candidate_tree_renderer_unselect(&this->renderer, c);
+	}
+
+	for(auto c: newSel)
+		am_telamon_candidate_tree_renderer_select(&this->renderer, c);
+
+	this->selections.swap(newSel);
+	this->update();
+	this->checkTriggerSelectionPort();
+}
+
+/* Selects / adds all parents of the currently selected candidates */
+void TelamonCandidateTreeWidget::selectParents(bool keepOld)
+{
+	auto f = [](struct am_telamon_candidate* c,
+		    std::set<struct am_telamon_candidate*>& newset)
+		{
+			if(c->parent)
+				newset.insert(c->parent);
+		};
+
+	this->modifySelection(f, keepOld);
+}
+
+/* Selects / adds the first child of each selected candidate */
+void TelamonCandidateTreeWidget::selectFirstChildren(bool keepOld)
+{
+	auto f = [](struct am_telamon_candidate* c,
+		   std::set<struct am_telamon_candidate*>& newset)
+		{
+			if(am_telamon_candidate_has_children(c))
+				newset.insert(c->children[0]);
+		};
+
+	this->modifySelection(f, keepOld);
+}
+
+/* Selects / adds the previous sibling of each selected candidate */
+void TelamonCandidateTreeWidget::selectPrevSiblings(bool keepOld)
+{
+	auto f = [](struct am_telamon_candidate* c,
+		   std::set<struct am_telamon_candidate*>& newset)
+		{
+			struct am_telamon_candidate* sibling;
+
+			if((sibling = am_telamon_candidate_get_prev_sibling(c)))
+				newset.insert(sibling);
+		};
+
+	this->modifySelection(f, keepOld);
+}
+
+/* Selects / adds the next sibling of each selected candidate */
+void TelamonCandidateTreeWidget::selectNextSiblings(bool keepOld)
+{
+	auto f = [](struct am_telamon_candidate* c,
+		   std::set<struct am_telamon_candidate*>& newset)
+		{
+			struct am_telamon_candidate* sibling;
+
+			if((sibling = am_telamon_candidate_get_next_sibling(c)))
+				newset.insert(sibling);
+		};
+
+	this->modifySelection(f, keepOld);
+}
+
+void TelamonCandidateTreeWidget::keyPressEvent(QKeyEvent* event)
+{
+	if(event->key() == Qt::Key_Up)
+		this->selectParents(event->modifiers() & Qt::ShiftModifier);
+	else if(event->key() == Qt::Key_Down)
+		this->selectFirstChildren(event->modifiers() & Qt::ShiftModifier);
+	else if(event->key() == Qt::Key_Left)
+		this->selectPrevSiblings(event->modifiers() & Qt::ShiftModifier);
+	else if(event->key() == Qt::Key_Right)
+		this->selectNextSiblings(event->modifiers() & Qt::ShiftModifier);
+	else
+		super::keyPressEvent(event);
 }

@@ -40,6 +40,7 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 		virtual void mouseReleaseEvent(QMouseEvent* event);
 		virtual void wheelEvent(QWheelEvent* event);
 		virtual void resizeEvent(QResizeEvent *event);
+		virtual void keyPressEvent(QKeyEvent* event);
 
 		std::vector<struct am_telamon_candidate*> getSelection();
 		struct am_telamon_candidate* getCandidateUnderMouse();
@@ -86,6 +87,12 @@ class TelamonCandidateTreeWidget : public CairoWidgetWithDFGNode {
 		void toggleCandidateSelectionAt(const struct am_point* p);
 		void clearSelection();
 		void startNavigation(const struct am_point* p);
+
+		template<typename F> void modifySelection(F& f, bool keepOld);
+		void selectParents(bool keepOld);
+		void selectFirstChildren(bool keepOld);
+		void selectPrevSiblings(bool keepOld);
+		void selectNextSiblings(bool keepOld);
 
 		std::vector<struct am_interval> intervals;
 		bool useIntervals;
