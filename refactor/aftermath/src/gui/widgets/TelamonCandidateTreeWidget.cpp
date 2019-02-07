@@ -24,9 +24,10 @@
 #include <iostream>
 
 TelamonCandidateTreeWidget::TelamonCandidateTreeWidget() :
-	useIntervals(false)
+	useIntervals(false), candidateUnderMouse(NULL)
 {
 	am_telamon_candidate_tree_renderer_init(&this->renderer);
+	this->setMouseTracking(true);
 }
 
 TelamonCandidateTreeWidget::~TelamonCandidateTreeWidget()
@@ -93,10 +94,24 @@ void TelamonCandidateTreeWidget::mouseMoveEvent(QMouseEvent* event)
 	if(!this->renderer.valid)
 		return;
 
-	if(this->mouseMode == MOUSE_MODE_NAVIGATE)
+	if(this->mouseMode == MOUSE_MODE_NAVIGATE) {
 		this->mouseMoveNavigate(&screen_pos);
-	else
+	} else {
 		this->setCursor(Qt::OpenHandCursor);
+		this->updateCandidateUnderMouse(&screen_pos);
+	}
+}
+
+/* Updates the internal reference to the candidate under the mouse cursor */
+void TelamonCandidateTreeWidget::updateCandidateUnderMouse(
+	const struct am_point* p)
+{
+	struct am_telamon_candidate* c;
+
+	c = am_telamon_candidate_tree_renderer_candidate_at(
+		&this->renderer, p);
+
+	this->candidateUnderMouse = c;
 }
 
 /* Adds the first candidate found at position p (in screen coordinates) to the
@@ -196,6 +211,8 @@ void TelamonCandidateTreeWidget::setCandidateTree(struct am_telamon_candidate* r
 	if(am_telamon_candidate_tree_renderer_set_root(&this->renderer, root))
 		throw AftermathException("Could not set root");
 
+	this->candidateUnderMouse = NULL;
+
 	this->update();
 }
 
@@ -262,4 +279,12 @@ void TelamonCandidateTreeWidget::resetIntervals()
 
 	am_telamon_candidate_tree_renderer_reset_intervals(&this->renderer);
 	this->update();
+}
+
+/* Returns the candidates that is under the mouse pointer. If multiple
+ * candidates would match, the first one as determined by the renderer is
+ * returned. If no candidate is under the mouse, the function returns NULL. */
+struct am_telamon_candidate* TelamonCandidateTreeWidget::getCandidateUnderMouse()
+{
+	return this->candidateUnderMouse;
 }
