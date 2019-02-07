@@ -393,4 +393,50 @@ am_telamon_candidate_tree_renderer_lookup_node(
 	struct am_telamon_candidate_tree_renderer* r,
 	struct am_telamon_candidate* c);
 
+/* Returns the coordinates of the visible portion in graph coordinates. */
+static inline void am_telamon_candidate_tree_renderer_get_graph_bounds(
+	struct am_telamon_candidate_tree_renderer* r,
+	struct am_point* upper_left,
+	struct am_point* lower_right)
+{
+	am_recttree_renderer_get_offset(
+		&r->node_renderer, &upper_left->x, &upper_left->y);
+
+	*lower_right = *upper_left;
+
+	lower_right->x += am_telamon_candidate_tree_renderer_screen_w_to_graph(
+		r, r->node_renderer.width);
+	lower_right->y += am_telamon_candidate_tree_renderer_screen_w_to_graph(
+		r, r->node_renderer.height);
+}
+
+/* Sets the visible portion in graph coordinates. If the aspect ratio does not
+ * allow for a perfect fit, a porition is selected that includes the bounds, but
+ * that may exceed the bounds in one dimension. */
+static inline void am_telamon_candidate_tree_renderer_set_graph_bounds(
+	struct am_telamon_candidate_tree_renderer* r,
+	struct am_point* upper_left,
+	struct am_point* lower_right)
+{
+	double gw = lower_right->x - upper_left->x;
+	double gh = lower_right->y - upper_left->y;
+	double zoom_w;
+	double zoom_h;
+	double zoom;
+
+	if(gw <= 0 || gh <= 0)
+		return;
+
+	am_telamon_candidate_tree_renderer_set_offset(
+		r, upper_left->x, upper_left->y);
+
+	zoom_w = r->node_renderer.width / gw;
+	zoom_h = r->node_renderer.height / gh;
+
+	zoom = (zoom_w < zoom_h) ? zoom_w : zoom_h;
+
+	r->node_renderer.zoom = zoom;
+	r->edge_renderer.zoom = zoom;
+}
+
 #endif
