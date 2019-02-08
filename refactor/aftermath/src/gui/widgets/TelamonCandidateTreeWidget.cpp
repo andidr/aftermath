@@ -356,6 +356,8 @@ void TelamonCandidateTreeWidget::selectParents(bool keepOld)
 		{
 			if(c->parent)
 				newset.insert(c->parent);
+			else
+				newset.insert(c);
 		};
 
 	this->modifySelection(f, keepOld);
@@ -369,6 +371,8 @@ void TelamonCandidateTreeWidget::selectFirstChildren(bool keepOld)
 		{
 			if(am_telamon_candidate_has_children(c))
 				newset.insert(c->children[0]);
+			else
+				newset.insert(c);
 		};
 
 	this->modifySelection(f, keepOld);
@@ -384,6 +388,8 @@ void TelamonCandidateTreeWidget::selectPrevSiblings(bool keepOld)
 
 			if((sibling = am_telamon_candidate_get_prev_sibling(c)))
 				newset.insert(sibling);
+			else
+				newset.insert(c);
 		};
 
 	this->modifySelection(f, keepOld);
@@ -399,6 +405,8 @@ void TelamonCandidateTreeWidget::selectNextSiblings(bool keepOld)
 
 			if((sibling = am_telamon_candidate_get_next_sibling(c)))
 				newset.insert(sibling);
+			else
+				newset.insert(c);
 		};
 
 	this->modifySelection(f, keepOld);
