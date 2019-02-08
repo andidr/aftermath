@@ -173,17 +173,8 @@ am_telamon_candidate_tree_renderer_render_node(
 	if(real_rect.height < 0.1)
 		real_rect.height = 0.1;
 
-	if(n->selected) {
-		fill_color = &r->params.color.nodes.highlighted.fill;
-		stroke_color = &r->params.color.nodes.highlighted.stroke;
-	} else {
-		am_telamon_candidate_tree_node_colors(
-			r,
-			n->candidate,
-			r->max_interval_end,
-			&fill_color,
-			&stroke_color);
-	}
+	am_telamon_candidate_tree_node_colors(
+		r, n->candidate, r->max_interval_end, &fill_color, &stroke_color);
 
 	cairo_set_source_rgba(cr, AM_PRGBA_ARGS(fill_color));
 
@@ -196,6 +187,18 @@ am_telamon_candidate_tree_renderer_render_node(
 	cairo_fill_preserve(cr);
 
 	cairo_set_source_rgba(cr, AM_PRGBA_ARGS(stroke_color));
+
+	if(n->selected) {
+		cairo_stroke_preserve(cr);
+
+		fill_color = &r->params.color.nodes.highlighted.fill;
+		stroke_color = &r->params.color.nodes.highlighted.stroke;
+
+		cairo_set_source_rgba(cr, AM_PRGBA_ARGS(fill_color));
+		cairo_fill_preserve(cr);
+		cairo_set_source_rgba(cr, AM_PRGBA_ARGS(stroke_color));
+	}
+
 	cairo_stroke(cr);
 }
 
@@ -544,8 +547,8 @@ void am_telamon_candidate_tree_renderer_init(struct am_telamon_candidate_tree_re
 	p->color.nodes.implementation_deadend.fill = AM_RGBA255(255, 111, 0, 255);
 	p->color.nodes.implementation_deadend.stroke = AM_RGBA255(168, 74, 0, 255);
 
-	p->color.nodes.highlighted.fill = AM_RGBA255(200, 200, 0, 255);
-	p->color.nodes.highlighted.stroke = AM_RGBA255(127, 127, 0, 255);
+	p->color.nodes.highlighted.fill = AM_RGBA255(255, 255, 0, 100);
+	p->color.nodes.highlighted.stroke = AM_RGBA255(200, 200, 0, 100);
 
 	r->valid = 0;
 	r->nodes = NULL;
