@@ -140,6 +140,10 @@
 #include <aftermath/core/dfg/nodes/telamon_candidate_tree_roots.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() telamon_candidate_subtree_defs
+#include <aftermath/core/dfg/nodes/telamon_candidate_subtree.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() telamon_filter_defs
 #include <aftermath/core/dfg/nodes/telamon_filter.h>
 
@@ -187,6 +191,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	timestamp_to_uint64_defs,
 	telamon_candidate_attribute_defs,
 	telamon_candidate_tree_roots_defs,
+	telamon_candidate_subtree_defs,
 	telamon_filter_defs,
 	tensorflow_node_attributes_defs,
 	tensorflow_node_execution_attributes_defs,
