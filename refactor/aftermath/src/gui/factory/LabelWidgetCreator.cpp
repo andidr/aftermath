@@ -28,6 +28,8 @@ QWidget* LabelWidgetCreator::instantiate(const struct am_object_notation_node_gr
 	const char* text;
 	QLabel* l = new QLabel();
 
+	l->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+
 	try {
 		if(am_object_notation_eval_retrieve_string(&n->node,
 							   "text",
