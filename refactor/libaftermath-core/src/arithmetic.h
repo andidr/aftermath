@@ -327,22 +327,25 @@ am_mul_sat_iu64(int64_t a, uint64_t b, int64_t* out)
 	return status;
 }
 
-/* Calculates *out = a + b without overflows if the final value fits into a
- * 64-bit unsigned integer. The return value indicates whether an overflow took
- * place. */
-static inline enum am_arithmetic_status
-am_add_safe_u64(uint64_t a, uint64_t b, uint64_t* out)
-{
-	*out = a + b;
+#define AM_DECL_ADD_SAFE_UINT_FUN(T, SUFFIX, VMAX)				\
+	/* Calculates *out = a + b without overflows if the final value fits	\
+	 * into a T. The return value indicates whether an overflow took	\
+	 * place. */								\
+	static inline enum am_arithmetic_status				\
+	am_add_safe_##SUFFIX(T a, T b, T* out)					\
+	{									\
+		*out = a + b;							\
+										\
+		if((a > b && VMAX - a < b) || (b > a && VMAX - b < a))		\
+			return AM_ARITHMETIC_STATUS_OVERFLOW;			\
+		else								\
+			return AM_ARITHMETIC_STATUS_EXACT;			\
+	}									\
 
-	if((a > b && UINT64_MAX - a < b) ||
-	   (b > a && UINT64_MAX - b < a))
-	{
-		return AM_ARITHMETIC_STATUS_OVERFLOW;
-	}
-
-	return AM_ARITHMETIC_STATUS_EXACT;
-}
+AM_DECL_ADD_SAFE_UINT_FUN( uint8_t,  u8,  UINT8_MAX)
+AM_DECL_ADD_SAFE_UINT_FUN(uint16_t, u16, UINT16_MAX)
+AM_DECL_ADD_SAFE_UINT_FUN(uint32_t, u32, UINT32_MAX)
+AM_DECL_ADD_SAFE_UINT_FUN(uint64_t, u64, UINT64_MAX)
 
 /* Saturated computation of *out = a + b for 64-bit unsigned integers. The
  * return value indicates whether saturation took place. */
@@ -354,30 +357,36 @@ am_add_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 	return status;
 }
 
-/* Calculates *out = a + b without overflows / underflows if the final value
- * fits into a 64 bit signed integer. The return value indicates whether an
- * overflow / underflow took place or if the result is exact. */
-static inline enum am_arithmetic_status
-am_add_safe_i64(int64_t a, int64_t b, int64_t* out)
-{
-	*out = a + b;
-
-	if(a > 0 && b > 0) {
-		if((a > b && INT64_MAX - a < b) ||
-		   (b > a && INT64_MAX - b < a))
-		{
-			return AM_ARITHMETIC_STATUS_OVERFLOW;
-		}
-	} else if(a < 0 && b < 0) {
-		if((a < b && -(INT64_MIN - a) > b) ||
-		   (b < a && -(INT64_MIN - b) > a))
-		{
-			return AM_ARITHMETIC_STATUS_UNDERFLOW;
-		}
+#define AM_DECL_ADD_SAFE_SINT_FUN(T, SUFFIX, VMIN, VMAX)			\
+	/* Calculates *out = a + b without overflows / underflows if the final	\
+	 * value fits into a T. The return value indicates whether an overflow /\
+	 * underflow took place or if the result is exact. */			\
+	static inline enum am_arithmetic_status				\
+	am_add_safe_##SUFFIX(T a, T b, T* out)					\
+	{									\
+		*out = a + b;							\
+										\
+		if(a > 0 && b > 0) {						\
+			if((a > b && VMAX - a < b) ||				\
+			   (b > a && VMAX - b < a))				\
+			{							\
+				return AM_ARITHMETIC_STATUS_OVERFLOW;		\
+			}							\
+		} else if(a < 0 && b < 0) {					\
+			if((a < b && -(VMIN - a) > b) ||			\
+			   (b < a && -(VMIN - b) > a))				\
+			{							\
+				return AM_ARITHMETIC_STATUS_UNDERFLOW;		\
+			}							\
+		}								\
+										\
+		return AM_ARITHMETIC_STATUS_EXACT;				\
 	}
 
-	return AM_ARITHMETIC_STATUS_EXACT;
-}
+AM_DECL_ADD_SAFE_SINT_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
+AM_DECL_ADD_SAFE_SINT_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
+AM_DECL_ADD_SAFE_SINT_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
+AM_DECL_ADD_SAFE_SINT_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
 
 /* Saturated computation of *out = a + b for 64-bit signed integers. The
  * return value indicates whether saturation took place. */
@@ -412,23 +421,6 @@ am_add_sat_ui64(uint64_t a, int64_t b, uint64_t* out)
 		return am_sub_sat_u64(a, -b, out);
 	else
 		return am_add_sat_u64(a, b, out);
-}
-
-/* Calculates *out = a + b without overflows if the final value fits into a
- * 32-bit unsigned integer. The return value indicates whether an overflow took
- * place. */
-static inline enum am_arithmetic_status
-am_add_safe_u32(uint32_t a, uint32_t b, uint32_t* out)
-{
-	*out = a + b;
-
-	if((a > b && UINT32_MAX - a < b) ||
-	   (b > a && UINT32_MAX - b < a))
-	{
-		return AM_ARITHMETIC_STATUS_OVERFLOW;
-	}
-
-	return AM_ARITHMETIC_STATUS_EXACT;
 }
 
 #define AM_DECL_SAFE_NEGATE_FUN(BITS)						\
@@ -595,19 +587,25 @@ am_add_sat_iu64(int64_t a, uint64_t b, int64_t* out)
 	return status;
 }
 
-/* Calculates *out = a - b without overflows if the final value fits into a
- * 64-bit unsigned integer. The return value indicates whether an overflow /
- * underflow took place. */
-static inline enum am_arithmetic_status
-am_sub_safe_u64(uint64_t a, uint64_t b, uint64_t* out)
-{
-	*out = a - b;
+#define AM_DECL_SUB_SAFE_UINT_FUN(T, SUFFIX)					\
+	/* Calculates *out = a - b without overflows if the final value fits	\
+	 * into a T. The return value indicates whether an overflow / underflow \
+	 * took place. */							\
+	static inline enum am_arithmetic_status				\
+	am_sub_safe_##SUFFIX(T a, T b, T* out)					\
+	{									\
+		*out = a - b;							\
+										\
+		if(a < b)							\
+			return AM_ARITHMETIC_STATUS_UNDERFLOW;			\
+		else								\
+			return AM_ARITHMETIC_STATUS_EXACT;			\
+	}
 
-	if(a < b)
-		return AM_ARITHMETIC_STATUS_UNDERFLOW;
-	else
-		return AM_ARITHMETIC_STATUS_EXACT;
-}
+AM_DECL_SUB_SAFE_UINT_FUN( uint8_t,  u8)
+AM_DECL_SUB_SAFE_UINT_FUN(uint16_t, u16)
+AM_DECL_SUB_SAFE_UINT_FUN(uint32_t, u32)
+AM_DECL_SUB_SAFE_UINT_FUN(uint64_t, u64)
 
 /* Saturated computation of *out = a - b for 64-bit unsigned integers. The
  * return value indicates whether saturation took place. */
@@ -619,21 +617,27 @@ am_sub_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 	return status;
 }
 
-/* Calculates *out = a - b without overflows / underflows if the final value
- * fits into a 64-bit signed integer. The return value indicates whether an
- * overflow / underflow took place. */
-static inline enum am_arithmetic_status
-am_sub_safe_i64(int64_t a, int64_t b, int64_t* out)
-{
-	*out = a - b;
+#define AM_DECL_SUB_SAFE_SINT_FUN(T, SUFFIX, VMIN, VMAX)			\
+	/* Calculates *out = a - b without overflows / underflows if the final	\
+	 * value fits into a T. The return value indicates whether an overflow /\
+	 * underflow took place. */						\
+	static inline enum am_arithmetic_status				\
+	am_sub_safe_##SUFFIX(T a, T b, T* out)					\
+	{									\
+		*out = a - b;							\
+										\
+		if(a < 0 && b > 0 && -(VMIN - a) < b)				\
+			return AM_ARITHMETIC_STATUS_UNDERFLOW;			\
+		else if(a > 0 && b < 0 && (b == VMIN || VMAX - a < -b))	\
+			return AM_ARITHMETIC_STATUS_OVERFLOW;			\
+		else								\
+			return AM_ARITHMETIC_STATUS_EXACT;			\
+	}
 
-	if(a < 0 && b > 0 && -(INT64_MIN - a) < b)
-		return AM_ARITHMETIC_STATUS_UNDERFLOW;
-	else if(a > 0 && b < 0 && (b == INT64_MIN || INT64_MAX - a < -b))
-		return AM_ARITHMETIC_STATUS_OVERFLOW;
-	else
-		return AM_ARITHMETIC_STATUS_EXACT;
-}
+AM_DECL_SUB_SAFE_SINT_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
+AM_DECL_SUB_SAFE_SINT_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
+AM_DECL_SUB_SAFE_SINT_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
+AM_DECL_SUB_SAFE_SINT_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
 
 /* Saturated computation of *out = a - b for 64-bit signed integers. The
  * return value indicates whether saturation took place. */
