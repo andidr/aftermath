@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+#include <float.h>
 
 /* Indicates the status of an arithmetic operation */
 enum am_arithmetic_status {
@@ -357,7 +358,7 @@ am_add_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 	return status;
 }
 
-#define AM_DECL_ADD_SAFE_SINT_FUN(T, SUFFIX, VMIN, VMAX)			\
+#define AM_DECL_ADD_SAFE_SIGNED_FUN(T, SUFFIX, VMIN, VMAX)			\
 	/* Calculates *out = a + b without overflows / underflows if the final	\
 	 * value fits into a T. The return value indicates whether an overflow /\
 	 * underflow took place or if the result is exact. */			\
@@ -383,10 +384,11 @@ am_add_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 		return AM_ARITHMETIC_STATUS_EXACT;				\
 	}
 
-AM_DECL_ADD_SAFE_SINT_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
-AM_DECL_ADD_SAFE_SINT_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
-AM_DECL_ADD_SAFE_SINT_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
-AM_DECL_ADD_SAFE_SINT_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
+AM_DECL_ADD_SAFE_SIGNED_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
+AM_DECL_ADD_SAFE_SIGNED_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
+AM_DECL_ADD_SAFE_SIGNED_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
+AM_DECL_ADD_SAFE_SIGNED_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
+AM_DECL_ADD_SAFE_SIGNED_FUN(double, double, DBL_MIN, DBL_MAX)
 
 /* Saturated computation of *out = a + b for 64-bit signed integers. The
  * return value indicates whether saturation took place. */
@@ -617,7 +619,7 @@ am_sub_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 	return status;
 }
 
-#define AM_DECL_SUB_SAFE_SINT_FUN(T, SUFFIX, VMIN, VMAX)			\
+#define AM_DECL_SUB_SAFE_SIGNED_FUN(T, SUFFIX, VMIN, VMAX)			\
 	/* Calculates *out = a - b without overflows / underflows if the final	\
 	 * value fits into a T. The return value indicates whether an overflow /\
 	 * underflow took place. */						\
@@ -634,10 +636,11 @@ am_sub_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 			return AM_ARITHMETIC_STATUS_EXACT;			\
 	}
 
-AM_DECL_SUB_SAFE_SINT_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
-AM_DECL_SUB_SAFE_SINT_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
-AM_DECL_SUB_SAFE_SINT_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
-AM_DECL_SUB_SAFE_SINT_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
+AM_DECL_SUB_SAFE_SIGNED_FUN( int8_t,  i8,  INT8_MIN,  INT8_MAX)
+AM_DECL_SUB_SAFE_SIGNED_FUN(int16_t, i16, INT16_MIN, INT16_MAX)
+AM_DECL_SUB_SAFE_SIGNED_FUN(int32_t, i32, INT32_MIN, INT32_MAX)
+AM_DECL_SUB_SAFE_SIGNED_FUN(int64_t, i64, INT64_MIN, INT64_MAX)
+AM_DECL_SUB_SAFE_SIGNED_FUN(double, double, DBL_MIN, DBL_MAX)
 
 /* Saturated computation of *out = a - b for 64-bit signed integers. The
  * return value indicates whether saturation took place. */
