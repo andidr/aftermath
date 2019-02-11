@@ -16,22 +16,20 @@
  * USA.
  */
 
-#include <aftermath/core/dfg/nodes/conditional_forward_pairwise.h>
+#include <aftermath/core/dfg/nodes/conditional_forward_all.h>
 
-
-int am_dfg_conditional_forward_pairwise_node_process(struct am_dfg_node* n)
+int am_dfg_conditional_forward_all_node_process(struct am_dfg_node* n)
 {
 	struct am_dfg_port* pa = &n->ports[0];
 	struct am_dfg_port* pb = &n->ports[1];
 	struct am_dfg_port* pctrl = &n->ports[2];
 	struct am_dfg_port* pout = &n->ports[3];
+	struct am_dfg_port* pfwd;
 	int* ctrl;
-	size_t na_idx = 0;
-	size_t nb_idx = 0;
 	void* dst;
 	size_t nold_out;
+	size_t nin;
 	const struct am_dfg_type* type;
-	void* inptr;
 
 	/* All input ports must be connected  */
 	if((!(am_dfg_port_is_connected(pa) &&
@@ -41,37 +39,30 @@ int am_dfg_conditional_forward_pairwise_node_process(struct am_dfg_node* n)
 		return 1;
 	}
 
-	if(am_dfg_port_activated(pout)) {
+	if(am_dfg_port_activated(pout) && am_dfg_port_has_data(pctrl)) {
+		if(pctrl->buffer->num_samples != 1)
+			return 1;
+
 		nold_out = pout->buffer->num_samples;
 		ctrl = pctrl->buffer->data;
 		type = pa->buffer->sample_type;
 
-		for(size_t i = 0; i < pctrl->buffer->num_samples; i++) {
-			if(ctrl[i]) {
-				if(am_dfg_buffer_ptr(pa->buffer, na_idx, 1, &inptr))
-					goto out_err;
+		if(ctrl[0])
+			pfwd = pa;
+		else
+			pfwd = pb;
 
-				na_idx++;
-			} else {
-				if(am_dfg_buffer_ptr(pb->buffer, nb_idx, 1, &inptr))
-					goto out_err;
+		nin = pfwd->buffer->num_samples;
 
-				nb_idx++;
-			}
+		if(!(dst = am_dfg_buffer_reserve(pout->buffer, nin)))
+			return 1;
 
-			if(!(dst = am_dfg_buffer_reserve(pout->buffer, 1)))
-				goto out_err;
-
-			if(type->copy_samples(type, 1, inptr, dst)) {
-				pout->buffer->num_samples--;
-				goto out_err;
-			}
+		if(type->copy_samples(type, nin, pfwd->buffer->data, dst)) {
+			pout->buffer->num_samples -= nin;
+			am_dfg_buffer_resize(pout->buffer, nold_out);
+			return 1;
 		}
 	}
 
 	return 0;
-
-out_err:
-	am_dfg_buffer_resize(pout->buffer, nold_out);
-	return 1;
 }
