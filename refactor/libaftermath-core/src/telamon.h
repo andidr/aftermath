@@ -21,6 +21,7 @@
 
 #include <aftermath/core/dfs.h>
 #include <aftermath/core/in_memory.h>
+#include <aftermath/core/qsort.h>
 #include <stdlib.h>
 
 enum am_telamon_candidate_flags {
@@ -283,5 +284,26 @@ am_telamon_candidate_first_encounter(const struct am_telamon_candidate* c)
 
 	return t;
 }
+
+/* Comparison function comparing the performance model bounds of pointers to two
+ * telamon candidates. Returns -1 if **pa has a lower bound than **pb, 1 if **pb
+ * has a lower bound than **pa and 0 if both have the same bound. */
+static inline int am_telamon_candidate_cmp_perfmodel_bound(
+	struct am_telamon_candidate* const * pa,
+	struct am_telamon_candidate* const * pb)
+{
+	const struct am_telamon_candidate* a = *pa;
+	const struct am_telamon_candidate* b = *pb;
+
+	return a->perfmodel_bound > b->perfmodel_bound ? 1 :
+		(a->perfmodel_bound < b->perfmodel_bound ? -1 : 0);
+}
+
+/* Generate sorting function sorting an array of pointers to telamon
+ * candidates ascending order of their value for the performane model bound */
+AM_DECL_QSORT_SUFFIX(am_telamon_candidate_,
+		     _perfmodel_bound_ascending,
+		     struct am_telamon_candidate*,
+		     am_telamon_candidate_cmp_perfmodel_bound)
 
 #endif
