@@ -37,6 +37,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/dfg_type_registry.h \
 	aftermath/core/dfg/nodes/basic_statistics.h \
 	aftermath/core/dfg/nodes/bool_constant.h \
+	aftermath/core/dfg/nodes/conditional_forward_pairwise.h \
 	aftermath/core/dfg/nodes/count.h \
 	aftermath/core/dfg/nodes/double_constant.h \
 	aftermath/core/dfg/nodes/double_to_string.h \

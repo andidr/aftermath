@@ -32,6 +32,10 @@
 #include <aftermath/core/dfg/nodes/bool_constant.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() conditional_forward_pairwise_defs
+#include <aftermath/core/dfg/nodes/conditional_forward_pairwise.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() count_defs
 #include <aftermath/core/dfg/nodes/count.h>
 
@@ -168,6 +172,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	in_memory_defs,
 	basic_stats_defs,
 	bool_constant_defs,
+	conditional_forward_pairwise_defs,
 	count_defs,
 	double_constant_defs,
 	double_to_string_defs,
