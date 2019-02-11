@@ -93,6 +93,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/interval_attributes.h \
 				src/dfg/nodes/interval_duration.c \
 				src/dfg/nodes/interval_duration.h \
+				src/dfg/nodes/logic.c \
+				src/dfg/nodes/logic.h \
 				src/dfg/nodes/math.c \
 				src/dfg/nodes/math.h \
 				src/dfg/nodes/merge.c \

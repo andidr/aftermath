@@ -92,6 +92,10 @@
 #include <aftermath/core/dfg/nodes/duration_to_uint64.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() logic_defs
+#include <aftermath/core/dfg/nodes/logic.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() math_defs
 #include <aftermath/core/dfg/nodes/math.h>
 
@@ -179,6 +183,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	int_to_string_defs,
 	interval_attributes_defs,
 	interval_duration_defs,
+	logic_defs,
 	math_defs,
 	merge_defs,
 	pair_timestamp_hierarchy_node_attributes_defs,
