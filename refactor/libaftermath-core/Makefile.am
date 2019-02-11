@@ -66,6 +66,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/dfg/nodes/conditional_forward.h \
 				src/dfg/nodes/conditional_forward_all.c \
 				src/dfg/nodes/conditional_forward_all.h \
+				src/dfg/nodes/conditional_forward_elementwise.c \
+				src/dfg/nodes/conditional_forward_elementwise.h \
 				src/dfg/nodes/conditional_forward_pairwise.c \
 				src/dfg/nodes/conditional_forward_pairwise.h \
 				src/dfg/nodes/count.c \
