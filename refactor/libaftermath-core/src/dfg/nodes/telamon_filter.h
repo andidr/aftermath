@@ -68,6 +68,50 @@ AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_DECL(internal_deadend, "Internal Deade
 AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_DECL(rollout_deadend, "Rollout Deadends")
 AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_DECL(implementation_deadend, "Implementation Deadends")
 
+int am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_process(
+	struct am_dfg_node* n);
+
+AM_DFG_DECL_BUILTIN_NODE_TYPE(
+	am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_type,
+	"am::telamon::candidate::filter::perfmodel_lowest_n",
+	"Telamon Performance Model Lowest N",
+	AM_DFG_NODE_DEFAULT_SIZE,
+	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
+	AM_DFG_NODE_FUNCTIONS({
+			.process = am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_process,
+				}),
+	AM_DFG_NODE_PORTS(
+		{ "in", "const am::telamon::candidate*", AM_DFG_PORT_IN },
+		{ "time", "am::core::timestamp", AM_DFG_PORT_IN },
+		{ "N", "am::core::uint64", AM_DFG_PORT_IN },
+		{ "out", "const am::telamon::candidate*", AM_DFG_PORT_OUT }),
+	AM_DFG_PORT_DEPS(
+		AM_DFG_PORT_DEP_UPDATE_IN_PORT("in"),
+		AM_DFG_PORT_DEP_UPDATE_IN_PORT("time"),
+		AM_DFG_PORT_DEP_UPDATE_IN_PORT("N"),
+		AM_DFG_PORT_DEP_INDEPENDENT_OUT_PORT("out"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "time",
+				AM_DFG_PORT_DEP_PUSH_NEW, "out"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "time",
+				AM_DFG_PORT_DEP_PULL_OLD, "in"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "time",
+				AM_DFG_PORT_DEP_PULL_OLD, "N"),
+
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "in",
+				AM_DFG_PORT_DEP_PUSH_NEW, "out"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "in",
+				AM_DFG_PORT_DEP_PULL_OLD, "time"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "in",
+				AM_DFG_PORT_DEP_PULL_OLD, "N"),
+
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "N",
+				AM_DFG_PORT_DEP_PUSH_NEW, "out"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "N",
+				AM_DFG_PORT_DEP_PULL_OLD, "time"),
+		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "N",
+				AM_DFG_PORT_DEP_PULL_OLD, "in")),
+	AM_DFG_NODE_PROPERTIES())
+
 AM_DFG_ADD_BUILTIN_NODE_TYPES(
 	&am_dfg_telamon_candidate_type_filter_unknown_node_type,
 	&am_dfg_telamon_candidate_type_filter_any_internal_node_type,
@@ -81,6 +125,7 @@ AM_DFG_ADD_BUILTIN_NODE_TYPES(
 	&am_dfg_telamon_candidate_type_filter_any_deadend_node_type,
 	&am_dfg_telamon_candidate_type_filter_internal_deadend_node_type,
 	&am_dfg_telamon_candidate_type_filter_rollout_deadend_node_type,
-	&am_dfg_telamon_candidate_type_filter_implementation_deadend_node_type)
+	&am_dfg_telamon_candidate_type_filter_implementation_deadend_node_type,
+	&am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_type)
 
 #endif
