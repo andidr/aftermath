@@ -48,7 +48,8 @@ TimelineWidget::TimelineWidget(QWidget* parent)
 	  currentSelectionLayer(NULL),
 	  currentSelection(NULL),
 	  lastHierarchyNodeUnderCursor(NULL),
-	  lastTimestampUnderCursor(0)
+	  lastTimestampUnderCursor(0),
+	  initialPropertiesSet(false)
 {
 	this->dragStart.visibleInterval = { 0, 0 };
 
@@ -67,8 +68,25 @@ TimelineWidget::TimelineWidget(QWidget* parent)
 	this->setMouseTracking(true);
 }
 
+/* Checks if the initial properties of the associated DFG node have been
+ * set. Since this might influence the position of the axes, this must be called
+ * when the initial size of the widget is known.
+ */
+void TimelineWidget::checkSetInitialDFGProperties()
+{
+	struct am_dfg_node* n;
+
+	if(!this->initialPropertiesSet) {
+		if((n = this->getDFGNode()))
+			am_dfg_amgui_timeline_set_initial_properties(n);
+
+		this->initialPropertiesSet = true;
+	}
+}
+
 void TimelineWidget::cairoPaintEvent(cairo_t* cr)
 {
+	this->checkSetInitialDFGProperties();
 	am_timeline_renderer_render(&this->renderer, cr);
 }
 

@@ -28,6 +28,8 @@ int am_dfg_amgui_timeline_init(struct am_dfg_node* n)
 
 	t->timeline = NULL;
 	t->timeline_id = NULL;
+	t->xdesc_height_init = 0;
+	t->ydesc_width_init = 0;
 
 	return 0;
 }
@@ -178,6 +180,66 @@ int am_dfg_amgui_timeline_process(struct am_dfg_node* n)
 	return 0;
 }
 
+static int am_dfg_amgui_timeline_set_xdesc_height(
+	struct am_dfg_amgui_timeline_node* t, uint64_t h)
+{
+	struct am_timeline_renderer* renderer;
+	uint64_t ypos;
+
+	if(!t->timeline)
+		return 1;
+
+	renderer = t->timeline->getRenderer();
+	ypos = renderer->height - h;
+	am_timeline_renderer_set_horizontal_axis_y(renderer, ypos);
+	t->timeline->update();
+
+	return 0;
+}
+
+static int am_dfg_amgui_timeline_get_xdesc_height(
+	struct am_dfg_amgui_timeline_node* t, uint64_t* h)
+{
+	struct am_timeline_renderer* renderer;
+
+	if(!t->timeline)
+		return 1;
+
+	renderer = t->timeline->getRenderer();
+	*h = renderer->xdesc_height;
+
+	return 0;
+}
+
+static int am_dfg_amgui_timeline_set_ydesc_width(
+	struct am_dfg_amgui_timeline_node* t, uint64_t w)
+{
+	struct am_timeline_renderer* renderer;
+
+	if(!t->timeline)
+		return 1;
+
+	renderer = t->timeline->getRenderer();
+	am_timeline_renderer_set_vertical_axis_x(renderer, w);
+	t->timeline->update();
+
+	return 0;
+}
+
+static int am_dfg_amgui_timeline_get_ydesc_width(
+	struct am_dfg_amgui_timeline_node* t, uint64_t* w)
+{
+	struct am_timeline_renderer* renderer;
+
+	if(!t->timeline)
+		return 1;
+
+	renderer = t->timeline->getRenderer();
+	*w = renderer->ydesc_width;
+
+	return 0;
+}
+
 int am_dfg_amgui_timeline_from_object_notation(
 	struct am_dfg_node* n,
 	struct am_object_notation_node_group* g)
@@ -189,6 +251,18 @@ int am_dfg_amgui_timeline_from_object_notation(
 						   &timeline_id))
 	{
 		return 1;
+	}
+
+	if(am_object_notation_eval_retrieve_uint64(&g->node, "xdesc_height",
+						   &t->xdesc_height_u64) == 0)
+	{
+		t->xdesc_height_init = 1;
+	}
+
+	if(am_object_notation_eval_retrieve_uint64(&g->node, "ydesc_width",
+						   &t->ydesc_width_u64) == 0)
+	{
+		t->ydesc_width_init = 1;
 	}
 
 	if(!(t->timeline_id = strdup(timeline_id)))
@@ -203,16 +277,115 @@ int am_dfg_amgui_timeline_to_object_notation(
 {
 	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
 	struct am_object_notation_node_member* mtimeline_id;
+	struct am_object_notation_node_member* mxdesc_height;
+	struct am_object_notation_node_member* mydesc_width;
 
-	mtimeline_id = (struct am_object_notation_node_member*)
-		am_object_notation_build(
-			AM_OBJECT_NOTATION_BUILD_MEMBER, "timeline_id",
-			AM_OBJECT_NOTATION_BUILD_STRING, t->timeline_id);
-
-	if(!mtimeline_id)
+	/* Retrieve properties */
+	if(am_dfg_amgui_timeline_get_xdesc_height(t, &t->xdesc_height_u64))
 		return 1;
 
+	if(am_dfg_amgui_timeline_get_ydesc_width(t, &t->ydesc_width_u64))
+		return 1;
+
+	if(!(mtimeline_id = (struct am_object_notation_node_member*)
+	     am_object_notation_build(
+		     AM_OBJECT_NOTATION_BUILD_MEMBER, "timeline_id",
+		     AM_OBJECT_NOTATION_BUILD_STRING, t->timeline_id)))
+	{
+		goto out_err;
+	}
+
+	if(!(mxdesc_height = (struct am_object_notation_node_member*)
+	     am_object_notation_build(
+		     AM_OBJECT_NOTATION_BUILD_MEMBER, "xdesc_height",
+		     AM_OBJECT_NOTATION_BUILD_UINT64, t->xdesc_height_u64)))
+	{
+		goto out_err_destroy_id;
+	}
+
+	if(!(mydesc_width = (struct am_object_notation_node_member*)
+	     am_object_notation_build(
+		     AM_OBJECT_NOTATION_BUILD_MEMBER, "ydesc_width",
+		     AM_OBJECT_NOTATION_BUILD_UINT64, t->ydesc_width_u64)))
+	{
+		goto out_err_destroy_xdesc_height;
+	}
+
 	am_object_notation_node_group_add_member(g, mtimeline_id);
+	am_object_notation_node_group_add_member(g, mxdesc_height);
+	am_object_notation_node_group_add_member(g, mydesc_width);
+
+	return 0;
+
+out_err_destroy_xdesc_height:
+	am_object_notation_node_destroy(&mxdesc_height->node);
+	free(mxdesc_height);
+out_err_destroy_id:
+	am_object_notation_node_destroy(&mtimeline_id->node);
+	free(mtimeline_id);
+out_err:
+	return 1;
+}
+
+int am_dfg_amgui_timeline_set_property(
+	struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	const void* value)
+{
+	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
+	const uint64_t* pu64 = (const uint64_t*)value;
+
+	if(strcmp(property->name, "xdesc_height") == 0)
+		return am_dfg_amgui_timeline_set_xdesc_height(t, *pu64);
+
+	if(strcmp(property->name, "ydesc_width") == 0)
+		return am_dfg_amgui_timeline_set_ydesc_width(t, *pu64);
+
+	return 1;
+}
+
+int am_dfg_amgui_timeline_get_property(
+	const struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	void** value)
+{
+	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
+
+	if(strcmp(property->name, "xdesc_height") == 0) {
+		if(am_dfg_amgui_timeline_get_xdesc_height(t, &t->xdesc_height_u64))
+			return 1;
+
+		*value = &t->xdesc_height_u64;
+		return 0;
+	} else if(strcmp(property->name, "ydesc_width") == 0) {
+		if(am_dfg_amgui_timeline_get_ydesc_width(t, &t->ydesc_width_u64))
+			return 1;
+
+		*value = &t->ydesc_width_u64;
+		return 0;
+	}
+
+	return 1;
+}
+
+/* Sets the initial values for all properties read from object notation upon
+ * construction, but after assignment of the timeline widget.
+ *
+ * Returns 0 on success, otherwise 1.
+ */
+int am_dfg_amgui_timeline_set_initial_properties(struct am_dfg_node* n)
+{
+	struct am_dfg_amgui_timeline_node* t = (typeof(t))n;
+
+	if(t->xdesc_height_init) {
+		if(am_dfg_amgui_timeline_set_xdesc_height(t, t->xdesc_height_u64))
+			return 1;
+	}
+
+	if(t->ydesc_width_init) {
+		if(am_dfg_amgui_timeline_set_ydesc_width(t, t->ydesc_width_u64))
+			return 1;
+	}
 
 	return 0;
 }

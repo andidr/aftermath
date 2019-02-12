@@ -100,6 +100,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 
 		void checkUpdateMousePos(const struct am_point* p);
 
+		void checkSetInitialDFGProperties();
+
 		struct am_timeline_renderer renderer;
 		struct am_timeline_renderer_layer_appearance_change_callback
 		apperance_change_cb;
@@ -134,6 +136,8 @@ class TimelineWidget : public CairoWidgetWithDFGNode {
 
 		struct am_hierarchy_node* lastHierarchyNodeUnderCursor;
 		am_timestamp_t lastTimestampUnderCursor;
+
+		bool initialPropertiesSet;
 };
 
 #endif

@@ -31,6 +31,10 @@ struct am_dfg_amgui_timeline_node {
 	struct am_dfg_node node;
 	AM_CXX_C_DECL_CLASS_STRUCT_PTR_FIELD(TimelineWidget, timeline);
 	char* timeline_id;
+	uint64_t xdesc_height_u64;
+	int xdesc_height_init;
+	uint64_t ydesc_width_u64;
+	int ydesc_width_init;
 };
 
 enum am_dfg_amgui_timeline_node_port_indexes {
@@ -54,6 +58,18 @@ int am_dfg_amgui_timeline_to_object_notation(
 	struct am_dfg_node* n,
 	struct am_object_notation_node_group* g);
 
+int am_dfg_amgui_timeline_set_property(
+	struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	const void* value);
+
+int am_dfg_amgui_timeline_get_property(
+	const struct am_dfg_node* n,
+	const struct am_dfg_property* property,
+	void** value);
+
+int am_dfg_amgui_timeline_set_initial_properties(struct am_dfg_node* n);
+
 /**
  * Node that can be associated with a timeline widget.
  */
@@ -68,7 +84,9 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		.destroy = am_dfg_amgui_timeline_destroy,
 		.process = am_dfg_amgui_timeline_process,
 		.from_object_notation = am_dfg_amgui_timeline_from_object_notation,
-		.to_object_notation = am_dfg_amgui_timeline_to_object_notation
+		.to_object_notation = am_dfg_amgui_timeline_to_object_notation,
+		.set_property = am_dfg_amgui_timeline_set_property,
+		.get_property = am_dfg_amgui_timeline_get_property
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "trace", "const am::core::trace*", AM_DFG_PORT_IN },
@@ -90,7 +108,9 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		AM_DFG_PORT_DEP(AM_DFG_PORT_DEP_ON_NEW, "interval in",
 				AM_DFG_PORT_DEP_PUSH_NEW, "interval out")
 	),
-	AM_DFG_NODE_PROPERTIES())
+	AM_DFG_NODE_PROPERTIES(
+		{ "xdesc_height", "X legend height", "am::core::uint64" },
+		{ "ydesc_width", "Y legend width", "am::core::uint64" }))
 
 AM_DFG_ADD_BUILTIN_NODE_TYPES(&am_dfg_amgui_timeline_node_type)
 
