@@ -28,7 +28,8 @@ am_dfg_graph {
 			},
 		am::gui::timeline {
 				id: 19u64,
-				timeline_id: "tl2"
+				timeline_id: "tl2",
+				ydesc_width: 1u64
 			},
 		am::telamon::candidate::attributes {
 				id: 20u64
