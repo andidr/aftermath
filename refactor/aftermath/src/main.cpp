@@ -23,6 +23,7 @@
 #include "gui/factory/DefaultGUIFactory.h"
 #include "gui/widgets/DFGWidget.h"
 #include "gui/widgets/CairoWidgetWithDFGNode.h"
+#include <QFileInfo>
 
 extern "C" {
 	#include <aftermath/core/dfg/nodes/trace.h>
@@ -156,6 +157,15 @@ int aftermath_main(const struct am_options* o,
 
 		AftermathController controller(&session, &mainWindow);
 
+		QString title = "Aftermath";
+
+		if(o->profile_name != "")
+			title += QString(" [") + o->profile_name.c_str() + "]";
+
+		QFileInfo fi(o->trace_filename.c_str());
+		title += QString(": ") + fi.fileName();
+
+		mainWindow.setWindowTitle(title);
 		mainWindow.show();
 
 		session.scheduleDFG();
