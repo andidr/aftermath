@@ -1,0 +1,403 @@
+am_dfg_graph {
+	nodes: [
+		am::core::trace {
+				id: 1u64
+			},
+		am::gui::timeline {
+				id: 2u64,
+				timeline_id: "tl1",
+				xdesc_height: 30u64,
+				ydesc_width: 200u64
+			},
+		am::gui::hierarchy_combobox {
+				id: 3u64,
+				widget_id: "hierarchy_cb1"
+			},
+		am::gui::label {
+				id: 4u64,
+				label_id: "statusbar_label"
+			},
+		am::gui::telamon::candidate_tree {
+				id: 17u64,
+				tree_id: "ct1"
+			},
+		am::telamon::candidate_tree::roots {
+				id: 18u64
+			},
+		am::gui::timeline {
+				id: 19u64,
+				timeline_id: "tl2",
+				xdesc_height: 30u64,
+				ydesc_width: 1u64
+			},
+		am::telamon::candidate::attributes {
+				id: 20u64
+			},
+		am::core::timestamp::to_string {
+				id: 21u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 22u64,
+				format: "<b>Deadend time</b>: <font color=\"red\">%s</font>"
+			},
+		am::core::timestamp::to_string {
+				id: 23u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 24u64,
+				format: "<b>Rollout time</b>: <font color=\"blue\">%s</font>"
+			},
+		am::core::timestamp::to_string {
+				id: 25u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 26u64,
+				format: "<b>Exploration time:</b> %s"
+			},
+		am::core::string_format {
+				id: 27u64,
+				format: "<b>Action</b>: %s"
+			},
+		am::core::double::to_string {
+				id: 29u64,
+				pretty_print: 1u64
+			},
+		am::core::string_format {
+				id: 30u64,
+				format: "<b>Performance Model bound:</b> %s"
+			},
+		am::core::merge8 {
+				id: 32u64
+			},
+		am::core::filter::conditional_forward::elementwise {
+				id: 33u64
+			},
+		am::telamon::candidate::subtree {
+				id: 34u64
+			},
+		am::telamon::candidate::filter::any_deadend {
+				id: 35u64
+			},
+		am::telamon::candidate::filter::internal_not_deadend {
+				id: 36u64
+			},
+		am::core::count {
+				id: 38u64
+			},
+		am::core::count {
+				id: 39u64
+			},
+		am::core::count {
+				id: 40u64
+			},
+		am::core::uint64::to_string {
+				id: 41u64
+			},
+		am::core::string_format {
+				id: 44u64,
+				format: "<b>Deadends:</b> %s"
+			},
+		am::core::arithmetic::uint64::add {
+				id: 45u64
+			},
+		am::core::string_format {
+				id: 47u64,
+				format: "<b>Not a deadend:</b> %s"
+			},
+		am::core::uint64::to_string {
+				id: 48u64
+			},
+		am::core::count {
+				id: 51u64
+			},
+		am::core::uint64::to_string {
+				id: 52u64
+			},
+		am::core::string_format {
+				id: 53u64,
+				format: "<b>Total:</b> %s"
+			},
+		am::core::merge3 {
+				id: 54u64
+			},
+		am::telamon::candidate::filter::internal_deadend {
+				id: 55u64
+			},
+		am::telamon::candidate::filter::rollout_deadend {
+				id: 56u64
+			},
+		am::core::count {
+				id: 57u64
+			},
+		am::core::count {
+				id: 58u64
+			},
+		am::core::uint64::to_string {
+				id: 59u64
+			},
+		am::core::uint64::to_string {
+				id: 60u64
+			},
+		am::core::string_format {
+				id: 61u64,
+				format: "(<font color=\"red\">%s internal</font>"
+			},
+		am::core::string_format {
+				id: 62u64,
+				format: "<font color=\"purple\">%s rollout</font>"
+			},
+		am::core::string_concat {
+				id: 64u64,
+				separator: ", "
+			},
+		am::core::merge2 {
+				id: 65u64
+			},
+		am::core::string_concat {
+				id: 67u64,
+				separator: "<br />"
+			},
+		am::core::string_concat {
+				id: 68u64,
+				separator: " "
+			},
+		am::core::uint64::to_string {
+				id: 69u64
+			},
+		am::core::uint64::to_string {
+				id: 70u64
+			},
+		am::core::string_format {
+				id: 71u64,
+				format: "(%s internal"
+			},
+		am::core::string_format {
+				id: 72u64,
+				format: "<font color=\"blue\">%s rollout</font>"
+			},
+		am::core::string_concat {
+				id: 74u64,
+				separator: ", "
+			},
+		am::core::merge2 {
+				id: 75u64
+			},
+		am::core::string_concat {
+				id: 76u64,
+				separator: " "
+			},
+		am::telamon::candidate::filter::rollout_not_deadend_not_implementation {
+				id: 77u64
+			},
+		am::telamon::candidate::filter::implementation_deadend {
+				id: 78u64
+			},
+		am::core::count {
+				id: 79u64
+			},
+		am::core::uint64::to_string {
+				id: 80u64
+			},
+		am::core::string_format {
+				id: 81u64,
+				format: "<font color=\"orange\">%s implementation</font>)"
+			},
+		am::core::merge3 {
+				id: 82u64
+			},
+		am::telamon::candidate::filter::implementation_not_deadend {
+				id: 83u64
+			},
+		am::core::count {
+				id: 84u64
+			},
+		am::core::uint64::to_string {
+				id: 85u64
+			},
+		am::core::string_format {
+				id: 86u64,
+				format: "<font color=\"green\">%s implementation</font>)"
+			},
+		am::core::merge3 {
+				id: 87u64
+			},
+		am::core::merge3 {
+				id: 88u64
+			}
+		],
+	connections: [
+		[1u64, "trace", 2u64, "trace"],
+		[3u64, "hierarchy", 2u64, "hierarchy"],
+		[1u64, "trace", 3u64, "trace"],
+		[67u64, "out", 4u64, "in"],
+		[18u64, "roots", 17u64, "root"],
+		[19u64, "selections", 17u64, "intervals"],
+		[1u64, "trace", 18u64, "in"],
+		[1u64, "trace", 19u64, "trace"],
+		[17u64, "hover candidate", 20u64, "in"],
+		[20u64, "deadend_time", 21u64, "in"],
+		[21u64, "out", 22u64, "in"],
+		[20u64, "rollout_time", 23u64, "in"],
+		[23u64, "out", 24u64, "in"],
+		[20u64, "exploration_time", 25u64, "in"],
+		[25u64, "out", 26u64, "in"],
+		[20u64, "action", 27u64, "in"],
+		[33u64, "out", 29u64, "in"],
+		[29u64, "out", 30u64, "in"],
+		[27u64, "out", 32u64, "in0"],
+		[26u64, "out", 32u64, "in1"],
+		[24u64, "out", 32u64, "in2"],
+		[22u64, "out", 32u64, "in3"],
+		[30u64, "out", 32u64, "in4"],
+		[20u64, "perfmodel_bound", 33u64, "forward if true"],
+		[20u64, "perfmodel_bound_valid", 33u64, "control"],
+		[17u64, "selections", 34u64, "in"],
+		[34u64, "out", 35u64, "in"],
+		[34u64, "out", 36u64, "in"],
+		[35u64, "out", 38u64, "in"],
+		[36u64, "out", 39u64, "in"],
+		[77u64, "out", 40u64, "in"],
+		[38u64, "count", 41u64, "in"],
+		[41u64, "out", 44u64, "in"],
+		[88u64, "out", 45u64, "in"],
+		[48u64, "out", 47u64, "in"],
+		[45u64, "out", 48u64, "in"],
+		[34u64, "out", 51u64, "in"],
+		[51u64, "count", 52u64, "in"],
+		[52u64, "out", 53u64, "in"],
+		[76u64, "out", 54u64, "in0"],
+		[68u64, "out", 54u64, "in1"],
+		[53u64, "out", 54u64, "in2"],
+		[34u64, "out", 55u64, "in"],
+		[34u64, "out", 56u64, "in"],
+		[55u64, "out", 57u64, "in"],
+		[56u64, "out", 58u64, "in"],
+		[57u64, "count", 59u64, "in"],
+		[58u64, "count", 60u64, "in"],
+		[59u64, "out", 61u64, "in"],
+		[60u64, "out", 62u64, "in"],
+		[82u64, "out", 64u64, "in"],
+		[44u64, "out", 65u64, "in0"],
+		[64u64, "out", 65u64, "in1"],
+		[54u64, "out", 67u64, "in"],
+		[65u64, "out", 68u64, "in"],
+		[40u64, "count", 69u64, "in"],
+		[39u64, "count", 70u64, "in"],
+		[70u64, "out", 71u64, "in"],
+		[69u64, "out", 72u64, "in"],
+		[87u64, "out", 74u64, "in"],
+		[47u64, "out", 75u64, "in0"],
+		[74u64, "out", 75u64, "in1"],
+		[75u64, "out", 76u64, "in"],
+		[34u64, "out", 77u64, "in"],
+		[34u64, "out", 78u64, "in"],
+		[78u64, "out", 79u64, "in"],
+		[79u64, "count", 80u64, "in"],
+		[80u64, "out", 81u64, "in"],
+		[61u64, "out", 82u64, "in0"],
+		[62u64, "out", 82u64, "in1"],
+		[81u64, "out", 82u64, "in2"],
+		[34u64, "out", 83u64, "in"],
+		[83u64, "out", 84u64, "in"],
+		[84u64, "count", 85u64, "in"],
+		[85u64, "out", 86u64, "in"],
+		[71u64, "out", 87u64, "in0"],
+		[72u64, "out", 87u64, "in1"],
+		[86u64, "out", 87u64, "in2"],
+		[39u64, "count", 88u64, "in0"],
+		[40u64, "count", 88u64, "in1"],
+		[84u64, "count", 88u64, "in2"]
+		],
+	positions: [
+		[1u64, 66.259260, 117.074074],
+		[2u64, 298.814815, 116.925926],
+		[3u64, 146.629630, 152.777778],
+		[4u64, 2541.911522, 147.679013],
+		[5u64, 486.092593, 245.092593],
+		[6u64, 745.592593, 245.314815],
+		[7u64, 891.345679, 245.265432],
+		[8u64, 791.629630, 25.000000],
+		[9u64, 463.925926, 25.703704],
+		[10u64, 642.370370, 86.444444],
+		[12u64, 639.987654, 145.814815],
+		[13u64, 835.444444, 145.814815],
+		[14u64, 1027.222222, 145.888889],
+		[15u64, 1167.518519, 245.185185],
+		[16u64, 1303.592593, -242.987655],
+		[17u64, 341.407407, -41.740741],
+		[18u64, 147.370370, -41.777778],
+		[19u64, 154.518519, 12.098765],
+		[20u64, 571.518519, -108.111111],
+		[21u64, 778.333333, -67.222222],
+		[22u64, 915.079561, -67.310014],
+		[23u64, 777.888889, -125.666667],
+		[24u64, 914.909465, -125.688615],
+		[25u64, 779.666667, -185.518519],
+		[26u64, 919.156379, -185.573388],
+		[27u64, 781.444444, -237.666667],
+		[28u64, 1050.283951, -237.074074],
+		[29u64, 967.137175, 2.684499],
+		[30u64, 1082.659808, 2.711934],
+		[31u64, 1195.285322, -110.401920],
+		[32u64, 1193.235940, -242.969822],
+		[33u64, 769.444444, 2.666667],
+		[34u64, 606.296296, 367.580247],
+		[35u64, 823.703704, 334.518519],
+		[36u64, 817.508916, 153.267490],
+		[37u64, 848.780978, 218.315501],
+		[38u64, 1082.222223, 334.238683],
+		[39u64, 1147.204390, 153.037037],
+		[40u64, 1149.777777, 213.037037],
+		[41u64, 1200.329218, 334.139918],
+		[42u64, 1158.897119, 211.670782],
+		[43u64, 1169.893004, 285.448560],
+		[44u64, 1468.493828, 334.913580],
+		[45u64, 1464.493827, 96.559672],
+		[46u64, 1180.872427, 117.843622],
+		[47u64, 1816.847737, 97.234568],
+		[48u64, 1624.477366, 96.839506],
+		[49u64, 1650.452675, 207.456790],
+		[50u64, 2148.246914, 175.654321],
+		[51u64, 831.436214, 590.098308],
+		[52u64, 1197.954732, 592.048925],
+		[53u64, 2103.707819, 588.616826],
+		[54u64, 2270.670782, 147.752629],
+		[55u64, 828.927297, 400.298582],
+		[56u64, 832.927298, 467.557842],
+		[57u64, 1085.075445, 399.310928],
+		[58u64, 1086.260631, 466.817101],
+		[59u64, 1198.293553, 398.389117],
+		[60u64, 1199.330590, 466.570187],
+		[61u64, 1329.580247, 398.328761],
+		[62u64, 1330.469136, 466.915866],
+		[63u64, 1455.374485, 388.633288],
+		[64u64, 1563.857339, 452.402835],
+		[65u64, 1710.481481, 335.500229],
+		[66u64, 1807.172840, 310.512574],
+		[67u64, 2388.611111, 147.642204],
+		[68u64, 2089.135802, 335.654321],
+		[69u64, 1263.703704, 226.370371],
+		[70u64, 1262.814814, 176.888889],
+		[71u64, 1469.037037, 177.925925],
+		[72u64, 1466.370370, 227.703703],
+		[73u64, 1411.851852, 194.666667],
+		[74u64, 1793.333333, 211.629630],
+		[75u64, 1943.111111, 147.456790],
+		[76u64, 2085.530864, 147.555556],
+		[77u64, 814.851852, 213.148148],
+		[78u64, 828.481481, 529.592593],
+		[79u64, 1085.962963, 529.592593],
+		[80u64, 1200.629630, 528.407407],
+		[81u64, 1332.777778, 528.308642],
+		[82u64, 1449.913580, 452.358025],
+		[83u64, 824.580247, 275.666667],
+		[84u64, 1144.777778, 276.654321],
+		[85u64, 1264.514403, 277.543210],
+		[86u64, 1468.646091, 278.267490],
+		[87u64, 1626.028807, 211.930041],
+		[88u64, 1279.510288, 98.893004]
+		]
+}

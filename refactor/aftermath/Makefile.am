@@ -104,6 +104,10 @@ share/profiles/telamon/interface.amgui: $(srcdir)/share/profiles/telamon/interfa
 	$(MKDIR_P) share/profiles/telamon/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
 
+share/profiles/telamon-candidate-stats/interface.amgui: $(srcdir)/share/profiles/telamon-candidate-stats/interface.amgui.in
+	$(MKDIR_P) share/profiles/telamon-candidate-stats/
+	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
+
 share/profiles/tensorflow/interface.amgui: $(srcdir)/share/profiles/tensorflow/interface.amgui.in
 	$(MKDIR_P) share/profiles/tensorflow/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
@@ -111,16 +115,19 @@ share/profiles/tensorflow/interface.amgui: $(srcdir)/share/profiles/tensorflow/i
 GENERATED_PROFILE_TEMPLATES = \
 	$(srcdir)/share/profiles/min/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon/interface.amgui.in \
+	$(srcdir)/share/profiles/telamon-candidate-stats/interface.amgui.in \
 	$(srcdir)/share/profiles/tensorflow/interface.amgui.in
 
 GENERATED_PROFILE_FILES = \
 	share/profiles/min/interface.amgui \
 	share/profiles/telamon/interface.amgui \
+	share/profiles/telamon-candidate-stats/interface.amgui \
 	share/profiles/tensorflow/interface.amgui
 
 STATIC_PROFILE_FILES = \
 	share/profiles/min/graph.dfg \
 	share/profiles/telamon/graph.dfg \
+	share/profiles/telamon-candidate-stats/graph.dfg \
 	share/profiles/tensorflow/graph.dfg
 
 ICONS = \

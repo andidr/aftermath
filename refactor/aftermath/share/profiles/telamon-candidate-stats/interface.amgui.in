@@ -1,0 +1,70 @@
+am_gui {
+	title: "Aftermath",
+
+	children: [
+		amgui_vbox {
+			children: [
+				amgui_htoolbar {
+					children: [ ]
+				},
+
+				amgui_hsplitter {
+					stretch: [10u64, 90u64],
+					children: [
+						amgui_tabs {
+							tab_names: [ "Options" ],
+
+							children : [
+								amgui_vbox {
+									children: [
+										amgui_label {
+											text: "Hierarchy:"
+										},
+
+										amgui_hierarchy_combobox {
+											id: "hierarchy_cb1"
+										}
+									]
+								}
+							]
+						},
+
+						amgui_tabs {
+							tab_names: [ "Timeline", "Candidates", "DFG" ],
+
+							children : [
+								amgui_timeline {
+									id: "tl1",
+									layers: ["background", "hierarchy", "axes", "telamon::evaluation", "selection"]
+								},
+								amgui_vsplitter {
+									stretch: [90u64, 10u64],
+									children: [
+										amgui_telamon_candidate_tree {
+											id: "ct1"
+										},
+
+										amgui_timeline {
+											id: "tl2",
+											layers: ["background", "axes", "selection"]
+										}
+									]
+								},
+								amgui_dfg { }
+							]
+						}
+					]
+				},
+
+				amgui_statusbar {
+					children: [
+						amgui_label {
+							text: "Ready.",
+							id: "statusbar_label"
+						}
+					]
+				}
+			]
+		}
+	]
+}
