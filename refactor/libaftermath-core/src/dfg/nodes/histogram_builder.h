@@ -97,6 +97,8 @@ AM_DFG_HISTOGRAM_BUILDER_DECL_INT(uint16_t, uint16)
 AM_DFG_HISTOGRAM_BUILDER_DECL_INT(uint32_t, uint32)
 AM_DFG_HISTOGRAM_BUILDER_DECL_INT(uint64_t, uint64)
 
+AM_DFG_HISTOGRAM_BUILDER_DECL_INT(double, double)
+
 AM_DFG_ADD_BUILTIN_NODE_TYPES(
 	&am_dfg_histogram_builder_int8_node_type,
 	&am_dfg_histogram_builder_int16_node_type,
@@ -105,6 +107,7 @@ AM_DFG_ADD_BUILTIN_NODE_TYPES(
 	&am_dfg_histogram_builder_uint8_node_type,
 	&am_dfg_histogram_builder_uint16_node_type,
 	&am_dfg_histogram_builder_uint32_node_type,
-	&am_dfg_histogram_builder_uint64_node_type)
+	&am_dfg_histogram_builder_uint64_node_type,
+	&am_dfg_histogram_builder_double_node_type)
 
 #endif
