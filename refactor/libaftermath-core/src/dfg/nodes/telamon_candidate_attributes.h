@@ -35,7 +35,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 	}),
 	AM_DFG_NODE_PORTS(
 		{ "in", "const am::telamon::candidate*", AM_DFG_PORT_IN },
-		{ "action", "am::core::string", AM_DFG_PORT_OUT },
+		{ "actions", "am::core::string", AM_DFG_PORT_OUT },
 		{ "exploration_time", "am::core::timestamp", AM_DFG_PORT_OUT },
 		{ "rollout_time", "am::core::timestamp", AM_DFG_PORT_OUT },
 		{ "deadend_time", "am::core::timestamp", AM_DFG_PORT_OUT },

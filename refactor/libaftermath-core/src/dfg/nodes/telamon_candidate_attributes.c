@@ -33,6 +33,11 @@ int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 	struct am_telamon_candidate* candidate;
 	int bool_val;
 	char* str_val;
+	size_t actions_start_idx;
+	size_t actions_end_idx;
+	void* src;
+	void* dst;
+	char* tmp;
 
 	if(!am_dfg_port_activated_and_has_data(pcandidate_in))
 		return 0;
@@ -42,17 +47,52 @@ int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 
 		for(size_t i = 0; i < pcandidate_in->buffer->num_samples; i++) {
 			candidate = candidate_in[i];
+			actions_start_idx = paction_out->buffer->num_samples;
 
-			if(!(str_val = strdup(candidate->action)))
-				return 1;
+			/* Ignore last action, since this is the one for the
+			 * "virtual" root node */
+			while(candidate->parent) {
+				if(!(str_val = strdup(candidate->action)))
+					return 1;
 
-			if(am_dfg_buffer_write(
-				   paction_out->buffer,
-				   1,
-				   &str_val))
+				if(am_dfg_buffer_write(
+					   paction_out->buffer,
+					   1,
+					   &str_val))
+				{
+					free(str_val);
+					return 1;
+				}
+
+				candidate = candidate->parent;
+			}
+
+			actions_end_idx = paction_out->buffer->num_samples;
+
+			/* Reverse actions */
+			for(size_t i = 0;
+			    i < (actions_end_idx - actions_start_idx) / 2;
+			    i++)
 			{
-				free(str_val);
-				return 1;
+				if(am_dfg_buffer_ptr(paction_out->buffer,
+						     actions_start_idx + i,
+						     1,
+						     &src))
+				{
+					return 1;
+				}
+
+				if(am_dfg_buffer_ptr(paction_out->buffer,
+						     actions_end_idx - i - 1,
+						     1,
+						     &dst))
+				{
+					return 1;
+				}
+
+				tmp = *((char**)src);
+				*((char**)src) = *((char**)dst);
+				*((char**)dst) = tmp;
 			}
 		}
 	}
