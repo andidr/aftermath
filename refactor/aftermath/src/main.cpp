@@ -41,6 +41,7 @@ struct am_options {
 		std::string dfg_filename;
 		std::string ui_filename;
 		bool print_usage;
+		bool dfg_safe_mode;
 };
 
 static void print_usage(void)
@@ -54,7 +55,8 @@ static void print_usage(void)
 		"  -p profile     Load DFG and user interface from the profile with the given\n"
 		"                 name.\n"
 		"  -d dfg_file    Load DFG definition from dfg_file.\n"
-		"  -u ui_file     Load user interface from ui_file.\n";
+		"  -u ui_file     Load user interface from ui_file.\n"
+		"  -s             Ignore errors during initial scheduling of DFG.\n";
 }
 
 /* Parses the options from the argument list argv and sets the options in o
@@ -62,7 +64,7 @@ static void print_usage(void)
  */
 static void parse_options(struct am_options* o, int argc, char** argv)
 {
-	static const char* options_str = "hd:p:u:";
+	static const char* options_str = "hd:p:su:";
 	int opt;
 
 	/* Default values */
@@ -71,6 +73,7 @@ static void parse_options(struct am_options* o, int argc, char** argv)
 	o->ui_filename = "";
 	o->print_usage = false;
 	o->profile_name = "";
+	o->dfg_safe_mode = false;
 
 	opterr = 0;
 
@@ -81,6 +84,9 @@ static void parse_options(struct am_options* o, int argc, char** argv)
 				break;
 			case 'p':
 				o->profile_name = optarg;
+				break;
+			case 's':
+				o->dfg_safe_mode = true;
 				break;
 			case 'u':
 				o->ui_filename = optarg;
@@ -168,7 +174,14 @@ int aftermath_main(const struct am_options* o,
 		mainWindow.setWindowTitle(title);
 		mainWindow.show();
 
-		session.scheduleDFG();
+		try {
+			session.scheduleDFG();
+		} catch(AftermathSession::DFGSchedulingException& e) {
+			if(!o->dfg_safe_mode)
+				throw;
+		} catch(...) {
+			throw;
+		}
 
 		return a.exec();
 	} catch(std::exception& e) {
