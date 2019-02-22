@@ -40,6 +40,10 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/DFGNodeTypeSelectionDialog.cpp \
 	src/gui/moc_DFGNodeTypeSelectionDialog.cpp \
 	src/gui/DFGNodeTypeSelectionDialog.h \
+	src/gui/dialogs/GUIConfigurationDialog.cpp \
+	src/gui/dialogs/moc_GUIConfigurationDialog.cpp \
+	src/gui/dialogs/GUIConfigurationDialog.h \
+	src/gui/dialogs/ui_GUIConfigurationDialog.h \
 	src/gui/factory/BoxWidgetCreator.h \
 	src/gui/factory/ButtonWidgetCreator.cpp \
 	src/gui/factory/ButtonWidgetCreator.h \
@@ -177,13 +181,15 @@ install-data-hook: $(PROFILES) $(ICONS) $(GENERATED_PROFILE_FILES)
 		$(INSTALL_DATA) "$(srcdir)/$$icon" "$(DESTDIR)/$(datarootdir)/aftermath/$$iconbase" || exit $$? ; \
 	done
 
-MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
+MOCFLAGS=-I$(srcdir)/src -I$(builddir)/src -I$(builddir)/src/gui/dialogs @AFTERMATH_CORE_INCLUDES@ @AFTERMATH_RENDER_INCLUDES@
 aftermath_CXXFLAGS=$(MOCFLAGS) @CAIRO_CFLAGS@ -DAM_PROFILE_BASEDIR="\"$(datarootdir)/aftermath/profiles\"" -Wall -Werror
 
 aftermath_LDADD=@AFTERMATH_RENDER_LIBS@ @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
 
 GENERATED_FILES=src/ui_MainWindow.h \
 	src/moc_MainWindow.cpp \
+	src/gui/dialogs/ui_GUIConfigurationDialog.h \
+	src/gui/dialogs/moc_GUIConfigurationDialog.cpp \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/moc_HierarchyComboBox.cpp \
@@ -253,6 +259,14 @@ src/gui/moc_DFGNodeTypeSelectionDialog.cpp: \
 	src/gui/DFGNodeTypeSelectionDialog.cpp \
 	src/gui/DFGNodeTypeSelectionDialog.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/DFGNodeTypeSelectionDialog.h -o $@
+
+src/gui/dialogs/moc_GUIConfigurationDialog.cpp: \
+	src/gui/dialogs/GUIConfigurationDialog.cpp \
+	src/gui/dialogs/GUIConfigurationDialog.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/dialogs/GUIConfigurationDialog.h -o $@
+
+src/gui/dialogs/ui_GUIConfigurationDialog.h: src/gui/dialogs/GUIConfigurationDialog.ui
+	$(uic_verbose)$(UIC) $< -o $@
 
 src/models/moc_DFGNodeTypeRegistryTableModel.cpp: \
 	src/models/DFGNodeTypeRegistryTableModel.cpp \
