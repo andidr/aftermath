@@ -50,6 +50,21 @@ void AftermathGUI::addWidget(QWidget* w, const std::string& id)
 	}
 }
 
+/* Returns true if the widget w is known to the GUI */
+bool AftermathGUI::hasWidget(QWidget* w)
+{
+	auto it = this->revWidgets.find(w);
+
+	if(it == this->revWidgets.end()) {
+		auto uit = this->unboundWidgets.find(w);
+
+		if(uit == this->unboundWidgets.end())
+			return false;
+	}
+
+	return true;
+}
+
 /**
  * Removes a widget by ID
  */
@@ -71,6 +86,31 @@ void AftermathGUI::removeWidget(QWidget* w)
 
 	this->widgets.erase(id);
 	this->revWidgets.erase(w);
+	this->unboundWidgets.erase(w);
+}
+
+/**
+ * Removes an object and all of its descendants
+ */
+void AftermathGUI::removeObjectRec(QObject* o)
+{
+	QWidget* w;
+
+	for(QObject* child: o->children())
+		this->removeObjectRec(child);
+
+	if((w = dynamic_cast<QWidget*>(o))) {
+		if(this->hasWidget(w))
+			this->removeWidget(w);
+	}
+}
+
+/**
+ * Removes a widget and all of its descendants
+ */
+void AftermathGUI::removeWidgetRec(QWidget* w)
+{
+	this->removeObjectRec(w);
 }
 
 /**

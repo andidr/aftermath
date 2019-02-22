@@ -24,6 +24,7 @@
 #include <set>
 
 class QWidget;
+class QObject;
 
 /**
  * Collection of all Widgets in an instance of Aftermath
@@ -70,6 +71,7 @@ class AftermathGUI {
 
 		void removeWidget(const std::string& id);
 		void removeWidget(QWidget* w);
+		void removeWidgetRec(QWidget* w);
 		void removeWidgetCheckDestroy(QWidget* w);
 		QWidget* getWidget(const std::string& id);
 		const std::string& getID(QWidget* w);
@@ -81,6 +83,8 @@ class AftermathGUI {
 		void markWidgetBound(QWidget* w) noexcept;
 		void markWidgetUnbound(QWidget* w);
 		bool isWidgetUnbound(QWidget* w) noexcept;
+
+		bool hasWidget(QWidget* w);
 
 		/* Calls the functor f for all widgets of type T with a pointer
 		 * to the widget */
@@ -94,6 +98,8 @@ class AftermathGUI {
 		}
 
 	protected:
+		void removeObjectRec(QObject* o);
+
 		std::map<const std::string, QWidget*> widgets;
 		std::map<QWidget*, const std::string> revWidgets;
 		std::set<QWidget*> unboundWidgets;
