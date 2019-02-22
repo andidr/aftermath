@@ -19,7 +19,42 @@
 #define AM_STATUSBARWIDGETCREATOR_H
 
 #include "GUIFactory.h"
+#include "../widgets/ManagedWidget.h"
 #include <QStatusBar>
+#include <QHBoxLayout>
+
+/* Helper class for traversal of Aftermath GUI */
+class ManagedStatusBar : public ManagedContainerWidget, public QStatusBar
+{
+	public:
+		void unparent() {
+			this->setParent(NULL);
+		}
+
+		size_t getNumChildren() {
+			return this->layout()->count();
+		}
+
+		void addChild(QWidget* w, size_t idx) {
+			this->insertWidget(idx, w);
+		}
+
+		void removeChild(QWidget* w) {
+			w->setParent(NULL);
+		}
+
+		const char* getName() {
+			return "amgui_statusbar";
+		}
+
+		QObject* getQObject() {
+			return this;
+		}
+
+		virtual QObject* getNthChild(size_t n) {
+			return this->children().at(n);
+		}
+};
 
 /* Widget creator creating statusbar widgets. The expected node format is:
  *
@@ -39,7 +74,7 @@ class StatusbarWidgetCreator : public ContainerWidgetCreator {
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QStatusBar* sb = new QStatusBar();
+			QStatusBar* sb = new ManagedStatusBar();
 
 			sb->setSizePolicy(QSizePolicy::Expanding,
 					  QSizePolicy::Minimum);

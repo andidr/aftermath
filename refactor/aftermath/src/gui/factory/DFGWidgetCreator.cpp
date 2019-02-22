@@ -17,6 +17,10 @@
 
 #include "DFGWidgetCreator.h"
 #include "../widgets/DFGWidget.h"
+#include "../widgets/ManagedWidget.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedDFGWidget, DFGWidget, "amgui_dfg")
 
 DFGWidgetCreator::DFGWidgetCreator() :
 	NonContainerWidgetCreator("amgui_dfg")
@@ -26,6 +30,6 @@ DFGWidgetCreator::DFGWidgetCreator() :
 QWidget* DFGWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new DFGWidget();
+	return new ManagedDFGWidget();
 }
 

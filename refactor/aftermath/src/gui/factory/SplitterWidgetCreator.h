@@ -20,14 +20,28 @@
 
 #include "GUIFactory.h"
 #include "../../cxx_extras.h"
+#include "../widgets/ManagedWidget.h"
 #include <QSplitter>
+
+/* Helper class for traversal of Aftermath GUI */
+AM_RESTRICTED_TEMPLATED_ALIAS_CONTAINER_WIDGET(
+	ManagedSplitterWidgetBase, QSplitter, 2)
+
+template<typename NAME_T>
+class ManagedSplitterWidget : public ManagedSplitterWidgetBase<NAME_T> {
+	public:
+		virtual QObject* getNthChild(size_t n) {
+			return this->widget(n);
+		}
+};
 
 /* Modified QSplitter that applies an initially set list of stretch values every
  * time a widget is added to the splitter. This way, the stretch values can be
  * set before the splitter has receoived its final set of children. */
-class SplitterWithInitialStretch : public QSplitter {
+template<typename NAME_T>
+class SplitterWithInitialStretch : public ManagedSplitterWidget<NAME_T> {
 	public:
-		SplitterWithInitialStretch() : QSplitter()
+		SplitterWithInitialStretch() : ManagedSplitterWidget<NAME_T>()
 		{ }
 
 		void setStretch(const QList<int>& stretch)
@@ -65,7 +79,7 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 			struct am_object_notation_node* nstretch;
 			struct am_object_notation_node_list* lstretch;
 			struct am_object_notation_node_uint64* iter;
-			SplitterWithInitialStretch* s;
+			SplitterWithInitialStretch<T>* s;
 			QList<int> stretchFactors;
 
 			/* Process stretch factors */
@@ -95,7 +109,7 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 				}
 			}
 
-			s = new SplitterWithInitialStretch();
+			s = new SplitterWithInitialStretch<T>();
 
 			s->setSizePolicy(QSizePolicy::Expanding,
 					 QSizePolicy::Expanding);
@@ -109,9 +123,9 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 				 QWidget* parent,
 				 std::list<QWidget*>& children)
 		{
-			SplitterWithInitialStretch* s;
+			SplitterWithInitialStretch<T>* s;
 
-			s = static_cast<SplitterWithInitialStretch*>(parent);
+			s = static_cast<SplitterWithInitialStretch<T>*>(parent);
 
 			for(auto child: children)
 				s->addWidget(child);

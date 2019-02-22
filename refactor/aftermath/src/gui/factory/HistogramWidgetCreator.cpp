@@ -16,7 +16,13 @@
  */
 
 #include "HistogramWidgetCreator.h"
+#include "../widgets/ManagedWidget.h"
 #include "../widgets/HistogramWidget.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedHistogramWidget,
+		HistogramWidget,
+		"amgui_histogram")
 
 HistogramWidgetCreator::HistogramWidgetCreator() :
 	NonContainerWidgetCreator("amgui_histogram")
@@ -26,5 +32,5 @@ HistogramWidgetCreator::HistogramWidgetCreator() :
 QWidget* HistogramWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new HistogramWidget();
+	return new ManagedHistogramWidget();
 }

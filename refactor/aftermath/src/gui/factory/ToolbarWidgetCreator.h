@@ -20,7 +20,69 @@
 
 #include "GUIFactory.h"
 #include "../../cxx_extras.h"
+#include "../widgets/ManagedWidget.h"
 #include <QToolBar>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+/* Helper class for traversal of Aftermath GUI */
+template<typename T>
+class ManagedToolbarWidget : public ManagedContainerWidget, public QToolBar
+{
+	public:
+		virtual void unparent() {
+			this->setParent(NULL);
+		}
+
+		virtual size_t getNumChildren() {
+			return this->layout()->count();
+		}
+
+		virtual void addChild(QWidget* w, size_t idx) {
+			QAction* currIdxAction = NULL;
+			QAction* newAction;
+			size_t i = 0;
+
+			for(auto action: this->actions()) {
+				if(i == idx) {
+					currIdxAction = action;
+					break;
+				}
+
+				i++;
+			}
+
+			if(!currIdxAction)
+				newAction = this->addWidget(w);
+			else
+				newAction = this->insertWidget(currIdxAction, w);
+
+			newAction->setVisible(true);
+		}
+
+		virtual void removeChild(QWidget* w) {
+			for(auto action: this->actions()) {
+				if(this->widgetForAction(action) == w) {
+					this->removeAction(action);
+					break;
+				}
+			}
+		}
+
+		virtual const char* getName() {
+			return T::strconst();
+		}
+
+		virtual QObject* getQObject() {
+			return this;
+		}
+
+		virtual QObject* getNthChild(size_t n) {
+			QLayoutItem* li = this->layout()->itemAt(n);
+			return li->widget();
+		}
+};
 
 /* Generic creator for toolbar widgets */
 template<enum Qt::Orientation orientation, typename T,
@@ -40,7 +102,7 @@ class ToolbarWidgetCreator : public ContainerWidgetCreator {
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QToolBar* t = new QToolBar();
+			QToolBar* t = new ManagedToolbarWidget<T>();
 
 			t->setSizePolicy(HP, VP);
 			t->setOrientation(orientation);

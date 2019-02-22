@@ -19,7 +19,18 @@
 #define AM_TOOLBARBUTTONCREATOR_H
 
 #include "GUIFactory.h"
+#include "../widgets/ManagedWidget.h"
 #include "../widgets/ToolbarButton.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedToolbarToggleButton,
+		ToolbarToggleButton,
+		"amgui_toolbar_button")
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedToolbarButton,
+		ToolbarButton,
+		"amgui_toolbar_button")
 
 /**
  * Virtual class implementing both toolbar push buttons (TOGGLE = false) and
@@ -39,9 +50,9 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 			uint64_t checked;
 
 			if(TOGGLE)
-				b = new ToolbarToggleButton();
+				b = new ManagedToolbarToggleButton();
 			else
-				b = new ToolbarButton();
+				b = new ManagedToolbarButton();
 
 			b->setCheckable(TOGGLE);
 

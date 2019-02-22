@@ -16,7 +16,41 @@
  */
 
 #include "TabWidgetCreator.h"
+#include "../widgets/ManagedWidget.h"
 #include <QTabWidget>
+
+/* Helper class for traversal of Aftermath GUI */
+class ManagedTabWidget : public ManagedContainerWidget, public QTabWidget
+{
+	public:
+		virtual void unparent() {
+			this->setParent(NULL);
+		}
+
+		virtual size_t getNumChildren() {
+			return this->count();
+		}
+
+		virtual void addChild(QWidget* w, size_t idx) {
+			this->insertTab(idx, w, "");
+		}
+
+		virtual void removeChild(QWidget* w) {
+			w->setParent(NULL);
+		}
+
+		virtual const char* getName() {
+			return "amgui_tabs";
+		}
+
+		virtual QObject* getQObject() {
+			return this;
+		}
+
+		virtual QObject* getNthChild(size_t n) {
+			return this->widget(n);
+		}
+};
 
 TabWidgetCreator::TabWidgetCreator() :
 	ContainerWidgetCreator("amgui_tabs")
@@ -26,7 +60,7 @@ TabWidgetCreator::TabWidgetCreator() :
 QWidget* TabWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new QTabWidget();
+	return new ManagedTabWidget();
 }
 
 void TabWidgetCreator::addChildren(const struct am_object_notation_node_group* n,

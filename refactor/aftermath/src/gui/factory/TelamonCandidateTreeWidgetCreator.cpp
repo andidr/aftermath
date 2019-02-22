@@ -17,6 +17,12 @@
 
 #include "TelamonCandidateTreeWidgetCreator.h"
 #include "../widgets/TelamonCandidateTreeWidget.h"
+#include "../widgets/ManagedWidget.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedTelamonCandidateTreeWidget,
+		TelamonCandidateTreeWidget,
+		"amgui_telamon_candidate_tree")
 
 TelamonCandidateTreeWidgetCreator::TelamonCandidateTreeWidgetCreator() :
 	NonContainerWidgetCreator("amgui_telamon_candidate_tree")
@@ -26,5 +32,5 @@ TelamonCandidateTreeWidgetCreator::TelamonCandidateTreeWidgetCreator() :
 QWidget* TelamonCandidateTreeWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new TelamonCandidateTreeWidget();
+	return new ManagedTelamonCandidateTreeWidget();
 }

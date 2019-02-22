@@ -17,6 +17,10 @@
 
 #include "TimelineWidgetCreator.h"
 #include "../widgets/TimelineWidget.h"
+#include "../widgets/ManagedWidget.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedTimelineWidget, TimelineWidget, "amgui_timeline")
 
 TimelineWidgetCreator::TimelineWidgetCreator(
 	struct am_timeline_render_layer_type_registry* rltr) :
@@ -32,7 +36,7 @@ QWidget* TimelineWidgetCreator::instantiate(
 	struct am_object_notation_node_string* layer;
 	struct am_timeline_render_layer* rl;
 
-	TimelineWidget* t = new TimelineWidget();
+	TimelineWidget* t = new ManagedTimelineWidget();
 
 	t->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 

@@ -20,8 +20,12 @@
 
 #include "GUIFactory.h"
 #include "../../cxx_extras.h"
+#include "../widgets/ManagedWidget.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+
+/* Helper class for traversal of Aftermath GUI */
+AM_TEMPLATED_LAYOUTED_ALIAS_CONTAINER_WIDGET(ManagedBoxWidget, QWidget, QBoxLayout)
 
 /* Generic creator for box widgets */
 template<typename L, typename T, Qt::AlignmentFlag A>
@@ -69,7 +73,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				margins[i] = imargin->value;
 			}
 
-			w = new QWidget();
+			w = new ManagedBoxWidget<T>();
 			w->setSizePolicy(QSizePolicy::Expanding,
 					 QSizePolicy::Expanding);
 

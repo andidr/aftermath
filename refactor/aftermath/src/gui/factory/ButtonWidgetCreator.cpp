@@ -16,7 +16,11 @@
  */
 
 #include "ButtonWidgetCreator.h"
+#include "../widgets/ManagedWidget.h"
 #include <QPushButton>
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedPushButton, QPushButton, "amgui_button")
 
 ButtonWidgetCreator::ButtonWidgetCreator() :
 	NonContainerWidgetCreator("amgui_button")
@@ -26,7 +30,7 @@ ButtonWidgetCreator::ButtonWidgetCreator() :
 QWidget* ButtonWidgetCreator::instantiate(const struct am_object_notation_node_group* n)
 {
 	const char* text;
-	QPushButton* b = new QPushButton();
+	QPushButton* b = new ManagedPushButton();
 
 	try {
 		if(am_object_notation_eval_retrieve_string(&n->node,

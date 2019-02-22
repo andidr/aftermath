@@ -16,7 +16,11 @@
  */
 
 #include "LabelWidgetCreator.h"
+#include "../widgets/ManagedWidget.h"
 #include <QLabel>
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedLabel, QLabel, "amgui_label")
 
 LabelWidgetCreator::LabelWidgetCreator() :
 	NonContainerWidgetCreator("amgui_label")
@@ -26,7 +30,7 @@ LabelWidgetCreator::LabelWidgetCreator() :
 QWidget* LabelWidgetCreator::instantiate(const struct am_object_notation_node_group* n)
 {
 	const char* text;
-	QLabel* l = new QLabel();
+	QLabel* l = new ManagedLabel();
 
 	l->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 

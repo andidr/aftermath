@@ -16,6 +16,12 @@
  */
 
 #include "HierarchyComboBoxCreator.h"
+#include "../widgets/ManagedWidget.h"
+
+/* Helper class for traversal of Aftermath GUI */
+AM_ALIAS_WIDGET(ManagedHierarchyComboBox,
+		HierarchyComboBox,
+		"amgui_hierarchy_combobox")
 
 HierarchyComboBoxCreator::HierarchyComboBoxCreator() :
 	NonContainerWidgetCreator("amgui_hierarchy_combobox")
@@ -25,5 +31,5 @@ HierarchyComboBoxCreator::HierarchyComboBoxCreator() :
 QWidget* HierarchyComboBoxCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new HierarchyComboBox();
+	return new ManagedHierarchyComboBox();
 }
