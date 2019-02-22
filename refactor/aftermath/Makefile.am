@@ -84,6 +84,7 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/KDTreeWidget.cpp \
 	src/gui/widgets/moc_KDTreeWidget.cpp \
 	src/gui/widgets/KDTreeWidget.h \
+	src/gui/widgets/ManagedWidget.h \
 	src/gui/widgets/RectTreeWidget.cpp \
 	src/gui/widgets/moc_RectTreeWidget.cpp \
 	src/gui/widgets/RectTreeWidget.h \
