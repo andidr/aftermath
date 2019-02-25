@@ -23,6 +23,7 @@
 #include "gui/factory/DefaultGUIFactory.h"
 #include "gui/widgets/DFGWidget.h"
 #include "gui/widgets/CairoWidgetWithDFGNode.h"
+#include <QShortcut>
 #include <QFileInfo>
 
 extern "C" {
@@ -156,12 +157,21 @@ int aftermath_main(const struct am_options* o,
 		DefaultGUIFactory factory(&session);
 
 		AftermathGUI& gui = session.getGUI();
+		QShortcut guiManagerShortcut(QKeySequence(Qt::Key_F12),
+					     &mainWindow);
 
 		session.loadTrace(o->trace_filename.c_str());
 		factory.buildGUI(&gui, o->ui_filename.c_str());
 		session.loadDFG(o->dfg_filename.c_str());
 
 		AftermathController controller(&session, &mainWindow);
+
+		QObject::connect(
+			&guiManagerShortcut, &QShortcut::activated,
+			[&](void){
+				controller.showGUIConfigurationDialog(&gui,
+								      &factory);
+			});
 
 		QString title = "Aftermath";
 
