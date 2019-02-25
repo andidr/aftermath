@@ -22,7 +22,9 @@
 #include "gui/widgets/CairoWidgetWithDFGNode.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/ToolbarButton.h"
+#include "models/GUITreeModel.h"
 #include <QMessageBox>
+#include <QMetaProperty>
 
 /* Called when two ports are connected. */
 void AftermathController::portsConnected(struct am_dfg_graph* g,
@@ -97,6 +99,7 @@ AftermathController::AftermathController(AftermathSession* session,
 	: mainWindow(mainWindow), session(session)
 {
 	AftermathGUI& gui = session->getGUI();
+	qRegisterMetaType<struct am_dfg_node*>("am_dfg_node*");
 
 	/* Set up DFG widgets */
 	gui.applyToWidgetsOfType<DFGWidget>(
@@ -213,4 +216,87 @@ void AftermathController::DFGNodeDoubleClicked(struct am_dfg_node* n)
 			am_dfg_node_type_input_mask(n->type);
 		am_dfg_schedule_component(n);
 	}
+}
+
+/* Visits the GUI tree item root and its descendants in post-order depth-first
+ * search and adds each non-NULL widget associated with the items top the
+ * list. */
+static void widgetListDFSPostorder(GUITreeItem* root,
+				   QList<ManagedWidget*>& list)
+{
+	GUITreeItem* child;
+
+	if(root->getNumChildren() > 0) {
+		for(size_t i = 0; i < root->getNumChildren(); i++) {
+			child = root->getChild(i);
+			widgetListDFSPostorder(child, list);
+		}
+	}
+
+	if(root->getWidget())
+		list.append(root->getWidget());
+}
+
+/* Determines the order in which the descendants of o (and o itself) that are
+ * managed widgets must be deleted in order to avoid deleting parents before
+ * their children. */
+void AftermathController::widgetDeletionOrder(QObject* o,
+					      QList<ManagedWidget*>& list)
+{
+	GUITreeItem root(NULL);
+
+	GUITreeModel::buildItem(o, &root);
+	widgetListDFSPostorder(&root, list);
+}
+
+/* Removes a single DFG node from the graph and destroys it. */
+void AftermathController::deleteNode(struct am_dfg_node* n)
+{
+	struct am_dfg_graph* g = this->session->getDFG();
+
+	am_dfg_graph_remove_node(g, n);
+	am_dfg_node_destroy(n);
+	free(n);
+}
+
+/* Removes a single managed widget from its parent and deletes it. */
+void AftermathController::deleteWidget(ManagedWidget* w)
+{
+	QList<ManagedWidget*> l;
+	QObject* o;
+	QWidget* qw;
+	struct am_dfg_node* n;
+
+	/* Check if this is a widget with DFG node */
+	if((o = dynamic_cast<QObject*>(w))) {
+		QVariant propval = o->property("DFGNode");
+
+		if(propval.isValid()) {
+			if((n = propval.value<struct am_dfg_node*>()))
+				this->deleteNode(n);
+		}
+	}
+
+	w->unparent();
+
+	/* Synchronize AftermathGUI */
+	if((qw = dynamic_cast<QWidget*>(w)))
+		this->session->getGUI().removeWidgetRec(qw);
+
+	delete w;
+}
+
+/* Safely deletes w and all of its descendants */
+void AftermathController::deleteWidgetRec(ManagedWidget* w)
+{
+	QList<ManagedWidget*> l;
+	QObject* o;
+
+	if((o = dynamic_cast<QObject*>(w)))
+		AftermathController::widgetDeletionOrder(o, l);
+	else
+		l.append(w);
+
+	for(auto w: l)
+		this->deleteWidget(w);
 }

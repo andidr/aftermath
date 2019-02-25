@@ -20,6 +20,8 @@
 #define AM_GUI_AFTERMATHCONTROLLER_H
 
 #include "AftermathSession.h"
+#include "gui/AftermathGUI.h"
+#include "gui/widgets/ManagedWidget.h"
 #include "gui/widgets/DFGWidget.h"
 #include "MainWindow.h"
 #include <QObject>
@@ -44,6 +46,12 @@ class AftermathController {
 		void DFGNodeDoubleClicked(struct am_dfg_node* n);
 		void execCreateNodeAtAdialog(struct am_dfg_graph* g,
 					     struct am_point p);
+		void deleteNode(struct am_dfg_node* n);
+		void deleteWidget(ManagedWidget* w);
+		void deleteWidgetRec(ManagedWidget* w);
+		void widgetDeletionOrder(QObject* o,
+					 QList<ManagedWidget*>& list);
+
 		static void portsConnected(struct am_dfg_graph* g,
 					   struct am_dfg_port* psrc,
 					   struct am_dfg_port* pdst);
