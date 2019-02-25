@@ -54,6 +54,11 @@ class AftermathController {
 		void deleteWidgetRec(ManagedWidget* w);
 		void widgetDeletionOrder(QObject* o,
 					 QList<ManagedWidget*>& list);
+		bool reparentWidget(ManagedWidget* w,
+				    ManagedContainerWidget* old_parent,
+				    int old_idx,
+				    ManagedContainerWidget* new_parent,
+				    int new_idx);
 
 		static void portsConnected(struct am_dfg_graph* g,
 					   struct am_dfg_port* psrc,

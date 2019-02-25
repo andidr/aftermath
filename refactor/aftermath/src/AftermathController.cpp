@@ -23,6 +23,7 @@
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/ToolbarButton.h"
 #include "models/GUITreeModel.h"
+#include "Exception.h"
 #include <QMessageBox>
 #include <QMetaProperty>
 
@@ -316,4 +317,28 @@ void AftermathController::deleteWidgetRec(ManagedWidget* w)
 
 	for(auto w: l)
 		this->deleteWidget(w);
+}
+
+/* Reparents a widget w, such that new_parent becomes its new parent. Returns
+ * true if the widget's parent could successfully be changed, otherwise
+ * false. */
+bool AftermathController::reparentWidget(ManagedWidget* w,
+					 ManagedContainerWidget* old_parent,
+					 int old_idx,
+					 ManagedContainerWidget* new_parent,
+					 int new_idx)
+{
+	QWidget* qw = dynamic_cast<QWidget*>(w);
+
+	if(!qw)
+		throw AftermathException("ManagedWidget is not a QWidget");
+
+	old_parent->removeChild(qw);
+
+	if(old_parent == new_parent && old_idx < new_idx)
+		new_idx--;
+
+	new_parent->addChild(qw, new_idx);
+
+	return true;
 }
