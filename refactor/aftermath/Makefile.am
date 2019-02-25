@@ -89,6 +89,8 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/gui/widgets/KDTreeWidget.cpp \
 	src/gui/widgets/moc_KDTreeWidget.cpp \
 	src/gui/widgets/KDTreeWidget.h \
+	src/gui/widgets/LabelWithDFGNode.h \
+	src/gui/widgets/moc_LabelWithDFGNode.cpp \
 	src/gui/widgets/ManagedWidget.h \
 	src/gui/widgets/RectTreeWidget.cpp \
 	src/gui/widgets/moc_RectTreeWidget.cpp \
@@ -182,6 +184,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/gui/widgets/moc_CairoWidgetWithDFGNode.cpp \
 	src/gui/widgets/moc_DFGWidget.cpp \
 	src/gui/widgets/moc_HierarchyComboBox.cpp \
+	src/gui/widgets/moc_LabelWithDFGNode.cpp \
 	src/gui/widgets/moc_KDTreeWidget.cpp \
 	src/gui/widgets/moc_RectTreeWidget.cpp \
 	src/gui/widgets/moc_ToolbarButton.cpp \
@@ -222,6 +225,10 @@ src/gui/widgets/moc_DFGWidget.cpp: \
 	src/gui/widgets/DFGWidget.cpp \
 	src/gui/widgets/DFGWidget.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/DFGWidget.h -o $@
+
+src/gui/widgets/moc_LabelWithDFGNode.cpp: \
+	src/gui/widgets/LabelWithDFGNode.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/gui/widgets/LabelWithDFGNode.h -o $@
 
 src/gui/widgets/moc_KDTreeWidget.cpp: \
 	src/gui/widgets/KDTreeWidget.cpp \
