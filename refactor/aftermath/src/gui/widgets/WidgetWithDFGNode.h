@@ -85,4 +85,17 @@ extern "C" {
 Q_DECLARE_METATYPE(struct am_dfg_node*)
 Q_DECLARE_OPAQUE_POINTER(struct am_dfg_node*)
 
+/* Declares a wrapper class named TYPE for QTTYPE that adds functionality for
+ * DFG node management */
+#define AM_ALIAS_WIDGETWITHDFGNODE(TYPE, QTTYPE)\
+	class TYPE : public QTTYPE {		\
+		AM_WIDGETWITHDFGNODE_DECLS	\
+		Q_OBJECT			\
+						\
+		public:			\
+		TYPE(QWidget* parent = NULL) :	\
+			QTTYPE(parent)		\
+		{ }				\
+	};
+
 #endif
