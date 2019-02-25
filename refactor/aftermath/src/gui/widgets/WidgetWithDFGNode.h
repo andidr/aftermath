@@ -19,6 +19,8 @@
 #ifndef AM_WIDGETWITHDFGNODE_H
 #define AM_WIDGETWITHDFGNODE_H
 
+#include <QMetaType>
+
 extern "C" {
 	#include <aftermath/core/dfg_node.h>
 }
@@ -66,6 +68,9 @@ extern "C" {
 										\
 		Q_SIGNAL void processDFGNodeSignal(struct am_dfg_node* n);	\
 										\
+		/* Indicate that the class has a DFG node */			\
+		Q_PROPERTY(struct am_dfg_node* DFGNode READ getDFGNode)	\
+										\
 	protected:								\
 		/**								\
 		 * Triggers processing of the node. If the node is actually	\
@@ -76,5 +81,8 @@ extern "C" {
 		{ if(this->dfgNode) emit processDFGNodeSignal(this->dfgNode); } \
 										\
 		struct am_dfg_node* dfgNode = NULL;
+
+Q_DECLARE_METATYPE(struct am_dfg_node*)
+Q_DECLARE_OPAQUE_POINTER(struct am_dfg_node*)
 
 #endif
