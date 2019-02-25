@@ -26,6 +26,7 @@
 #include "dfg/nodes/gui/toolbar_togglebutton.h"
 #include "dfg/types/builtin_types.h"
 #include "gui/widgets/DFGWidget.h"
+#include "gui/widgets/LabelWithDFGNode.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/HistogramWidget.h"
 #include "gui/widgets/TelamonCandidateTreeWidget.h"
@@ -358,8 +359,10 @@ int AftermathSession::DFGNodeInstantiationCallback(
 		try {
 			w = session->getGUI().getWidget(l->label_id);
 
-			if(!(l->label = dynamic_cast<QLabel*>(w)))
+			if(!(l->label = dynamic_cast<LabelWithDFGNode*>(w)))
 				return 1;
+
+			l->label->setDFGNode(n);
 		} catch(...) {
 			return 1;
 		}

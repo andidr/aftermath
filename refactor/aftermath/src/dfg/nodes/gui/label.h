@@ -25,11 +25,11 @@ extern "C" {
 #include <aftermath/core/dfg_node.h>
 #include "../../../cxx_interoperability.h"
 
-AM_CXX_C_FWDDECL_CLASS_STRUCT(QLabel);
+AM_CXX_C_FWDDECL_CLASS_STRUCT(LabelWithDFGNode);
 
 struct am_dfg_amgui_label_node {
 	struct am_dfg_node node;
-	AM_CXX_C_DECL_CLASS_STRUCT_PTR_FIELD(QLabel, label);
+	AM_CXX_C_DECL_CLASS_STRUCT_PTR_FIELD(LabelWithDFGNode, label);
 	char* label_id;
 };
 

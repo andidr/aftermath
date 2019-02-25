@@ -17,10 +17,10 @@
 
 #include "LabelWidgetCreator.h"
 #include "../widgets/ManagedWidget.h"
-#include <QLabel>
+#include "../widgets/LabelWithDFGNode.h"
 
 /* Helper class for traversal of Aftermath GUI */
-AM_ALIAS_WIDGET(ManagedLabel, QLabel, "amgui_label")
+AM_ALIAS_WIDGET(ManagedLabel, LabelWithDFGNode, "amgui_label")
 
 LabelWidgetCreator::LabelWidgetCreator() :
 	NonContainerWidgetCreator("amgui_label")

@@ -16,7 +16,7 @@
  */
 
 #include "label.h"
-#include <QLabel>
+#include "../../../gui/widgets/LabelWithDFGNode.h"
 
 int am_dfg_amgui_label_init(struct am_dfg_node* n)
 {
