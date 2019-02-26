@@ -44,6 +44,9 @@ class AftermathController {
 
 	protected:
 		void DFGNodeDoubleClicked(struct am_dfg_node* n);
+		struct am_dfg_node* createNodeAt(struct am_dfg_node_type* nt,
+						 struct am_dfg_graph* g,
+						 struct am_point p);
 		void execCreateNodeAtAdialog(struct am_dfg_graph* g,
 					     struct am_point p);
 		void deleteNode(struct am_dfg_node* n);

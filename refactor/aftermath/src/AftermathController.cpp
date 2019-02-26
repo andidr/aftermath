@@ -45,6 +45,46 @@ void AftermathController::showError(const QString& msg, QWidget* parent)
 	mb.exec();
 }
 
+/* Creates a DFG node of type nt at position p and adds it to the graph
+ * g. Returns the newly created node. If an error occurs, an exception is
+ * thrown. */
+struct am_dfg_node* AftermathController::createNodeAt(
+	struct am_dfg_node_type* nt,
+	struct am_dfg_graph* g,
+	struct am_point p)
+{
+	struct am_dfg_node_type_registry* ntr;
+	struct am_dfg_coordinate_mapping* mapping;
+	struct am_dfg_node* n;
+	long id;
+
+	ntr = this->session->getDFGNodeTypeRegistry();
+	mapping = session->getDFGCoordinateMapping();
+
+	if(am_dfg_graph_generate_id(g, &id))
+		throw AftermathException("Could not generate ID for new node");
+
+	if(!(n = am_dfg_node_type_registry_instantiate(ntr, nt, id)))
+		throw AftermathException("Could not instantiate node");
+
+	if(am_dfg_graph_add_node(g, n)) {
+		am_dfg_node_destroy(n);
+		free(n);
+
+		throw AftermathException("Could not add node to graph");
+	}
+
+	if(am_dfg_coordinate_mapping_set_coordinates(mapping, id, p.x, p.y)) {
+		am_dfg_graph_remove_node(g, n);
+		am_dfg_node_destroy(n);
+		free(n);
+
+		throw AftermathException("Could not set coordianted for node");
+	}
+
+	return n;
+}
+
 /* Called when a DFGWidget indicates that a new DFG node should be created for
  * the graph g at graph position p. Opens a dialog that lets the user select the
  * node type and creates the new node if the dialog is confirmed. */
@@ -52,13 +92,9 @@ void AftermathController::execCreateNodeAtAdialog(struct am_dfg_graph* g,
 						  struct am_point p)
 {
 	struct am_dfg_node_type_registry* ntr;
-	struct am_dfg_node* n;
 	struct am_dfg_node_type* nt;
-	struct am_dfg_coordinate_mapping* mapping;
-	long id;
 
 	ntr = session->getDFGNodeTypeRegistry();
-	mapping = session->getDFGCoordinateMapping();
 
 	DFGNodeTypeSelectionDialog dlg(ntr, this->mainWindow);
 	dlg.setModal(true);
@@ -67,29 +103,10 @@ void AftermathController::execCreateNodeAtAdialog(struct am_dfg_graph* g,
 	if(dlg.result() == QDialog::Accepted) {
 		nt = dlg.getSelectedType();
 
-		if(am_dfg_graph_generate_id(g, &id)) {
-			showError("Could not generate ID for new node");
-			return;
-		}
-
-		if(!(n = am_dfg_node_type_registry_instantiate(ntr, nt, id))) {
-			showError("Could not instantiate node");
-			return;
-		}
-
-		if(am_dfg_graph_add_node(g, n)) {
-			am_dfg_node_destroy(n);
-			free(n);
-			showError("Could not add node to graph");
-			return;
-		}
-
-		if(am_dfg_coordinate_mapping_set_coordinates(mapping, id, p.x, p.y)) {
-			am_dfg_graph_remove_node(g, n);
-			am_dfg_node_destroy(n);
-			free(n);
-			showError("Could not set coordianted for node");
-			return;
+		try {
+			this->createNodeAt(nt, g, p);
+		} catch(std::exception& e) {
+			this->showError(e.what());
 		}
 	}
 }
