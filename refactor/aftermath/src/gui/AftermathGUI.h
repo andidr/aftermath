@@ -26,6 +26,10 @@
 class QWidget;
 class QObject;
 
+extern "C" {
+	#include <aftermath/core/prng.h>
+}
+
 /**
  * Collection of all Widgets in an instance of Aftermath
  */
@@ -85,6 +89,9 @@ class AftermathGUI {
 		bool isWidgetUnbound(QWidget* w) noexcept;
 
 		bool hasWidget(QWidget* w);
+		bool hasID(const std::string& id);
+
+		std::string generateID();
 
 		/* Calls the functor f for all widgets of type T with a pointer
 		 * to the widget */
@@ -104,6 +111,8 @@ class AftermathGUI {
 		std::map<QWidget*, const std::string> revWidgets;
 		std::set<QWidget*> unboundWidgets;
 		QWidget* root;
+
+		struct am_prng_u64 prng;
 };
 
 #endif

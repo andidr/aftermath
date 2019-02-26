@@ -18,9 +18,14 @@
 #include "AftermathGUI.h"
 #include <QWidget>
 
+extern "C" {
+	#include <aftermath/core/bits.h>
+}
+
 AftermathGUI::AftermathGUI() :
 	root(NULL)
 {
+	am_prng_u64_seed(&this->prng, ((uintptr_t)this));
 }
 
 AftermathGUI::~AftermathGUI()
@@ -214,4 +219,33 @@ bool AftermathGUI::isWidgetUnbound(QWidget* w) noexcept
 	auto it = this->unboundWidgets.find(w);
 
 	return (it != this->unboundWidgets.end());
+}
+
+/* Returns true if the GUI contains a bound widget whose ID is id, otherwise
+ * false. */
+bool AftermathGUI::hasID(const std::string& id)
+{
+	return this->widgets.find(id) != this->widgets.end();
+}
+
+/* Generates an unused ID */
+std::string AftermathGUI::generateID()
+{
+	uint64_t rand;
+	std::string id;
+	uint64_t num_widgets = this->widgets.size();
+	uint64_t num_widgets_msb = am_extract_msb_u64(num_widgets);
+	uint64_t bitmask;
+
+	if(num_widgets_msb == ((uint64_t)1 << 63))
+		bitmask = ~((uint64_t)0);
+	else
+		bitmask = (num_widgets_msb << 1) - 1;
+
+	do {
+		rand = am_prng_u64_rand(&this->prng, 0, UINT64_MAX) & bitmask;
+		id = "id" + std::to_string(rand);
+	} while(this->hasID(id));
+
+	return id;
 }
