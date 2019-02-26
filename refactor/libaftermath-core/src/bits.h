@@ -40,6 +40,27 @@ static inline uint64_t am_extract_lsb_u64(uint64_t v)
 	return v & ((~v) + 1);
 }
 
+/* Returns a mask containing only the highest set bit of v. */
+static inline uint64_t am_extract_msb_u64(uint64_t v)
+{
+	/* Avoid underflow of v-- */
+	if(v == 0)
+		return 0;
+
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v |= v >> 32;
+
+	if(v == UINT64_MAX)
+		return ((uint64_t)1 << 63);
+	else
+		return (v + 1) >> 1;
+}
+
 /* Returns the number of zero bits with a bit position lower than the first bit
  * that is 1. If mask is 0, the function returns 64. */
 static inline size_t am_zero_bits_right_u64(uint64_t mask)
