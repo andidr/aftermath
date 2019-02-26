@@ -73,6 +73,9 @@ aftermath_SOURCES = src/AftermathSession.cpp \
 	src/models/GUITreeModel.cpp \
 	src/models/moc_GUITreeModel.cpp \
 	src/models/GUITreeModel.h \
+	src/models/WidgetTypeListModel.cpp \
+	src/models/moc_WidgetTypeListModel.cpp \
+	src/models/WidgetTypeListModel.h \
 	src/gui/widgets/CairoWidget.cpp \
 	src/gui/widgets/CairoWidget.h \
 	src/gui/widgets/CairoWidgetWithDFGNode.cpp \
@@ -193,6 +196,7 @@ GENERATED_FILES=src/ui_MainWindow.h \
 	src/dfg/moc_DFGQTProcessor.cpp \
 	src/models/moc_DFGNodeTypeRegistryTableModel.cpp \
 	src/models/moc_GUITreeModel.cpp \
+	src/models/moc_WidgetTypeListModel.cpp \
 	$(GENERATED_PROFILE_FILES)
 
 moc_verbose = $(moc_verbose_@AM_V@)
@@ -259,6 +263,11 @@ src/models/moc_GUITreeModel.cpp: \
 	src/models/GUITreeModel.cpp \
 	src/models/GUITreeModel.h
 	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/models/GUITreeModel.h -o $@
+
+src/models/moc_WidgetTypeListModel.cpp: \
+	src/models/WidgetTypeListModel.cpp \
+	src/models/WidgetTypeListModel.h
+	$(moc_verbose)$(MOC) $(MOCFLAGS) $(srcdir)/src/models/WidgetTypeListModel.h -o $@
 
 src/gui/widgets/moc_HierarchyComboBox.cpp: \
 	src/gui/widgets/HierarchyComboBox.cpp \
