@@ -57,10 +57,15 @@ TabWidgetCreator::TabWidgetCreator() :
 {
 }
 
+QWidget* TabWidgetCreator::instantiateDefault()
+{
+	return new ManagedTabWidget();
+}
+
 QWidget* TabWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new ManagedTabWidget();
+	return this->instantiateDefault();
 }
 
 void TabWidgetCreator::addChildren(const struct am_object_notation_node_group* n,

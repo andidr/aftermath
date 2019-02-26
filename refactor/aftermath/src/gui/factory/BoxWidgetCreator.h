@@ -41,10 +41,34 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 			LayoutContainerWidgetCreator(T::strconst())
 		{ }
 
+		QWidget* instantiateDefault() {
+			QWidget* w;
+			int margins[4] = { 5, 5, 5, 5 };
+
+			w = new ManagedBoxWidget<T>();
+			w->setSizePolicy(QSizePolicy::Expanding,
+					 QSizePolicy::Expanding);
+
+			try {
+				w->setLayout(new L());
+				w->layout()->setSpacing(0);
+				w->layout()->setAlignment(A);
+				w->layout()->setContentsMargins(margins[0],
+								margins[1],
+								margins[2],
+								margins[3]);
+			} catch(...) {
+				delete w;
+				throw;
+			}
+
+			return w;
+		}
+
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QWidget* w;
+			QWidget* w = this->instantiateDefault();
 			struct am_object_notation_node* nmargin;
 			struct am_object_notation_node_uint64* imargin;
 			int margins[4] = { 5, 5, 5, 5 };
@@ -64,6 +88,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				if(nmargin->type !=
 				   AM_OBJECT_NOTATION_NODE_TYPE_UINT64)
 				{
+					delete w;
 					throw Exception(std::string("Member ") +
 							margin_names[i] +
 							" must be an integer");
@@ -73,14 +98,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				margins[i] = imargin->value;
 			}
 
-			w = new ManagedBoxWidget<T>();
-			w->setSizePolicy(QSizePolicy::Expanding,
-					 QSizePolicy::Expanding);
-
 			try {
-				w->setLayout(new L());
-				w->layout()->setSpacing(0);
-				w->layout()->setAlignment(A);
 				w->layout()->setContentsMargins(margins[0],
 								margins[1],
 								margins[2],

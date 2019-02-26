@@ -56,6 +56,9 @@ class WidgetCreator {
 		virtual QWidget*
 		instantiate(const struct am_object_notation_node_group* n) = 0;
 
+		/* Instantiates the associated widget with default values */
+		virtual QWidget* instantiateDefault() = 0;
+
 		/* Add the children to an earlier created widget. Will only be
 		 * called by a GUI factory if isContainer() returns true and if
 		 * the widget has actually been created by the creator.
@@ -176,9 +179,7 @@ class RootWidgetCreator : public LayoutContainerWidgetCreator {
 			LayoutContainerWidgetCreator("am_gui")
 			{ }
 
-		QWidget* instantiate(
-			const struct am_object_notation_node_group* n)
-		{
+		QWidget* instantiateDefault() {
 			QWidget* w = new QWidget();
 
 			w->setSizePolicy(QSizePolicy::Expanding,
@@ -187,6 +188,12 @@ class RootWidgetCreator : public LayoutContainerWidgetCreator {
 			w->layout()->setSpacing(0);
 
 			return w;
+		}
+
+		QWidget* instantiate(
+			const struct am_object_notation_node_group* n)
+		{
+			return this->instantiateDefault();
 		}
 };
 

@@ -27,9 +27,14 @@ DFGWidgetCreator::DFGWidgetCreator() :
 {
 }
 
+QWidget* DFGWidgetCreator::instantiateDefault()
+{
+	return new ManagedDFGWidget();
+}
+
 QWidget* DFGWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new ManagedDFGWidget();
+	return this->instantiateDefault();
 }
 

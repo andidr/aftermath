@@ -27,6 +27,15 @@ LabelWidgetCreator::LabelWidgetCreator() :
 {
 }
 
+QWidget* LabelWidgetCreator::instantiateDefault()
+{
+	QLabel* l = new ManagedLabel();
+
+	l->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+
+	return l;
+}
+
 QWidget* LabelWidgetCreator::instantiate(const struct am_object_notation_node_group* n)
 {
 	const char* text;

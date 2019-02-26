@@ -29,8 +29,13 @@ HistogramWidgetCreator::HistogramWidgetCreator() :
 {
 }
 
+QWidget* HistogramWidgetCreator::instantiateDefault()
+{
+	return new ManagedHistogramWidget();
+}
+
 QWidget* HistogramWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new ManagedHistogramWidget();
+	return this->instantiateDefault();
 }

@@ -73,6 +73,20 @@ class SplitterWidgetCreator : public ContainerWidgetCreator {
 			ContainerWidgetCreator(T::strconst())
 		{ }
 
+		QWidget* instantiateDefault()
+		{
+			SplitterWithInitialStretch<T>* s;
+			QList<int> stretchFactors;
+
+			s = new SplitterWithInitialStretch<T>();
+
+			s->setSizePolicy(QSizePolicy::Expanding,
+					 QSizePolicy::Expanding);
+			s->setOrientation(orientation);
+
+			return s;
+		}
+
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{

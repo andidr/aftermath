@@ -28,8 +28,13 @@ HierarchyComboBoxCreator::HierarchyComboBoxCreator() :
 {
 }
 
+QWidget* HierarchyComboBoxCreator::instantiateDefault()
+{
+	return new ManagedHierarchyComboBox();
+}
+
 QWidget* HierarchyComboBoxCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new ManagedHierarchyComboBox();
+	return this->instantiateDefault();
 }

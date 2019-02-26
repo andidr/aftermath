@@ -32,6 +32,8 @@ class LabelWidgetCreator : public NonContainerWidgetCreator {
 	public:
 		LabelWidgetCreator();
 
+		QWidget* instantiateDefault();
+
 		QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 };

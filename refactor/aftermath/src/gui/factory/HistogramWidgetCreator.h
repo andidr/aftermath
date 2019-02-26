@@ -30,6 +30,8 @@ class HistogramWidgetCreator : public NonContainerWidgetCreator {
 	public:
 		HistogramWidgetCreator();
 
+		virtual QWidget* instantiateDefault();
+
 		virtual QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 };

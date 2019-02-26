@@ -43,11 +43,8 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 			NonContainerWidgetCreator(groupName)
 		{ }
 
-		QWidget* instantiate(const struct am_object_notation_node_group* n)
-		{
-			const char* str;
+		QWidget* instantiateDefault() {
 			QToolButton* b;
-			uint64_t checked;
 
 			if(TOGGLE)
 				b = new ManagedToolbarToggleButton();
@@ -55,6 +52,18 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 				b = new ManagedToolbarButton();
 
 			b->setCheckable(TOGGLE);
+
+			return b;
+		}
+
+		QWidget* instantiate(const struct am_object_notation_node_group* n)
+		{
+			const char* str;
+			QToolButton* b;
+			uint64_t checked;
+
+			b = reinterpret_cast<QToolButton*>
+				(this->instantiateDefault());
 
 			try {
 				if(am_object_notation_eval_retrieve_string(

@@ -32,6 +32,8 @@ class ButtonWidgetCreator : public NonContainerWidgetCreator {
 	public:
 		ButtonWidgetCreator();
 
+		QWidget* instantiateDefault();
+
 		QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 };

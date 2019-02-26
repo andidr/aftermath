@@ -29,8 +29,13 @@ TelamonCandidateTreeWidgetCreator::TelamonCandidateTreeWidgetCreator() :
 {
 }
 
+QWidget* TelamonCandidateTreeWidgetCreator::instantiateDefault()
+{
+	return new ManagedTelamonCandidateTreeWidget();
+}
+
 QWidget* TelamonCandidateTreeWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
-	return new ManagedTelamonCandidateTreeWidget();
+	return this->instantiateDefault();
 }

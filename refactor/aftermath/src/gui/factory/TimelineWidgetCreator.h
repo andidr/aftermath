@@ -55,6 +55,8 @@ class TimelineWidgetCreator : public NonContainerWidgetCreator {
 		TimelineWidgetCreator(
 			struct am_timeline_render_layer_type_registry* rltr);
 
+		QWidget* instantiateDefault();
+
 		virtual QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 

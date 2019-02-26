@@ -35,6 +35,8 @@ class DFGWidgetCreator : public NonContainerWidgetCreator {
 
 		DFGWidgetCreator();
 
+		virtual QWidget* instantiateDefault();
+
 		virtual QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 };

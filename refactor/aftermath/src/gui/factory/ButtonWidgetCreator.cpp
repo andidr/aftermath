@@ -27,6 +27,11 @@ ButtonWidgetCreator::ButtonWidgetCreator() :
 {
 }
 
+QWidget* ButtonWidgetCreator::instantiateDefault()
+{
+	return new ManagedPushButton();
+}
+
 QWidget* ButtonWidgetCreator::instantiate(const struct am_object_notation_node_group* n)
 {
 	const char* text;

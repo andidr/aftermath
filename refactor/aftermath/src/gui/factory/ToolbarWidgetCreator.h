@@ -99,15 +99,19 @@ class ToolbarWidgetCreator : public ContainerWidgetCreator {
 			ContainerWidgetCreator(T::strconst())
 		{ }
 
-		QWidget* instantiate(
-			const struct am_object_notation_node_group* n)
-		{
+		QWidget* instantiateDefault() {
 			QToolBar* t = new ManagedToolbarWidget<T>();
 
 			t->setSizePolicy(HP, VP);
 			t->setOrientation(orientation);
 
 			return t;
+		}
+
+		QWidget* instantiate(
+			const struct am_object_notation_node_group* n)
+		{
+			return this->instantiateDefault();
 		}
 
 		void addChildren(const struct am_object_notation_node_group* n,

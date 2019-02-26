@@ -28,6 +28,15 @@ TimelineWidgetCreator::TimelineWidgetCreator(
 {
 }
 
+QWidget* TimelineWidgetCreator::instantiateDefault()
+{
+	TimelineWidget* t = new ManagedTimelineWidget();
+
+	t->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	return t;
+}
+
 QWidget* TimelineWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {

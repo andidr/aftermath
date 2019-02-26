@@ -71,15 +71,19 @@ class StatusbarWidgetCreator : public ContainerWidgetCreator {
 
 		virtual ~StatusbarWidgetCreator() = default;
 
-		QWidget* instantiate(
-			const struct am_object_notation_node_group* n)
-		{
+		QWidget* instantiateDefault() {
 			QStatusBar* sb = new ManagedStatusBar();
 
 			sb->setSizePolicy(QSizePolicy::Expanding,
 					  QSizePolicy::Minimum);
 
 			return sb;
+		}
+
+		QWidget* instantiate(
+			const struct am_object_notation_node_group* n)
+		{
+			return this->instantiateDefault();
 		}
 
 		void addChildren(const struct am_object_notation_node_group* n,

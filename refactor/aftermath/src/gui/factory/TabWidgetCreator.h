@@ -39,6 +39,8 @@ class TabWidgetCreator : public ContainerWidgetCreator {
 		QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
 
+		QWidget* instantiateDefault();
+
 		void addChildren(const struct am_object_notation_node_group* n,
 				 QWidget* parent,
 				 std::list<QWidget*>& children);
