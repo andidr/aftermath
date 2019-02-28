@@ -263,3 +263,10 @@ void GUIFactory::buildGUI(AftermathGUI* gui, const char* filename)
 	am_object_notation_node_destroy(root);
 	free(root);
 }
+
+/* Returns a set with all widget creators registered at the factory */
+const std::set<WidgetCreator*, WidgetCreatorComparator>&
+GUIFactory::getWidgetCreators() const
+{
+	return this->creators;
+}

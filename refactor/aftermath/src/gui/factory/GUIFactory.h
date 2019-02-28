@@ -237,6 +237,9 @@ class GUIFactory {
 
 		std::string generateID(const std::string& prefix = "");
 
+		const std::set<WidgetCreator*, WidgetCreatorComparator>&
+		getWidgetCreators() const;
+
 	protected:
 		/**
 		 * Collects information a widget that has been created, but not
