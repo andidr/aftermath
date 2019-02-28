@@ -340,6 +340,9 @@ void AftermathSession::loadDFG(const char* filename)
 
 	am_object_notation_node_destroy(n_graph);
 	free(n_graph);
+
+	am_dfg_node_type_registry_set_instantiate_callback_fun(
+		ntr, NULL, NULL);
 }
 
 /* Gets called on every instantiation of a DFG node. Performs lookup of the
