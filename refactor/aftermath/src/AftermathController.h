@@ -21,6 +21,7 @@
 
 #include "AftermathSession.h"
 #include "gui/AftermathGUI.h"
+#include "gui/factory/GUIFactory.h"
 #include "gui/widgets/ManagedWidget.h"
 #include "gui/widgets/DFGWidget.h"
 #include "MainWindow.h"
@@ -60,6 +61,10 @@ class AftermathController {
 				    int old_idx,
 				    ManagedContainerWidget* new_parent,
 				    int new_idx);
+		void createWidget(GUIFactory* factory,
+				  ManagedContainerWidget* parent,
+				  size_t idx,
+				  const QString& type);
 
 		static void portsConnected(struct am_dfg_graph* g,
 					   struct am_dfg_port* psrc,

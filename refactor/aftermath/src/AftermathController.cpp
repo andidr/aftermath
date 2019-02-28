@@ -337,3 +337,80 @@ bool AftermathController::reparentWidget(ManagedWidget* w,
 
 	return true;
 }
+
+/* Creates a widget of the given type specified as a string and adds it at the
+ * zero-based index idx to parent. If the creation fails, an exception is
+ * thrown. */
+void AftermathController::createWidget(GUIFactory* factory,
+				       ManagedContainerWidget* parent,
+				       size_t idx,
+				       const QString& type)
+{
+	WidgetCreator* creator;
+	QWidget* qw = NULL;
+	struct am_dfg_node_type* nt;
+	struct am_dfg_node_type_registry* ntr;
+	struct am_dfg_node* dfgNode = NULL;
+	struct am_dfg_graph* g;
+	std::string typeName;
+	struct am_point pos{ 0, 0 };
+	std::string widgetID;
+	size_t num_connections_setup = 0;
+
+	g = this->session->getDFG();
+	ntr = this->session->getDFGNodeTypeRegistry();
+
+	widgetID = this->session->getGUI().generateID();
+
+	try {
+		creator = factory->findCreator(type.toStdString());
+		qw = creator->instantiateDefault();
+		typeName = creator->getDFGNodeTypeName();
+
+		this->setupConnections(qw, &num_connections_setup);
+
+		if(typeName != "") {
+			nt = am_dfg_node_type_registry_lookup(ntr, typeName.c_str());
+
+			if(!nt) {
+				throw AftermathException("Cannot find DFG node "
+							 "type name '" +
+							 typeName + "'");
+			}
+
+			dfgNode = this->createNodeAt(nt, g, pos);
+		}
+	} catch(...) {
+		auto it = this->connections.end() - num_connections_setup;
+		this->connections.erase(it, this->connections.end());
+
+		delete qw;
+		throw;
+	}
+
+	try {
+		this->session->getGUI().addWidget(qw, widgetID);
+
+		try {
+			parent->addChild(qw, idx);
+
+			if(dfgNode)
+				creator->associateDFGNode(qw, dfgNode);
+		} catch(...) {
+			this->session->getGUI().removeWidget(qw);
+			throw;
+		}
+	} catch(...) {
+		if(dfgNode) {
+			am_dfg_graph_remove_node(g, dfgNode);
+			am_dfg_node_destroy(dfgNode);
+			free(dfgNode);
+		}
+
+		auto it = this->connections.end() - num_connections_setup;
+		this->connections.erase(it, this->connections.end());
+
+		delete qw;
+		throw;
+	}
+}
