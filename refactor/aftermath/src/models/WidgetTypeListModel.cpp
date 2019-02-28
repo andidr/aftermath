@@ -17,6 +17,7 @@
  */
 
 #include "WidgetTypeListModel.h"
+#include <QMimeData>
 #include <QtAlgorithms>
 
 WidgetTypeListModel::WidgetTypeListModel(
@@ -60,6 +61,7 @@ QVariant WidgetTypeListModel::data(const QModelIndex& index, int role)
 {
 	int row = index.row();
 	int column = index.column();
+	const char* gn;
 
 	if(role == Qt::DisplayRole) {
 		if(row < 0 ||
@@ -69,8 +71,10 @@ QVariant WidgetTypeListModel::data(const QModelIndex& index, int role)
 			return QVariant();
 		}
 
-		if(index.column() == 0)
-			return QString(this->filteredCreators[row]->getGroupName().c_str());
+		if(index.column() == 0) {
+			gn = this->filteredCreators[row]->getGroupName().c_str();
+			return QString(gn);
+		}
 	}
 
 	return QVariant();
@@ -116,4 +120,53 @@ void WidgetTypeListModel::setFilterString(
 	      WidgetCreatorComparator());
 
 	emit layoutChanged();
+}
+
+
+Qt::ItemFlags WidgetTypeListModel::flags(const QModelIndex& index) const
+{
+	if(!index.isValid())
+		return 0;
+
+	return QAbstractTableModel::flags(index) | Qt::ItemIsDragEnabled;
+}
+
+QStringList WidgetTypeListModel::mimeTypes() const
+{
+	QStringList types;
+	types << "application/aftermath.widgetgroupname";
+
+	return types;
+}
+
+Qt::DropActions WidgetTypeListModel::supportedDragActions() const
+{
+	return Qt::CopyAction;
+}
+
+QMimeData* WidgetTypeListModel::mimeData(const QModelIndexList& indexes) const
+{
+	QMimeData* mimeData = NULL;
+	WidgetCreator* c;
+
+	try {
+		mimeData = new QMimeData();
+		QByteArray encodedData;
+		QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+		for(const auto& idx: indexes) {
+			if (idx.isValid()) {
+				c = this->filteredCreators[idx.row()];
+				stream << QString(c->getGroupName().c_str());
+			}
+		}
+
+		mimeData->setData("application/aftermath.widgetgroupname",
+				  encodedData);
+	} catch(...) {
+		delete mimeData;
+		throw;
+	}
+
+	return mimeData;
 }

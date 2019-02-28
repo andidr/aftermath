@@ -68,7 +68,7 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 		QWidget* instantiate(
 			const struct am_object_notation_node_group* n)
 		{
-			QWidget* w = this->instantiateDefault();
+			QWidget* w;
 			struct am_object_notation_node* nmargin;
 			struct am_object_notation_node_uint64* imargin;
 			int margins[4] = { 5, 5, 5, 5 };
@@ -88,7 +88,6 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				if(nmargin->type !=
 				   AM_OBJECT_NOTATION_NODE_TYPE_UINT64)
 				{
-					delete w;
 					throw Exception(std::string("Member ") +
 							margin_names[i] +
 							" must be an integer");
@@ -97,6 +96,8 @@ class BoxWidgetCreator : public LayoutContainerWidgetCreator {
 				imargin = (typeof(imargin))nmargin;
 				margins[i] = imargin->value;
 			}
+
+			w = this->instantiateDefault();
 
 			try {
 				w->layout()->setContentsMargins(margins[0],

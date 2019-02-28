@@ -56,6 +56,11 @@ class WidgetTypeListModel : public QAbstractTableModel {
 
 		WidgetCreator* getWidgetCreator(int row);
 
+		Qt::ItemFlags flags(const QModelIndex& index) const override;
+		QStringList mimeTypes() const override;
+		QMimeData* mimeData(const QModelIndexList& indexes) const override;
+		Qt::DropActions supportedDragActions() const override;
+
 	protected:
 		const GUIFactory* factory;
 		QVector<WidgetCreator*> filteredCreators;
