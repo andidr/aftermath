@@ -22,6 +22,7 @@
 #include "gui/widgets/CairoWidgetWithDFGNode.h"
 #include "gui/widgets/HierarchyComboBox.h"
 #include "gui/widgets/ToolbarButton.h"
+#include "gui/dialogs/GUIConfigurationDialog.h"
 #include "models/GUITreeModel.h"
 #include "Exception.h"
 #include <QMessageBox>
@@ -413,4 +414,48 @@ void AftermathController::createWidget(GUIFactory* factory,
 		delete qw;
 		throw;
 	}
+}
+
+/* Shows a modal dialog that lets the user configure the GUI (add, remove and
+ * move widgets) and carries out the appropriate actions.
+ */
+void AftermathController::showGUIConfigurationDialog(AftermathGUI* gui,
+						     GUIFactory* factory)
+{
+	WidgetReparenter reparenter = [&](ManagedWidget* w,
+					  ManagedContainerWidget* old_parent,
+					  int old_idx,
+					  ManagedContainerWidget* new_parent,
+					  int new_idx) -> bool
+		{
+			return this->reparentWidget(
+				w, old_parent, old_idx, new_parent, new_idx);
+		};
+
+	WidgetInserter inserter = [&](ManagedContainerWidget* w,
+				      size_t idx,
+				      const QString& type) -> bool
+		{
+			try {
+				this->createWidget(factory, w, idx, type);
+			} catch(std::exception& e) {
+				this->showError(e.what());
+				return false;
+			} catch(...) {
+				return false;
+			}
+
+			return true;
+		};
+
+	WidgetDeleter deleter = [&](ManagedWidget* w) -> bool
+		{
+			this->deleteWidgetRec(w);
+			return true;
+		};
+
+	GUIConfigurationDialog dlg(gui, factory, &reparenter, &inserter, &deleter);
+
+	dlg.setModal(true);
+	dlg.exec();
 }

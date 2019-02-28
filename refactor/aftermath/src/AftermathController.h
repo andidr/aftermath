@@ -43,6 +43,9 @@ class AftermathController {
 		static void showError(const QString& msg,
 				      QWidget* parent = Q_NULLPTR);
 
+		void showGUIConfigurationDialog(AftermathGUI* gui,
+						GUIFactory* factory);
+
 	protected:
 		void DFGNodeDoubleClicked(struct am_dfg_node* n);
 		struct am_dfg_node* createNodeAt(struct am_dfg_node_type* nt,
