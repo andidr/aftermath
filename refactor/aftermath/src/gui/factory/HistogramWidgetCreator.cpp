@@ -18,6 +18,7 @@
 #include "HistogramWidgetCreator.h"
 #include "../widgets/ManagedWidget.h"
 #include "../widgets/HistogramWidget.h"
+#include "../../dfg/nodes/gui/histogram.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedHistogramWidget,
@@ -38,4 +39,21 @@ QWidget* HistogramWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
 	return this->instantiateDefault();
+}
+
+const std::string HistogramWidgetCreator::getDFGNodeTypeName()
+{
+	return "am::gui::histogram";
+}
+
+void HistogramWidgetCreator::associateDFGNode(QWidget* w, struct am_dfg_node* n)
+{
+	struct am_dfg_amgui_histogram_node* hn;
+	ManagedHistogramWidget* h;
+
+	h = static_cast<ManagedHistogramWidget*>(w);
+	hn = reinterpret_cast<struct am_dfg_amgui_histogram_node*>(n);
+
+	h->setDFGNode(n);
+	hn->histogram_widget = h;
 }

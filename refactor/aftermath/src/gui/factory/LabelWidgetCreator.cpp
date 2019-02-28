@@ -18,6 +18,7 @@
 #include "LabelWidgetCreator.h"
 #include "../widgets/ManagedWidget.h"
 #include "../widgets/LabelWithDFGNode.h"
+#include "../../dfg/nodes/gui/label.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedLabel, LabelWithDFGNode, "amgui_label")
@@ -56,4 +57,21 @@ QWidget* LabelWidgetCreator::instantiate(const struct am_object_notation_node_gr
 	}
 
 	return l;
+}
+
+const std::string LabelWidgetCreator::getDFGNodeTypeName()
+{
+	return "am::gui::label";
+}
+
+void LabelWidgetCreator::associateDFGNode(QWidget* w, struct am_dfg_node* n)
+{
+	struct am_dfg_amgui_label_node* ln;
+	ManagedLabel* l;
+
+	l = static_cast<ManagedLabel*>(w);
+	ln = reinterpret_cast<struct am_dfg_amgui_label_node*>(n);
+
+	l->setDFGNode(n);
+	ln->label = l;
 }

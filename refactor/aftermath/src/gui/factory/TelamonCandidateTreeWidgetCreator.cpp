@@ -18,6 +18,7 @@
 #include "TelamonCandidateTreeWidgetCreator.h"
 #include "../widgets/TelamonCandidateTreeWidget.h"
 #include "../widgets/ManagedWidget.h"
+#include "../../dfg/nodes/gui/telamon_candidate_tree.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedTelamonCandidateTreeWidget,
@@ -38,4 +39,20 @@ QWidget* TelamonCandidateTreeWidgetCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
 	return this->instantiateDefault();
+}
+
+const std::string TelamonCandidateTreeWidgetCreator::getDFGNodeTypeName()
+{
+	return "am::gui::telamon::candidate_tree";
+}
+
+void TelamonCandidateTreeWidgetCreator::associateDFGNode(QWidget* w, struct am_dfg_node* n)
+{
+	TelamonCandidateTreeWidget* t;
+	struct am_dfg_amgui_telamon_candidate_tree_node* tn;
+
+	t = static_cast<TelamonCandidateTreeWidget*>(w);
+	tn = reinterpret_cast<struct am_dfg_amgui_telamon_candidate_tree_node*>(n);
+	t->setDFGNode(n);
+	tn->tree = t;
 }

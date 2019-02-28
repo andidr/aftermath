@@ -18,6 +18,7 @@
 #include "TimelineWidgetCreator.h"
 #include "../widgets/TimelineWidget.h"
 #include "../widgets/ManagedWidget.h"
+#include "../../dfg/nodes/gui/timeline.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedTimelineWidget, TimelineWidget, "amgui_timeline")
@@ -77,4 +78,20 @@ QWidget* TimelineWidgetCreator::instantiate(
 	}
 
 	return t;
+}
+
+const std::string TimelineWidgetCreator::getDFGNodeTypeName()
+{
+	return "am::gui::timeline";
+}
+
+void TimelineWidgetCreator::associateDFGNode(QWidget* w, struct am_dfg_node* n)
+{
+	ManagedTimelineWidget* t;
+	struct am_dfg_amgui_timeline_node* tn;
+
+	t = static_cast<ManagedTimelineWidget*>(w);
+	tn = reinterpret_cast<struct am_dfg_amgui_timeline_node*>(n);
+	t->setDFGNode(n);
+	tn->timeline = t;
 }

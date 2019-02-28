@@ -17,6 +17,7 @@
 
 #include "HierarchyComboBoxCreator.h"
 #include "../widgets/ManagedWidget.h"
+#include "../../dfg/nodes/gui/hierarchy_combobox.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedHierarchyComboBox,
@@ -37,4 +38,22 @@ QWidget* HierarchyComboBoxCreator::instantiate(
 	const struct am_object_notation_node_group* n)
 {
 	return this->instantiateDefault();
+}
+
+const std::string HierarchyComboBoxCreator::getDFGNodeTypeName()
+{
+	return "am::gui::hierarchy_combobox";
+}
+
+void HierarchyComboBoxCreator::associateDFGNode(QWidget* w,
+						struct am_dfg_node* n)
+{
+	struct am_dfg_amgui_hierarchy_combobox_node* hn;
+	HierarchyComboBox* c;
+
+	c = static_cast<HierarchyComboBox*>(w);
+	hn = reinterpret_cast<struct am_dfg_amgui_hierarchy_combobox_node*>(n);
+
+	c->setDFGNode(n);
+	hn->widget = c;
 }

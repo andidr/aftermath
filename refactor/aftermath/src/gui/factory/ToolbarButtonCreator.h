@@ -21,6 +21,7 @@
 #include "GUIFactory.h"
 #include "../widgets/ManagedWidget.h"
 #include "../widgets/ToolbarButton.h"
+#include "../../dfg/nodes/gui/toolbar_button.h"
 
 /* Helper class for traversal of Aftermath GUI */
 AM_ALIAS_WIDGET(ManagedToolbarToggleButton,
@@ -97,6 +98,21 @@ class AbstractToolbarButtonCreator : public NonContainerWidgetCreator {
 			}
 
 			return b;
+		}
+
+		const std::string getDFGNodeTypeName() {
+			return "am::gui::toolbar_button";
+		}
+
+		void associateDFGNode(QWidget* w, struct am_dfg_node* n) {
+			ToolbarButton* b;
+			struct am_dfg_amgui_toolbar_button_node* tn;
+
+			b = static_cast<ToolbarButton*>(w);
+			tn = reinterpret_cast<struct am_dfg_amgui_toolbar_button_node*>(n);
+
+			b->setDFGNode(n);
+			tn->button = b;
 		}
 };
 

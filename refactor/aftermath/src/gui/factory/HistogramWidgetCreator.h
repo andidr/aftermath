@@ -34,6 +34,9 @@ class HistogramWidgetCreator : public NonContainerWidgetCreator {
 
 		virtual QWidget*
 		instantiate(const struct am_object_notation_node_group* n);
+
+		const std::string getDFGNodeTypeName();
+		void associateDFGNode(QWidget* w, struct am_dfg_node* n);
 };
 
 #endif

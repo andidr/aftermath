@@ -30,6 +30,7 @@
 
 extern "C" {
 	#include <aftermath/core/object_notation.h>
+	#include <aftermath/core/dfg_node.h>
 }
 
 /* Base class for objects that are able to create a widget from an object
@@ -58,6 +59,15 @@ class WidgetCreator {
 
 		/* Instantiates the associated widget with default values */
 		virtual QWidget* instantiateDefault() = 0;
+
+		/* Returns the name of the type of the associated DFG node. If
+		 * the widget does not use a DFG node, the function returns
+		 * an empty string. */
+		virtual const std::string getDFGNodeTypeName()
+		{ return ""; }
+
+		virtual void associateDFGNode(QWidget* w, struct am_dfg_node* n)
+		{ }
 
 		/* Add the children to an earlier created widget. Will only be
 		 * called by a GUI factory if isContainer() returns true and if
