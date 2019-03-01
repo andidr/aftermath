@@ -112,6 +112,54 @@ void AftermathController::execCreateNodeAtAdialog(struct am_dfg_graph* g,
 	}
 }
 
+/* Sets up the connections of a widget; The number of added connections is
+ * returned in *num_connections. */
+void AftermathController::setupConnections(QWidget* w, size_t* num_connections)
+{
+	DFGWidget* dfgWidget;
+
+	if(w->property("DFGNode").isValid()) {
+		QMetaObject::Connection c = QObject::connect(
+			w,
+			SIGNAL(processDFGNodeSignal(struct am_dfg_node*)),
+			this->session->getDFGProcessorp(),
+			SLOT(DFGNodeTriggered(struct am_dfg_node*)));
+
+		this->connections.push_back(c);
+		(*num_connections)++;
+	}
+
+	if((dfgWidget = dynamic_cast<DFGWidget*>(w))) {
+		dfgWidget->setGraph(session->getDFG());
+		dfgWidget->setCoordinateMapping(session->getDFGCoordinateMapping());
+		dfgWidget->setTypeRegistry(session->getDFGTypeRegistry());
+
+		QMetaObject::Connection c = QObject::connect(
+			dfgWidget,
+			&DFGWidget::nodeDoubleClicked,
+			[&](struct am_dfg_node* n){
+				this->DFGNodeDoubleClicked(n);
+			});
+		this->connections.push_back(c);
+		(*num_connections)++;
+
+		c = QObject::connect(
+			dfgWidget,
+			&DFGWidget::createNodeAt,
+			[&](struct am_dfg_graph* g, struct am_point p) {
+				this->execCreateNodeAtAdialog(g, p);
+			});
+		this->connections.push_back(c);
+		(*num_connections)++;
+
+		c = QObject::connect(dfgWidget,
+				     &DFGWidget::portsConnected,
+				     this->portsConnected);
+		this->connections.push_back(c);
+		(*num_connections)++;
+	}
+}
+
 AftermathController::AftermathController(AftermathSession* session,
 					 MainWindow* mainWindow)
 	: mainWindow(mainWindow), session(session)
@@ -119,71 +167,18 @@ AftermathController::AftermathController(AftermathSession* session,
 	AftermathGUI& gui = session->getGUI();
 	qRegisterMetaType<struct am_dfg_node*>("am_dfg_node*");
 
-	/* Set up DFG widgets */
-	gui.applyToWidgetsOfType<DFGWidget>(
-		[&](DFGWidget* w) {
-			QMetaObject::Connection c;
+	size_t num_connections = 0;
 
-			w->setGraph(session->getDFG());
-			w->setCoordinateMapping(session->getDFGCoordinateMapping());
-			w->setTypeRegistry(session->getDFGTypeRegistry());
-
-			c = QObject::connect(
-				w, &DFGWidget::nodeDoubleClicked,
-				[&](struct am_dfg_node* n){
-					this->DFGNodeDoubleClicked(n);
-				});
-			this->connections.push_back(c);
-
-			c = QObject::connect(
-				w,
-				&DFGWidget::createNodeAt,
-				[&](struct am_dfg_graph* g, struct am_point p) {
-					this->execCreateNodeAtAdialog(g, p);
-				});
-			this->connections.push_back(c);
-
-			c = QObject::connect(w, &DFGWidget::portsConnected,
-					    this->portsConnected);
-			this->connections.push_back(c);
-		});
-
-	/* Set up widgets that can trigger re-evaluation of a DFG node */
-	gui.applyToWidgetsOfType<CairoWidgetWithDFGNode>(
-		[&](CairoWidgetWithDFGNode* w) {
-			QMetaObject::Connection c;
-
-			c = QObject::connect(
-				w,
-				&CairoWidgetWithDFGNode::processDFGNodeSignal,
-				session->getDFGProcessorp(),
-				&DFGQTProcessor::DFGNodeTriggered);
-			this->connections.push_back(c);
-		});
-
-	gui.applyToWidgetsOfType<HierarchyComboBox>(
-		[&](HierarchyComboBox* w) {
-			QMetaObject::Connection c;
-
-			c = QObject::connect(
-				w,
-				&HierarchyComboBox::processDFGNodeSignal,
-				session->getDFGProcessorp(),
-				&DFGQTProcessor::DFGNodeTriggered);
-			this->connections.push_back(c);
-		});
-
-	gui.applyToWidgetsOfType<ToolbarButton>(
-		[&](ToolbarButton* w) {
-			QMetaObject::Connection c;
-
-			c = QObject::connect(
-				w,
-				&ToolbarButton::processDFGNodeSignal,
-				session->getDFGProcessorp(),
-				&DFGQTProcessor::DFGNodeTriggered);
-			this->connections.push_back(c);
-		});
+	try {
+		gui.applyToWidgetsOfType<QWidget>(
+			[&](QWidget* w) {
+				this->setupConnections(w, &num_connections);
+			});
+	} catch(...) {
+		auto it = this->connections.end() - num_connections;
+		this->connections.erase(it, this->connections.end());
+		throw;
+	}
 
 	/* Set root widget */
 	try {

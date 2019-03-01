@@ -54,6 +54,7 @@ class AftermathController {
 		void deleteWidgetRec(ManagedWidget* w);
 		void widgetDeletionOrder(QObject* o,
 					 QList<ManagedWidget*>& list);
+		void setupConnections(QWidget* w, size_t* num_connections);
 		bool reparentWidget(ManagedWidget* w,
 				    ManagedContainerWidget* old_parent,
 				    int old_idx,
