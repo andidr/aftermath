@@ -128,6 +128,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/parser.h \
 	aftermath/core/prng.h \
 	aftermath/core/ptr.h \
+	aftermath/core/qselect.h \
 	aftermath/core/qsort.h \
 	aftermath/core/safe_alloc.h \
 	aftermath/core/state_description_array.h \
