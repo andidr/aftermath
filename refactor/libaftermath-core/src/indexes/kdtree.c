@@ -18,15 +18,17 @@
 
 #include <aftermath/core/indexes/kdtree.h>
 #include <aftermath/core/bsearch.h>
-#include <aftermath/core/qsort.h>
+#include <aftermath/core/qselect.h>
+#include <aftermath/core/ptr.h>
 
 #define AM_KDTREE_NODE_PCMP(a, b) \
 	AM_VALCMP_EXPR((*a)->coordinates[*data], (*b)->coordinates[*data])
 
-AM_DECL_QSORT_SUFFIX_DATA_ARG(am_kdtree_nodes_, _ptrs,
-			      struct am_kdtree_node*,
-			      AM_KDTREE_NODE_PCMP,
-			      size_t)
+AM_DECL_QSELECT_NTH_GREATEST_SUFFIX_DATA_ARG(
+	am_kdtree_nodes_, _ptrs,
+	struct am_kdtree_node*,
+	AM_KDTREE_NODE_PCMP,
+	size_t)
 
 void am_kdtree_init(struct am_kdtree* t, size_t num_dimensions)
 {
@@ -51,6 +53,7 @@ int am_kdtree_split(struct am_kdtree_node** out,
 {
 	size_t next_dimension = (dimension + 1) % num_dimensions;
 	size_t median_idx;
+	struct am_kdtree_node** median;
 
 	if(curr_depth > max_depth)
 		return 1;
@@ -63,8 +66,13 @@ int am_kdtree_split(struct am_kdtree_node** out,
 		(*out)->greater = NULL;
 	} else if(num_nodes > 1) {
 		/* Sort according to current dimension */
-		am_kdtree_nodes_qsort_ptrs(nodes, num_nodes, &dimension);
-		median_idx = num_nodes / 2;
+		if(!(median = am_kdtree_nodes_qselect_nth_greatest_ptrs(
+			     nodes, num_nodes, num_nodes / 2, &dimension)))
+		{
+			return 1;
+		}
+
+		median_idx = AM_ARRAY_INDEX(nodes, median);
 		*out = nodes[median_idx];
 
 		/* Nodes with current dimension smaller */
