@@ -32,6 +32,10 @@ am_telamon_candidate = InMemoryCompoundType(
 
     fields = FieldList([
         Field(
+            name = "id",
+            type = aftermath.types.builtin.uint64_t,
+            comment = "ID of this candidate"),
+        Field(
             name = "exploration_time",
             type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was first encountered " +
