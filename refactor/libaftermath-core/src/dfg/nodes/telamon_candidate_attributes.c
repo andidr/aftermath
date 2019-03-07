@@ -25,7 +25,7 @@ int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 	struct am_dfg_port* pcandidate_in = &n->ports[0];
 	struct am_dfg_port* pid_out = &n->ports[1];
 	struct am_dfg_port* paction_out = &n->ports[2];
-	struct am_dfg_port* pexploration_time_out = &n->ports[3];
+	struct am_dfg_port* pinternal_time_out = &n->ports[3];
 	struct am_dfg_port* prollout_time_out = &n->ports[4];
 	struct am_dfg_port* pdeadend_time_out = &n->ports[5];
 	struct am_dfg_port* pperfmodel_bound_out = &n->ports[6];
@@ -113,15 +113,15 @@ int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 		}
 	}
 
-	if(am_dfg_port_activated(pexploration_time_out)) {
+	if(am_dfg_port_activated(pinternal_time_out)) {
 		candidate_in = pcandidate_in->buffer->data;
 
 		for(size_t i = 0; i < pcandidate_in->buffer->num_samples; i++) {
 			candidate = candidate_in[i];
 
-			if(am_dfg_buffer_write(pexploration_time_out->buffer,
+			if(am_dfg_buffer_write(pinternal_time_out->buffer,
 					       1,
-					       &candidate->exploration_time))
+					       &candidate->internal_time))
 			{
 				return 1;
 			}

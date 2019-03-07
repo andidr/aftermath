@@ -75,6 +75,16 @@ struct am_telamon_candidate_tree_renderer_params {
 			struct {
 				struct am_rgba fill;
 				struct am_rgba stroke;
+			} unexplored;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
+			} unexplored_deadend;
+
+			struct {
+				struct am_rgba fill;
+				struct am_rgba stroke;
 			} unknown;
 		} nodes;
 

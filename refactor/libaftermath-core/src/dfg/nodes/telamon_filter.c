@@ -20,7 +20,11 @@
 #include <aftermath/core/base_types.h>
 #include <aftermath/core/telamon.h>
 
-#define AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(FILTER_TYPE, TYPE_LIST)	\
+#define TYPE_ONLY 0x1
+#define LIVENESS_ONLY 0x2
+#define BOTH (TYPE_ONLY | LIVENESS_ONLY)
+
+#define AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(FILTER_TYPE, PREDICATE) \
 	int am_dfg_telamon_candidate_type_filter_##FILTER_TYPE##_node_process(	\
 		struct am_dfg_node* n)						\
 	{									\
@@ -29,9 +33,7 @@
 		struct am_dfg_port* pout = &n->ports[2];			\
 		struct am_telamon_candidate** in;				\
 		am_timestamp_t time = AM_TIMESTAMP_T_MAX;			\
-		static const enum am_telamon_candidate_type include_types[] =	\
-			TYPE_LIST;						\
-		enum am_telamon_candidate_type type;				\
+		struct am_telamon_candidate_classification cls;		\
 										\
 		if(am_dfg_port_activated_and_has_data(ptime)) {		\
 			if(am_dfg_buffer_read_last(ptime->buffer, &time))	\
@@ -44,18 +46,14 @@
 			in = pin->buffer->data;				\
 										\
 			for(size_t i = 0; i < pin->buffer->num_samples; i++) {	\
-				type = am_telamon_candidate_get_type(in[i], time); \
+				am_telamon_candidate_classify(in[i], time, &cls);\
 										\
-				for(size_t j = 0;				\
-				    j < AM_ARRAY_SIZE(include_types);		\
-				    j++)					\
-				{						\
-					if(type == include_types[j]) {		\
-						if(am_dfg_buffer_write(	\
-							   pout->buffer, 1, &in[i])) \
-						{				\
-							return 1;		\
-						}				\
+				if(PREDICATE(&cls)) {				\
+					if(am_dfg_buffer_write(pout->buffer,	\
+							       1,		\
+							       &in[i]))	\
+					{					\
+						return 1;			\
 					}					\
 				}						\
 			}							\
@@ -64,20 +62,61 @@
 		return 0;							\
 	}
 
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(unknown, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_UNKNOWN }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_internal, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_INTERNAL_NODE, AM_TELAMON_CANDIDATE_INTERNAL_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_rollout, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_ROLLOUT_NODE, AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND, AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE, AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_rollout_not_implementation, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_ROLLOUT_NODE, AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_implementation, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE, AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(implementation_not_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(internal_not_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_INTERNAL_NODE }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(rollout_not_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_ROLLOUT_NODE, AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(rollout_not_deadend_not_implementation, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_ROLLOUT_NODE }))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	unknown, am_telamon_candidate_is_unknown_node)
 
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_INTERNAL_DEADEND, AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND, AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(internal_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_INTERNAL_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(rollout_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND }))
-AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(implementation_deadend, AM_MACRO_ARG_PROTECT({ AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND }))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	any_internal, am_telamon_candidate_is_internal_node)
+
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	any_rollout, am_telamon_candidate_is_rollout_node)
+
+#define P(pcls) (am_telamon_candidate_is_rollout_node(pcls) && \
+		 !am_telamon_candidate_is_implementation(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(any_rollout_not_implementation, P)
+
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	any_implementation, am_telamon_candidate_is_implementation)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_implementation(pcls) && \
+		 am_telamon_candidate_is_alive(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(implementation_not_deadend, P)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_internal_node(pcls) && \
+		 am_telamon_candidate_is_alive(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(internal_not_deadend, P)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_rollout_node(pcls) && \
+		 am_telamon_candidate_is_alive(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(rollout_not_deadend, P)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_rollout_node(pcls) &&	       \
+		 am_telamon_candidate_is_alive(pcls) &&	       \
+		 !am_telamon_candidate_is_implementation(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	rollout_not_deadend_not_implementation, P)
+
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(
+	any_deadend, am_telamon_candidate_is_deadend)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_internal_node(pcls) && \
+		 am_telamon_candidate_is_deadend(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(internal_deadend, P)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_rollout_node(pcls) &&	\
+		 am_telamon_candidate_is_deadend(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(rollout_deadend, P)
+
+#undef P
+#define P(pcls) (am_telamon_candidate_is_implementation(pcls) && \
+		 am_telamon_candidate_is_deadend(pcls))
+AM_DFG_TELAMON_CANDIDATE_TYPE_FILTER_NODE_IMPL(implementation_deadend, P)
 
 int am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_process(
 	struct am_dfg_node* n)
@@ -93,6 +132,7 @@ int am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_process(
 	size_t nknown = 0;
 	size_t nin;
 	size_t old_nout;
+	struct am_telamon_candidate_classification cls;
 
 	if(am_dfg_port_activated_and_has_data(ptime)) {
 		if(am_dfg_buffer_read_last(ptime->buffer, &time))
@@ -116,8 +156,9 @@ int am_dfg_telamon_candidate_type_filter_perfmodel_lowest_n_node_process(
 
 		/* Filter out nodes that are unknown at this point in time */
 		for(size_t i = 0; i < nin; i++) {
-			if(am_telamon_candidate_get_type(in[i], time) !=
-			   AM_TELAMON_CANDIDATE_UNKNOWN &&
+			am_telamon_candidate_classify(in[i], time, &cls);
+
+			if(!am_telamon_candidate_is_unknown_node(&cls) &&
 			   am_telamon_candidate_perfmodel_bound_valid(in[i]))
 			{
 				out[nknown++] = in[i];

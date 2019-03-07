@@ -16,10 +16,16 @@
  * USA.
  */
 
-#include <aftermath/render/dfg/nodes/timeline/layers/telamon_evaluation.h>
-#include <aftermath/render/timeline/layer.h>
+#ifndef AM_TELAMON_CANDIDATE_MARK_IMPLEMENTATION_ACTION_ARRAY_H
+#define AM_TELAMON_CANDIDATE_MARK_IMPLEMENTATION_ACTION_ARRAY_H
 
-AM_RENDER_DFG_IMPL_TIMELINE_LAYER_FILTER_NODE_TYPE(
-	telamon_evaluation,
-	"telamon::evaluation",
-	struct am_timeline_interval_layer)
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
+
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_mark_implementation_action_array,
+		    struct am_telamon_candidate_mark_implementation_action)
+
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_mark_implementation_actionp_array,
+		    struct am_telamon_candidate_mark_implementation_action*)
+
+#endif

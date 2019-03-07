@@ -100,7 +100,7 @@ am_dfg_graph {
 		[21u64, "out", 22u64, "in"],
 		[20u64, "rollout_time", 23u64, "in"],
 		[23u64, "out", 24u64, "in"],
-		[20u64, "exploration_time", 25u64, "in"],
+		[20u64, "internal_time", 25u64, "in"],
 		[25u64, "out", 26u64, "in"],
 		[34u64, "out", 27u64, "in"],
 		[33u64, "out", 29u64, "in"],

@@ -95,35 +95,54 @@ static void am_telamon_candidate_tree_node_colors(
 	const struct am_rgba** fill_color,
 	const struct am_rgba** stroke_color)
 {
-	switch(am_telamon_candidate_get_type(c, t)) {
-		case AM_TELAMON_CANDIDATE_UNKNOWN:
+	struct am_telamon_candidate_classification cls;
+
+	am_telamon_candidate_classify(c, t, &cls);
+
+	switch(cls.type) {
+		case AM_TELAMON_CANDIDATE_TYPE_UNKNOWN_NODE:
 			*fill_color = &r->params.color.nodes.unknown.fill;
 			*stroke_color = &r->params.color.nodes.unknown.stroke;
 			break;
-		case AM_TELAMON_CANDIDATE_INTERNAL_NODE:
-			*fill_color = &r->params.color.nodes.internal_node.fill;
-			*stroke_color = &r->params.color.nodes.internal_node.stroke;
+		case AM_TELAMON_CANDIDATE_TYPE_UNEXPLORED:
+			if(am_telamon_candidate_is_alive(&cls)) {
+				*fill_color = &r->params.color.nodes.unexplored.fill;
+				*stroke_color = &r->params.color.nodes.unexplored.stroke;
+			} else {
+				*fill_color = &r->params.color.nodes.unexplored_deadend.fill;
+				*stroke_color = &r->params.color.nodes.unexplored_deadend.stroke;
+			}
 			break;
-		case AM_TELAMON_CANDIDATE_INTERNAL_DEADEND:
-			*fill_color = &r->params.color.nodes.internal_deadend.fill;
-			*stroke_color = &r->params.color.nodes.internal_deadend.stroke;
+		case AM_TELAMON_CANDIDATE_TYPE_INTERNAL_NODE:
+			if(am_telamon_candidate_is_alive(&cls)) {
+				*fill_color = &r->params.color.nodes.internal_node.fill;
+				*stroke_color = &r->params.color.nodes.internal_node.stroke;
+			} else {
+				*fill_color = &r->params.color.nodes.internal_deadend.fill;
+				*stroke_color = &r->params.color.nodes.internal_deadend.stroke;
+			}
 			break;
-		case AM_TELAMON_CANDIDATE_ROLLOUT_NODE:
-			*fill_color = &r->params.color.nodes.rollout_node.fill;
-			*stroke_color = &r->params.color.nodes.rollout_node.stroke;
+		case AM_TELAMON_CANDIDATE_TYPE_ROLLOUT_NODE:
+			if(am_telamon_candidate_is_alive(&cls)) {
+				*fill_color = &r->params.color.nodes.rollout_node.fill;
+				*stroke_color = &r->params.color.nodes.rollout_node.stroke;
+			} else {
+				*fill_color = &r->params.color.nodes.rollout_deadend.fill;
+				*stroke_color = &r->params.color.nodes.rollout_deadend.stroke;
+			}
 			break;
-		case AM_TELAMON_CANDIDATE_ROLLOUT_DEADEND:
-			*fill_color = &r->params.color.nodes.rollout_deadend.fill;
-			*stroke_color = &r->params.color.nodes.rollout_deadend.stroke;
-			break;
-		case AM_TELAMON_CANDIDATE_IMPLEMENTATION_NODE:
+	}
+
+	if(!am_telamon_candidate_is_unknown_node(&cls) &&
+	   am_telamon_candidate_is_implementation(&cls))
+	{
+		if(am_telamon_candidate_is_alive(&cls)) {
 			*fill_color = &r->params.color.nodes.implementation_node.fill;
 			*stroke_color = &r->params.color.nodes.implementation_node.stroke;
-			break;
-		case AM_TELAMON_CANDIDATE_IMPLEMENTATION_DEADEND:
+		} else {
 			*fill_color = &r->params.color.nodes.implementation_deadend.fill;
 			*stroke_color = &r->params.color.nodes.implementation_deadend.stroke;
-			break;
+		}
 	}
 }
 
@@ -529,8 +548,14 @@ void am_telamon_candidate_tree_renderer_init(struct am_telamon_candidate_tree_re
 	p->color.nodes.unknown.fill = AM_RGBA255(0, 0, 0, 0);
 	p->color.nodes.unknown.stroke = AM_RGBA255(0, 0, 0, 0);
 
-	p->color.nodes.internal_node.fill = AM_RGBA255(200, 200, 200, 255);
-	p->color.nodes.internal_node.stroke = AM_RGBA255(127, 127, 127, 255);
+	p->color.nodes.unexplored.fill = AM_RGBA255(0, 0, 0, 100);
+	p->color.nodes.unexplored.stroke = AM_RGBA255(0, 0, 0, 100);
+
+	p->color.nodes.unexplored_deadend.fill = AM_RGBA255(173, 113, 113, 255);
+	p->color.nodes.unexplored_deadend.stroke = AM_RGBA255(188, 98, 98, 255);
+
+	p->color.nodes.internal_node.fill = AM_RGBA255(129, 153, 255, 255);
+	p->color.nodes.internal_node.stroke = AM_RGBA255(31, 76, 255, 255);
 
 	p->color.nodes.rollout_node.fill = AM_RGBA255(180, 212, 255, 255);
 	p->color.nodes.rollout_node.stroke = AM_RGBA255(0, 100, 234, 255);

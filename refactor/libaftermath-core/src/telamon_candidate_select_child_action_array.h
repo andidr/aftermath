@@ -16,12 +16,16 @@
  * USA.
  */
 
-#ifndef AM_TIMELINE_LANER_RENDERER_TELAMON_EVALUATION_H
-#define AM_TIMELINE_LANER_RENDERER_TELAMON_EVALUATION_H
+#ifndef AM_TELAMON_CANDIDATE_SELECT_CHILD_ACTION_ARRAY_H
+#define AM_TELAMON_CANDIDATE_SELECT_CHILD_ACTION_ARRAY_H
 
-#include <aftermath/render/timeline/layer.h>
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
 
-struct am_timeline_render_layer_type*
-am_timeline_telamon_evaluation_layer_instantiate_type(void);
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_select_child_action_array,
+		    struct am_telamon_candidate_select_child_action)
+
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_select_child_actionp_array,
+		    struct am_telamon_candidate_select_child_action*)
 
 #endif

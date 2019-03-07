@@ -16,12 +16,16 @@
  * USA.
  */
 
-#ifndef AM_TELAMON_EVALUATION_ARRAY_H
-#define AM_TELAMON_EVALUATION_ARRAY_H
+#ifndef AM_TELAMON_CANDIDATE_SELECT_ACTION_ARRAY_H
+#define AM_TELAMON_CANDIDATE_SELECT_ACTION_ARRAY_H
 
 #include <aftermath/core/typed_array.h>
 #include <aftermath/core/in_memory.h>
 
-AM_DECL_TYPED_ARRAY(am_telamon_evaluation_array, struct am_telamon_evaluation)
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_select_action_array,
+		    struct am_telamon_candidate_select_action)
+
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_select_actionp_array,
+		    struct am_telamon_candidate_select_action*)
 
 #endif

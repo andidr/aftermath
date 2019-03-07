@@ -35,7 +35,7 @@ am_gui {
 							children : [
 								amgui_timeline {
 									id: "tl1",
-									layers: ["background", "hierarchy", "axes", "telamon::evaluation", "selection"]
+									layers: ["background", "hierarchy", "axes", "selection"]
 								},
 								amgui_vsplitter {
 									stretch: [90u64, 10u64],

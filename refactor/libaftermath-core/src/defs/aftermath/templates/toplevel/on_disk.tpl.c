@@ -33,7 +33,13 @@
 #include <aftermath/core/counter_event_array_collection.h>
 
 #include <aftermath/core/telamon_candidate_array.h>
-#include <aftermath/core/telamon_evaluation_array.h>
+#include <aftermath/core/telamon_candidate_expand_action_array.h>
+#include <aftermath/core/telamon_candidate_evaluate_action_array.h>
+#include <aftermath/core/telamon_candidate_kill_action_array.h>
+#include <aftermath/core/telamon_candidate_mark_implementation_action_array.h>
+#include <aftermath/core/telamon_candidate_select_action_array.h>
+#include <aftermath/core/telamon_candidate_select_child_action_array.h>
+#include <aftermath/core/telamon_thread_trace_array.h>
 
 #include <aftermath/core/tensorflow_node_array.h>
 #include <aftermath/core/tensorflow_node_execution_array.h>

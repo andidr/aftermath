@@ -42,7 +42,13 @@
 #include <aftermath/core/tensorflow_node_execution_array.h>
 
 #include <aftermath/core/telamon_candidate_array.h>
-#include <aftermath/core/telamon_evaluation_array.h>
+#include <aftermath/core/telamon_candidate_evaluate_action_array.h>
+#include <aftermath/core/telamon_candidate_expand_action_array.h>
+#include <aftermath/core/telamon_candidate_kill_action_array.h>
+#include <aftermath/core/telamon_candidate_mark_implementation_action_array.h>
+#include <aftermath/core/telamon_candidate_select_action_array.h>
+#include <aftermath/core/telamon_candidate_select_child_action_array.h>
+#include <aftermath/core/telamon_thread_trace_array.h>
 
 #include <aftermath/core/on_disk_meta.h>
 
@@ -72,7 +78,13 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_execution_array)
 
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidatep_array)
-AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_evaluation_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_evaluate_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_expand_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_kill_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_mark_implementation_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_select_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_candidate_select_child_action_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_telamon_thread_trace_array)
 
 int am_build_default_trace_array_registry(struct am_array_registry* r)
 {
@@ -112,10 +124,22 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 					      "am::tensorflow::node_execution") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_array,
 					      "am::telamon::candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_evaluate_action_array,
+					      "am::telamon::action::evaluate_candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_expand_action_array,
+					      "am::telamon::action::expand_candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_kill_action_array,
+					      "am::telamon::action::kill_candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_mark_implementation_action_array,
+					      "am::telamon::action::mark_implementation") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_select_action_array,
+					      "am::telamon::action::select_candidate") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidate_select_child_action_array,
+					      "am::telamon::action::select_child") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_candidatep_array,
 					      "am::telamon::candidate_root") ||
-	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_evaluation_array,
-					      "am::telamon::evaluation"))
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_telamon_thread_trace_array,
+					      "am::telamon::thread_trace"))
 	{
 		return 1;
 	}

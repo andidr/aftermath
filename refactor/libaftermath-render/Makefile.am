@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 
 lib_LTLIBRARIES = libaftermath-render.la
 
-AM_CPPFLAGS = -I$(srcdir)/headers -I$(builddir)/headers -Wall -Werror
+AM_CPPFLAGS = -I$(srcdir)/headers -I$(builddir)/headers
 
 libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/cairo_extras.h \
@@ -21,8 +21,6 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/nodes/timeline/layers/hierarchy.h \
 	src/dfg/nodes/timeline/layers/state.c \
 	src/dfg/nodes/timeline/layers/state.h \
-	src/dfg/nodes/timeline/layers/telamon_evaluation.c \
-	src/dfg/nodes/timeline/layers/telamon_evaluation.h \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.c \
 	src/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	src/dfg/renderer.c \
@@ -54,8 +52,6 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/lane.h \
 	src/timeline/layers/lane/state_event.c \
 	src/timeline/layers/lane/state_event.h \
-	src/timeline/layers/lane/telamon/evaluation.c \
-	src/timeline/layers/lane/telamon/evaluation.h \
 	src/timeline/layers/lane/tensorflow/node_execution.c \
 	src/timeline/layers/lane/tensorflow/node_execution.h \
 	src/timeline/layers/measurement_intervals.c \

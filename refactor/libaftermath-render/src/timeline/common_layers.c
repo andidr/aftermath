@@ -28,7 +28,6 @@
 #include <aftermath/core/trace.h>
 
 #include <aftermath/render/timeline/layers/lane/state_event.h>
-#include <aftermath/render/timeline/layers/lane/telamon/evaluation.h>
 #include <aftermath/render/timeline/layers/lane/tensorflow/node_execution.h>
 
 static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {
@@ -38,8 +37,7 @@ static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {
 	am_timeline_measurement_intervals_layer_instantiate_type,
 	am_timeline_state_layer_instantiate_type,
 	am_timeline_selection_layer_instantiate_type,
-	am_timeline_tensorflow_node_execution_layer_instantiate_type,
-	am_timeline_telamon_evaluation_layer_instantiate_type
+	am_timeline_tensorflow_node_execution_layer_instantiate_type
 };
 
 int am_register_common_timeline_layer_types

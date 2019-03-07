@@ -16,18 +16,16 @@
  * USA.
  */
 
-#ifndef AM_RENDER_DFG_NODE_TIMELINE_LAYERS_TELAMON_EVALUATION_H
-#define AM_RENDER_DFG_NODE_TIMELINE_LAYERS_TELAMON_EVALUATION_H
+#ifndef AM_TELAMON_CANDIDATE_KILL_ACTION_ARRAY_H
+#define AM_TELAMON_CANDIDATE_KILL_ACTION_ARRAY_H
 
-#include <aftermath/core/dfg_node.h>
-#include <aftermath/render/dfg/timeline_layer_common.h>
+#include <aftermath/core/typed_array.h>
+#include <aftermath/core/in_memory.h>
 
-AM_RENDER_DFG_DECL_TIMELINE_LAYER_FILTER_NODE_TYPE(
-	telamon_evaluation,
-	"telamon::evaluation",
-	"Timeline Telamon Evaluation Layer Filter")
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_kill_action_array,
+		    struct am_telamon_candidate_kill_action)
 
-AM_DFG_ADD_BUILTIN_NODE_TYPES(
-	&am_render_dfg_timeline_telamon_evaluation_layer_filter_node_type)
+AM_DECL_TYPED_ARRAY(am_telamon_candidate_kill_actionp_array,
+		    struct am_telamon_candidate_kill_action*)
 
 #endif

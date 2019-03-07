@@ -24,10 +24,6 @@
 #include <aftermath/render/dfg/nodes/timeline/layers/axes.h>
 
 #undef DEFS_NAME
-#define DEFS_NAME() telamon_evaluation_defs
-#include <aftermath/render/dfg/nodes/timeline/layers/telamon_evaluation.h>
-
-#undef DEFS_NAME
 #define DEFS_NAME() tfexec_defs
 #include <aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h>
 
@@ -54,7 +50,6 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	hierarchy_defs,
 	rgba_constant_defs,
 	state_defs,
-	telamon_evaluation_defs,
 	tfexec_defs,
 	NULL
 };

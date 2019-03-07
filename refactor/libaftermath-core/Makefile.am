@@ -229,7 +229,13 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/telamon.c \
 				src/telamon.h \
 				src/telamon_candidate_array.h \
-				src/telamon_evaluation_array.h \
+				src/telamon_candidate_evaluate_action_array.h \
+				src/telamon_candidate_expand_action_array.h \
+				src/telamon_candidate_kill_action_array.h \
+				src/telamon_candidate_mark_implementation_action_array.h \
+				src/telamon_candidate_select_action_array.h \
+				src/telamon_candidate_select_child_action_array.h \
+				src/telamon_thread_trace_array.h \
 				src/tensorflow_node_array.h \
 				src/tensorflow_node_execution_array.h \
 				src/timestamp.h \

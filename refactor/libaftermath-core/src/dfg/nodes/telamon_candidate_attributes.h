@@ -37,7 +37,7 @@ AM_DFG_DECL_BUILTIN_NODE_TYPE(
 		{ "in", "const am::telamon::candidate*", AM_DFG_PORT_IN },
 		{ "id", "am::core::uint64", AM_DFG_PORT_OUT },
 		{ "actions", "am::core::string", AM_DFG_PORT_OUT },
-		{ "exploration_time", "am::core::timestamp", AM_DFG_PORT_OUT },
+		{ "internal_time", "am::core::timestamp", AM_DFG_PORT_OUT },
 		{ "rollout_time", "am::core::timestamp", AM_DFG_PORT_OUT },
 		{ "deadend_time", "am::core::timestamp", AM_DFG_PORT_OUT },
 		{ "perfmodel_bound", "am::core::double", AM_DFG_PORT_OUT },

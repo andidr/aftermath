@@ -7,7 +7,6 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/nodes/timeline/layers/background.h \
 	aftermath/render/dfg/nodes/timeline/layers/hierarchy.h \
 	aftermath/render/dfg/nodes/timeline/layers/state.h \
-	aftermath/render/dfg/nodes/timeline/layers/telamon_evaluation.h \
 	aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	aftermath/render/dfg/renderer.h \
 	aftermath/render/dfg/timeline_layer_common.h \
@@ -24,7 +23,6 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layers/hierarchy.h \
 	aftermath/render/timeline/layers/lane.h \
 	aftermath/render/timeline/layers/lane/state_event.h \
-	aftermath/render/timeline/layers/lane/telamon/evaluation.h \
 	aftermath/render/timeline/layers/lane/tensorflow/node_execution.h \
 	aftermath/render/timeline/layers/measurement_intervals.h \
 	aftermath/render/timeline/layers/interval.h \
