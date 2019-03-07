@@ -99,9 +99,23 @@
   #define restrict /* nothing */
 #endif
 
+#define AM_FIXED_SIZE_MEMSWP_IMPL(BITS)					\
+	static inline void am_memswp##BITS(					\
+		uint##BITS##_t* restrict a, uint##BITS##_t* restrict b)	\
+	{									\
+		uint##BITS##_t tmp = *a;					\
+		*a = *b;							\
+		*b = tmp;							\
+	}
+
+AM_FIXED_SIZE_MEMSWP_IMPL(8)
+AM_FIXED_SIZE_MEMSWP_IMPL(16)
+AM_FIXED_SIZE_MEMSWP_IMPL(32)
+AM_FIXED_SIZE_MEMSWP_IMPL(64)
+
 /* Swaps the contents of s bytes at address a with the s bytes at address b. The
  * swapped memory regions may not overlap. */
-static inline void am_memswp(void* restrict a, void* restrict b, size_t s)
+static inline void am_memswp_generic(void* restrict a, void* restrict b, size_t s)
 {
 	char tmp;
 	char* ac = (char*)a;
@@ -111,6 +125,50 @@ static inline void am_memswp(void* restrict a, void* restrict b, size_t s)
 		tmp = ac[i];
 		ac[i] = bc[i];
 		bc[i] = tmp;
+	}
+}
+
+/* Swaps the contents of n longs at address a with the n longs at address b. The
+ * swapped memory regions may not overlap. */
+static inline void am_memswp_long(long* restrict a, long* restrict b, size_t n)
+{
+	long tmp;
+
+	for(size_t i = 0; i < n; i++) {
+		tmp = a[i];
+		a[i] = b[i];
+		b[i] = tmp;
+	}
+}
+
+/* Swaps the contents of s bytes at address a with the s bytes at address
+ * b. Calls specialized implementations for swaps of small sizes. The swapped
+ * memory regions may not overlap. */
+static inline void am_memswp(void* restrict a, void* restrict b, size_t s)
+{
+	switch(s) {
+		case 1:
+			am_memswp8((uint8_t*)a, (uint8_t*)b);
+			break;
+		case 2:
+			am_memswp16((uint16_t*)a, (uint16_t*)b);
+			break;
+		case 4:
+			am_memswp32((uint32_t*)a, (uint32_t*)b);
+			break;
+		case 8:
+			am_memswp64((uint64_t*)a, (uint64_t*)b);
+			break;
+		default:
+			if(s % sizeof(long) == 0) {
+				am_memswp_long((long*)a,
+					       (long*)b,
+					       s / sizeof(long));
+			} else {
+				am_memswp_generic(a, b, s);
+			}
+
+			break;
 	}
 }
 
