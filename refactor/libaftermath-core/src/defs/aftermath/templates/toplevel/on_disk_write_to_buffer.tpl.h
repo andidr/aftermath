@@ -37,6 +37,22 @@
 {% set dsk_types = aftermath.config.getDskTypes() %}
 
 static inline int
+am_dsk_uint8_t_write_to_buffer(struct am_write_buffer* wb, const uint8_t* in)
+{
+	uint8_t* dst;
+
+	if(!(dst = (uint8_t*)am_write_buffer_reserve_bytes(
+		     wb, sizeof(*in))))
+	{
+		return 1;
+	}
+
+	*dst = *in;
+
+	return 0;
+}
+
+static inline int
 am_dsk_float_write_to_buffer(struct am_write_buffer* wb, const float* in)
 {
 	float* dst;
