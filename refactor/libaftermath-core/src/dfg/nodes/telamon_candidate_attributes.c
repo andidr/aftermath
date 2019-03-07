@@ -23,12 +23,13 @@
 int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 {
 	struct am_dfg_port* pcandidate_in = &n->ports[0];
-	struct am_dfg_port* paction_out = &n->ports[1];
-	struct am_dfg_port* pexploration_time_out = &n->ports[2];
-	struct am_dfg_port* prollout_time_out = &n->ports[3];
-	struct am_dfg_port* pdeadend_time_out = &n->ports[4];
-	struct am_dfg_port* pperfmodel_bound_out = &n->ports[5];
-	struct am_dfg_port* pperfmodel_bound_valid_out = &n->ports[6];
+	struct am_dfg_port* pid_out = &n->ports[1];
+	struct am_dfg_port* paction_out = &n->ports[2];
+	struct am_dfg_port* pexploration_time_out = &n->ports[3];
+	struct am_dfg_port* prollout_time_out = &n->ports[4];
+	struct am_dfg_port* pdeadend_time_out = &n->ports[5];
+	struct am_dfg_port* pperfmodel_bound_out = &n->ports[6];
+	struct am_dfg_port* pperfmodel_bound_valid_out = &n->ports[7];
 	struct am_telamon_candidate** candidate_in;
 	struct am_telamon_candidate* candidate;
 	int bool_val;
@@ -41,6 +42,21 @@ int am_dfg_telamon_candidate_attributes_node_process(struct am_dfg_node* n)
 
 	if(!am_dfg_port_activated_and_has_data(pcandidate_in))
 		return 0;
+
+	if(am_dfg_port_activated(pid_out)) {
+		candidate_in = pcandidate_in->buffer->data;
+
+		for(size_t i = 0; i < pcandidate_in->buffer->num_samples; i++) {
+			candidate = candidate_in[i];
+
+			if(am_dfg_buffer_write(pid_out->buffer,
+					       1,
+					       &candidate->id))
+			{
+				return 1;
+			}
+		}
+	}
 
 	if(am_dfg_port_activated(paction_out)) {
 		candidate_in = pcandidate_in->buffer->data;
