@@ -26,92 +26,13 @@
 #include <aftermath/render/timeline/renderer.h>
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/trace.h>
-#include <aftermath/core/tensorflow_node_array.h>
 
 #include <aftermath/render/timeline/layers/lane/state_event.h>
-
-struct am_color_map tensorflow_node_colors = AM_STATIC_COLOR_MAP({
-		AM_RGBA255_EL(117, 195, 255, 255),
-		AM_RGBA255_EL(  0,   0, 255, 255),
-		AM_RGBA255_EL(255, 255, 255, 255),
-		AM_RGBA255_EL(255,   0,   0, 255),
-		AM_RGBA255_EL(255,   0, 174, 255),
-		AM_RGBA255_EL(179,   0,   0, 255),
-		AM_RGBA255_EL(  0, 255,   0, 255),
-		AM_RGBA255_EL(255, 255,   0, 255),
-		AM_RGBA255_EL(235,   0,   0, 255)
-	});
+#include <aftermath/render/timeline/layers/lane/tensorflow/node_execution.h>
 
 struct am_color_map telamon_evaluation_colors = AM_STATIC_COLOR_MAP({
 		AM_RGBA255_EL(117, 195, 255, 255)
 	});
-
-static int tensorflow_node_execution_renderer_trace_changed(
-	struct am_timeline_render_layer* l,
-	struct am_trace* t)
-{
-	struct am_tensorflow_node_array* na;
-	struct am_timeline_interval_layer* il = (typeof(il))l;
-
-	if(!t || !(na = am_trace_find_trace_array(t, "am::tensorflow::node"))) {
-		am_timeline_interval_layer_set_extra_data(il, NULL);
-		return 0;
-	}
-
-	am_timeline_interval_layer_set_extra_data(il, na);
-
-	am_timeline_interval_layer_set_color_map(AM_TIMELINE_INTERVAL_LAYER(l),
-						 &tensorflow_node_colors);
-
-	if(na->num_elements > 0) {
-		return am_timeline_interval_layer_set_max_index(
-			AM_TIMELINE_INTERVAL_LAYER(l),
-			na->num_elements-1);
-	}
-
-	return 0;
-}
-
-static int tensorflow_node_execution_renderer_renderer_changed(
-	struct am_timeline_render_layer* l,
-	struct am_timeline_renderer* r)
-{
-	if(r->trace)
-		return tensorflow_node_execution_renderer_trace_changed(l, r->trace);
-	else
-		return 0;
-}
-
-static size_t
-am_timeline_tensorflow_node_execution_layer_calculate_index(
-	struct am_timeline_interval_layer* l,
-	void* arg)
-{
-	struct am_tensorflow_node_execution* ne = arg;
-	struct am_tensorflow_node_array* narr;
-
-	narr = am_timeline_interval_layer_get_extra_data(l);
-
-	return am_tensorflow_node_array_index(narr, ne->node);
-}
-
-static struct am_timeline_render_layer_type*
-am_timeline_tensorflow_node_execution_layer_instantiate_type(void)
-{
-	struct am_timeline_render_layer_type* t;
-
-	t = am_timeline_interval_layer_instantiate_type_index_fun(
-		"tensorflow::node_execution",
-		"am::tensorflow::node_execution",
-		sizeof(struct am_tensorflow_node_execution),
-		offsetof(struct am_tensorflow_node_execution, interval),
-		am_timeline_tensorflow_node_execution_layer_calculate_index);
-
-	t->trace_changed = tensorflow_node_execution_renderer_trace_changed;
-	t->renderer_changed = tensorflow_node_execution_renderer_renderer_changed;
-
-	return t;
-}
 
 static int telamon_evaluation_renderer_trace_changed(
 	struct am_timeline_render_layer* l,
