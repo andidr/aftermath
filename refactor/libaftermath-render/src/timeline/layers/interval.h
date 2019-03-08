@@ -19,6 +19,7 @@
 #ifndef AM_TIMELINE_INTERVAL_LAYER_H
 #define AM_TIMELINE_INTERVAL_LAYER_H
 
+#include <aftermath/core/statistics/interval.h>
 #include <aftermath/render/timeline/layers/lane.h>
 #include <aftermath/render/cairo_extras.h>
 #include <aftermath/render/color_map.h>
@@ -52,6 +53,15 @@ am_timeline_interval_layer_instantiate_type_index_fun(
 	size_t element_size,
 	off_t interval_offset,
 	size_t (*calculate_index)(struct am_timeline_interval_layer*, void*));
+
+struct am_timeline_render_layer_type*
+am_timeline_interval_layer_instantiate_type_stats_fun(
+	const char* name,
+	void (*stats_subtree)(struct am_timeline_lane_render_layer*,
+			      struct am_interval_stats_by_index*,
+			      struct am_hierarchy_node*,
+			      const struct am_interval*));
+
 
 #define AM_TIMELINE_INTERVAL_LAYER(x) \
 	((struct am_timeline_interval_layer*)x)

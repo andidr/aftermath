@@ -20,7 +20,6 @@
 #include <aftermath/render/timeline/renderer.h>
 #include <aftermath/core/state_event_array.h>
 #include <aftermath/core/event_collection.h>
-#include <aftermath/core/statistics/interval.h>
 
 struct am_timeline_interval_layer {
 	struct am_timeline_lane_render_layer super;
@@ -37,6 +36,11 @@ struct am_timeline_interval_layer_type {
 	off_t interval_offset;
 	off_t index_offset;
 	unsigned int index_bits;
+
+	void (*stats_subtree)(struct am_timeline_lane_render_layer*,
+			      struct am_interval_stats_by_index*,
+			      struct am_hierarchy_node*,
+			      const struct am_interval*);
 
 	size_t (*calculate_index)(struct am_timeline_interval_layer*, void*);
 };
@@ -91,15 +95,17 @@ am_timeline_interval_layer_get_extra_data(struct am_timeline_interval_layer* l)
  * AM_TIMELINE_LANE_RENDER_MODE_COMBINE_SUBTREE, the function recurses on the
  * children of hn.
  */
-static void stats_subtree(struct am_timeline_interval_layer* il,
-			  struct am_interval_stats_by_index* stats,
-			  struct am_hierarchy_node* hn,
-			  const struct am_interval* i)
+static void am_timeline_interval_layer_default_stats_subtree(
+	struct am_timeline_lane_render_layer* rl,
+	struct am_interval_stats_by_index* stats,
+	struct am_hierarchy_node* hn,
+	const struct am_interval* i)
 {
 	struct am_typed_array_generic* ea;
 	struct am_event_mapping* m = &hn->event_mapping;
 	struct am_event_collection* ec;
 	struct am_hierarchy_node* child;
+	struct am_timeline_interval_layer* il = (typeof(il))rl;
 	struct am_timeline_render_layer* l = AM_TIMELINE_RENDER_LAYER(il);
 	struct am_timeline_interval_layer_type* ilt = (typeof(ilt))l->type;
 
@@ -131,9 +137,14 @@ static void stats_subtree(struct am_timeline_interval_layer* il,
 		}
 	}
 
-	if(il->super.render_mode == AM_TIMELINE_LANE_RENDER_MODE_COMBINE_SUBTREE)
-		am_hierarchy_node_for_each_child(hn, child)
-			stats_subtree(il, stats, child, i);
+	if(il->super.render_mode ==
+	   AM_TIMELINE_LANE_RENDER_MODE_COMBINE_SUBTREE)
+	{
+		am_hierarchy_node_for_each_child(hn, child) {
+			am_timeline_interval_layer_default_stats_subtree(
+				rl, stats, child, i);
+		}
+	}
 }
 
 /* Render function of the layer */
@@ -144,6 +155,7 @@ void render(struct am_timeline_interval_layer* il,
 	    double lane_height,
 	    cairo_t* cr)
 {
+	struct am_timeline_interval_layer_type* ilt;
 	struct am_interval i_px;
 	struct am_timeline_renderer* r;
 	const struct am_rgba* color;
@@ -152,6 +164,8 @@ void render(struct am_timeline_interval_layer* il,
 	size_t last_idx = 0;
 	int last_valid = 0;
 	int valid;
+
+	ilt = (struct am_timeline_interval_layer_type*)il->super.super.type;
 
 	if(!il->color_map || !il->statistics_init)
 		return;
@@ -171,7 +185,7 @@ void render(struct am_timeline_interval_layer* il,
 
 		am_interval_stats_by_index_reset(&il->statistics);
 
-		stats_subtree(il, &il->statistics, hn, &i_px);
+		ilt->stats_subtree(&il->super, &il->statistics, hn, &i_px);
 
 		valid = am_interval_stats_by_index_max(&il->statistics, &idx);
 
@@ -244,14 +258,11 @@ instantiate(struct am_timeline_interval_layer_type* t)
 }
 
 /* Common type instantiation function used by
- * am_timeline_interval_layer_instantiate_type_index_member and
- * am_timeline_interval_layer_instantiate_type_index_fun */
+ * am_timeline_interval_layer_instantiate_type_default_stats_common and
+ * am_timeline_interval_layer_instantiate_type_stats_fun */
 struct am_timeline_interval_layer_type*
 am_timeline_interval_layer_instantiate_type_common(
-	const char* name,
-	const char* event_array_type_name,
-	size_t element_size,
-	off_t interval_offset)
+	const char* name)
 {
 	struct am_timeline_interval_layer_type* t;
 
@@ -266,18 +277,41 @@ am_timeline_interval_layer_instantiate_type_common(
 	t->super.instantiate =
 		AM_TIMELINE_LANE_RENDER_LAYER_INSTANTIATE_FUN(instantiate);
 
+	return t;
+
+out_err_free:
+	free(t);
+out_err:
+	return NULL;
+}
+
+/* Common type instantiation function used by
+ * am_timeline_interval_layer_instantiate_type_index_member and
+ * am_timeline_interval_layer_instantiate_type_index_fun */
+struct am_timeline_interval_layer_type*
+am_timeline_interval_layer_instantiate_type_default_stats_common(
+	const char* name,
+	const char* event_array_type_name,
+	size_t element_size,
+	off_t interval_offset)
+{
+	struct am_timeline_interval_layer_type* t;
+
+	if(!(t = am_timeline_interval_layer_instantiate_type_common(name)))
+		goto out_err;
+
 	/* FIXME: Never freed */
 	if(!(t->event_array_type_name = strdup(event_array_type_name)))
 		goto out_err_destroy;
 
 	t->element_size = element_size;
 	t->interval_offset = interval_offset;
+	t->stats_subtree = am_timeline_interval_layer_default_stats_subtree;
 
 	return t;
 
 out_err_destroy:
 	am_timeline_render_layer_type_destroy(AM_TIMELINE_RENDER_LAYER_TYPE(t));
-out_err_free:
 	free(t);
 out_err:
 	return NULL;
@@ -302,7 +336,7 @@ am_timeline_interval_layer_instantiate_type_index_member(
 {
 	struct am_timeline_interval_layer_type* t;
 
-	if(!(t = am_timeline_interval_layer_instantiate_type_common(
+	if(!(t = am_timeline_interval_layer_instantiate_type_default_stats_common(
 		     name, event_array_type_name, element_size, interval_offset)))
 	{
 		return NULL;
@@ -333,13 +367,36 @@ am_timeline_interval_layer_instantiate_type_index_fun(
 {
 	struct am_timeline_interval_layer_type* t;
 
-	if(!(t = am_timeline_interval_layer_instantiate_type_common(
+	if(!(t = am_timeline_interval_layer_instantiate_type_default_stats_common(
 		     name, event_array_type_name, element_size, interval_offset)))
 	{
 		return NULL;
 	}
 
 	t->calculate_index = calculate_index;
+
+	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
+}
+
+/* Instatiate an interval layer type with a custom statistics function. Name is
+ * the name of the instantiated type. Stats_subtree is invoked for each visible
+ * lane.
+ */
+struct am_timeline_render_layer_type*
+am_timeline_interval_layer_instantiate_type_stats_fun(
+	const char* name,
+	void (*stats_subtree)(struct am_timeline_lane_render_layer*,
+			      struct am_interval_stats_by_index*,
+			      struct am_hierarchy_node*,
+			      const struct am_interval*))
+{
+	struct am_timeline_interval_layer_type* t;
+
+	if(!(t = am_timeline_interval_layer_instantiate_type_common(name)))
+		return NULL;
+
+	t->stats_subtree = stats_subtree;
+	t->calculate_index = NULL;
 
 	return AM_TIMELINE_RENDER_LAYER_TYPE(t);
 }
@@ -358,14 +415,17 @@ int am_timeline_interval_layer_get_dominant_index(
 	size_t* index,
 	int* index_valid)
 {
+	struct am_timeline_interval_layer_type* ilt;
 	struct am_interval_stats_by_index stats;
+
+	ilt = (struct am_timeline_interval_layer_type*)il->super.super.type;
 
 	if(am_interval_stats_by_index_init(&stats, il->statistics.max_index))
 		return 1;
 
 	am_interval_stats_by_index_reset(&stats);
 
-	stats_subtree(il, &stats, hn, i);
+	ilt->stats_subtree(&il->super, &stats, hn, i);
 	*index_valid = am_interval_stats_by_index_max(&stats, index);
 
 	am_interval_stats_by_index_destroy(&stats);
