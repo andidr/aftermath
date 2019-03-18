@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "ost/v16.h"
+#include "ost/ost.h"
 
 #define MAX_ERRSTACK_NESTING 10
 #define MAX_ERRSTACK_MSGLEN 256
@@ -36,6 +36,41 @@ struct am_convert_options {
 	int verbose;
 	int print_usage;
 };
+
+enum am_convert_input_format {
+	AM_CONVERT_INPUT_FORMAT_OST
+};
+
+/* Detects the format of the input file. The file handle fp_in must be
+ * positioned at the beginning of the input file. After the call, fp_in will be
+ * positioned after the magic number.
+ *
+ * Returns 0 if a known format could be detected, otherwise 1.
+ */
+int am_convert_detect_format(FILE* fp_in,
+			     struct am_io_error_stack* estack,
+			     enum am_convert_input_format* format)
+{
+	uint32_t ost_magic;
+
+	if(fread(&ost_magic, sizeof(ost_magic), 1, fp_in) != 1) {
+		am_io_error_stack_push(estack,
+				       AM_IOERR_READ,
+				       "Could not read magic number.");
+		return 1;
+	}
+
+	if(am_int32_letoh(ost_magic) == AM_TRACE_MAGIC) {
+		*format = AM_CONVERT_INPUT_FORMAT_OST;
+		return 0;
+	}
+
+	am_io_error_stack_push(estack,
+			       AM_IOERR_READ,
+			       "Unknown input format.");
+
+	return 1;
+}
 
 static void print_usage(void)
 {
@@ -133,60 +168,31 @@ static int parse_options(struct am_convert_options* o,
 	return 0;
 }
 
-/* Detects the input file format and calls the appropriate conversion function.
+/* Converts the input file in the specified format to the most recent OST
+ * format.
  *
  * Returns 0 on success, otherwise 1.
  */
 static int
-convert_trace(FILE* fp_in, FILE* fp_out, struct am_io_error_stack* estack)
+convert_trace(FILE* fp_in,
+	      FILE* fp_out,
+	      enum am_convert_input_format format,
+	      struct am_io_error_stack* estack)
 {
-	struct am_dsk_header header;
-
-	if(fread(&header, sizeof(header), 1, fp_in) != 1) {
-		am_io_error_stack_push(estack,
-				       AM_IOERR_READ,
-				       "Could not read file header.");
-		return 1;
-	}
-
-	header.magic = am_int32_letoh(header.magic);
-	header.version = am_int32_letoh(header.version);
-
-	if(header.magic != AM_TRACE_MAGIC) {
-		am_io_error_stack_push(estack,
-				       AM_IOERR_MAGIC,
-				       "Input file is not a valid trace file "
-				       "(wrong magic number 0x%02X, 0x%02X, "
-				       "0x%02X, 0x%02X).",
-				       (int)((header.magic >> 0) & 0xFF),
-				       (int)((header.magic >> 8) & 0xFF),
-				       (int)((header.magic >> 16) & 0xFF),
-				       (int)((header.magic >> 24) & 0xFF));
-		return 1;
-	}
-
-	switch(header.version) {
-		case 13:
-		case 14:
-		case 15:
-		case 16:
-			return v16_convert_trace(fp_in, fp_out, estack);
-		default:
-			am_io_error_stack_push(estack,
-					       AM_IOERR_READ,
-					       "Version %" PRIu32 " is not "
-					       "supported.",
-					       header.version);
+	switch(format) {
+		case AM_CONVERT_INPUT_FORMAT_OST:
+			return am_convert_trace_ost(fp_in, fp_out, estack);
 			break;
 	}
 
-	return 0;
+	return 1;
 }
 
 int main(int argc, char** argv)
 {
 	struct am_convert_options options;
 	struct am_io_error_stack estack;
+	enum am_convert_input_format format;
 	int ret = 1;
 	FILE* in_file = stdin;
 	FILE* out_file = stdout;
@@ -233,7 +239,10 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if(convert_trace(in_file, out_file, &estack))
+	if(am_convert_detect_format(in_file, &estack, &format))
+		goto out_outfile;
+
+	if(convert_trace(in_file, out_file, format, &estack))
 		goto out_outfile;
 
 	ret = 0;
