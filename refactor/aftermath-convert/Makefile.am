@@ -5,9 +5,9 @@ bin_PROGRAMS = aftermath-convert
 
 aftermath_convert_SOURCES = \
 	src/main.c \
-	src/v16.c \
-	src/v16.h \
-	src/v16_structs.h
+	src/ost/v16.c \
+	src/ost/v16.h \
+	src/ost/v16_structs.h
 
 
 aftermath_convert_CFLAGS = @AFTERMATH_CORE_INCLUDES@ $(AM_CFLAGS)
