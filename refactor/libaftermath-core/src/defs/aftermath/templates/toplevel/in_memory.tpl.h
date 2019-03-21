@@ -29,6 +29,11 @@
 {% endfor -%}
 {# #}
 
+/* Enums */
+{% for t in mem_types.filterByTag(aftermath.tags.Enum) -%}
+{{ aftermath.templates.EnumDefinition(t) }}
+{% endfor %}
+
 {% for t in mem_types.topologicalSort().filterByTag(aftermath.tags.Compound) -%}
 {{ aftermath.templates.StructDefinition(t) }}
 {% endfor -%}

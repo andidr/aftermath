@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301,
 # USA.
 
-from aftermath.types import Type, FieldList, Field, CompoundType
+from aftermath.types import Type, FieldList, Field, CompoundType, EnumType
 from aftermath.util import AbstractFunction, \
     enforce_type, \
     enforce_type_dict_values, \
@@ -254,6 +254,27 @@ class StructDefinition(Jinja2StringTemplate):
         {%- endif %}""")
 
         super(StructDefinition, self).__init__(
+            template_content = template_content, *args, **kwargs)
+        self.addDefaultArguments(t = type)
+
+class EnumDefinition(Jinja2StringTemplate):
+    """Template generating the definition in C for an enum"""
+
+    def __init__(self, type, *args, **kwargs):
+        enforce_type(type, EnumType)
+
+        template_content = trimlws("""
+        /* {{t.getComment()}} */
+        {{t.getCType()}} {
+        {%- for variant in t.getVariants() %}
+        	{% if variant.getComment() -%}/* {{variant.getComment()}} */{% endif %}
+        	{{variant.getName()}}{% if variant.getValue() is not none %} = {{ variant.getValue() }}{% endif %}
+        	{%- if not loop.last %},
+{% endif %}
+        {%- endfor %}
+        };""")
+
+        super(EnumDefinition, self).__init__(
             template_content = template_content, *args, **kwargs)
         self.addDefaultArguments(t = type)
 

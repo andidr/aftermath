@@ -219,3 +219,7 @@ class Packed(Tag):
     """Base tag indicating that a structure should be declared as packed (i.e.,
     without padding between its fields)"""
     pass
+
+class Enum(Tag):
+    """Base tag for classes defining enum types"""
+    pass

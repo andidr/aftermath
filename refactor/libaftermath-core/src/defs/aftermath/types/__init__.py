@@ -408,6 +408,50 @@ class NonCompoundType(Type):
 
 #################################################################################
 
+class EnumVariant(object):
+    def __init__(self, name, value = None, comment = None):
+        enforce_type(name, str)
+        enforce_type(value, [str, int, type(None)])
+        enforce_type(comment, [str, type(None)])
+
+        self.__name = name
+        self.__value = value
+        self.__comment = comment
+
+    def getName(self):
+        return self.__name
+
+    def getValue(self):
+        return self.__value
+
+    def getComment(self):
+        return self.__comment
+
+class EnumType(NonCompoundType):
+    """An enum"""
+
+    def __init__(self, variants, *args, **kwargs):
+        """The parameter `variants` is a list of enum variants describing the enum's
+        values"""
+
+        enforce_type_list(variants, EnumVariant)
+
+        super(EnumType, self).__init__(*args, **kwargs)
+        self.__variants = variants
+
+        self.addTag(aftermath.tags.Enum())
+
+    def getVariants(self):
+        return self.__variants
+
+    def getCtype(self):
+        return "enum " + self.getName()
+
+    def isInteger(self):
+        return False
+
+#################################################################################
+
 class IntegerType(NonCompoundType):
     """An alias for an integer type"""
 
