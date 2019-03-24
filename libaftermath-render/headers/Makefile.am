@@ -23,6 +23,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layers/hierarchy.h \
 	aftermath/render/timeline/layers/lane.h \
 	aftermath/render/timeline/layers/lane/state_event.h \
+	aftermath/render/timeline/layers/lane/openmp/openmp.h \
 	aftermath/render/timeline/layers/lane/tensorflow/node_execution.h \
 	aftermath/render/timeline/layers/measurement_intervals.h \
 	aftermath/render/timeline/layers/interval.h \
