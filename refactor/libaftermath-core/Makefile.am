@@ -289,6 +289,7 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/templates/assertion/__init__.py \
 	src/defs/aftermath/templates/dsk/DumpStdoutFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/__init__.py \
+	src/defs/aftermath/templates/dsk/ArrayReadFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/LoadFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/ProcessFunction.tpl.c \
 	src/defs/aftermath/templates/dsk/ReadFunction.tpl.c \

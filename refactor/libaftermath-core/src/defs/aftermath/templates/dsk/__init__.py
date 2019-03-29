@@ -44,6 +44,38 @@ class ReadFunction(FunctionTemplate, Jinja2FileTemplate):
             ]))
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
 
+class ArrayReadFunction(FunctionTemplate, Jinja2FileTemplate):
+    """Template implementing aftermath.tags.dsk.GenerateArrayReadFunction"""
+
+    def __init__(self, dsk_type):
+        Jinja2FileTemplate.__init__(self, "ArrayReadFunction.tpl.c")
+
+        reqtags = self.requireTags(dsk_type, {
+            "tag" : tags.dsk.GenerateArrayReadFunction
+        })
+
+        tag = dsk_type.getTag(tags.dsk.GenerateArrayReadFunction)
+
+        if not isinstance(tag.getNumElementsField().getType(),
+                          aftermath.types.FixedWidthIntegerType):
+            raise Exception("Field with number of elements must be an integer "
+                            "with a fixed number of bits")
+
+        FunctionTemplate.__init__(
+            self,
+            function_name = reqtags["tag"].getFunctionName(),
+            return_type = aftermath.types.builtin.int,
+            inline = True,
+            arglist = FieldList([
+                Field(name = "ctx",
+                      type = aftermath.types.aux.am_io_context,
+                      is_pointer = True),
+                Field(name = "dsk",
+                      type = dsk_type,
+                      is_pointer = True)
+            ]))
+        self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
+
 class DumpStdoutFunction(FunctionTemplate, Jinja2FileTemplate):
     """Template implementing aftermath.tags.dsk.GenerateDumpStdoutFunction"""
 

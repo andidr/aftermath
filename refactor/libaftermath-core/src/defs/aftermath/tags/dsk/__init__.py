@@ -34,6 +34,55 @@ class GenerateReadFunction(TemplatedGenerateFunctionTag, ReadFunction):
             template_type = aftermath.templates.dsk.ReadFunction)
         ReadFunction.__init__(self, function_name = function_name)
 
+class GenerateArrayReadFunction(TemplatedGenerateFunctionTag, ReadFunction):
+    """Generate a ReadFunction thad reads a array of elements"""
+
+    def __init__(self,
+                 num_elements_field_name,
+                 array_field_name,
+                 verbatim_field_names,
+                 function_name = None):
+        """`Num_elements_field` is the name of the field that contains the number of
+        elements to be read. `Array_field_name` is the name of the field that
+        will point to the array's elements after reading the elements from
+        disk. `verbatim_field_names` is a list of names of fields that are to be
+        read verbatim from disk. Their order specifies the order in which they
+        are read from disk. This list must contain num_elements_field_name."""
+
+        TemplatedGenerateFunctionTag.__init__(
+            self,
+            template_type = aftermath.templates.dsk.ArrayReadFunction)
+        ReadFunction.__init__(self, function_name = function_name)
+
+        enforce_type(num_elements_field_name, str)
+        enforce_type(array_field_name, str)
+
+        if not num_elements_field_name in verbatim_field_names:
+            raise Exception("The field '" + num_elements_field_name + " with " +
+                            "the number of elements must appear in list of " +
+                            "fields to be read verbatim")
+
+        self.__num_elements_field_name = num_elements_field_name
+        self.__array_field_name = array_field_name
+        self.__verbatim_field_names = verbatim_field_names
+
+    def getNumElementsField(self):
+        """Returns the field that contains the number of elements of the array"""
+
+        return self.getType().getFields().getFieldByName(self.__num_elements_field_name)
+
+    def getArrayField(self):
+        """Returns the field that contains the array elements"""
+
+        return self.getType().getFields().getFieldByName(self.__array_field_name)
+
+    def getVerbatimFields(self):
+        """Returns a list of fields that should be copied verbatim (i.e., that
+        are not involved) in the array functionality"""
+
+        return map(lambda fname: self.getType().getFields().getFieldByName(fname),
+                   self.__verbatim_field_names)
+
 class DumpStdoutFunction(FunctionTag):
     """Function dumping the contents of an instance of the associated on-disk
     type to stdout"""
