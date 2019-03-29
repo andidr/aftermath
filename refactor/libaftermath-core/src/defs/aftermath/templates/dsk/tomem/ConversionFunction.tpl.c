@@ -18,7 +18,37 @@
 	{%- for (dsk_field, mem_field) in tag.getFieldMap() -%}
 	{%- set field_tag = dsk_field.getType().getTagInheriting(aftermath.tags.dsk.tomem.ConversionFunction) %}
 
-	{%- if dsk_field.getType().isCompound() and dsk_field.getType().hasDestructor() %}
+	{%- if dsk_field.isArray() %}
+	{%- if can_fail.update({"value": True}) %}{% endif %}
+	mem->{{mem_field.getName()}} = NULL;
+
+	if(dsk->{{dsk_field.getArrayNumElementsFieldName()}} > 0) {
+		if(!(mem->{{mem_field.getName()}} = am_alloc_array_safe(dsk->{{dsk_field.getArrayNumElementsFieldName()}}, sizeof(*mem->{{mem_field.getName()}})))) {
+			AM_IOERR_GOTO_NA(ctx, out_err_{{dsk_field.getName()}}, AM_IOERR_ALLOC,
+					 "Could not allocate elements for array '{{mem_field.getName()}}' "
+					 "of {{mem_type.getEntity()}}.");
+		}
+	}
+
+	for(size_t i = 0; i < dsk->{{dsk_field.getArrayNumElementsFieldName()}}; i++) {
+		{% if dsk_field.getType().isCompound() -%}
+		if({{field_tag.getFunctionName()}}(ctx, &dsk->{{dsk_field.getName()}}[i], &mem->{{mem_field.getName()}}[i])) {
+			{% if mem_field.getType().hasDestructor() -%}
+			for(size_t j = 0; j < i; j++)
+				{{mem_field.getType().getDestructorName()}}(&mem->{{mem_field.getName()}}[j]);
+			{% endif -%}
+
+			free(mem->{{mem_field.getName()}});
+
+			AM_IOERR_GOTO(ctx, out_err_{{dsk_field.getName()}}, AM_IOERR_ALLOC,
+				      "Could not assign element with index %zu of field '{{dsk_field.getName()}}' "
+				      "to target array in in-memory representation.", i);
+		}
+		{% else -%}
+		mem->{{mem_field.getName()}}[i] = dsk->{{dsk_field.getName()}}[i];
+		{%- endif %}
+	}
+	{%- elif dsk_field.getType().isCompound() and dsk_field.getType().hasDestructor() %}
 	if({{field_tag.getFunctionName()}}(ctx, &dsk->{{dsk_field.getName()}}, &mem->{{mem_field.getName()}})) {
 		AM_IOERR_GOTO_NA(ctx, out_err_{{dsk_field.getName()}}, AM_IOERR_ALLOC,
 				 "Could not assign field '{{dsk_field.getName()}}' "
@@ -62,12 +92,20 @@ out_postconv:
 out_assert:
 	{% endif -%}
 	{%- for (dsk_field, mem_field) in tag.getFieldMap()|reverse() -%}
-	{% if dsk_field.getType().hasDestructor() -%}
+	{% if mem_field.isArray() -%}
+	{% if mem_field.getType().hasDestructor() %}
+	for(size_t i = 0; i < {{dsk_field.getArrayNumElementsFieldName()}}; i++)
+		{{mem_field.getType().getDestructorName()}}(&mem->{{mem_field.getName()}}[i]);
+	{% endif %}
+	free(mem->{{mem_field.getName()}});
+	{% elif mem_field.getType().hasDestructor() -%}
 	{% if not can_fail -%}
-	{{mem_field.getType().getDestructorName()}}(&mem->{{dsk_field.getName()}});
+	{{mem_field.getType().getDestructorName()}}(&mem->{{mem_field.getName()}});
 	{%- endif %}
 	{%- if can_fail.update({"value": True}) %}{% endif %}
+	{%- endif -%}
 {# #}
+	{%- if mem_field.isArray() or mem_field.getType().hasDestructor() %}
 out_err_{{dsk_field.getName()}}:
 	{%- endif -%}
 	{%- endfor %}

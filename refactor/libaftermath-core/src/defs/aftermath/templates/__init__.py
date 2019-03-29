@@ -396,6 +396,20 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
         	{{field.getCustomDestructorName()}}(&e->{{field.getName()}});
         	{%- endif %}
         	{%- else %}
+        	{%- if field.isArray() %}
+
+        	{%- if field.getType().hasDestructor() %}
+        	{%- set dtag = field.getType().getTag(aftermath.tags.Destructor) %}
+        	for(size_t i = 0; i < e->{{field.getArrayNumElementsFieldName()}}; i++) {
+        		{%- if not dtag.takesAddress()%}
+        		{{dtag.getFunctionName()}}(e->{{field.getName()}}[i]);
+        		{%- else %}
+        		{{dtag.getFunctionName()}}(&e->{{field.getName()}}[i]);
+        		{%- endif -%}
+        	}
+        	{%- endif %}
+        	free(e->{{field.getName()}});
+        	{%- else %}
         	{%- if field.getType().hasDestructor() %}
         	{%- set dtag = field.getType().getTag(aftermath.tags.Destructor) %}
 
@@ -404,6 +418,7 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
         	{{dtag.getFunctionName()}}(e->{{field.getName()}});
         	{%- else %}
         	{{dtag.getFunctionName()}}(&e->{{field.getName()}});
+        	{%- endif -%}
         	{%- endif -%}
         	{%- endif -%}
         	{%- endif -%}

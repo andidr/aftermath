@@ -560,9 +560,10 @@ class CompoundType(Type):
         # Add destructor tag if necessary
         if not self.hasTag(tags.Destructor):
             for field in self.getFields():
-                if field.hasCustomDestructor():
+                if field.hasCustomDestructor() or field.isArray():
                     self.addTag(aftermath.tags.Destructor())
                     break
+
                 if not field.isPointer() or field.isOwned():
                     if field.getType().hasTag(aftermath.tags.Destructor):
                         self.addTag(aftermath.tags.Destructor())
@@ -818,6 +819,8 @@ class Field(object):
 
     def __init__(self, name, type,
                  is_pointer = False,
+                 is_array = False,
+                 array_num_elements_field_name = None,
                  pointer_depth = None,
                  is_const = False,
                  is_owned = None,
@@ -829,6 +832,11 @@ class Field(object):
 
         If `is_pointer` is true, the field points to an instance of the
         specified type.
+
+        If `is_array` is true, the field should be interpreted as a pointer to
+        the first element of an array. The parameter
+        `array_num_elements_field_name` must then specify the name of the field
+        of the same structure that holds the number of array elements.
 
         If `pointer_depth` is not None, this field becomes a pointer of the
         specified depth (for a simple pointer the depth is 1, for a double
@@ -849,6 +857,8 @@ class Field(object):
 
         enforce_type(type, Type)
         enforce_type(is_pointer, [ bool, types.NoneType ])
+        enforce_type(is_array, bool)
+        enforce_type(array_num_elements_field_name, [ str, types.NoneType ])
         enforce_type(pointer_depth, [ int, types.NoneType ])
         enforce_type(is_const, [ bool, types.NoneType ])
         enforce_type(is_owned, [ bool, types.NoneType ])
@@ -860,6 +870,16 @@ class Field(object):
                 is_owned = False
             else:
                 is_owned = True
+
+        if is_array:
+            if not is_pointer:
+                raise Exception("Field '" + name + "' declared as an array, " +
+                                "but not declared as a pointer")
+
+            if array_num_elements_field_name is None:
+                raise Exception("Field '" + name + "' declared as an array, " +
+                                "but no field for the number of elements " +
+                                "specified")
 
         if is_pointer and pointer_depth is None:
             pointer_depth = 1
@@ -874,6 +894,8 @@ class Field(object):
         self.__comment = comment
         self.__type = type
         self.__is_pointer = is_pointer
+        self.__is_array = is_array
+        self.__array_num_elements_field_name = array_num_elements_field_name
         self.__pointer_depth = pointer_depth
         self.__is_const = is_const
         self.__is_owned = is_owned
@@ -938,6 +960,16 @@ class Field(object):
         type) owns the memory associated with this field."""
 
         return self.__is_owned
+
+    def isArray(self):
+        """Returns True if the field is a pointer to the first element of an
+        array"""
+        return self.__is_array
+
+    def getArrayNumElementsFieldName(self):
+        """If the field is a pointer to the elements of an array, this function returns
+        the name of the field that contains the number of elements of the array"""
+        return self.__array_num_elements_field_name
 
     def __hash__(self):
         return hash(self.name)
