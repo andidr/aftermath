@@ -1,8 +1,0 @@
-#!/usr/bin/make -f
-
-%:
-	dh $@ --buildsystem=autoconf --parallel --with autoreconf
-
-override_dh_auto_install:
-	dh_auto_install
-	rm debian/aftermath/usr/lib/*/*.la
