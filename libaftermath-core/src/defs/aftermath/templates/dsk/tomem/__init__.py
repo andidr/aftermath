@@ -42,13 +42,13 @@ class ConversionFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True),
                 Field(name = "mem",
-                      type = mem_type,
+                      field_type = mem_type,
                       is_pointer = True)
             ]))
 
@@ -78,13 +78,13 @@ class PostConversionFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True),
                 Field(name = "mem",
-                      type = conversion_tag.getMemType(),
+                      field_type = conversion_tag.getMemType(),
                       is_pointer = True)
             ]))
 
@@ -116,10 +116,10 @@ class PerTraceArrayFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
 
@@ -153,10 +153,10 @@ class PerEventCollectionArrayFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
 
@@ -191,10 +191,10 @@ class PerEventCollectionSubArrayFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
 
@@ -241,13 +241,13 @@ class AddToAllMetaStructArraysFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = gen_tag.getDskType(),
+                      field_type = gen_tag.getDskType(),
                       is_pointer = True),
                 Field(name = "mem",
-                      type = gen_tag.getMemType(),
+                      field_type = gen_tag.getMemType(),
                       is_pointer = True)
             ]))
         self.addDefaultArguments(**reqtags)

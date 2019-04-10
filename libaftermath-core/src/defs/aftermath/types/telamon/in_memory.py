@@ -80,63 +80,63 @@ am_telamon_candidate = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of this candidate"),
         Field(
             name = "discovery_time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was discovered"),
         Field(
             name = "internal_time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was declared an internal " +
             "node (if applicable)"),
         Field(
             name = "rollout_time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was first encountered " +
             "as a rollout node (if applicable)"),
         Field(
             name = "implementation_time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was marked as an " +
             "implementation (if applicable)"),
         Field(
             name = "deadend_time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp when the candidate was first identified as " +
             "a deadend (if applicable)"),
         Field(
             name = "flags",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Flags (e.g., deadend, etc.)"),
         Field(
             name = "perfmodel_bound",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Lower bound as calculated by the performance model"),
         Field(
             name = "score",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Score from evaluation"),
         Field(
             name = "action",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Action for this candidate wrt its parent")]))
 
 am_telamon_candidate.getFields().prependFields([
     Field(
         name = "parent",
-        type = am_telamon_candidate,
+        field_type = am_telamon_candidate,
         is_pointer = True,
         is_owned = False,
         comment = "Parent candidate"),
     Field(
         name = "num_children",
-        type = aftermath.types.builtin.size_t,
+        field_type = aftermath.types.builtin.size_t,
         comment = "Number of child candidates"),
     Field(
         name = "children",
-        type = am_telamon_candidate,
+        field_type = am_telamon_candidate,
         is_pointer = True,
         is_owned = False,
         is_array = True,
@@ -162,7 +162,7 @@ am_telamon_thread_trace = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval fully including all actions of the thread trace"
         )
     ]))
@@ -178,22 +178,22 @@ am_telamon_candidate_evaluate_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate that was evaluated"),
         Field(
             name = "timestamp",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp at which the result of the evaluation was " +
             "backpropagated"),
         Field(
             name = "flags",
-            type = aftermath.types.builtin.uint8_t,
+            field_type = aftermath.types.builtin.uint8_t,
             comment = "Flags (e.g., score valid)"),
         Field(
             name = "score",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Score from the evaluation (if valid)"),
     ]))
 
@@ -208,13 +208,13 @@ am_telamon_candidate_expand_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate that was expanded"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval during which the candidate was expanded"
         )
     ]))
@@ -230,18 +230,18 @@ am_telamon_candidate_kill_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate that was marked as a deadend"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval during which the candidate was marked as a deadend"
         ),
         Field(
             name = "cause",
-            type = am_telamon_deadend_cause,
+            field_type = am_telamon_deadend_cause,
             comment = "Cause for which the node was marked as a deadend")
     ]))
 
@@ -256,13 +256,13 @@ am_telamon_candidate_mark_implementation_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate that was marked as an implementation"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval during which the candidate was marked"
         )
     ]))
@@ -278,13 +278,13 @@ am_telamon_candidate_select_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate that was selected"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval during which the candidate was selected"
         )
     ]))
@@ -298,11 +298,11 @@ am_telamon_child_selector_entry = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "edge_idx",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Index of the child edge"),
         Field(
             name = "value",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Selector-dependent value associated to the child edge")
     ]))
 
@@ -313,15 +313,15 @@ am_telamon_child_selector = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "type",
-            type = aftermath.types.builtin.uint8_t,
+            field_type = aftermath.types.builtin.uint8_t,
             comment = "Numerical ID for the type"),
         Field(
             name = "num_entries",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Number of entries of the vector with child selection data"),
         Field(
             name = "entries",
-            type = am_telamon_child_selector_entry,
+            field_type = am_telamon_child_selector_entry,
             is_pointer = True,
             is_owned = True,
             is_array = True,
@@ -340,28 +340,28 @@ am_telamon_candidate_select_child_action = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "candidate",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Candidate whose child was selected"),
         Field(
             name = "child",
-            type = am_telamon_candidate,
+            field_type = am_telamon_candidate,
             is_pointer = True,
             is_owned = False,
             comment = "Child that was selected"),
         Field(
             name = "child_idx",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Index of the selected child"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval during which the candidate was selected"
         ),
         Field(
             name = "selector",
-            type = am_telamon_child_selector,
+            field_type = am_telamon_child_selector,
             comment = "Selector that selected the child"
         )
     ]))

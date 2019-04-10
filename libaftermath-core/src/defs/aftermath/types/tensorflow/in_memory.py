@@ -29,7 +29,7 @@ am_tensorflow_node = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "name",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Name of this node")]))
 
 ################################################################################
@@ -51,12 +51,12 @@ am_tensorflow_node_execution = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "node",
-            type = am_tensorflow_node,
+            field_type = am_tensorflow_node,
             is_pointer = True,
             comment = "Node that was executed"),
         Field(
             name = "interval",
-            type = aftermath.types.in_memory.am_interval,
+            field_type = aftermath.types.in_memory.am_interval,
             comment = "Interval of the execution")]))
 
 ################################################################################

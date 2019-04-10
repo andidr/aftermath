@@ -129,7 +129,7 @@ class JoinSource(DskToMetaSource):
             fields = FieldList([
                 Field(
                     name = "id",
-                    type = self.__dsk_field.getType(),
+                    field_type = self.__dsk_field.getType(),
                     comment = "Value from " + self.getDskType().getName() + \
                                 "." + self.__dsk_field.getName())
             ]))
@@ -225,12 +225,12 @@ class JoinTarget(DskToMetaSource):
             fields = FieldList([
                 Field(
                     name = "id",
-                    type = self.__dsk_field.getType(),
+                    field_type = self.__dsk_field.getType(),
                     comment = "Value from " + self.getDskType().getName() + \
                                 "." + self.__dsk_field.getName()),
                 Field(
                     name = "idx",
-                    type = aftermath.types.builtin.size_t,
+                    field_type = aftermath.types.builtin.size_t,
                     comment = "Array index of the target structure associated " +
                     "to the value")
             ]),

@@ -28,11 +28,11 @@ am_openstream_task_type = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "name",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Name of this task (e.g., symbol in the executable)"),
         Field(
             name = "source",
-            type = aftermath.types.in_memory.am_source_location,
+            field_type = aftermath.types.in_memory.am_source_location,
             comment = "Location of the source code for this task type")]))
 
 ################################################################################
@@ -46,7 +46,7 @@ am_openstream_task_instance = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "task_type",
-            type = am_openstream_task_type,
+            field_type = am_openstream_task_type,
             is_pointer = True,
             comment = "Type of this task instance")]))
 
@@ -61,12 +61,12 @@ am_openstream_task_period = InMemoryCompoundType(
         fields = FieldList([
             Field(
                 name = "task_instance",
-                type = am_openstream_task_instance,
+                field_type = am_openstream_task_instance,
                 is_pointer = True,
                 comment = "Task execution instance this period belongs to"),
             Field(
                 name = "interval",
-                type = aftermath.types.in_memory.am_interval,
+                field_type = aftermath.types.in_memory.am_interval,
                 comment = "Interval of the task execution period")]))
 
 ################################################################################

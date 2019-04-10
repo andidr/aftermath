@@ -22,7 +22,6 @@ from aftermath import tags
 from aftermath import relations
 import aftermath
 import copy
-import types
 import re
 
 #################################################################################
@@ -236,7 +235,7 @@ class Type(object):
         enforce_type(c, type)
 
         if inherit:
-            tags = filter(lambda tag: isinstance(tag, c), self.getTags())
+            tags = list(filter(lambda tag: isinstance(tag, c), self.getTags()))
 
             if multiple:
                 return tags
@@ -354,7 +353,7 @@ class Type(object):
         """Returns the relations inheriting `c` associated to this type. If no
         such relation exists, an empty list is returned."""
 
-        return filter(lambda r: isinstance(r, c), self.__relations)
+        return list(filter(lambda r: isinstance(r, c), self.__relations))
 
 #################################################################################
 
@@ -718,14 +717,14 @@ class TypeList(object):
         """Returns a TypeList with all types that have a tag of class c"""
         enforce_type(c, type)
 
-        return TypeList(filter(lambda type: type.hasTag(c), self.getTypes()))
+        return TypeList(list(filter(lambda field_type: field_type.hasTag(c), self.getTypes())))
 
-    def hasType(self, type):
+    def hasType(self, field_type):
         """Returns true if the type list contains the instance type."""
 
-        enforce_type(type, Type)
+        enforce_type(field_type, Type)
 
-        return type in self.__types
+        return field_type in self.__types
 
     def hasTypeName(self, tname):
         """Returns true if the type list contains a type instance whose name is
@@ -748,7 +747,7 @@ class TypeList(object):
         # Create a pair (type, dependencies) for each type
         if local_only:
             dep_pairs = map( \
-                lambda t: (t, filter(self.hasType, t.getDependencies(exclude_pointers = True))), \
+                lambda t: (t, list(filter(self.hasType, t.getDependencies(exclude_pointers = True)))), \
                 self.__types)
         else:
             dep_pairs = map(lambda t: (t, t.getDependencies(exclude_pointers = True)), self.__types)
@@ -817,7 +816,7 @@ class Field(object):
     """Field for compound types or function parameters; associates a name with a
     type and modifiers."""
 
-    def __init__(self, name, type,
+    def __init__(self, name, field_type,
                  is_pointer = False,
                  is_array = False,
                  array_num_elements_field_name = None,
@@ -828,7 +827,7 @@ class Field(object):
                  comment = None):
         """`name` is the name of the field as a string.
 
-        `type` is an instance of Type indicating the field's type.
+        `field_type` is an instance of Type indicating the field's type.
 
         If `is_pointer` is true, the field points to an instance of the
         specified type.
@@ -855,15 +854,15 @@ class Field(object):
         `comment` is a human-readable comment for the field.
         """
 
-        enforce_type(type, Type)
-        enforce_type(is_pointer, [ bool, types.NoneType ])
+        enforce_type(field_type, Type)
+        enforce_type(is_pointer, [ bool, type(None) ])
         enforce_type(is_array, bool)
-        enforce_type(array_num_elements_field_name, [ str, types.NoneType ])
-        enforce_type(pointer_depth, [ int, types.NoneType ])
-        enforce_type(is_const, [ bool, types.NoneType ])
-        enforce_type(is_owned, [ bool, types.NoneType ])
-        enforce_type(custom_destructor_name, [ str, types.NoneType ])
-        enforce_type(comment, [ str, types.NoneType ])
+        enforce_type(array_num_elements_field_name, [ str, type(None) ])
+        enforce_type(pointer_depth, [ int, type(None) ])
+        enforce_type(is_const, [ bool, type(None) ])
+        enforce_type(is_owned, [ bool, type(None) ])
+        enforce_type(custom_destructor_name, [ str, type(None) ])
+        enforce_type(comment, [ str, type(None) ])
 
         if is_owned is None:
             if is_pointer:
@@ -892,7 +891,7 @@ class Field(object):
 
         self.__name = name
         self.__comment = comment
-        self.__type = type
+        self.__type = field_type
         self.__is_pointer = is_pointer
         self.__is_array = is_array
         self.__array_num_elements_field_name = array_num_elements_field_name
@@ -944,10 +943,10 @@ class Field(object):
 
         return self.__is_const
 
-    def setType(self, type):
-        enforce_type(type, Type)
+    def setType(self, field_type):
+        enforce_type(field_type, Type)
 
-        self.__type = type
+        self.__type = field_type
 
     def getName(self):
         return self.__name

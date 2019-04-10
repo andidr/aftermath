@@ -27,51 +27,51 @@ am_dsk_telamon_candidate = Frame(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of this candidate"),
         Field(
             name = "parent_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the parent of this candidate"),
         Field(
             name = "discovery_time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp when the candidate was discovered "),
         Field(
             name = "internal_time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp when the candidate was declared an internal " +
             "node (if applicable)"),
         Field(
             name = "rollout_time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp when the candidate was first encountered " +
             "as a rollout node (if applicable)"),
         Field(
             name = "implementation_time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp when the candidate was marked as an " +
             "implementation (if applicable)"),
         Field(
             name = "deadend_time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp when the candidate was first identified as " +
             "a deadend (if applicable)"),
         Field(
             name = "flags",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Flags (e.g., deadend, etc.)"),
         Field(
             name = "perfmodel_bound",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Lower bound as calculated by the performance model"),
         Field(
             name = "score",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Score from evaluation"),
         Field(
             name = "action",
-            type = aftermath.types.on_disk.am_dsk_string,
+            field_type = aftermath.types.on_disk.am_dsk_string,
             comment = "Action for this candidate wrt its parent")
     ]))
 
@@ -97,7 +97,7 @@ am_dsk_telamon_thread_trace = EventFrame(
     fields = FieldList([
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval fully including all actions of the thread trace")
     ]))
 
@@ -115,20 +115,20 @@ am_dsk_telamon_candidate_evaluate_action = Frame(
     fields = FieldList([
         Field(
             name = "candidate_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate that was evaluateed"),
         Field(
             name = "timestamp",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp at which the result of the evaluation was " +
             "backpropagated"),
         Field(
             name = "score",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Score from the evaluation (if valid)"),
         Field(
             name = "flags",
-            type = aftermath.types.builtin.uint8_t,
+            field_type = aftermath.types.builtin.uint8_t,
             comment = "Flags (e.g., score valid)")
     ]))
 
@@ -152,11 +152,11 @@ am_dsk_telamon_candidate_expand_action = EventFrame(
     fields = FieldList([
         Field(
             name = "candidate_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate that was expanded"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval during which the action took place")
     ]))
 
@@ -181,15 +181,15 @@ am_dsk_telamon_candidate_kill_action = EventFrame(
     fields = FieldList([
         Field(
             name = "candidate_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate that was evaluated"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval during which the action took place"),
         Field(
             name = "cause",
-            type = aftermath.types.builtin.uint8_t,
+            field_type = aftermath.types.builtin.uint8_t,
             comment = "Cause for which the node was marked as a deadend")
     ]))
 
@@ -214,11 +214,11 @@ am_dsk_telamon_candidate_mark_implementation_action = EventFrame(
     fields = FieldList([
         Field(
             name = "candidate_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate that was marked as an implementation"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval during which the action took place")
     ]))
 
@@ -243,11 +243,11 @@ am_dsk_telamon_candidate_select_action = EventFrame(
     fields = FieldList([
         Field(
             name = "candidate_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate that was selected"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval during which the action took place")
     ]))
 
@@ -272,11 +272,11 @@ am_dsk_telamon_child_selector_entry = OnDiskCompoundType(
     fields = FieldList([
         Field(
             name = "edge_idx",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Index of the child edge"),
         Field(
             name = "value",
-            type = aftermath.types.builtin.double,
+            field_type = aftermath.types.builtin.double,
             comment = "Selector-dependent value associated to the child edge")
     ]))
 
@@ -294,15 +294,15 @@ am_dsk_telamon_child_selector = OnDiskCompoundType(
     fields = FieldList([
         Field(
             name = "type",
-            type = aftermath.types.builtin.uint8_t,
+            field_type = aftermath.types.builtin.uint8_t,
             comment = "Numerical ID for the type"),
         Field(
             name = "num_entries",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Number of entries of the vector with child selection data"),
         Field(
             name = "entries",
-            type = am_dsk_telamon_child_selector_entry,
+            field_type = am_dsk_telamon_child_selector_entry,
             is_pointer = True,
             is_owned = True,
             is_array = True,
@@ -337,23 +337,23 @@ am_dsk_telamon_candidate_select_child_action = EventFrame(
     fields = FieldList([
         Field(
             name = "parent_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the candidate whose child was selected"),
         Field(
             name = "child_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the selected child"),
         Field(
             name = "child_idx",
-            type = aftermath.types.builtin.uint16_t,
+            field_type = aftermath.types.builtin.uint16_t,
             comment = "Index of the selected child"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Interval during which the action took place"),
         Field(
             name = "selector",
-            type = am_dsk_telamon_child_selector,
+            field_type = am_dsk_telamon_child_selector,
             comment = "Selector"),
     ]))
 

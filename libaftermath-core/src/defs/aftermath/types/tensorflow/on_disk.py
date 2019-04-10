@@ -27,11 +27,11 @@ am_dsk_tensorflow_node = Frame(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this node"),
         Field(
             name = "name",
-            type = aftermath.types.on_disk.am_dsk_string,
+            field_type = aftermath.types.on_disk.am_dsk_string,
             comment = "Name of this node")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -48,11 +48,11 @@ am_dsk_tensorflow_node_execution = EventFrame(
     fields = FieldList([
         Field(
             name = "node_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the node that was executed"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Start and end of the execution interval")]))
 
 tags.dsk.tomem.add_per_event_collection_tags(

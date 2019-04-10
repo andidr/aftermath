@@ -40,7 +40,7 @@ def enforce_type(inst, t):
                 return
 
         raise Exception("Expected a type from '" + \
-                        str(map(lambda tt: tt.__name__, t)) + "', but given " + \
+                        str(list(map(lambda tt: tt.__name__, t))) + "', but given " + \
                         "type is '"+inst.__class__.__name__+"'")
     else:
         if not isinstance(inst, t):

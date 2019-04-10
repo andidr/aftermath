@@ -27,19 +27,19 @@ am_dsk_openmp_for_loop_type = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this loop type"),
         Field(
             name = "source",
-            type = aftermath.types.on_disk.am_dsk_source_location,
+            field_type = aftermath.types.on_disk.am_dsk_source_location,
             comment = "Location of the source code for this for loop type"),
         Field(
             name = "addr",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Address of the first instruction of the outlined loop body"),
         Field(
             name = "flags",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Flags for this loop type")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -56,23 +56,23 @@ am_dsk_openmp_for_loop_instance = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the for loop type for this instance"),
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this for_loop instance"),
         Field(
             name = "lower_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "First value (included) for this loop instance"),
         Field(
             name = "upper_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Last value (included) for this loop instance"),
         Field(
             name = "num_workers",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Number of workers that participated in the execution of this loop instance")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -96,19 +96,19 @@ am_dsk_openmp_iteration_set = Frame(
     fields = FieldList([
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the for loop instance this iteration set belongs to"),
         Field(
             name = "iteration_set_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this for loop iteration set"),
         Field(
             name = "lower_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "First value (included) for this iteration set"),
         Field(
             name = "upper_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Last value (included) for this iteration set")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -132,12 +132,12 @@ am_dsk_openmp_iteration_period = EventFrame(
     fields = FieldList([
         Field(
             name = "iteration_set_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the OpenMP iteration set this " + \
                       "period belongs to"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Start and end of the execution interval")]))
 
 tags.dsk.tomem.add_per_event_collection_tags(
@@ -162,15 +162,15 @@ am_dsk_openmp_task_type = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this task type"),
         Field(
             name = "name",
-            type = aftermath.types.on_disk.am_dsk_string,
+            field_type = aftermath.types.on_disk.am_dsk_string,
             comment = "Name of this task (e.g., symbol in the executable)"),
         Field(
             name = "source",
-            type = aftermath.types.on_disk.am_dsk_source_location,
+            field_type = aftermath.types.on_disk.am_dsk_source_location,
             comment = "Location of the source code for this task type")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -187,11 +187,11 @@ am_dsk_openmp_task_instance = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the task type for this instance"),
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this task instance")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -215,12 +215,12 @@ am_dsk_openmp_task_period = EventFrame(
     fields = FieldList([
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the OpenMP task instance this " + \
                       "period accounts for"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Start and end of the execution interval")]))
 
 tags.dsk.tomem.add_per_event_collection_tags(

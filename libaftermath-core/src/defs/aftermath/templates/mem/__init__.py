@@ -42,7 +42,7 @@ class GenerateProcessCollectSourcesFunction(FunctionTemplate, Jinja2FileTemplate
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True)
             ]))
         self.addDefaultArguments(**reqtags)

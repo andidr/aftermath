@@ -36,10 +36,10 @@ class AssertFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "e",
-                      type = t,
+                      field_type = t,
                       is_pointer = True,
                       is_const = True)
             ]))

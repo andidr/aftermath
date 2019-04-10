@@ -27,15 +27,15 @@ am_dsk_openstream_task_type = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this task type"),
         Field(
             name = "name",
-            type = aftermath.types.on_disk.am_dsk_string,
+            field_type = aftermath.types.on_disk.am_dsk_string,
             comment = "Name of this task (e.g., symbol in the executable)"),
         Field(
             name = "source",
-            type = aftermath.types.on_disk.am_dsk_source_location,
+            field_type = aftermath.types.on_disk.am_dsk_source_location,
             comment = "Location of the source code for this task type")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -52,11 +52,11 @@ am_dsk_openstream_task_instance = Frame(
     fields = FieldList([
         Field(
             name = "type_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the task type for this instance"),
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of this task instance")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -80,12 +80,12 @@ am_dsk_openstream_task_period = EventFrame(
     fields = FieldList([
         Field(
             name = "instance_id",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Numerical ID of the OpenStream task instance this " + \
                       "period accounts for"),
         Field(
             name = "interval",
-            type = aftermath.types.on_disk.am_dsk_interval,
+            field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Start and end of the execution interval")]))
 
 tags.dsk.tomem.add_per_event_collection_tags(

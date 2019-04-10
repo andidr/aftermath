@@ -66,7 +66,7 @@ class EventFrame(Frame):
         # Add field for type
         self.addField(Field(
             name = "collection_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "ID of the event collection this event belongs to"),
         0)
 
@@ -79,11 +79,11 @@ am_dsk_interval = OnDiskCompoundType(
     fields = FieldList([
         Field(
             name = "start",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Start of the interval"),
         Field(
             name = "end",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "End of the interval")]))
 
 am_dsk_interval.addTags(
@@ -105,11 +105,11 @@ am_dsk_string = OnDiskCompoundType(
     fields = FieldList([
         Field(
             name = "len",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Number of bytes for the string"),
         Field(
             name = "str",
-            type = aftermath.types.builtin.charp,
+            field_type = aftermath.types.builtin.charp,
             comment = "Characters of the string (not zero-terminated)")]))
 
 # Custom conversion function, so just make the name available
@@ -141,15 +141,15 @@ am_dsk_source_location = OnDiskCompoundType(
     fields = FieldList([
         Field(
             name = "file",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "File containing the source"),
         Field(
             name = "line",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Zero-indexed number of the line within the file"),
         Field(
             name = "character",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Zero-indexed number of the character within the line")]))
 
 am_dsk_source_location.addTags(
@@ -166,10 +166,10 @@ am_dsk_header = OnDiskCompoundType(
 
     fields = FieldList([
         Field(name = "magic",
-              type = aftermath.types.builtin.uint32_t,
+              field_type = aftermath.types.builtin.uint32_t,
               comment = "Magic number for Aftermath trace files"),
         Field(name = "version",
-              type = aftermath.types.builtin.uint32_t,
+              field_type = aftermath.types.builtin.uint32_t,
               comment = "Version of the trace format")]))
 
 #################################################################################
@@ -181,15 +181,15 @@ am_dsk_counter_event = EventFrame(
     fields = FieldList([
         Field(
             name = "counter_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the counter this sample is for"),
         Field(
             name = "time",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Timestamp of the sample"),
         Field(
             name = "value",
-            type = aftermath.types.builtin.int64_t,
+            field_type = aftermath.types.builtin.int64_t,
             comment = "Value of the counter sample")]))
 
 tags.dsk.tomem.add_per_event_collection_sub_array_tags(
@@ -208,7 +208,7 @@ am_dsk_measurement_interval = Frame(
     fields = FieldList([
         Field(
             name = "interval",
-            type =  am_dsk_interval,
+            field_type =  am_dsk_interval,
             comment = "Start and end of the measurement interval")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -224,19 +224,19 @@ am_dsk_hierarchy_node = Frame(
     fields = FieldList([
         Field(
             name = "hierarchy_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the hierarchy this node belongs to"),
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of this hierarchy node"),
         Field(
             name = "parent_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the parent of this node"),
         Field(
             name = "name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Name of this node")]))
 
 am_dsk_hierarchy_node.addTag(tags.process.ProcessFunction())
@@ -250,11 +250,11 @@ am_dsk_frame_type_id = Frame(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID that will be associated with the type"),
         Field(
             name = "type_name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Frame type as a string")]))
 
 am_dsk_frame_type_id.addTag(tags.process.ProcessFunction())
@@ -270,11 +270,11 @@ am_dsk_event_collection = Frame(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of this event collection"),
         Field(
             name = "name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Name of this event collection")]))
 
 am_dsk_event_collection.addTag(tags.process.ProcessFunction())
@@ -289,11 +289,11 @@ am_dsk_state_description = Frame(
     fields = FieldList([
         Field(
             name = "state_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the state"),
         Field(
             name = "name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Name of the state")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -310,11 +310,11 @@ am_dsk_state_event = EventFrame(
     fields = FieldList([
         Field(
             name = "state",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the state"),
         Field(
             name = "interval",
-            type = am_dsk_interval,
+            field_type = am_dsk_interval,
             comment = "Interval during which the state was active")]))
 
 conversion_fun_tag = tags.dsk.tomem.GenerateConversionFunction(
@@ -346,11 +346,11 @@ am_dsk_counter_description = Frame(
     fields = FieldList([
         Field(
             name = "counter_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the counter"),
         Field(
             name = "name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Name of the counter")]))
 
 tags.dsk.tomem.add_per_trace_array_tags(
@@ -367,15 +367,15 @@ am_dsk_event_mapping = EventFrame(
     fields = FieldList([
         Field(
             name = "hierarchy_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the hierarchy for the mapping"),
         Field(
             name = "node_id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of the hierarchy node for the mapping"),
         Field(
             name = "interval",
-            type = am_dsk_interval,
+            field_type = am_dsk_interval,
             comment = "Interval during which the event collection was " + \
             "associated to the node")]))
 
@@ -391,11 +391,11 @@ am_dsk_hierarchy_description = Frame(
     fields = FieldList([
         Field(
             name = "id",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Numerical ID of this hierarchy"),
         Field(
             name = "name",
-            type = am_dsk_string,
+            field_type = am_dsk_string,
             comment = "Name of the hierarchy")]))
 
 am_dsk_hierarchy_description.addTag(tags.process.ProcessFunction())

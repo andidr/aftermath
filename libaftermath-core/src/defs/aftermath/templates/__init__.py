@@ -123,7 +123,7 @@ class Template(object):
 
         def_args = {}
 
-        for tagname, tagclass in tags_names.iteritems():
+        for tagname, tagclass in tags_names.items():
             taginst = t.getTag(tagclass, inherit = inherit)
 
             if not taginst:
@@ -380,7 +380,7 @@ class Destructor(FunctionTemplate, Jinja2StringTemplate):
             return_type = aftermath.types.builtin.void,
             arglist = FieldList([
                 Field(name = "e",
-                      type = type,
+                      field_type = type,
                       is_pointer = dtag.takesAddress())
             ]))
 
@@ -449,7 +449,7 @@ class DefaultConstructor(FunctionTemplate, Jinja2StringTemplate):
             return_type = aftermath.types.builtin.int,
             arglist = FieldList([
                 Field(name = "e",
-                      type = type,
+                      field_type = type,
                       is_pointer = True)
             ]))
 
@@ -580,7 +580,7 @@ def gen_function_file_template_class_int_ctx(*args, **kwargs):
         return_type = aftermath.types.builtin.int,
         arglist = FieldList([
             Field(name = "ctx",
-                  type = aftermath.types.aux.am_io_context,
+                  field_type = aftermath.types.aux.am_io_context,
                   is_pointer = True)
         ]),
         *args,

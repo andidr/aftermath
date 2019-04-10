@@ -28,7 +28,7 @@ am_openmp_for_loop_type = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "source",
-            type = aftermath.types.in_memory.am_source_location,
+            field_type = aftermath.types.in_memory.am_source_location,
             comment = "Location of the source code for this for loop type")]))
 
 ################################################################################
@@ -42,20 +42,20 @@ am_openmp_for_loop_instance = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "loop_type",
-            type = am_openmp_for_loop_type,
+            field_type = am_openmp_for_loop_type,
             is_pointer = True,
             comment = "Type of this for loop instance"),
         Field(
             name = "lower_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "First value (included) for this loop instance"),
         Field(
             name = "upper_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Last value (included) for this loop instance"),
         Field(
             name = "num_workers",
-            type = aftermath.types.builtin.uint32_t,
+            field_type = aftermath.types.builtin.uint32_t,
             comment = "Number of workers that participated in the execution of "\
             "this loop instance")]))
 
@@ -70,16 +70,16 @@ am_openmp_iteration_set = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "loop_instance",
-            type = am_openmp_for_loop_instance,
+            field_type = am_openmp_for_loop_instance,
             is_pointer = True,
             comment = "Loop instance this iteration set belongs to"),
         Field(
             name = "lower_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "First value (included) for this iteration set"),
         Field(
             name = "upper_bound",
-            type = aftermath.types.builtin.uint64_t,
+            field_type = aftermath.types.builtin.uint64_t,
             comment = "Last value (included) for this iteration set")]))
 
 ################################################################################
@@ -93,12 +93,12 @@ am_openmp_iteration_period = InMemoryCompoundType(
         fields = FieldList([
             Field(
                 name = "iteration_set",
-                type = am_openmp_iteration_set,
+                field_type = am_openmp_iteration_set,
                 is_pointer = True,
                 comment = "Iteration set this period belongs to"),
             Field(
                 name = "interval",
-                type = aftermath.types.in_memory.am_interval,
+                field_type = aftermath.types.in_memory.am_interval,
                 comment = "Interval of the execution")]))
 
 ################################################################################
@@ -112,11 +112,11 @@ am_openmp_task_type = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "name",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Name of this task (e.g., symbol in the executable)"),
         Field(
             name = "source",
-            type = aftermath.types.in_memory.am_source_location,
+            field_type = aftermath.types.in_memory.am_source_location,
             comment = "Location of the source code for this task type")]))
 
 ################################################################################
@@ -130,7 +130,7 @@ am_openmp_task_instance = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "task_type",
-            type = am_openmp_task_type,
+            field_type = am_openmp_task_type,
             is_pointer = True,
             comment = "Type of this task instance")]))
 
@@ -145,12 +145,12 @@ am_openmp_task_period = InMemoryCompoundType(
         fields = FieldList([
             Field(
                 name = "task_instance",
-                type = am_openmp_task_instance,
+                field_type = am_openmp_task_instance,
                 is_pointer = True,
                 comment = "Task execution instance this period belongs to"),
             Field(
                 name = "interval",
-                type = aftermath.types.in_memory.am_interval,
+                field_type = aftermath.types.in_memory.am_interval,
                 comment = "Interval of the task execution period")]))
 
 ################################################################################

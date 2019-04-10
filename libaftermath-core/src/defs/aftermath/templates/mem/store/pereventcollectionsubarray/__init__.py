@@ -51,14 +51,14 @@ class BaseAppendFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "ecoll_id",
-                      type = aftermath.types.base.am_event_collection_id_t),
+                      field_type = aftermath.types.base.am_event_collection_id_t),
                 Field(name = "sub_id",
-                      type = gen_tag.getSubArrayIDType()),
+                      field_type = gen_tag.getSubArrayIDType()),
                 Field(name = "e",
-                      type = mem_type,
+                      field_type = mem_type,
                       is_pointer = True)
             ]))
 

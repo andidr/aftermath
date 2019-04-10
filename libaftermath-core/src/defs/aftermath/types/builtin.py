@@ -133,11 +133,11 @@ size_t = BuiltinIntegerType(
     comment = None,
     format_string = "zu")
 
-all_types = TypeList(_integers.values() +
+all_types = TypeList(list(_integers.values()) +
                      [ float, double, char, charp, int, size_t ])
 
 # Add read and write function tags to bultin integer types
-for t in _integers.values() + [ float, double ]:
+for t in list(_integers.values()) + [ float, double ]:
     if not t.hasTag(aftermath.tags.dsk.ReadFunction):
         t.addTag(aftermath.tags.dsk.ReadFunction(
             function_name = "am_dsk_"+t.getName()+"_read"

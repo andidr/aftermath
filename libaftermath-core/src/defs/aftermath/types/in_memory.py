@@ -59,11 +59,11 @@ am_counter_event = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "time",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Timestamp of the counter interval"),
         Field(
             name = "value",
-            type = aftermath.types.base.am_counter_value_t,
+            field_type = aftermath.types.base.am_counter_value_t,
             comment = "Value of the counter event")]))
 
 #################################################################################
@@ -77,11 +77,11 @@ am_interval = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "start",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Start of the interval"),
         Field(
             name = "end",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "End of the interval")]))
 
 #################################################################################
@@ -96,7 +96,7 @@ am_measurement_interval = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "interval",
-            type = am_interval,
+            field_type = am_interval,
             comment = "Start and end of the measurement interval")]))
 
 #################################################################################
@@ -110,11 +110,11 @@ am_time_offset = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "abs",
-            type = aftermath.types.base.am_timestamp_t,
+            field_type = aftermath.types.base.am_timestamp_t,
             comment = "Absolute difference"),
         Field(
             name = "sign",
-            type = aftermath.types.base.am_bool_t,
+            field_type = aftermath.types.base.am_bool_t,
             comment = "If sign != 0 the difference is negative")]))
 
 #################################################################################
@@ -129,7 +129,7 @@ am_counter_description = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "name",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Name of the counter")]))
 
 #################################################################################
@@ -144,7 +144,7 @@ am_state_description = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "name",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "Name of the state")]))
 
 #################################################################################
@@ -166,16 +166,16 @@ am_state_event = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "interval",
-            type = am_interval,
+            field_type = am_interval,
             comment = "Interval during which the state was active"),
         Field(
             name = "state",
-            type = am_state_description,
+            field_type = am_state_description,
             comment = "state description",
             is_pointer = True),
         Field(
             name = "state_idx",
-            type = aftermath.types.base.am_state_t,
+            field_type = aftermath.types.base.am_state_t,
             comment = "Index of the state"),
     ]))
 
@@ -191,15 +191,15 @@ am_source_location = InMemoryCompoundType(
     fields = FieldList([
         Field(
             name = "file",
-            type = aftermath.types.base.am_string,
+            field_type = aftermath.types.base.am_string,
             comment = "File containing the source"),
         Field(
             name = "line",
-            type = aftermath.types.base.am_source_line_t,
+            field_type = aftermath.types.base.am_source_line_t,
             comment = "Zero-indexed number of the line within the file"),
         Field(
             name = "character",
-            type = aftermath.types.base.am_source_character_t,
+            field_type = aftermath.types.base.am_source_character_t,
             comment = "Zero-indexed number of the character within the line")
     ]))
 

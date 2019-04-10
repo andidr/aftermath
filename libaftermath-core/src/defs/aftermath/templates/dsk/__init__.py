@@ -36,10 +36,10 @@ class ReadFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -68,10 +68,10 @@ class ArrayReadFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -93,15 +93,15 @@ class DumpStdoutFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "dsk",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True),
                 Field(name = "indent",
-                      type = aftermath.types.builtin.size_t),
+                      field_type = aftermath.types.builtin.size_t),
                 Field(name = "next_indent",
-                      type = aftermath.types.builtin.size_t)
+                      field_type = aftermath.types.builtin.size_t)
             ]))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -117,7 +117,7 @@ class WriteFunction(FunctionTemplate, Jinja2FileTemplate):
         })
 
         if reqtags["gen_tag"].hasTypeParam():
-            tp = [ Field(name = "type_id", type = aftermath.types.builtin.uint32_t) ]
+            tp = [ Field(name = "type_id", field_type = aftermath.types.builtin.uint32_t) ]
         else:
             tp = []
 
@@ -127,11 +127,11 @@ class WriteFunction(FunctionTemplate, Jinja2FileTemplate):
             return_type = aftermath.types.builtin.int,
             arglist = FieldList(
                 [ Field(name = "ctx",
-                        type = aftermath.types.aux.am_io_context,
+                        field_type = aftermath.types.aux.am_io_context,
                         is_pointer = True) ] +
                 tp +
                 [ Field(name = "dsk",
-                        type = dsk_type,
+                        field_type = dsk_type,
                         is_pointer = True,
                         is_const = True) ]))
 
@@ -155,7 +155,7 @@ class LoadFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True)
             ]))
 
@@ -179,10 +179,10 @@ class ProcessFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList([
                 Field(name = "ctx",
-                      type = aftermath.types.aux.am_io_context,
+                      field_type = aftermath.types.aux.am_io_context,
                       is_pointer = True),
                 Field(name = "e",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True)
             ]))
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -198,7 +198,7 @@ class WriteToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
         })
 
         if reqtags["gen_tag"].hasTypeParam():
-            tp = [ Field(name = "type_id", type = aftermath.types.builtin.uint32_t) ]
+            tp = [ Field(name = "type_id", field_type = aftermath.types.builtin.uint32_t) ]
         else:
             tp = []
 
@@ -209,10 +209,10 @@ class WriteToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList(
                 [ Field(name = "wb",
-                        type = aftermath.types.aux.am_write_buffer,
+                        field_type = aftermath.types.aux.am_write_buffer,
                         is_pointer = True),
                 Field(name = "e",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True,
                       is_const = True) ] +
                 tp))
@@ -237,10 +237,10 @@ class WriteToBufferWithDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList(
                 [ Field(name = "wb",
-                        type = aftermath.types.aux.am_write_buffer,
+                        field_type = aftermath.types.aux.am_write_buffer,
                         is_pointer = True),
                 Field(name = "e",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True,
                       is_const = True) ]))
 
@@ -264,7 +264,7 @@ class WriteDefaultIDToBufferFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = True,
             arglist = FieldList(
                 [ Field(name = "wb",
-                        type = aftermath.types.aux.am_write_buffer,
+                        field_type = aftermath.types.aux.am_write_buffer,
                         is_pointer = True) ]))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -286,7 +286,7 @@ class WriteDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
             inline = False,
             arglist = FieldList(
                 [ Field(name = "ctx",
-                        type = aftermath.types.aux.am_io_context,
+                        field_type = aftermath.types.aux.am_io_context,
                         is_pointer = True) ]))
 
         self.addDefaultArguments(dsk_type = dsk_type, **reqtags)
@@ -308,10 +308,10 @@ class WriteWithDefaultIDFunction(FunctionTemplate, Jinja2FileTemplate):
             return_type = aftermath.types.builtin.int,
             arglist = FieldList(
                 [ Field(name = "ctx",
-                        type = aftermath.types.aux.am_io_context,
+                        field_type = aftermath.types.aux.am_io_context,
                         is_pointer = True),
                 Field(name = "e",
-                      type = dsk_type,
+                      field_type = dsk_type,
                       is_pointer = True,
                       is_const = True) ]))
 
