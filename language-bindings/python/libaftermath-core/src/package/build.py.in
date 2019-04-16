@@ -1,0 +1,18 @@
+import cffi
+
+with open("../src/cffi_cdefs.h", "r") as f_cdefs:
+    cffi_cdefs = f_cdefs.read()
+
+    with open("../src/cffi_source.c", "r") as f_source:
+        cffi_source = f_source.read()
+
+        ffibuilder = cffi.FFI()
+        ffibuilder.set_source("aftermath.core._aftermath_core",
+                              cffi_source,
+                              include_dirs = [
+                                  "@AFTERMATH_CORE_INCLUDE_DIR@"
+                              ],
+                              libraries = ["aftermath-core"],
+                              library_dirs = ["@AFTERMATH_CORE_LIB_DIR@"])
+
+        ffibuilder.cdef(cffi_cdefs)

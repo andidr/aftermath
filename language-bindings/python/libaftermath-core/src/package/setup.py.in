@@ -1,0 +1,22 @@
+import setuptools
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name = "aftermath.core",
+    version = "@PACKAGE_VERSION@",
+    author = "Andi Drebes",
+    author_email = "andi@drebesium.org",
+    description = "Python bindings for libaftermath-core",
+    long_description = long_description,
+    url = "https://www.aftermath-tracing.com",
+    packages = ["aftermath", "aftermath.core"],
+    setup_requires = ["cffi"],
+    cffi_modules=["build.py:ffibuilder"],
+    classifiers = [
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "Operating System :: OS Independent",
+    ]
+)

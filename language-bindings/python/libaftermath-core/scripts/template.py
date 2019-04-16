@@ -1,0 +1,1 @@
+../../../../libaftermath-core/scripts/template.py

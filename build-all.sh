@@ -30,7 +30,8 @@ do_configure() {
     mkdir -p "build/$SUBPROJECT" || die "failed."
     echo "done."
     echo "Configuring $SUBPROJECT..."
-    ( cd "build/$SUBPROJECT" && "../../$SUBPROJECT/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
+    SRCDIR="$PWD/$SUBPROJECT"
+    ( cd "build/$SUBPROJECT" && "$SRCDIR/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
 }
 
 do_make() {
@@ -52,6 +53,7 @@ print_help() {
     echo "                           subproject"
     echo "  --clean                  Deletes files from previous builds before compiling"
     echo "  --debug                  Build debugging version"
+    echo "  --enable-python          Enable Python bindings"
     echo "  --install-p              Invoke install with -p parameter to create symlinks"
     echo "                           from installed header files to header files from build"
     echo "                           directory to avoid rebuilding depending subprojects"
@@ -62,6 +64,7 @@ print_help() {
     echo "  --local,--local-install  Creates a folder 'install' and installs all packages"
     echo "                           subprojects into it"
     echo "  --prefix=PATH            Installs all packages into PATH"
+
 }
 
 PREFIX="/usr/local"
@@ -71,6 +74,7 @@ DEBUG="false"
 CLEAN="false"
 BOOTSTRAP="false"
 INSTALL_P="false"
+PYTHON_BINDINGS="false"
 
 CONFIGURE_EXTRA_ARGS=()
 MAKE_EXTRA_ARGS=()
@@ -124,22 +128,28 @@ do
 	    PREFIX=`echo "$1" | cut -c 10-`
 	    shift
 	    ;;
+	--enable-python)
+	    PYTHON_BINDINGS="true"
+	    shift
+	    ;;
 	*)
 	    die "Unknown flag \"$1\"."
 	    ;;
     esac
 done
 
+BOOTSTRAP_SUBPROJECTS="aftermath aftermath-convert aftermath-dump libaftermath-core libaftermath-render libaftermath-trace"
+
+if [ $PYTHON_BINDINGS = "true" ]
+then
+    BOOTSTRAP_SUBPROJECTS="$BOOTSTRAP_SUBPROJECTS language-bindings/python/libaftermath-core"
+fi
+
 if [ $CLEAN = "true" ]
 then
     rm -rf build
 
-    for SUBPROJECT in aftermath \
-		      aftermath-convert \
-		      aftermath-dump \
-		      libaftermath-core \
-		      libaftermath-render \
-		      libaftermath-trace
+    for SUBPROJECT in $BOOTSTRAP_SUBPROJECTS
     do
 	(cd "./$SUBPROJECT" ; ./bootstrap.sh --clean )
     done
@@ -150,12 +160,7 @@ then
     fi
 fi
 
-for SUBPROJECT in aftermath \
-		      aftermath-convert \
-		      aftermath-dump \
-		      libaftermath-core \
-		      libaftermath-render \
-		      libaftermath-trace
+for SUBPROJECT in $BOOTSTRAP_SUBPROJECTS
 do
     if [ ! -f "./$SUBPROJECT/configure" -o $BOOTSTRAP = "true" ]
     then
@@ -205,6 +210,16 @@ CONFIGURE_EXTRA_ARGS+=("--with-aftermath-render=$PREFIX")
 do_configure aftermath "${CONFIGURE_EXTRA_ARGS[@]}"
 do_make aftermath "${MAKE_EXTRA_ARGS[@]}"
 
+if [ $PYTHON_BINDINGS = "true" ]
+then
+    CONFIGURE_PYLIBCORE_ARGS=$CONFIGURE_EXTRA_ARGS
+    CONFIGURE_PYLIBCORE_ARGS+=("--with-aftermath-core=$PREFIX"
+			       "--with-aftermath-core-sourcedir=$PWD/libaftermath-core"
+			       "--with-aftermath-core-builddir=$PWD/build/libaftermath-core")
+    do_configure language-bindings/python/libaftermath-core "${CONFIGURE_PYLIBCORE_ARGS[@]}"
+    do_make language-bindings/python/libaftermath-core "${MAKE_EXTRA_ARGS[@]}"
+fi
+
 echo
 echo "*********************************************************************"
 echo "* Build finished successfully!                                      *"
@@ -223,3 +238,13 @@ echo
 echo "  export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$PREFIX/lib"
 echo "  export PATH=\$PATH:$PREFIX/bin"
 echo
+
+if [ $PYTHON_BINDINGS = "true" ]
+then
+    PYTHON_SITEPACKAGE_DIR=`echo $PREFIX/lib/python*/site-packages`
+    echo "Python packages have been installed to $PYTHON_SITEPACKAGE_DIR."
+    echo "Please set PYTHONPATH accordingly, e.g., by executing:"
+    echo
+    echo "  export PYTHONPATH=$PYTHON_SITEPACKAGE_DIR"
+    echo
+fi
