@@ -53,6 +53,8 @@ print_help() {
     echo "                           subproject"
     echo "  --clean                  Deletes files from previous builds before compiling"
     echo "  --debug                  Build debugging version"
+    echo "  --env=FILE               Generate shell script exporting all environment variables"
+    echo "                           needed to use the installation"
     echo "  --enable-python          Enable Python bindings"
     echo "  --install-p              Invoke install with -p parameter to create symlinks"
     echo "                           from installed header files to header files from build"
@@ -75,6 +77,7 @@ CLEAN="false"
 BOOTSTRAP="false"
 INSTALL_P="false"
 PYTHON_BINDINGS="false"
+ENV_FILE=""
 
 CONFIGURE_EXTRA_ARGS=()
 MAKE_EXTRA_ARGS=()
@@ -94,6 +97,10 @@ do
 	    ;;
 	--debug)
 	    DEBUG="true"
+	    shift
+	    ;;
+	--env=*)
+	    ENV_FILE=`echo "$1" | cut -c 7-`
 	    shift
 	    ;;
 	-h|--help)
@@ -246,5 +253,17 @@ then
     echo "Please set PYTHONPATH accordingly, e.g., by executing:"
     echo
     echo "  export PYTHONPATH=$PYTHON_SITEPACKAGE_DIR"
+    echo
+fi
+
+if [ ! -z "$ENV_FILE" ]
+then
+    echo "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:$PREFIX/lib\"" > "$ENV_FILE"
+    echo "export PATH=\"\$PATH:$PREFIX/bin\"" >> "$ENV_FILE"
+    echo "export PYTHONPATH=\"$PYTHON_SITEPACKAGE_DIR\"" >> "$ENV_FILE"
+
+    echo "All environment variables above can be set by sourcing $ENV_FILE:"
+    echo
+    echo "  . \"$ENV_FILE\""
     echo
 fi
