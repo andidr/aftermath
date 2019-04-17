@@ -51,19 +51,25 @@ if __name__ == "__main__":
         outfile = sys.stdout
 
     try:
+        tpl_dir = os.path.dirname(args.template.name)
+        tpl_basename = os.path.basename(args.template.name)
+
+        env = EnvironmentRelativePaths(loader = jinja2.FileSystemLoader(tpl_dir),
+                                       undefined=jinja2.StrictUndefined)
+
         defs = {"re" : re}
         for m in args.module:
             m_dir = os.path.dirname(m)
             m_name = os.path.basename(m)[:-3]
             sys.path.append(m_dir)
             t = __import__(m_name)
-            defs.update(t.definitions())
 
-        tpl_dir = os.path.dirname(args.template.name)
-        tpl_basename = os.path.basename(args.template.name)
+            if hasattr(t, "definitions"):
+                defs.update(t.definitions())
 
-        env = EnvironmentRelativePaths(loader = jinja2.FileSystemLoader(tpl_dir),
-                                       undefined=jinja2.StrictUndefined)
+            if hasattr(t, "filters"):
+                env.filters.update(t.filters())
+
         template = env.get_template(tpl_basename)
         content = template.render(**defs)
         outfile.write(content)
