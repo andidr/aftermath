@@ -671,6 +671,7 @@ class TypeList(object):
 
         self.__types = []
         self.__types_hashed = {}
+        self.__idents_hashed = {}
 
         if types:
             for t in types:
@@ -697,6 +698,11 @@ class TypeList(object):
 
         self.__types.append(t)
         self.__types_hashed[tname] = t
+
+        try:
+            self.__idents_hashed[t.getIdent()] = t
+        except:
+            pass
 
     def addTypes(self, *ts):
         """Adds all types passed as arguments to this list"""
@@ -804,6 +810,17 @@ class TypeList(object):
 
         if tname in self.__types_hashed.keys():
             return self.__types_hashed[tname]
+        else:
+            return None
+
+    def getTypeByIdent(self, ident):
+        """Returns a type by its array identifier or None if no such type
+        exists"""
+
+        enforce_type(ident, str)
+
+        if ident in self.__idents_hashed.keys():
+            return self.__idents_hashed[ident]
         else:
             return None
 
