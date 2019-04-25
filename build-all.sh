@@ -26,12 +26,15 @@ do_configure() {
     shift
     ARGS=("$@")
 
-    printf "%s" "Creating vpath directory for $SUBPROJECT... "
-    mkdir -p "$BUILD_DIR/$SUBPROJECT" || die "failed."
-    echo "done."
-    echo "Configuring $SUBPROJECT..."
-    SRCDIR="$PWD/$SUBPROJECT"
-    ( cd "$BUILD_DIR/$SUBPROJECT" && "$SRCDIR/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
+    if [ $SKIP_CONFIGURE = "false" ]
+    then
+	printf "%s" "Creating vpath directory for $SUBPROJECT... "
+	mkdir -p "$BUILD_DIR/$SUBPROJECT" || die "failed."
+	echo "done."
+	echo "Configuring $SUBPROJECT..."
+	SRCDIR="$PWD/$SUBPROJECT"
+	( cd "$BUILD_DIR/$SUBPROJECT" && "$SRCDIR/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
+    fi
 }
 
 do_make() {
@@ -67,6 +70,8 @@ print_help() {
     echo "  --local,--local-install  Creates a folder 'install' and installs all packages"
     echo "                           subprojects into it"
     echo "  --prefix=PATH            Installs all packages into PATH"
+    echo "  --skip-configure         Assume that a prior run with configuring the sources"
+    echo "                           was done before and just build and install"
 
 }
 
@@ -80,6 +85,7 @@ INSTALL_P="false"
 PYTHON_BINDINGS="false"
 ENV_FILE=""
 BUILD_DIR="$PWD/build"
+SKIP_CONFIGURE="false"
 
 CONFIGURE_EXTRA_ARGS=()
 MAKE_EXTRA_ARGS=()
@@ -143,6 +149,10 @@ do
 	    ;;
 	--enable-python)
 	    PYTHON_BINDINGS="true"
+	    shift
+	    ;;
+	--skip-configure)
+	    SKIP_CONFIGURE="true"
 	    shift
 	    ;;
 	*)
