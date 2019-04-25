@@ -27,11 +27,11 @@ do_configure() {
     ARGS=("$@")
 
     printf "%s" "Creating vpath directory for $SUBPROJECT... "
-    mkdir -p "build/$SUBPROJECT" || die "failed."
+    mkdir -p "$BUILD_DIR/$SUBPROJECT" || die "failed."
     echo "done."
     echo "Configuring $SUBPROJECT..."
     SRCDIR="$PWD/$SUBPROJECT"
-    ( cd "build/$SUBPROJECT" && "$SRCDIR/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
+    ( cd "$BUILD_DIR/$SUBPROJECT" && "$SRCDIR/configure" "${ARGS[@]}" ) || die "Could not configure $SUBPROJECT"
 }
 
 do_make() {
@@ -40,7 +40,7 @@ do_make() {
     ARGS=("$@")
 
     echo "Building $SUBPROJECT..."
-    ( cd "build/$SUBPROJECT" && make "${ARGS[@]}" && make install "${ARGS[@]}" ) || die "Could not build $SUBPROJECT"
+    ( cd "$BUILD_DIR/$SUBPROJECT" && make "${ARGS[@]}" && make install "${ARGS[@]}" ) || die "Could not build $SUBPROJECT"
 }
 
 print_help() {
@@ -51,6 +51,7 @@ print_help() {
     echo "  -h, --help               Show this help"
     echo "  --bootstrap              Force invocation of bootstrap script for each"
     echo "                           subproject"
+    echo "  --builddir=DIR           Use DIR as the build directory"
     echo "  --clean                  Deletes files from previous builds before compiling"
     echo "  --debug                  Build debugging version"
     echo "  --env=FILE               Generate shell script exporting all environment variables"
@@ -78,6 +79,7 @@ BOOTSTRAP="false"
 INSTALL_P="false"
 PYTHON_BINDINGS="false"
 ENV_FILE=""
+BUILD_DIR="$PWD/build"
 
 CONFIGURE_EXTRA_ARGS=()
 MAKE_EXTRA_ARGS=()
@@ -89,6 +91,10 @@ do
     case "$1" in
 	--bootstrap)
 	    BOOTSTRAP="true"
+	    shift
+	    ;;
+	--builddir=*)
+	    BUILD_DIR=`echo "$1" | cut -c 12-`
 	    shift
 	    ;;
 	--clean)
@@ -154,7 +160,7 @@ fi
 
 if [ $CLEAN = "true" ]
 then
-    rm -rf build
+    rm -rf "$BUILD_DIR"
 
     for SUBPROJECT in $BOOTSTRAP_SUBPROJECTS
     do
@@ -199,7 +205,7 @@ do_make libaftermath-core "${MAKE_EXTRA_ARGS[@]}"
 
 CONFIGURE_LIBTRACE_ARGS=$CONFIGURE_EXTRA_ARGS
 CONFIGURE_LIBTRACE_ARGS+=("--with-aftermath-core-sourcedir=$PWD/libaftermath-core"
-			  "--with-aftermath-core-builddir=$PWD/build/libaftermath-core")
+			  "--with-aftermath-core-builddir=$BUILD_DIR/libaftermath-core")
 do_configure libaftermath-trace "${CONFIGURE_LIBTRACE_ARGS[@]}"
 do_make libaftermath-trace "${MAKE_EXTRA_ARGS[@]}"
 
@@ -222,7 +228,7 @@ then
     CONFIGURE_PYLIBCORE_ARGS=$CONFIGURE_EXTRA_ARGS
     CONFIGURE_PYLIBCORE_ARGS+=("--with-aftermath-core=$PREFIX"
 			       "--with-aftermath-core-sourcedir=$PWD/libaftermath-core"
-			       "--with-aftermath-core-builddir=$PWD/build/libaftermath-core")
+			       "--with-aftermath-core-builddir=$BUILD_DIR/libaftermath-core")
     do_configure language-bindings/python/libaftermath-core "${CONFIGURE_PYLIBCORE_ARGS[@]}"
     do_make language-bindings/python/libaftermath-core "${MAKE_EXTRA_ARGS[@]}"
 fi
