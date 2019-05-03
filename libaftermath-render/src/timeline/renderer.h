@@ -376,6 +376,7 @@ am_timeline_renderer_x_to_timestamp(struct am_timeline_renderer* r,
 
 AM_DECL_TIMELINE_RENDERER_SETCOLOR_FUN2(background, bg)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_offset)
+AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_height)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN(lane_mode)
 AM_DECL_TIMELINE_RENDERER_SETTER_FUN_STRUCT(visible_interval)
 AM_DECL_TIMELINE_RENDERER_GETTER_FUN_STRUCT(visible_interval)

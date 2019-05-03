@@ -820,14 +820,42 @@ void TimelineWidget::wheelEvent(QWheelEvent* event)
 	struct am_timeline_renderer* r = &this->renderer;
 	struct am_point p = { .x = (double)event->x(), .y = (double)event->y() };
 	double offs;
+	double new_offs;
+	double old_h;
+	double new_h;
+	double mouse_offs;
 
 	if(am_point_in_rect(&p, &r->rects.ylegend)) {
-		/* Scrolling on left part with the legens for the Y axis: scroll
-		 * up / down the hierarchy */
-		offs = am_timeline_renderer_get_lane_offset(r);
-		offs -= (event->delta() / 100.0) * this->ylegendScrollPx;
+		/* Scrolling on left part with the legend for the vertical
+		 * axis. If control is pressed, this reduces / increases the
+		 * size of a timeline lane. Otherwise this scrolls the vertical
+		 * axis up / down. */
 
-		am_timeline_renderer_set_lane_offset(r, offs);
+		if(event->modifiers() & Qt::ControlModifier) {
+			old_h = am_timeline_renderer_get_lane_height(r);
+			new_h = old_h + event->delta() / 100.0;
+
+			if(new_h < 1.0)
+				new_h = 1.0;
+
+			am_timeline_renderer_set_lane_height(r, new_h);
+
+			/* Adjust scroll offset, such that the lane under the
+			 * mouse pointer remains the same */
+			offs = am_timeline_renderer_get_lane_offset(r);
+			mouse_offs = p.y - r->rects.ylegend.y;
+
+			new_offs = (new_h * (offs + mouse_offs)) / old_h -
+				mouse_offs;
+
+			am_timeline_renderer_set_lane_offset(r, new_offs);
+		} else {
+			offs = am_timeline_renderer_get_lane_offset(r);
+			offs -= (event->delta() / 100.0) * this->ylegendScrollPx;
+
+			am_timeline_renderer_set_lane_offset(r, offs);
+		}
+
 		this->update();
 	} else if(am_point_in_rect(&p, &r->rects.lanes)) {
 		/* Scrolling on the time line lanes: zoom in and out */
