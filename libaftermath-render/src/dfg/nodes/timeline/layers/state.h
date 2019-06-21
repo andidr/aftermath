@@ -30,21 +30,10 @@ AM_RENDER_DFG_DECL_TIMELINE_LAYER_FILTER_NODE_TYPE(
 int am_render_dfg_timeline_state_layer_configuration_node_process(
 	struct am_dfg_node* n);
 
-AM_DFG_DECL_BUILTIN_NODE_TYPE(
-	am_render_dfg_timeline_state_layer_configuration_node_type,
-	"am::render::timeline::layer::state::configuration",
-	"Timeline State Layer Configuration",
-	AM_DFG_NODE_DEFAULT_SIZE,
-	AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,
-	AM_DFG_NODE_FUNCTIONS({
-		.process = am_render_dfg_timeline_state_layer_configuration_node_process
-	}),
-	AM_DFG_NODE_PORTS(
-		{ "layer", "const am::render::timeline::layer::state*", AM_DFG_PORT_IN },
-		{ "enable", "am::core::bool", AM_DFG_PORT_IN }
-	),
-	AM_DFG_PORT_DEPS(),
-	AM_DFG_NODE_PROPERTIES())
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_ENABLE_CONFIGURATION_NODE_TYPE(
+	state,
+	"state",
+	"Timeline State Layer Configuration")
 
 int am_render_dfg_timeline_state_layer_dominant_state_at_pos_node_type_process(
 	struct am_dfg_node* n);
