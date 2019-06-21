@@ -122,6 +122,87 @@
 		return 0;							\
 	}
 
+/* Declares a DFG node type that takes a list of timeline layers of type "const
+ * am::render::timeline::layer::<ident_name>*" as an input and enables /
+ * disables rendering of each layer depending on the last value present at the
+ * "enable" input port.
+ *
+ * The parameter layer_name is used to complete the symbol for this DFG node
+ * definition and hrname is the human-readable name for the node.
+ */
+#define AM_RENDER_DFG_DECL_TIMELINE_LAYER_ENABLE_CONFIGURATION_NODE_TYPE(	\
+	layer_name, ident_name, hrname)					\
+	int am_render_dfg_timeline_##layer_name##_layer_configuration_node_process(	\
+		struct am_dfg_node* n);					\
+										\
+	AM_DFG_DECL_BUILTIN_NODE_TYPE(						\
+		am_render_dfg_timeline_##layer_name##_layer_configuration_node_type,	\
+		"am::render::timeline::layer::" ident_name "::configuration",	\
+		hrname,							\
+		AM_DFG_NODE_DEFAULT_SIZE,					\
+		AM_DFG_DEFAULT_PORT_DEPS_PURE_FUNCTIONAL,			\
+		AM_DFG_NODE_FUNCTIONS({					\
+			.process = am_render_dfg_timeline_##layer_name##_layer_configuration_node_process \
+		}),								\
+		AM_DFG_NODE_PORTS(						\
+			{ "layer",						\
+			  "const am::render::timeline::layer::" ident_name "*", \
+			  AM_DFG_PORT_IN },					\
+			{ "enable", "am::core::bool", AM_DFG_PORT_IN }		\
+		),								\
+		AM_DFG_PORT_DEPS(),						\
+		AM_DFG_NODE_PROPERTIES())
+
+/* Implementation macro for
+ * AM_RENDER_DFG_DECL_TIMELINE_LAYER_ENABLE_CONFIGURATION_NODE_TYPE */
+#define AM_RENDER_DFG_IMPL_TIMELINE_LAYER_ENABLE_CONFIGURATION_NODE_TYPE(	\
+	layer_name, ident_name)						\
+	int am_render_dfg_timeline_##layer_name##_layer_configuration_node_process( \
+		struct am_dfg_node* n)						\
+	{									\
+		size_t num_layers;						\
+		struct am_timeline_render_layer** layers;			\
+		int changed = 0;						\
+		int rendering_enabled;						\
+		struct am_dfg_port* players = &n->ports[0];			\
+		struct am_dfg_port* penable = &n->ports[1];			\
+										\
+		/* No input layers -> Exit */					\
+		if(!am_dfg_port_activated(players) ||				\
+		   players->buffer->num_samples == 0)				\
+		{								\
+			return 0;						\
+		}								\
+										\
+		num_layers = players->buffer->num_samples;			\
+		layers = players->buffer->data;				\
+										\
+		/* Enable */							\
+		if(am_dfg_port_activated(penable)) {				\
+			if(am_dfg_buffer_read_last(penable->buffer,		\
+						   &rendering_enabled)) 	\
+			{							\
+				return 1;					\
+			}							\
+										\
+			changed = 1;						\
+										\
+			for(size_t i = 0; i < num_layers; i++)			\
+				layers[i]->enabled = rendering_enabled; 	\
+		}								\
+										\
+		/* Notify renderers if necessary */				\
+		if(changed) {							\
+			for(size_t i = 0; i < num_layers; i++) {		\
+				am_timeline_renderer_indicate_layer_appearance_change( \
+					layers[i]->renderer,			\
+					layers[i]);				\
+			}							\
+		}								\
+										\
+		return 0;							\
+	}									\
+
 #define AM_RENDER_DFG_DECL_LAYER_VALUPD_FUN(SUFFIX, TIN, TOUT, REASSIGN_EXPR)	\
 	/* Updates the value of type TOUT at offset tgt_offset of each layer	\
 	 * read from layers_port according to the last value of type TIN read	\
