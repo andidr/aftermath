@@ -39,6 +39,13 @@ AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(axes, "axes")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(background, "background")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(hierarchy, "hierarchy")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(measurement_intervals, "measurement_intervals")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_for_loop_type, "openmp::for_loop_type")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_for_loop_instance, "openmp::for_loop_instance")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_iteration_set, "openmp::iteration_set")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_iteration_period, "openmp::iteration_period")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_task_type, "openmp::task_type")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_task_instance, "openmp::task_instance")
+AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(openmp_task_period, "openmp::task_period")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(selection, "selection")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(state, "state")
 AM_RENDER_DFG_DECL_TIMELINE_LAYER_TYPE(telamon_evaluation, "telamon::evaluation")
@@ -50,6 +57,13 @@ static struct am_dfg_static_type_def* builtin_defs[] = {
 	&am_render_dfg_type_timeline_background_layer,
 	&am_render_dfg_type_timeline_hierarchy_layer,
 	&am_render_dfg_type_timeline_measurement_intervals_layer,
+	&am_render_dfg_type_timeline_openmp_for_loop_type_layer,
+	&am_render_dfg_type_timeline_openmp_for_loop_instance_layer,
+	&am_render_dfg_type_timeline_openmp_iteration_set_layer,
+	&am_render_dfg_type_timeline_openmp_iteration_period_layer,
+	&am_render_dfg_type_timeline_openmp_task_type_layer,
+	&am_render_dfg_type_timeline_openmp_task_instance_layer,
+	&am_render_dfg_type_timeline_openmp_task_period_layer,
 	&am_render_dfg_type_timeline_selection_layer,
 	&am_render_dfg_type_timeline_state_layer,
 	&am_render_dfg_type_timeline_telamon_evaluation_layer,

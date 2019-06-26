@@ -6,6 +6,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/nodes/timeline/layers/axes.h \
 	aftermath/render/dfg/nodes/timeline/layers/background.h \
 	aftermath/render/dfg/nodes/timeline/layers/hierarchy.h \
+	aftermath/render/dfg/nodes/timeline/layers/openmp.h \
 	aftermath/render/dfg/nodes/timeline/layers/state.h \
 	aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
 	aftermath/render/dfg/renderer.h \
