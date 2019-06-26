@@ -115,6 +115,10 @@ share/profiles/min/interface.amgui: $(srcdir)/share/profiles/min/interface.amgui
 	$(MKDIR_P) share/profiles/min/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
 
+share/profiles/openmp/interface.amgui: $(srcdir)/share/profiles/openmp/interface.amgui.in
+	$(MKDIR_P) share/profiles/openmp/
+	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
+
 share/profiles/telamon/interface.amgui: $(srcdir)/share/profiles/telamon/interface.amgui.in
 	$(MKDIR_P) share/profiles/telamon/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
@@ -133,6 +137,7 @@ share/profiles/tensorflow/interface.amgui: $(srcdir)/share/profiles/tensorflow/i
 
 GENERATED_PROFILE_TEMPLATES = \
 	$(srcdir)/share/profiles/min/interface.amgui.in \
+	$(srcdir)/share/profiles/openmp/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon-candidate-stats/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon-min/interface.amgui.in \
@@ -140,6 +145,7 @@ GENERATED_PROFILE_TEMPLATES = \
 
 GENERATED_PROFILE_FILES = \
 	share/profiles/min/interface.amgui \
+	share/profiles/openmp/interface.amgui \
 	share/profiles/telamon/interface.amgui \
 	share/profiles/telamon-candidate-stats/interface.amgui \
 	share/profiles/telamon-min/interface.amgui \
@@ -147,6 +153,7 @@ GENERATED_PROFILE_FILES = \
 
 STATIC_PROFILE_FILES = \
 	share/profiles/min/graph.dfg \
+	share/profiles/openmp/graph.dfg \
 	share/profiles/telamon/graph.dfg \
 	share/profiles/telamon-candidate-stats/graph.dfg \
 	share/profiles/telamon-min/graph.dfg \
@@ -154,6 +161,13 @@ STATIC_PROFILE_FILES = \
 
 ICONS = \
 	share/icons/draw_states.svg \
+	share/icons/draw_openmp_loop_types.svg \
+	share/icons/draw_openmp_loop_instances.svg \
+	share/icons/draw_openmp_iteration_sets.svg \
+	share/icons/draw_openmp_iteration_periods.svg \
+	share/icons/draw_openmp_task_types.svg \
+	share/icons/draw_openmp_task_instances.svg \
+	share/icons/draw_openmp_task_periods.svg \
 	share/icons/draw_tf_node_executions.svg
 
 # Install profiles

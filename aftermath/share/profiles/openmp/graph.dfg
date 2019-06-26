@@ -1,0 +1,207 @@
+am_dfg_graph {
+	nodes: [
+		am::core::trace {
+				id: 1u64
+			},
+		am::gui::timeline {
+				id: 2u64,
+				timeline_id: "tl1",
+				xdesc_height: 30u64,
+				ydesc_width: 200u64
+			},
+		am::gui::hierarchy_combobox {
+				id: 3u64,
+				widget_id: "hierarchy_cb1"
+			},
+		am::gui::label {
+				id: 4u64,
+				label_id: "statusbar_label"
+			},
+		am::core::pair<am::core::timestamp,const_am::core::hierarchy_node>::attributes {
+				id: 5u64
+			},
+		am::core::timestamp::to_string {
+				id: 6u64,
+				pretty_print: 0u64
+			},
+		am::core::string_format {
+				id: 7u64,
+				format: "Timestamp: %s"
+			},
+		am::render::timeline::layer::state::configuration {
+				id: 8u64
+			},
+		am::render::timeline::layer::state::filter {
+				id: 9u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 10u64,
+				widget_id: "toolbutton_draw_states"
+			},
+		am::render::timeline::layer::state::dominant_state_at_pos {
+				id: 12u64
+			},
+		am::core::state_description::attributes {
+				id: 13u64
+			},
+		am::core::string_format {
+				id: 14u64,
+				format: "State: %s"
+			},
+		am::core::merge2 {
+				id: 15u64
+			},
+		am::core::string_concat {
+				id: 16u64,
+				separator: ", "
+			},
+		am::gui::toolbar_togglebutton {
+				id: 17u64,
+				widget_id: "toolbutton_draw_openmp_loop_types"
+			},
+		am::render::timeline::layer::openmp::for_loop_type::filter {
+				id: 18u64
+			},
+		am::render::timeline::layer::openmp::for_loop_type::configuration {
+				id: 19u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 20u64,
+				widget_id: "toolbutton_draw_openmp_loop_instances"
+			},
+		am::render::timeline::layer::openmp::for_loop_instance::filter {
+				id: 21u64
+			},
+		am::render::timeline::layer::openmp::for_loop_instance::configuration {
+				id: 22u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 23u64,
+				widget_id: "toolbutton_draw_openmp_iteration_sets"
+			},
+		am::render::timeline::layer::openmp::iteration_set::filter {
+				id: 24u64
+			},
+		am::render::timeline::layer::openmp::iteration_set::configuration {
+				id: 25u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 26u64,
+				widget_id: "toolbutton_draw_openmp_iteration_periods"
+			},
+		am::render::timeline::layer::openmp::iteration_period::configuration {
+				id: 27u64
+			},
+		am::render::timeline::layer::openmp::iteration_period::filter {
+				id: 28u64
+			},
+		am::render::timeline::layer::openmp::task_period::filter {
+				id: 29u64
+			},
+		am::render::timeline::layer::openmp::task_period::configuration {
+				id: 30u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 31u64,
+				widget_id: "toolbutton_draw_openmp_task_instances"
+			},
+		am::gui::toolbar_togglebutton {
+				id: 32u64,
+				widget_id: "toolbutton_draw_openmp_task_periods"
+			},
+		am::render::timeline::layer::openmp::task_instance::filter {
+				id: 33u64
+			},
+		am::render::timeline::layer::openmp::task_instance::configuration {
+				id: 34u64
+			},
+		am::gui::toolbar_togglebutton {
+				id: 35u64,
+				widget_id: "toolbutton_draw_openmp_task_types"
+			},
+		am::render::timeline::layer::openmp::task_type::filter {
+				id: 36u64
+			},
+		am::render::timeline::layer::openmp::task_type::configuration {
+				id: 37u64
+			}
+		],
+	connections: [
+		[1u64, "trace", 2u64, "trace"],
+		[3u64, "hierarchy", 2u64, "hierarchy"],
+		[1u64, "trace", 3u64, "trace"],
+		[16u64, "out", 4u64, "in"],
+		[2u64, "mouse position", 5u64, "pairs"],
+		[5u64, "timestamp", 6u64, "in"],
+		[6u64, "out", 7u64, "in"],
+		[9u64, "out", 8u64, "layer"],
+		[10u64, "toggled", 8u64, "enable"],
+		[2u64, "layers", 9u64, "in"],
+		[9u64, "out", 12u64, "layer"],
+		[2u64, "mouse position", 12u64, "mouse position"],
+		[12u64, "dominant state", 13u64, "in"],
+		[13u64, "name", 14u64, "in"],
+		[7u64, "out", 15u64, "in0"],
+		[14u64, "out", 15u64, "in1"],
+		[15u64, "out", 16u64, "in"],
+		[2u64, "layers", 18u64, "in"],
+		[18u64, "out", 19u64, "layer"],
+		[17u64, "toggled", 19u64, "enable"],
+		[2u64, "layers", 21u64, "in"],
+		[21u64, "out", 22u64, "layer"],
+		[20u64, "toggled", 22u64, "enable"],
+		[2u64, "layers", 24u64, "in"],
+		[24u64, "out", 25u64, "layer"],
+		[23u64, "toggled", 25u64, "enable"],
+		[28u64, "out", 27u64, "layer"],
+		[26u64, "toggled", 27u64, "enable"],
+		[2u64, "layers", 28u64, "in"],
+		[2u64, "layers", 29u64, "in"],
+		[29u64, "out", 30u64, "layer"],
+		[32u64, "toggled", 30u64, "enable"],
+		[2u64, "layers", 33u64, "in"],
+		[33u64, "out", 34u64, "layer"],
+		[31u64, "toggled", 34u64, "enable"],
+		[2u64, "layers", 36u64, "in"],
+		[36u64, "out", 37u64, "layer"],
+		[35u64, "toggled", 37u64, "enable"]
+		],
+	positions: [
+		[1u64, 66.259260, 117.074074],
+		[2u64, 298.814815, 116.925926],
+		[3u64, 146.629630, 152.777778],
+		[4u64, 1419.382716, 245.111111],
+		[5u64, 486.092593, 245.092593],
+		[6u64, 745.592593, 245.314815],
+		[7u64, 891.345679, 245.265432],
+		[8u64, 791.629630, 25.000000],
+		[9u64, 463.925926, 25.703704],
+		[10u64, 642.370370, 86.444444],
+		[12u64, 639.987654, 145.814815],
+		[13u64, 835.444444, 145.814815],
+		[14u64, 1027.222222, 145.888889],
+		[15u64, 1167.518519, 245.185185],
+		[16u64, 1282.037037, 245.086420],
+		[17u64, 640.728395, -22.839506],
+		[18u64, 460.135802, -74.493827],
+		[19u64, 793.296296, -75.382716],
+		[20u64, 653.666667, -135.444444],
+		[21u64, 453.222222, -197.888889],
+		[22u64, 804.148148, -197.814815],
+		[23u64, 666.000000, -276.000000],
+		[24u64, 451.000000, -349.000000],
+		[25u64, 824.666667, -349.666667],
+		[26u64, 672.000000, -419.000000],
+		[27u64, 823.666667, -490.333333],
+		[28u64, 448.000000, -490.000000],
+		[29u64, 444.000000, -868.000000],
+		[30u64, 823.333333, -866.000000],
+		[31u64, 686.888889, -682.555556],
+		[32u64, 673.555556, -818.888889],
+		[33u64, 475.555556, -746.888889],
+		[34u64, 840.518519, -747.185185],
+		[35u64, 686.000000, -545.000000],
+		[36u64, 483.000000, -595.000000],
+		[37u64, 830.185185, -594.629630]
+		]
+}

@@ -1,0 +1,107 @@
+am_gui {
+	title: "Aftermath",
+
+	children: [
+		amgui_vbox {
+			children: [
+				amgui_htoolbar {
+					children: [
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw reads",
+							icon: "@ICON_BASEDIR@/draw_states.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_states"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP loop types",
+							icon: "@ICON_BASEDIR@/draw_openmp_loop_types.svg",
+							checked: 1u64,
+							id: "toolbutton_draw_openmp_loop_types"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP loop instances",
+							icon: "@ICON_BASEDIR@/draw_openmp_loop_instances.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_loop_instances"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP iteration sets",
+							icon: "@ICON_BASEDIR@/draw_openmp_iteration_sets.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_iteration_sets"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP iteration periods",
+							icon: "@ICON_BASEDIR@/draw_openmp_iteration_periods.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_iteration_periods"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task types",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_types.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_types"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task instances",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_instances.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_instances"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task periods",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_periods.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_periods"
+						}
+					]
+				},
+
+				amgui_hsplitter {
+					stretch: [10u64, 90u64],
+					children: [
+						amgui_tabs {
+							tab_names: [ "Options" ],
+
+							children : [
+								amgui_vbox {
+									children: [
+										amgui_label {
+											text: "Hierarchy:"
+										},
+
+										amgui_hierarchy_combobox {
+											id: "hierarchy_cb1"
+										}
+									]
+								}
+							]
+						},
+
+						amgui_tabs {
+							tab_names: [ "Timeline", "DFG" ],
+
+							children : [
+								amgui_timeline {
+									id: "tl1",
+									layers: ["background", "hierarchy", "axes", "openmp::for_loop_type", "openmp::for_loop_instance", "openmp::iteration_set", "openmp::iteration_period", "openmp::task_type", "openmp::task_instance", "openmp::task_period", "state", "selection"]
+								},
+
+								amgui_dfg { }
+							]
+						}
+					]
+				},
+
+				amgui_statusbar {
+					children: [
+						amgui_label {
+							text: "Ready.",
+							id: "statusbar_label"
+						}
+					]
+				}
+			]
+		}
+	]
+}
