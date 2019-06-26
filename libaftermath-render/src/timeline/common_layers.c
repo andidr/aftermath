@@ -30,11 +30,20 @@
 #include <aftermath/render/timeline/layers/lane/state_event.h>
 #include <aftermath/render/timeline/layers/lane/tensorflow/node_execution.h>
 
+#include <aftermath/render/timeline/layers/lane/openmp/openmp.h>
+
 static struct am_timeline_render_layer_type* (*inst_functions[])(void) = {
 	am_timeline_axes_layer_instantiate_type,
 	am_timeline_background_layer_instantiate_type,
 	am_timeline_hierarchy_layer_instantiate_type,
 	am_timeline_measurement_intervals_layer_instantiate_type,
+	am_timeline_openmp_for_loop_type_layer_instantiate_type,
+	am_timeline_openmp_for_loop_instance_layer_instantiate_type,
+	am_timeline_openmp_iteration_set_layer_instantiate_type,
+	am_timeline_openmp_iteration_period_layer_instantiate_type,
+	am_timeline_openmp_task_type_layer_instantiate_type,
+	am_timeline_openmp_task_instance_layer_instantiate_type,
+	am_timeline_openmp_task_period_layer_instantiate_type,
 	am_timeline_state_layer_instantiate_type,
 	am_timeline_selection_layer_instantiate_type,
 	am_timeline_tensorflow_node_execution_layer_instantiate_type
