@@ -18,7 +18,7 @@
 
 #include "WidgetTypeListModel.h"
 #include <QMimeData>
-#include <QtAlgorithms>
+#include <algorithm>
 
 WidgetTypeListModel::WidgetTypeListModel(
 	const GUIFactory* factory, QObject *parent) :
@@ -27,9 +27,9 @@ WidgetTypeListModel::WidgetTypeListModel(
 	for(auto creator: this->factory->getWidgetCreators())
 		this->filteredCreators.push_back(creator);
 
-	qSort(this->filteredCreators.begin(),
-	      this->filteredCreators.end(),
-	      WidgetCreatorComparator());
+	std::sort(this->filteredCreators.begin(),
+		  this->filteredCreators.end(),
+		  WidgetCreatorComparator());
 }
 
 int WidgetTypeListModel::rowCount(const QModelIndex& parent) const
@@ -115,9 +115,9 @@ void WidgetTypeListModel::setFilterString(
 			this->filteredCreators.push_back(creator);
 	}
 
-	qSort(this->filteredCreators.begin(),
-	      this->filteredCreators.end(),
-	      WidgetCreatorComparator());
+	std::sort(this->filteredCreators.begin(),
+		  this->filteredCreators.end(),
+		  WidgetCreatorComparator());
 
 	emit layoutChanged();
 }
