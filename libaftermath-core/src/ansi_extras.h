@@ -20,10 +20,9 @@
 #define AM_ANSI_EXTRAS_H
 
 #include "safe_alloc.h"
+#include <fcntl.h>
 #include <stdint.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -192,12 +191,17 @@ am_strreplace(char* haystack, const char* needle, const char* replacement)
  * -1, otherwise the size of the file. */
 static inline off_t am_file_size(const char* filename)
 {
-	struct stat stat_buf;
+	int fd;
+	off_t fsize;
 
-	if(stat(filename, &stat_buf) == -1)
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
 		return -1;
-
-	return stat_buf.st_size;
+	fsize = lseek(fd, 0, SEEK_END);
+	close(fd);
+	if (fsize < 0)
+		return -1;
+	return fsize;
 }
 
 char* am_strdupn(const char* s, size_t len);
