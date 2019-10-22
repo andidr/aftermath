@@ -908,10 +908,13 @@ struct am_object_notation_node* am_object_notation_load(const char* filename)
 	off_t size;
 	struct am_object_notation_node* ret = NULL;
 
-	if((size = am_file_size(filename)) == -1)
+	if((fd = open(filename, O_RDONLY)) == -1)
 		goto out;
 
-	if((fd = open(filename, O_RDONLY)) == -1)
+	if ((size = lseek(fd, 0, SEEK_END)) < 0)
+		goto out;
+
+	if (lseek(fd, 0, SEEK_SET) < 0)
 		goto out;
 
 	if((str = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
