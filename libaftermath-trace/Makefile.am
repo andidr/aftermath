@@ -31,6 +31,8 @@ libaftermath_trace_la_SOURCES = \
 
 libaftermath_trace_la_CFLAGS =
 libaftermath_trace_la_LIBADD =
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libaftermath-trace.pc
 
 libaftermath_tracedir = $(includedir)/aftermath/trace
 libaftermath_trace_HEADERS =

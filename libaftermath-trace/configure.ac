@@ -82,4 +82,4 @@ do
 		AC_MSG_ERROR([Could not find required file $srcfile in the libaftermath-core build directory.]))
 done
 
-AC_OUTPUT([Makefile headers/Makefile])
+AC_OUTPUT([Makefile headers/Makefile libaftermath-trace.pc])
