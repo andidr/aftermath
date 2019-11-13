@@ -69,4 +69,4 @@ AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
 
 AC_CONFIG_LINKS([scripts/template.py:scripts/template.py])
-AC_OUTPUT([Makefile headers/Makefile])
+AC_OUTPUT([Makefile headers/Makefile libaftermath-core.pc])

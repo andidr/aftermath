@@ -249,6 +249,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 
 libaftermath_core_la_CFLAGS =
 libaftermath_core_la_LIBADD =
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libaftermath-core.pc
 
 GENERATED_FILES=src/base_types.h \
 		src/in_memory.c \
