@@ -175,6 +175,7 @@ do
 done
 
 check_abs_path "$BUILD_DIR" "Build directory must be an absolute path (given: $BUILD_DIR)"
+check_abs_path "$PREFIX" "Prefix must be an absolute path (given: $PREFIX)"
 
 BOOTSTRAP_SUBPROJECTS="aftermath aftermath-convert aftermath-dump libaftermath-core libaftermath-render libaftermath-trace"
 
