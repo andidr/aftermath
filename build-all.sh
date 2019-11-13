@@ -54,7 +54,7 @@ print_help() {
     echo "  -h, --help               Show this help"
     echo "  --bootstrap              Force invocation of bootstrap script for each"
     echo "                           subproject"
-    echo "  --builddir=DIR           Use DIR as the build directory"
+    echo "  --builddir=DIR           Use DIR as the build directory; must be an absolute path"
     echo "  --clean                  Deletes files from previous builds before compiling"
     echo "  --debug                  Build debugging version"
     echo "  --env=FILE               Generate shell script exporting all environment variables"
@@ -73,6 +73,19 @@ print_help() {
     echo "  --skip-configure         Assume that a prior run with configuring the sources"
     echo "                           was done before and just build and install"
 
+}
+
+check_abs_path() {
+    CHECK_PATH="$1"
+    ERRMSG="$2"
+
+    case "$CHECK_PATH" in
+	/*)
+	;;
+	*)
+	    die "$ERRMSG"
+	    ;;
+    esac
 }
 
 PREFIX="/usr/local"
@@ -160,6 +173,8 @@ do
 	    ;;
     esac
 done
+
+check_abs_path "$BUILD_DIR" "Build directory must be an absolute path (given: $BUILD_DIR)"
 
 BOOTSTRAP_SUBPROJECTS="aftermath aftermath-convert aftermath-dump libaftermath-core libaftermath-render libaftermath-trace"
 
