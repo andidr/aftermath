@@ -72,6 +72,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 
 libaftermath_render_la_CFLAGS = @AFTERMATH_CORE_INCLUDES@ @CAIRO_CFLAGS@
 libaftermath_render_la_LIBADD = @AFTERMATH_CORE_LIBS@ @CAIRO_LIBS@
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libaftermath-render.pc
 
 libaftermath_renderdir = $(includedir)/aftermath/render
 libaftermath_render_HEADERS =

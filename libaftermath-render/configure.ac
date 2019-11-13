@@ -32,4 +32,4 @@ CHECK_LIB_AND_HEADER_WITH([aftermath-core], [aftermath-core],
 
 PKG_CHECK_MODULES(CAIRO, [cairo >= 1.0])
 
-AC_OUTPUT([Makefile headers/Makefile])
+AC_OUTPUT([Makefile headers/Makefile libaftermath-render.pc])
