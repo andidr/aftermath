@@ -40,9 +40,9 @@ struct am_color_map openmp_colors = AM_STATIC_COLOR_MAP({
 			AM_RGBA255_EL(235,   0,   0, 255)
 		});
 
-static int trace_changed_generic(struct am_timeline_render_layer* l,
-				 struct am_trace* t,
-				 const char* array_ident)
+static int trace_changed_per_trace_array(struct am_timeline_render_layer* l,
+					 struct am_trace* t,
+					 const char* array_ident)
 {
 	struct am_typed_array_generic* arr;
 	struct am_timeline_interval_layer* il = (typeof(il))l;
@@ -63,12 +63,24 @@ static int trace_changed_generic(struct am_timeline_render_layer* l,
 	return 0;
 }
 
+static int trace_changed_per_ecoll_array(struct am_timeline_render_layer* l,
+					 struct am_trace* t)
+{
+	struct am_timeline_interval_layer* il = (typeof(il))l;
+
+	am_timeline_interval_layer_set_color_map(il, &openmp_colors);
+
+	return am_timeline_interval_layer_set_max_index(
+		il, openmp_colors.num_elements-1);
+}
+
+
 /* For loop type */
 
 static int trace_changed_loop_type(struct am_timeline_render_layer* l,
 				   struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::for_loop_type");
+	return trace_changed_per_trace_array(l, t, "am::openmp::for_loop_type");
 }
 
 static int renderer_changed_loop_type(struct am_timeline_render_layer* l,
@@ -115,7 +127,8 @@ am_timeline_openmp_for_loop_type_layer_instantiate_type(void)
 static int trace_changed_loop_instance(struct am_timeline_render_layer* l,
 				       struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::for_loop_instance");
+	return trace_changed_per_trace_array(
+		l, t, "am::openmp::for_loop_instance");
 }
 
 static int renderer_changed_loop_instance(struct am_timeline_render_layer* l,
@@ -164,7 +177,7 @@ am_timeline_openmp_for_loop_instance_layer_instantiate_type(void)
 static int trace_changed_iteration_set(struct am_timeline_render_layer* l,
 				       struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::iteration_set");
+	return trace_changed_per_trace_array(l, t, "am::openmp::iteration_set");
 }
 
 static int renderer_changed_iteration_set(struct am_timeline_render_layer* l,
@@ -213,7 +226,7 @@ am_timeline_openmp_iteration_set_layer_instantiate_type(void)
 static int trace_changed_iteration_period(struct am_timeline_render_layer* l,
 					  struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::iteration_period");
+	return trace_changed_per_ecoll_array(l, t);
 }
 
 static int renderer_changed_iteration_period(struct am_timeline_render_layer* l,
@@ -230,11 +243,11 @@ static size_t calculate_index_iteration_period(
 	void* arg)
 {
 	struct am_openmp_iteration_period* ip = arg;
-	struct am_openmp_iteration_period_array* larr;
 
-	larr = am_timeline_interval_layer_get_extra_data(l);
-
-	return am_openmp_iteration_period_array_index(larr, ip);
+	/* Some arbitrary expression with reproducible indexes across for the
+	 * same trace */
+	return ((size_t)ip->interval.start * ip->interval.end) %
+		openmp_colors.num_elements;
 }
 
 struct am_timeline_render_layer_type*
@@ -260,7 +273,7 @@ am_timeline_openmp_iteration_period_layer_instantiate_type(void)
 static int trace_changed_task_type(struct am_timeline_render_layer* l,
 				   struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::task_type");
+	return trace_changed_per_trace_array(l, t, "am::openmp::task_type");
 }
 
 static int renderer_changed_task_type(struct am_timeline_render_layer* l,
@@ -307,7 +320,7 @@ am_timeline_openmp_task_type_layer_instantiate_type(void)
 static int trace_changed_task_instance(struct am_timeline_render_layer* l,
 				       struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::task_instance");
+	return trace_changed_per_trace_array(l, t, "am::openmp::task_instance");
 }
 
 static int renderer_changed_task_instance(struct am_timeline_render_layer* l,
@@ -356,7 +369,7 @@ am_timeline_openmp_task_instance_layer_instantiate_type(void)
 static int trace_changed_task_period(struct am_timeline_render_layer* l,
 				     struct am_trace* t)
 {
-	return trace_changed_generic(l, t, "am::openmp::task_period");
+	return trace_changed_per_ecoll_array(l, t);
 }
 
 static int renderer_changed_task_period(struct am_timeline_render_layer* l,
@@ -372,12 +385,12 @@ static size_t calculate_index_task_period(
 	struct am_timeline_interval_layer* l,
 	void* arg)
 {
-	struct am_openmp_task_period* ip = arg;
-	struct am_openmp_task_period_array* larr;
+	struct am_openmp_task_period* tp = arg;
 
-	larr = am_timeline_interval_layer_get_extra_data(l);
-
-	return am_openmp_task_period_array_index(larr, ip);
+	/* Some arbitrary expression with reproducible indexes across for the
+	 * same trace */
+	return ((size_t)tp->interval.start * tp->interval.end) %
+		openmp_colors.num_elements;
 }
 
 struct am_timeline_render_layer_type*
