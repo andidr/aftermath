@@ -27,10 +27,64 @@
 #include <math.h>
 
 static inline struct am_object_notation_node*
-am_object_notation_parse_group(struct am_parser* p);
+am_object_notation_parse_group(struct am_parser* p,
+			       struct am_parse_status* status);
 
 static inline struct am_object_notation_node*
-am_object_notation_parse_node(struct am_parser* p);
+am_object_notation_parse_node(struct am_parser* p,
+			      struct am_parse_status* status);
+
+/* Same as am_parser_read_next_char, but updates status if a parse error
+ * occurred. */
+static inline int am_object_notation_read_next_char(
+	struct am_parser* p,
+	struct am_parser_token* t,
+	char c,
+	struct am_parse_status* status)
+{
+	if(am_parser_read_next_char(p, t, c)) {
+		am_parse_status_set_error_nn(
+			status, p->curr, "Expected character '%c'", c);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/* Same as am_parser_##PARSER_FUN_STEM, but updates status if a parse error
+ * occurred. */
+#define WRAP_PARSER_FUN_STATUS(					\
+	OBJNOT_FUN_STEM, PARSER_FUN_STEM, EXPECTED_ENTITY)		\
+	static inline int am_object_notation_##OBJNOT_FUN_STEM(	\
+		struct am_parser* p,					\
+		struct am_parser_token* t,				\
+		struct am_parse_status* status)			\
+	{								\
+		if(am_parser_##PARSER_FUN_STEM(p, t)) {		\
+			am_parse_status_set_error_nn(			\
+				status,				\
+				p->curr,				\
+				"%s",					\
+				"Expected "#EXPECTED_ENTITY);		\
+									\
+			return 1;					\
+		}							\
+									\
+		return 0;						\
+	}
+
+#define WRAP_PARSER_FUN_STATUS_SAME(FUN_STEM, EXPECTED_ENTITY)	\
+	WRAP_PARSER_FUN_STATUS(FUN_STEM, FUN_STEM, EXPECTED_ENTITY)
+
+WRAP_PARSER_FUN_STATUS_SAME(read_next_string, "string")
+WRAP_PARSER_FUN_STATUS_SAME(read_next_int64, "64 bit signed integer")
+WRAP_PARSER_FUN_STATUS_SAME(read_next_uint64, "64 bit unsigned integer")
+WRAP_PARSER_FUN_STATUS_SAME(read_next_double,
+			    "double precision floating point value")
+WRAP_PARSER_FUN_STATUS_SAME(read_next_group_name, "group name")
+WRAP_PARSER_FUN_STATUS(read_next_member_name, read_next_identifier,
+		       "group member name")
 
 /* Allocate and initialize a group node using a non-zero-terminated string for
  * the name. Returns a reference to the newly allocated node on success,
@@ -221,14 +275,20 @@ void am_object_notation_node_destroy(struct am_object_notation_node* node)
  * is ignored. The position of the parser will be set to the character
  * following the closing bracket. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_list(struct am_parser* p)
+am_object_notation_parse_list(struct am_parser* p,
+			      struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	struct am_object_notation_node_list* node;
 	struct am_object_notation_node* item;
 
-	if(am_parser_read_next_char(p, &t, '['))
+	if(am_object_notation_read_next_char(p, &t, '[', status)) {
+		am_parse_status_set_error_nn(
+			status, p->curr,
+			"Expected '[' (list of elements)");
+
 		goto out_err;
+	}
 
 	if(!(node = am_object_notation_node_list_create()))
 		goto out_err;
@@ -237,24 +297,39 @@ am_object_notation_parse_list(struct am_parser* p)
 	do {
 		am_parser_skip_ws(p);
 
-		if(am_parser_peek_any_char(p, &t))
+		if(am_parser_peek_any_char(p, &t)) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Unexpected end while reading list");
 			goto out_err_destroy;
+		}
 
 		if(am_parser_token_equals_char(&t, ']'))
 			break;
 
-		if(!(item = am_object_notation_parse_node(p)))
+		if(!(item = am_object_notation_parse_node(p, status)))
 			goto out_err_destroy;
 
 		am_object_notation_node_list_add_item(node, item);
 
 		am_parser_skip_ws(p);
 
-		if(am_parser_peek_any_char(p, &t))
-			goto out_err_destroy;
+		if(am_parser_peek_any_char(p, &t)) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Unexpected end while reading list");
 
-		if(!am_parser_token_equals_char_oneof(&t, ",]"))
 			goto out_err_destroy;
+		}
+
+		if(!am_parser_token_equals_char_oneof(&t, ",]")) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Expected ',' or ']' "
+				"(next list element or end of list)");
+
+			goto out_err_destroy;
+		}
 
 		if(am_parser_token_equals_char(&t, ','))
 			am_parser_read_any_char(p, &t);
@@ -262,8 +337,11 @@ am_object_notation_parse_list(struct am_parser* p)
 
 	am_parser_skip_ws(p);
 
-	if(am_parser_read_next_char(p, &t, ']'))
+	if(am_object_notation_read_next_char(p, &t, ']', status)) {
+		am_parse_status_set_error_nn(
+			status, p->curr, "Expected ']' terminating the list");
 		goto out_err_destroy;
+	}
 
 	return (struct am_object_notation_node*)node;
 
@@ -278,11 +356,12 @@ out_err:
  * string is unescaped. The position of the parser will be set to the
  * character following the last double quote. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_string(struct am_parser* p)
+am_object_notation_parse_string(struct am_parser* p,
+				struct am_parse_status* status)
 {
 	struct am_parser_token t;
 
-	if(am_parser_read_next_string(p, &t))
+	if(am_object_notation_read_next_string(p, &t, status))
 		return NULL;
 
 	return (struct am_object_notation_node*)
@@ -294,18 +373,23 @@ am_object_notation_parse_string(struct am_parser* p)
  * literal. The function does not check whether the value fits into a 64-bit
  * signed integer (i.e., if it overflows). */
 static inline struct am_object_notation_node*
-am_object_notation_parse_int64(struct am_parser* p)
+am_object_notation_parse_int64(struct am_parser* p,
+			       struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	int64_t val;
 
-	if(am_parser_read_next_int64(p, &t))
+	if(am_object_notation_read_next_int64(p, &t, status))
 		return NULL;
 
 	/* Skip the trailing "i64". Subtraction is safe, since t is guaranteed
 	 * to include the suffix. */
-	if(am_safe_atoi64n(t.str, t.len - 3, &val))
+	if(am_safe_atoi64n(t.str, t.len - 3, &val)) {
+		am_parse_status_set_error_nn(
+			status, p->curr, "Not a valid 64 bit signed integer");
+
 		return NULL;
+	}
 
 	return (struct am_object_notation_node*)
 		am_object_notation_node_int64_create(val);
@@ -316,18 +400,23 @@ am_object_notation_parse_int64(struct am_parser* p)
  * the literal. The function does not check whether the value fits into an
  * unsigned 64-bit signed integer (i.e., if it overflows). */
 static inline struct am_object_notation_node*
-am_object_notation_parse_uint64(struct am_parser* p)
+am_object_notation_parse_uint64(struct am_parser* p,
+				struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	uint64_t val;
 
-	if(am_parser_read_next_uint64(p, &t))
+	if(am_object_notation_read_next_uint64(p, &t, status))
 		return NULL;
 
 	/* Skip the trailing "u64". Subtraction is safe, since t is guaranteed
 	 * to include the suffix. */
-	if(am_safe_atou64n(t.str, t.len - 3, &val))
+	if(am_safe_atou64n(t.str, t.len - 3, &val)) {
+		am_parse_status_set_error_nn(
+			status, p->curr, "Not a valid 64 bit unsigned integer");
+
 		return NULL;
+	}
 
 	return (struct am_object_notation_node*)
 		am_object_notation_node_uint64_create(val);
@@ -338,16 +427,22 @@ am_object_notation_parse_uint64(struct am_parser* p)
  * last digit. The function does not check whether the value fits into
  * a double. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_double(struct am_parser* p)
+am_object_notation_parse_double(struct am_parser* p,
+				struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	double val;
 
-	if(am_parser_read_next_double(p, &t))
+	if(am_object_notation_read_next_double(p, &t, status))
 		return NULL;
 
-	if(am_safe_atodbln(t.str, t.len, &val))
+	if(am_safe_atodbln(t.str, t.len, &val)) {
+		am_parse_status_set_error_nn(
+			status, p->curr,
+			"Not a valid double precision floating point value");
+
 		return NULL;
+	}
 
 	return (struct am_object_notation_node*)
 		am_object_notation_node_double_create(val);
@@ -357,24 +452,23 @@ am_object_notation_parse_double(struct am_parser* p)
  * whitespace is ignored. The position of the parser will be set to
  * the character following the member definition. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_member(struct am_parser* p)
+am_object_notation_parse_member(struct am_parser* p,
+				struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	struct am_object_notation_node_member* node;
 
 	/* Read member name */
-	if(am_parser_read_next_identifier(p, &t))
+	if(am_object_notation_read_next_member_name(p, &t, status))
 		goto out_err;
 
 	if(!(node = am_object_notation_node_member_createn(t.str, t.len, NULL)))
 		goto out_err;
 
-	am_parser_skip_ws(p);
-
-	if(am_parser_read_char(p, &t, ':'))
+	if(am_object_notation_read_next_char(p, &t, ':', status))
 		goto out_err_destroy;
 
-	if(!(node->def = am_object_notation_parse_node(p)))
+	if(!(node->def = am_object_notation_parse_node(p, status)))
 		goto out_err_destroy;
 
 	return (struct am_object_notation_node*)node;
@@ -393,25 +487,36 @@ out_err:
 static inline int
 am_object_notation_parse_group_body(
 	struct am_parser* p,
-	struct am_object_notation_node_group* node)
+	struct am_object_notation_node_group* node,
+	struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	struct am_object_notation_node* member;
 
-	if(am_parser_read_next_char(p, &t, '{'))
+	if(am_object_notation_read_next_char(p, &t, '{', status)) {
+		am_parse_status_set_error_nn(
+			status, p->curr,
+			"Expected '{' (beginning of group body)");
+
 		return 1;
+	}
 
 	/* Read members */
 	do {
 		am_parser_skip_ws(p);
 
-		if(am_parser_peek_any_char(p, &t))
+		if(am_parser_peek_any_char(p, &t)) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Unexpected end while reading group members");
+
 			return 1;
+		}
 
 		if(am_parser_token_equals_char(&t, '}'))
 			break;
 
-		if(!(member = am_object_notation_parse_member(p)))
+		if(!(member = am_object_notation_parse_member(p, status)))
 			return 1;
 
 		am_object_notation_node_group_add_member(
@@ -420,11 +525,21 @@ am_object_notation_parse_group_body(
 
 		am_parser_skip_ws(p);
 
-		if(am_parser_peek_any_char(p, &t))
-			return 1;
+		if(am_parser_peek_any_char(p, &t)) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Unexpected end while reading group members");
 
-		if(!am_parser_token_equals_char_oneof(&t, ",}"))
 			return 1;
+		}
+
+		if(!am_parser_token_equals_char_oneof(&t, ",}")) {
+			am_parse_status_set_error_nn(
+				status, p->curr,
+				"Expected ',' or '}' "
+				"(next group member or end of group)");
+			return 1;
+		}
 
 		if(am_parser_token_equals_char(&t, ','))
 			am_parser_read_any_char(p, &t);
@@ -432,8 +547,10 @@ am_object_notation_parse_group_body(
 
 	am_parser_skip_ws(p);
 
-	if(am_parser_read_next_char(p, &t, '}'))
+	if(am_object_notation_read_next_char(p, &t, '}', status)){
+		am_parse_status_set_error_nn(status, p->curr, "Expected '}'");
 		return 1;
+	}
 
 	return 0;
 }
@@ -443,18 +560,19 @@ am_object_notation_parse_group_body(
  * position of the parser will be set to the character following the
  * group. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_group(struct am_parser* p)
+am_object_notation_parse_group(struct am_parser* p,
+			       struct am_parse_status* status)
 {
 	struct am_parser_token t;
 	struct am_object_notation_node_group* node;
 
-	if(am_parser_read_next_group_name(p, &t))
+	if(am_object_notation_read_next_group_name(p, &t, status))
 		goto out_err;
 
 	if(!(node = am_object_notation_node_group_createn(t.str, t.len)))
 		goto out_err;
 
-	if(am_object_notation_parse_group_body(p, node))
+	if(am_object_notation_parse_group_body(p, node, status))
 		goto out_err_destroy;
 
 	return (struct am_object_notation_node*)node;
@@ -469,34 +587,91 @@ out_err:
  * automatically. Preceding whitespace is ignored. The position of the
  * parser will be set to the character following node. */
 static inline struct am_object_notation_node*
-am_object_notation_parse_node(struct am_parser* p)
+am_object_notation_parse_node(struct am_parser* p,
+			      struct am_parse_status* status)
 {
 	struct am_parser_token t;
 
 	am_parser_skip_ws(p);
 
 	/* Determine type of the definition */
-	if(am_parser_peek_any_char(p, &t))
+	if(am_parser_peek_any_char(p, &t)) {
+		am_parse_status_set_error_nn(
+			status, p->curr,
+			"Unexpected end while reading node");
+
 		return NULL;
+	}
 
 	if(t.str[0] == '"')
-		return am_object_notation_parse_string(p);
+		return am_object_notation_parse_string(p, status);
 	else if(t.str[0] == '[')
-		return am_object_notation_parse_list(p);
+		return am_object_notation_parse_list(p, status);
 	else if(isident_start_char(t.str[0]))
-		return am_object_notation_parse_group(p);
+		return am_object_notation_parse_group(p, status);
 	else if(t.str[0] == '.')
-		return am_object_notation_parse_double(p);
+		return am_object_notation_parse_double(p, status);
 	else if(isdigit(t.str[0]) || t.str[0] == '-') {
 		if(!am_parser_peek_double(p, &t))
-			return am_object_notation_parse_double(p);
+			return am_object_notation_parse_double(p, status);
 		if(!am_parser_peek_int64(p, &t))
-			return am_object_notation_parse_int64(p);
+			return am_object_notation_parse_int64(p, status);
 		else
-			return am_object_notation_parse_uint64(p);
+			return am_object_notation_parse_uint64(p, status);
+	} else {
+		am_parse_status_set_error_nn(
+			status, p->curr,
+			"Unexpected character '%c'",
+			t.str[0]);
 	}
 
 	return NULL;
+}
+
+/* Parse an arbitrary object notation expression. Returns the root node of the
+ * expression on success, otherwise NULL.
+ *
+ * If status is not NULL and if a parsing error occurred, status will contain
+ * context information about the parse error. Note that this does not cover
+ * other errors. For example, if parsing succeeds up to a certain position, but
+ * a memory allocation fails, status->result will be AM_PARSE_RESULT_SUCCESS,
+ * although the return value of the function is different from 0, indicating an
+ * error.
+ *
+ * If status != NULL, it must have been initialized beforehand.
+ */
+struct am_object_notation_node*
+am_object_notation_parse_with_status_noinit(
+	const char* str,
+	size_t len,
+	struct am_parse_status* status)
+{
+	struct am_parser p;
+	am_parser_init(&p, str, len);
+
+	return am_object_notation_parse_node(&p, status);
+}
+
+/* Parse an arbitrary object notation expression. Returns the root node of the
+ * expression on success, otherwise NULL.
+ *
+ * If status is not NULL and if a parsing error occurred, status will contain
+ * context information about the parse error. Note that this does not cover
+ * other errors. For example, if parsing succeeds up to a certain position, but
+ * a memory allocation fails, status->result will be AM_PARSE_RESULT_SUCCESS,
+ * although the return value of the function is different from 0, indicating an
+ * error.
+ */
+struct am_object_notation_node*
+am_object_notation_parse_with_status(
+	const char* str,
+	size_t len,
+	struct am_parse_status* status)
+{
+	if(status)
+		am_parse_status_init(status, "(string)", str);
+
+	return am_object_notation_parse_with_status_noinit(str, len, status);
 }
 
 /* Parse an arbitrary object notation expression. Returns the root
@@ -504,10 +679,7 @@ am_object_notation_parse_node(struct am_parser* p)
 struct am_object_notation_node*
 am_object_notation_parse(const char* str, size_t len)
 {
-	struct am_parser p;
-	am_parser_init(&p, str, len);
-
-	return am_object_notation_parse_node(&p);
+	return am_object_notation_parse_with_status(str, len, NULL);
 }
 
 /* Same as am_object_notation_node_group_has_at_least_members, but used argument
@@ -900,13 +1072,28 @@ int am_object_notation_save(
 /*
  * Load the an object notation node from a file. Returns a newly created node or
  * NULL if an error occurred.
+ *
+ * If status is not NULL and if a parsing error occurred, status will contain
+ * context information about the parse error. Note that this does not cover
+ * other errors. For example, if parsing succeeds up to a certain position, but
+ * a memory allocation fails, status->result will be AM_PARSE_RESULT_SUCCESS,
+ * although the return value of the function is different from 0, indicating an
+ * error.
  */
-struct am_object_notation_node* am_object_notation_load(const char* filename)
+struct am_object_notation_node*
+am_object_notation_load_with_status(
+	const char* filename,
+	struct am_parse_status* status)
 {
 	int fd;
 	char* str;
 	off_t size;
 	struct am_object_notation_node* ret = NULL;
+
+	/* The status only catches parse errors; Indicate parse success by
+	 * default */
+	if(status)
+		status->result = AM_PARSE_RESULT_SUCCESS;
 
 	if((fd = open(filename, O_RDONLY)) == -1)
 		goto out;
@@ -920,7 +1107,10 @@ struct am_object_notation_node* am_object_notation_load(const char* filename)
 	if((str = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
 		goto out_fd;
 
-	ret = am_object_notation_parse(str, size);
+	if(status)
+		am_parse_status_init(status, filename, str);
+
+	ret = am_object_notation_parse_with_status_noinit(str, size, status);
 
 	munmap(str, size);
 
@@ -928,6 +1118,15 @@ out_fd:
 	close(fd);
 out:
 	return ret;
+}
+
+/*
+ * Load the an object notation node from a file. Returns a newly created node or
+ * NULL if an error occurred.
+ */
+struct am_object_notation_node* am_object_notation_load(const char* filename)
+{
+	return am_object_notation_load_with_status(filename, NULL);
 }
 
 static struct am_object_notation_node*
@@ -1183,7 +1382,7 @@ am_object_notation_eval_group(const struct am_object_notation_node_group* g,
 	struct am_parser_token t;
 	struct am_object_notation_node_member* member;
 
-	if(am_parser_read_next_identifier(p, &t))
+	if(am_parser_read_next_group_name(p, &t))
 		return NULL;
 
 	am_object_notation_for_each_group_member(g, member) {

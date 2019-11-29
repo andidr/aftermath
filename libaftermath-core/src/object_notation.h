@@ -20,6 +20,7 @@
 #define AM_OBJECT_NOTATION_H
 
 #include <aftermath/core/parser.h>
+#include <aftermath/core/parse_status.h>
 #include <aftermath/core/ansi_extras.h>
 #include <aftermath/core/typed_list.h>
 #include <aftermath/core/contrib/linux-kernel/list.h>
@@ -448,6 +449,12 @@ am_object_notation_node_list_nth_member(
 			      siblings))
 
 void am_object_notation_node_destroy(struct am_object_notation_node* node);
+
+struct am_object_notation_node*
+am_object_notation_parse_with_status(const char* str,
+				     size_t len,
+				     struct am_parse_status* status);
+
 struct am_object_notation_node*
 am_object_notation_parse(const char* str, size_t len);
 
@@ -664,6 +671,10 @@ int am_object_notation_save(
 	struct am_object_notation_node* node,
 	const char* filename);
 int am_object_notation_save_fp(struct am_object_notation_node* node, FILE* fp);
+
+struct am_object_notation_node*
+am_object_notation_load_with_status(const char* filename,
+				    struct am_parse_status* status);
 
 struct am_object_notation_node* am_object_notation_load(const char* filename);
 
