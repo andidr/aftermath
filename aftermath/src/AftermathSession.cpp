@@ -33,6 +33,7 @@
 #include "gui/widgets/TimelineWidget.h"
 #include "gui/widgets/ToolbarButton.h"
 
+#include <sstream>
 #include <QLabel>
 
 extern "C" {
@@ -46,6 +47,7 @@ extern "C" {
 	#include <aftermath/core/io_context.h>
 	#include <aftermath/core/io_error.h>
 	#include <aftermath/core/on_disk.h>
+	#include <aftermath/core/parse_status.h>
 }
 
 AftermathSession::AftermathSession() :
@@ -287,6 +289,7 @@ void AftermathSession::loadDFG(const char* filename)
 	struct am_dfg_type_registry* tr;
 	struct am_dfg_node_type_registry* ntr;
 	struct am_object_notation_node* n_graph;
+	struct am_parse_status ps;
 
 	ntr = this->getDFGNodeTypeRegistry();
 	tr = this->getDFGTypeRegistry();
@@ -294,8 +297,24 @@ void AftermathSession::loadDFG(const char* filename)
 	am_dfg_node_type_registry_set_instantiate_callback_fun(
 		ntr, AftermathSession::DFGNodeInstantiationCallback, this);
 
-	if(!(n_graph = am_object_notation_load(filename)))
-		throw AftermathException("Could not load object notation for DFG");
+	if(!(n_graph = am_object_notation_load_with_status(filename, &ps))) {
+		std::stringstream errss;
+
+		if(ps.result == AM_PARSE_RESULT_ERROR) {
+			/* Actual parsing error */
+			errss << "Could not load object notation for DFG:"
+			      << std::endl
+			      << ps.source_name << ":"
+			      << ps.line << ":" << ps.character
+			      << ": error: " << ps.errmsg << std::endl;
+		} else {
+			/* Something else went wrong, e.g., memory allocation,
+			 * I/O, etc. */
+			errss << "Could not load object notation for DFG";
+		}
+
+		throw AftermathException(errss.str());
+	}
 
 	if(!(g = ((typeof(g))malloc(sizeof(*g))))) {
 		am_object_notation_node_destroy(n_graph);
