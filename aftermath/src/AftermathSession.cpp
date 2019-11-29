@@ -336,7 +336,6 @@ void AftermathSession::loadDFG(const char* filename)
 		if(am_dfg_graph_from_object_notation(g, n_graph, tr, ntr))
 			throw AftermathException("Could not load DFG from "
 						 "object notation");
-		this->setDFG(g);
 
 		struct am_object_notation_node_list* lst =
 			(typeof(lst))am_object_notation_eval(n_graph, "positions");
@@ -344,8 +343,6 @@ void AftermathSession::loadDFG(const char* filename)
 		if(am_dfg_coordinate_mapping_from_object_notation(m, lst))
 			throw AftermathException("Could not load DFG coordinate "
 						 "mapping from object notation");
-
-		this->setDFGCoordinateMapping(m);
 	} catch(...) {
 		am_object_notation_node_destroy(n_graph);
 		free(n_graph);
@@ -356,6 +353,9 @@ void AftermathSession::loadDFG(const char* filename)
 
 		throw;
 	}
+
+	this->setDFG(g);
+	this->setDFGCoordinateMapping(m);
 
 	am_object_notation_node_destroy(n_graph);
 	free(n_graph);
