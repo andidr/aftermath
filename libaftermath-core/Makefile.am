@@ -241,6 +241,7 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/tensorflow_node_array.h \
 				src/tensorflow_node_execution_array.h \
 				src/timestamp.h \
+				src/timestamp_array.h \
 				src/trace.c \
 				src/trace.h \
 				src/typed_array.h \

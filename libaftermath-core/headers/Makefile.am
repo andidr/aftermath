@@ -148,6 +148,7 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/tensorflow_node_array.h \
 	aftermath/core/tensorflow_node_execution_array.h \
 	aftermath/core/timestamp.h \
+	aftermath/core/timestamp_array.h \
 	aftermath/core/trace.h \
 	aftermath/core/typed_array.h \
 	aftermath/core/typed_list.h \
