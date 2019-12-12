@@ -20,7 +20,8 @@
 #define AM_STATISTICS_INTERVAL_H
 
 #include <aftermath/core/base_types.h>
-#include <aftermath/core/state_event_array.h>
+#include <aftermath/core/in_memory.h>
+#include <aftermath/core/interval_array.h>
 
 /* A statistics object that accumulates the total time for indexes ranging from
  * 0 to num_times-1 */
