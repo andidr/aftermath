@@ -74,7 +74,7 @@ static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 		while(l <= r) {						\
 			m = am_bsearch_safe_center_idx(l, r);			\
 			pcurr = ((void*)a)+m*stride;				\
-			const NEEDLE_T curr = (ACC_EXPR((*pcurr)));		\
+			const T* curr = (ACC_EXPR((*pcurr)));			\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
 			if(cmpres < 0) {					\
@@ -132,7 +132,7 @@ static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 		while(l <= r) {						\
 			m = am_bsearch_safe_center_idx(l, r);			\
 			pcurr = (T*)AM_PTR_ADD(a, m*stride);			\
-			const NEEDLE_T curr = (ACC_EXPR((*pcurr)));		\
+			const T* curr = (ACC_EXPR((*pcurr)));			\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
 			if(cmpres < 0) {					\
@@ -196,7 +196,7 @@ static inline size_t am_bsearch_safe_center_idx(size_t a, size_t b)
 		while(l <= r) {						\
 			m = am_bsearch_safe_center_idx(l, r);			\
 			pcurr = (T*)AM_PTR_ADD(a, m*stride);			\
-			const NEEDLE_T curr = (ACC_EXPR((*pcurr)));		\
+			const T* curr = (ACC_EXPR((*pcurr)));			\
 			cmpres = CMP_EXPR(curr, needle);			\
 										\
 			if(cmpres < 0) {					\
