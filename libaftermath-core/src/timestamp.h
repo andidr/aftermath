@@ -74,4 +74,14 @@ am_timestamp_mul_sat(am_timestamp_t* t, am_timestamp_t o)
 	return am_mul_sat_u64(*t, o, t);
 }
 
+/* Interval timestamp inclusion comparison: If t is smaller than the start of i,
+ * function returns -1, if t is greater than the end of i, it returns 1 and if i
+ * contains t, it returns 0.
+ */
+static inline int
+am_timestamp_within_pcmp(const am_timestamp_t* t, const struct am_interval* i)
+{
+	return *t < i->start ? -1 : (*t > i->end ? 1 : 0);
+}
+
 #endif
