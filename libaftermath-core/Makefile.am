@@ -224,6 +224,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/safe_alloc.h \
 				src/state_description_array.h \
 				src/state_event_array.h \
+				src/statistics/discrete.c \
+				src/statistics/discrete.h \
 				src/statistics/histogram.c \
 				src/statistics/histogram.h \
 				src/statistics/interval.c \
