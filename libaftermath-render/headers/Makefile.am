@@ -21,6 +21,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layer.h \
 	aftermath/render/timeline/layers/axes.h \
 	aftermath/render/timeline/layers/background.h \
+	aftermath/render/timeline/layers/discrete.h \
 	aftermath/render/timeline/layers/hierarchy.h \
 	aftermath/render/timeline/layers/lane.h \
 	aftermath/render/timeline/layers/lane/state_event.h \

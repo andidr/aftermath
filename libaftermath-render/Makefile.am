@@ -60,6 +60,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/lane/tensorflow/node_execution.h \
 	src/timeline/layers/measurement_intervals.c \
 	src/timeline/layers/measurement_intervals.h \
+	src/timeline/layers/discrete.c \
+	src/timeline/layers/discrete.h \
 	src/timeline/layers/interval.c \
 	src/timeline/layers/interval.h \
 	src/timeline/layers/selection.c \
