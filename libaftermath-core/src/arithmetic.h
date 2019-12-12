@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <float.h>
+#include <stdlib.h>
 
 /* Indicates the status of an arithmetic operation */
 enum am_arithmetic_status {
@@ -61,6 +62,16 @@ static inline void am_sat_i64(int64_t* i, enum am_arithmetic_status s)
 		*i = INT64_MAX;
 	else if(s == AM_ARITHMETIC_STATUS_UNDERFLOW)
 		*i = INT64_MIN;
+}
+
+/* Saturate a size_t according to the overflow status of an arithmetic
+ * operation. */
+static inline void am_sat_size(size_t* i, enum am_arithmetic_status s)
+{
+	if(s == AM_ARITHMETIC_STATUS_OVERFLOW)
+		*i = SIZE_MAX;
+	else if(s == AM_ARITHMETIC_STATUS_UNDERFLOW)
+		*i = 0;
 }
 
 /* Checks if the 128 bit signed integer *i can safely be converted into an
@@ -347,6 +358,7 @@ AM_DECL_ADD_SAFE_UINT_FUN( uint8_t,  u8,  UINT8_MAX)
 AM_DECL_ADD_SAFE_UINT_FUN(uint16_t, u16, UINT16_MAX)
 AM_DECL_ADD_SAFE_UINT_FUN(uint32_t, u32, UINT32_MAX)
 AM_DECL_ADD_SAFE_UINT_FUN(uint64_t, u64, UINT64_MAX)
+AM_DECL_ADD_SAFE_UINT_FUN(size_t,  size, SIZE_MAX)
 
 /* Saturated computation of *out = a + b for 64-bit unsigned integers. The
  * return value indicates whether saturation took place. */
@@ -355,6 +367,16 @@ am_add_sat_u64(uint64_t a, uint64_t b, uint64_t* out)
 {
 	enum am_arithmetic_status status = am_add_safe_u64(a, b, out);
 	am_sat_u64(out, status);
+	return status;
+}
+
+/* Saturated computation of *out = a + b for size_t. The return value indicates
+ * whether saturation took place. */
+static inline enum am_arithmetic_status
+am_add_sat_size(size_t a, size_t b, size_t* out)
+{
+	enum am_arithmetic_status status = am_add_safe_size(a, b, out);
+	am_sat_size(out, status);
 	return status;
 }
 
