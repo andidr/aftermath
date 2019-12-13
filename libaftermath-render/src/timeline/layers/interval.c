@@ -148,12 +148,12 @@ static void am_timeline_interval_layer_default_stats_subtree(
 }
 
 /* Render function of the layer */
-void render(struct am_timeline_interval_layer* il,
-	    struct am_hierarchy_node* hn,
-	    struct am_interval* i,
-	    double lane_width,
-	    double lane_height,
-	    cairo_t* cr)
+static void render(struct am_timeline_interval_layer* il,
+		   struct am_hierarchy_node* hn,
+		   struct am_interval* i,
+		   double lane_width,
+		   double lane_height,
+		   cairo_t* cr)
 {
 	struct am_timeline_interval_layer_type* ilt;
 	struct am_interval i_px;
