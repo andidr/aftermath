@@ -35,7 +35,9 @@
 	ret = 0;
 {# #}
 {%- if dsk_type.hasDestructor() %}
+{%- if assert_tag or process_tag %}
 out_err_destroy:
+{%- endif %}
 	{{dsk_type.getDestructorName()}}(&f);
 	{%- endif %}
 out_err:
