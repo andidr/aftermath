@@ -6,6 +6,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/dfg/nodes/timeline/layers/axes.h \
 	aftermath/render/dfg/nodes/timeline/layers/background.h \
 	aftermath/render/dfg/nodes/timeline/layers/hierarchy.h \
+	aftermath/render/dfg/nodes/timeline/layers/ompt.h \
 	aftermath/render/dfg/nodes/timeline/layers/openmp.h \
 	aftermath/render/dfg/nodes/timeline/layers/state.h \
 	aftermath/render/dfg/nodes/timeline/layers/tensorflow_node_execution.h \
@@ -25,6 +26,7 @@ nobase_include_HEADERS = aftermath/render/cairo_extras.h \
 	aftermath/render/timeline/layers/hierarchy.h \
 	aftermath/render/timeline/layers/lane.h \
 	aftermath/render/timeline/layers/lane/state_event.h \
+	aftermath/render/timeline/layers/lane/ompt/ompt.h \
 	aftermath/render/timeline/layers/lane/openmp/openmp.h \
 	aftermath/render/timeline/layers/lane/tensorflow/node_execution.h \
 	aftermath/render/timeline/layers/measurement_intervals.h \

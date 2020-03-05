@@ -36,6 +36,10 @@
 #include <aftermath/render/dfg/nodes/timeline/layers/hierarchy.h>
 
 #undef DEFS_NAME
+#define DEFS_NAME() ompt_defs
+#include <aftermath/render/dfg/nodes/timeline/layers/ompt.h>
+
+#undef DEFS_NAME
 #define DEFS_NAME() openmp_defs
 #include <aftermath/render/dfg/nodes/timeline/layers/openmp.h>
 
@@ -52,6 +56,7 @@ static struct am_dfg_static_node_type_def** defsets[] = {
 	axes_defs,
 	background_defs,
 	hierarchy_defs,
+  ompt_defs,
 	openmp_defs,
 	rgba_constant_defs,
 	state_defs,

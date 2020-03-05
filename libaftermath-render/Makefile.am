@@ -19,6 +19,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/dfg/nodes/timeline/layers/background.h \
 	src/dfg/nodes/timeline/layers/hierarchy.c \
 	src/dfg/nodes/timeline/layers/hierarchy.h \
+	src/dfg/nodes/timeline/layers/ompt.c \
+	src/dfg/nodes/timeline/layers/ompt.h \
 	src/dfg/nodes/timeline/layers/openmp.c \
 	src/dfg/nodes/timeline/layers/openmp.h \
 	src/dfg/nodes/timeline/layers/state.c \
@@ -54,6 +56,8 @@ libaftermath_render_la_SOURCES = src/cairo_extras.c \
 	src/timeline/layers/lane.h \
 	src/timeline/layers/lane/state_event.c \
 	src/timeline/layers/lane/state_event.h \
+	src/timeline/layers/lane/ompt/ompt.c \
+	src/timeline/layers/lane/ompt/ompt.h \
 	src/timeline/layers/lane/openmp/openmp.c \
 	src/timeline/layers/lane/openmp/openmp.h \
 	src/timeline/layers/lane/tensorflow/node_execution.c \
