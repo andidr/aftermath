@@ -1,0 +1,221 @@
+am_gui {
+	title: "Aftermath",
+
+	children: [
+		amgui_vbox {
+			children: [
+				amgui_htoolbar {
+					children: [
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw reads",
+							icon: "@ICON_BASEDIR@/draw_states.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_states"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP loop types",
+							icon: "@ICON_BASEDIR@/draw_openmp_loop_types.svg",
+              checked: 0u64,
+							id: "toolbutton_draw_openmp_loop_types"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP loop instances",
+							icon: "@ICON_BASEDIR@/draw_openmp_loop_instances.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_loop_instances"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP iteration sets",
+							icon: "@ICON_BASEDIR@/draw_openmp_iteration_sets.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_iteration_sets"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP iteration periods",
+							icon: "@ICON_BASEDIR@/draw_openmp_iteration_periods.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_iteration_periods"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task types",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_types.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_types"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task instances",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_instances.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_instances"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OpenMP task periods",
+							icon: "@ICON_BASEDIR@/draw_openmp_task_periods.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_openmp_task_periods"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT thread region",
+							icon: "@ICON_BASEDIR@/draw_ompt_thread.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_thread"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT parallel region",
+							icon: "@ICON_BASEDIR@/draw_ompt_parallel.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_parallel"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT task create",
+							icon: "@ICON_BASEDIR@/draw_ompt_task_create.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_task_create"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT task schedule",
+							icon: "@ICON_BASEDIR@/draw_ompt_task_schedule.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_task_schedule"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT implicit task region",
+							icon: "@ICON_BASEDIR@/draw_ompt_implicit_task.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_implicit_task"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT sync region wait",
+							icon: "@ICON_BASEDIR@/draw_ompt_sync_region_wait.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_sync_region_wait"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT mutex released",
+							icon: "@ICON_BASEDIR@/draw_ompt_mutex_released.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_mutex_released"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT dependences",
+							icon: "@ICON_BASEDIR@/draw_ompt_dependences.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_dependences"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT task dependence",
+							icon: "@ICON_BASEDIR@/draw_ompt_task_dependence.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_task_dependence"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT workshare region",
+							icon: "@ICON_BASEDIR@/draw_ompt_work.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_work"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT master region",
+							icon: "@ICON_BASEDIR@/draw_ompt_master.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_master"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT sync region",
+							icon: "@ICON_BASEDIR@/draw_ompt_sync_region.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_sync_region"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT lock init",
+							icon: "@ICON_BASEDIR@/draw_ompt_lock_init.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_lock_init"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT lock destroy",
+							icon: "@ICON_BASEDIR@/draw_ompt_lock_destroy.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_lock_destroy"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT mutex acquire",
+							icon: "@ICON_BASEDIR@/draw_ompt_mutex_acquire.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_mutex_acquire"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT mutex acquired",
+							icon: "@ICON_BASEDIR@/draw_ompt_mutex_acquired.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_mutex_acquired"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT nest lock",
+							icon: "@ICON_BASEDIR@/draw_ompt_nest_lock.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_nest_lock"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT flush",
+							icon: "@ICON_BASEDIR@/draw_ompt_flush.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_flush"
+						},
+						amgui_toolbar_togglebutton {
+							tooltip: "Draw OMPT cancel",
+							icon: "@ICON_BASEDIR@/draw_ompt_cancel.svg",
+							checked: 0u64,
+							id: "toolbutton_draw_ompt_cancel"
+						}
+					]
+				},
+
+				amgui_hsplitter {
+					stretch: [10u64, 90u64],
+					children: [
+						amgui_tabs {
+							tab_names: [ "Options" ],
+
+							children : [
+								amgui_vbox {
+									children: [
+										amgui_label {
+											text: "Hierarchy:"
+										},
+
+										amgui_hierarchy_combobox {
+											id: "hierarchy_cb1"
+										}
+									]
+								}
+							]
+						},
+
+						amgui_tabs {
+							tab_names: [ "Timeline", "DFG" ],
+
+							children : [
+								amgui_timeline {
+									id: "tl1",
+									layers: ["background", "hierarchy", "axes", "openmp::for_loop_type", "openmp::for_loop_instance", "openmp::iteration_set", "openmp::iteration_period", "openmp::task_type", "openmp::task_instance", "openmp::task_period", "ompt::thread", "ompt::parallel", "ompt::implicit_task", "ompt::sync_region", "ompt::work", "ompt::master", "ompt::sync_region_wait", "ompt::nest_lock", "ompt::flush", "ompt::mutex_acquire", "ompt::mutex_acquired", "ompt::mutex_released", "ompt::lock_init", "ompt::lock_destroy", "ompt::task_create", "ompt::task_schedule", "ompt::dependences", "ompt::task_dependence", "ompt::cancel", "state", "selection"]
+								},
+
+								amgui_dfg { }
+							]
+						}
+					]
+				},
+
+				amgui_statusbar {
+					children: [
+						amgui_label {
+							text: "Ready.",
+							id: "statusbar_label"
+						}
+					]
+				}
+			]
+		}
+	]
+}

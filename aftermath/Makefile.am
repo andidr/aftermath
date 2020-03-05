@@ -119,6 +119,10 @@ share/profiles/openmp/interface.amgui: $(srcdir)/share/profiles/openmp/interface
 	$(MKDIR_P) share/profiles/openmp/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
 
+share/profiles/ompt/interface.amgui: $(srcdir)/share/profiles/ompt/interface.amgui.in
+	$(MKDIR_P) share/profiles/ompt/
+	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
+
 share/profiles/telamon/interface.amgui: $(srcdir)/share/profiles/telamon/interface.amgui.in
 	$(MKDIR_P) share/profiles/telamon/
 	sed 's|@ICON_BASEDIR@|$(datarootdir)/aftermath/icons|g' $< > $@
@@ -138,6 +142,7 @@ share/profiles/tensorflow/interface.amgui: $(srcdir)/share/profiles/tensorflow/i
 GENERATED_PROFILE_TEMPLATES = \
 	$(srcdir)/share/profiles/min/interface.amgui.in \
 	$(srcdir)/share/profiles/openmp/interface.amgui.in \
+	$(srcdir)/share/profiles/ompt/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon-candidate-stats/interface.amgui.in \
 	$(srcdir)/share/profiles/telamon-min/interface.amgui.in \
@@ -146,6 +151,7 @@ GENERATED_PROFILE_TEMPLATES = \
 GENERATED_PROFILE_FILES = \
 	share/profiles/min/interface.amgui \
 	share/profiles/openmp/interface.amgui \
+	share/profiles/ompt/interface.amgui \
 	share/profiles/telamon/interface.amgui \
 	share/profiles/telamon-candidate-stats/interface.amgui \
 	share/profiles/telamon-min/interface.amgui \
@@ -154,6 +160,7 @@ GENERATED_PROFILE_FILES = \
 STATIC_PROFILE_FILES = \
 	share/profiles/min/graph.dfg \
 	share/profiles/openmp/graph.dfg \
+	share/profiles/ompt/graph.dfg \
 	share/profiles/telamon/graph.dfg \
 	share/profiles/telamon-candidate-stats/graph.dfg \
 	share/profiles/telamon-min/graph.dfg \
@@ -168,6 +175,25 @@ ICONS = \
 	share/icons/draw_openmp_task_types.svg \
 	share/icons/draw_openmp_task_instances.svg \
 	share/icons/draw_openmp_task_periods.svg \
+	share/icons/draw_ompt_thread.svg \
+	share/icons/draw_ompt_parallel.svg \
+	share/icons/draw_ompt_task_create.svg \
+	share/icons/draw_ompt_task_schedule.svg \
+	share/icons/draw_ompt_implicit_task.svg \
+	share/icons/draw_ompt_sync_region_wait.svg \
+	share/icons/draw_ompt_mutex_released.svg \
+	share/icons/draw_ompt_dependences.svg \
+	share/icons/draw_ompt_task_dependence.svg \
+	share/icons/draw_ompt_work.svg \
+	share/icons/draw_ompt_master.svg \
+	share/icons/draw_ompt_sync_region.svg \
+	share/icons/draw_ompt_lock_init.svg \
+	share/icons/draw_ompt_lock_destroy.svg \
+	share/icons/draw_ompt_mutex_acquire.svg \
+	share/icons/draw_ompt_mutex_acquired.svg \
+	share/icons/draw_ompt_nest_lock.svg \
+	share/icons/draw_ompt_flush.svg \
+	share/icons/draw_ompt_cancel.svg \
 	share/icons/draw_tf_node_executions.svg
 
 # Install profiles

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg2"
+   height="24"
+   width="24"
+   sodipodi:docname="draw_openmp_task_create.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2493"
+     inkscape:window-height="1385"
+     id="namedview65"
+     showgrid="false"
+     inkscape:zoom="17.583333"
+     inkscape:cx="-4.3847902"
+     inkscape:cy="9.4747173"
+     inkscape:window-x="67"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1028.3622)"
+     id="layer1">
+    <path
+       id="rect3673"
+       d="m 0,1028.3622 h 24 v 24 H 0 Z"
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+    <g
+       transform="translate(0.57030076,-0.01236438)"
+       id="g7115">
+      <g
+         id="g6560"
+         transform="translate(22.522437,5.248047)" />
+      <g
+         transform="translate(16.070312,5.248047)"
+         id="g6560-0" />
+      <g
+         transform="translate(28.974562,5.248047)"
+         id="g6560-7" />
+    </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot116"
+       style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:5.33333333px;line-height:1.25;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion118"><rect
+           id="rect120"
+           width="42.42654"
+           height="30.938389"
+           x="-5.9715638"
+           y="-1.3649288" /></flowRegion><flowPara
+         id="flowPara122" /></flowRoot>    <g
+       aria-label="TASK"
+       style="font-style:normal;font-weight:normal;font-size:7.33333349px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffff00;fill-opacity:1;stroke:none"
+       id="text257" />
+    <g
+       aria-label="TASK"
+       style="font-style:normal;font-weight:normal;font-size:7.33333349px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffff00;fill-opacity:1;stroke:none"
+       id="text324" />
+    <g
+       aria-label="CRATE"
+       style="font-style:normal;font-weight:normal;font-size:7.33333349px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffff00;fill-opacity:1;stroke:none"
+       id="text328"
+       transform="translate(-1.9e-7,1.504)">
+      <path
+         id="path347"
+         d="m 19.85612,1040.1347 h 3.380208 v 0.6087 h -2.656901 v 1.5827 h 2.545899 v 0.6087 h -2.545899 v 1.9372 h 2.721355 v 0.6087 H 19.85612 Z m -5.224283,0 h 4.522461 v 0.6087 h -1.897787 v 4.7373 h -0.726888 v -4.7373 h -1.897786 z m -1.912111,0.7125 -0.98112,2.6605 h 1.965821 z m -0.408203,-0.7125 h 0.819987 l 2.037435,5.346 h -0.751953 l -0.486979,-1.3714 h -2.409831 l -0.486979,1.3714 h -0.762696 z m -3.6416011,2.8395 q 0.2327474,0.079 0.4511719,0.3366 0.2220052,0.2578 0.4440104,0.709 l 0.7340498,1.4609 H 9.5221354 l -0.6839192,-1.3714 q -0.264974,-0.5371 -0.5156251,-0.7126 -0.2470703,-0.1754 -0.6767578,-0.1754 H 6.8580729 v 2.2594 H 6.1347656 v -5.346 h 1.6328125 q 0.9166667,0 1.3678386,0.3831 0.4511719,0.3832 0.4511719,1.1566 0,0.5049 -0.2363282,0.8379 -0.2327474,0.333 -0.6803385,0.4619 z m -1.811849,-2.2451 v 1.8978 h 0.9095052 q 0.5227865,0 0.7877605,-0.2399 0.2685546,-0.2435 0.2685546,-0.7126 0,-0.4691 -0.2685546,-0.7054 -0.264974,-0.2399 -0.7877605,-0.2399 z m -1.8476565,-0.1826 v 0.7627 q -0.3652344,-0.3402 -0.780599,-0.5085 -0.4117838,-0.1683 -0.8772786,-0.1683 -0.9166667,0 -1.4036459,0.5622 -0.4869792,0.5586 -0.4869792,1.6185 0,1.0563 0.4869792,1.6185 0.4869792,0.5586 1.4036459,0.5586 0.4654948,0 0.8772786,-0.1683 0.4153646,-0.1683 0.780599,-0.5085 v 0.7555 q -0.3795573,0.2578 -0.8056641,0.3867 -0.422526,0.129 -0.8951823,0.129 -1.2138672,0 -1.9121094,-0.7413 -0.69824222,-0.7447 -0.69824222,-2.0302 0,-1.2891 0.69824222,-2.0303 0.6982422,-0.7448 1.9121094,-0.7448 0.4798177,0 0.9023438,0.1289 0.4261068,0.1253 0.7985026,0.3796 z m 12.0276696,-8.3171 h 0.723307 v 2.2595 l 2.399089,-2.2595 h 0.930989 l -2.65332,2.4922 2.843099,2.8538 h -0.952474 l -2.567383,-2.5745 v 2.5745 h -0.723307 z m -1.450195,0.1755 v 0.7054 q -0.411784,-0.197 -0.777018,-0.2936 -0.365234,-0.097 -0.705404,-0.097 -0.59082,0 -0.913086,0.2291 -0.318684,0.2292 -0.318684,0.6517 0,0.3545 0.211263,0.5371 0.214843,0.1791 0.809244,0.2901 l 0.436849,0.089 q 0.809245,0.154 1.192383,0.5443 0.386719,0.3867 0.386719,1.0384 0,0.777 -0.522786,1.178 -0.519206,0.4011 -1.525391,0.4011 -0.379557,0 -0.809245,-0.086 -0.426107,-0.086 -0.88444,-0.2542 v -0.7448 q 0.44043,0.2471 0.862956,0.3724 0.422526,0.1253 0.830729,0.1253 0.619466,0 0.956055,-0.2434 0.336588,-0.2435 0.336588,-0.6947 0,-0.3939 -0.243489,-0.6159 -0.239909,-0.222 -0.791342,-0.333 l -0.440429,-0.086 q -0.809245,-0.1612 -1.170899,-0.5049 -0.361653,-0.3438 -0.361653,-0.9561 0,-0.709 0.497721,-1.1172 0.501302,-0.4082 1.378581,-0.4082 0.375976,0 0.766276,0.068 0.390299,0.068 0.798502,0.2041 z m -6.4309899,0.5371 -0.9811198,2.6605 h 1.9658207 z m -0.4082031,-0.7126 h 0.819987 l 2.037435,5.346 h -0.751953 l -0.486979,-1.3714 H 7.9573568 l -0.4869792,1.3714 H 6.7076823 Z m -6.029948,0 h 4.522461 v 0.6087 H 5.3434245 v 4.7373 h -0.726888 v -4.7373 H 2.71875 Z"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>
