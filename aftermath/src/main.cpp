@@ -152,8 +152,8 @@ int aftermath_main(const struct am_options* o,
 	QApplication a(argc, argv);
 
 	try {
-		MainWindow mainWindow;
 		AftermathSession session;
+		MainWindow mainWindow;
 		DefaultGUIFactory factory(&session);
 
 		AftermathGUI& gui = session.getGUI();
