@@ -38,22 +38,14 @@ static int state_renderer_trace_changed(struct am_timeline_render_layer* l,
 {
 	struct am_state_description_array* sda;
 
-	if(!t || !(sda = am_trace_find_trace_array(
-			   t, "am::core::state_description")))
-	{
-		return 0;
-	}
+	sda = am_trace_find_trace_array(t, "am::core::state_description");
 
 	am_timeline_interval_layer_set_color_map(AM_TIMELINE_INTERVAL_LAYER(l),
 						 &state_colors);
 
-	if(sda->num_elements > 0) {
-		return am_timeline_interval_layer_set_max_index(
-			AM_TIMELINE_INTERVAL_LAYER(l),
-			sda->num_elements-1);
-	}
-
-	return 0;
+	return am_timeline_interval_layer_set_max_index(
+		AM_TIMELINE_INTERVAL_LAYER(l),
+		(sda) ? sda->num_elements-1 : 0);
 }
 
 static int state_renderer_renderer_changed(struct am_timeline_render_layer* l,
