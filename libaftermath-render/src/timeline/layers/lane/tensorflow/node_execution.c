@@ -37,26 +37,21 @@ static int tensorflow_node_execution_renderer_trace_changed(
 	struct am_timeline_render_layer* l,
 	struct am_trace* t)
 {
-	struct am_tensorflow_node_array* na;
+	struct am_tensorflow_node_array* na = NULL;
 	struct am_timeline_interval_layer* il = (typeof(il))l;
+	size_t max_index = 0;
 
-	if(!t || !(na = am_trace_find_trace_array(t, "am::tensorflow::node"))) {
-		am_timeline_interval_layer_set_extra_data(il, NULL);
-		return 0;
-	}
+	if(t && (na = am_trace_find_trace_array(t, "am::tensorflow::node")))
+		max_index = na->num_elements-1;
 
 	am_timeline_interval_layer_set_extra_data(il, na);
 
 	am_timeline_interval_layer_set_color_map(AM_TIMELINE_INTERVAL_LAYER(l),
 						 &tensorflow_node_colors);
 
-	if(na->num_elements > 0) {
-		return am_timeline_interval_layer_set_max_index(
-			AM_TIMELINE_INTERVAL_LAYER(l),
-			na->num_elements-1);
-	}
-
-	return 0;
+	return am_timeline_interval_layer_set_max_index(
+		AM_TIMELINE_INTERVAL_LAYER(l),
+		max_index);
 }
 
 static int tensorflow_node_execution_renderer_renderer_changed(
