@@ -46,21 +46,20 @@ static int trace_changed_per_trace_array(struct am_timeline_render_layer* l,
 {
 	struct am_typed_array_generic* arr;
 	struct am_timeline_interval_layer* il = (typeof(il))l;
+	size_t max_index = 0;
 
-	if(!t || !(arr = am_trace_find_trace_array(t, array_ident)))
-		return 0;
+	if(t && (arr = am_trace_find_trace_array(t, array_ident))) {
+		max_index = arr->num_elements-1;
 
-	am_timeline_interval_layer_set_extra_data(il, arr);
-	am_timeline_interval_layer_set_color_map(AM_TIMELINE_INTERVAL_LAYER(l),
-						 &openmp_colors);
-
-	if(arr->num_elements > 0) {
-		return am_timeline_interval_layer_set_max_index(
+		am_timeline_interval_layer_set_extra_data(il, arr);
+		am_timeline_interval_layer_set_color_map(
 			AM_TIMELINE_INTERVAL_LAYER(l),
-			arr->num_elements-1);
+			&openmp_colors);
 	}
 
-	return 0;
+	return am_timeline_interval_layer_set_max_index(
+		AM_TIMELINE_INTERVAL_LAYER(l),
+		max_index);
 }
 
 static int trace_changed_per_ecoll_array(struct am_timeline_render_layer* l,
