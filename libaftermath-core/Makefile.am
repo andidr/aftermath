@@ -369,6 +369,8 @@ TPL_DEPS=src/defs/aftermath/__init__.py \
 	src/defs/aftermath/types/__init__.py \
 	src/defs/aftermath/types/in_memory.py \
 	src/defs/aftermath/types/on_disk.py \
+	src/defs/aftermath/types/ompt/__init__.py \
+	src/defs/aftermath/types/ompt/on_disk.py \
 	src/defs/aftermath/types/openmp/__init__.py \
 	src/defs/aftermath/types/openmp/in_memory.py \
 	src/defs/aftermath/types/openmp/on_disk.py \
@@ -426,6 +428,8 @@ PYC_FILES=src/defs/aftermath/__init__.pyc \
 	src/defs/aftermath/types/__init__.pyc \
 	src/defs/aftermath/types/in_memory.pyc \
 	src/defs/aftermath/types/on_disk.pyc \
+	src/defs/aftermath/types/ompt/__init__.pyc \
+	src/defs/aftermath/types/ompt/on_disk.pyc \
 	src/defs/aftermath/types/openmp/__init__.pyc \
 	src/defs/aftermath/types/openmp/in_memory.pyc \
 	src/defs/aftermath/types/openmp/on_disk.pyc \
