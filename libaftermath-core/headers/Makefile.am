@@ -122,6 +122,25 @@ nobase_include_HEADERS = aftermath/core/ansi_extras.h \
 	aftermath/core/openmp_task_instance_array.h \
 	aftermath/core/openmp_task_period_array.h \
 	aftermath/core/openmp_task_type_array.h \
+	aftermath/core/ompt_thread_array.h \
+	aftermath/core/ompt_parallel_array.h \
+	aftermath/core/ompt_task_create_array.h \
+	aftermath/core/ompt_task_schedule_array.h \
+	aftermath/core/ompt_implicit_task_array.h \
+	aftermath/core/ompt_sync_region_wait_array.h \
+	aftermath/core/ompt_mutex_released_array.h \
+	aftermath/core/ompt_dependences_array.h \
+	aftermath/core/ompt_task_dependence_array.h \
+	aftermath/core/ompt_work_array.h \
+	aftermath/core/ompt_master_array.h \
+	aftermath/core/ompt_sync_region_array.h \
+	aftermath/core/ompt_lock_init_array.h \
+	aftermath/core/ompt_lock_destroy_array.h \
+	aftermath/core/ompt_mutex_acquire_array.h \
+	aftermath/core/ompt_mutex_acquired_array.h \
+	aftermath/core/ompt_nest_lock_array.h \
+	aftermath/core/ompt_flush_array.h \
+	aftermath/core/ompt_cancel_array.h \
 	aftermath/core/openstream_task_instance_array.h \
 	aftermath/core/openstream_task_period_array.h \
 	aftermath/core/openstream_task_type_array.h \

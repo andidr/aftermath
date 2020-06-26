@@ -1,5 +1,6 @@
 /**
  * Author: Andi Drebes <andi@drebesium.org>
+ * Author: Igor Wodiany <igor.wodiany@manchester.ac.uk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as published
@@ -38,6 +39,26 @@
 #include <aftermath/core/openmp_iteration_set_array.h>
 #include <aftermath/core/openmp_iteration_period_array.h>
 
+#include <aftermath/core/ompt_thread_array.h>
+#include <aftermath/core/ompt_parallel_array.h>
+#include <aftermath/core/ompt_task_create_array.h>
+#include <aftermath/core/ompt_task_schedule_array.h>
+#include <aftermath/core/ompt_implicit_task_array.h>
+#include <aftermath/core/ompt_sync_region_wait_array.h>
+#include <aftermath/core/ompt_mutex_released_array.h>
+#include <aftermath/core/ompt_dependences_array.h>
+#include <aftermath/core/ompt_task_dependence_array.h>
+#include <aftermath/core/ompt_work_array.h>
+#include <aftermath/core/ompt_master_array.h>
+#include <aftermath/core/ompt_sync_region_array.h>
+#include <aftermath/core/ompt_lock_init_array.h>
+#include <aftermath/core/ompt_lock_destroy_array.h>
+#include <aftermath/core/ompt_mutex_acquire_array.h>
+#include <aftermath/core/ompt_mutex_acquired_array.h>
+#include <aftermath/core/ompt_nest_lock_array.h>
+#include <aftermath/core/ompt_flush_array.h>
+#include <aftermath/core/ompt_cancel_array.h>
+
 #include <aftermath/core/tensorflow_node_array.h>
 #include <aftermath/core/tensorflow_node_execution_array.h>
 
@@ -72,6 +93,26 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_for_loop_instance_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_for_loop_type_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_period_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_openmp_iteration_set_array)
+
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_thread_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_parallel_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_task_create_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_task_schedule_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_implicit_task_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_sync_region_wait_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_mutex_released_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_dependences_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_task_dependence_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_work_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_master_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_sync_region_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_lock_init_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_lock_destroy_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_mutex_acquire_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_mutex_acquired_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_nest_lock_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_flush_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_cancel_array)
 
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_execution_array)
@@ -118,6 +159,44 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 					      "am::openmp::iteration_period") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_openmp_iteration_set_array,
 					      "am::openmp::iteration_set") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_thread_array,
+					      "am::ompt::thread") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_parallel_array,
+					      "am::ompt::parallel") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_task_create_array,
+					      "am::ompt::task_create") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_task_schedule_array,
+					      "am::ompt::task_schedule") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_implicit_task_array,
+					      "am::ompt::implicit_task") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_sync_region_wait_array,
+					      "am::ompt::sync_region_wait") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_mutex_released_array,
+					      "am::ompt::mutex_released") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_dependences_array,
+					      "am::ompt::dependences") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_task_dependence_array,
+					      "am::ompt::task_dependence") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_work_array,
+					      "am::ompt::work") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_master_array,
+					      "am::ompt::master") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_sync_region_array,
+					      "am::ompt::sync_region") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_lock_init_array,
+					      "am::ompt::lock_init") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_lock_destroy_array,
+					      "am::ompt::lock_destroy") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_mutex_acquire_array,
+					      "am::ompt::mutex_acquire") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_mutex_acquired_array,
+					      "am::ompt::mutex_acquired") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_nest_lock_array,
+					      "am::ompt::nest_lock") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_flush_array,
+					      "am::ompt::flush") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_cancel_array,
+					      "am::ompt::cancel") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_array,
 					      "am::tensorflow::node") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_execution_array,

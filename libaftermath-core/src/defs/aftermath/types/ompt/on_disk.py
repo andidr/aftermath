@@ -35,6 +35,11 @@ am_dsk_ompt_thread = EventFrame(
             field_type = aftermath.types.builtin.uint64_t,
             comment = "Thread type")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_thread,
+    aftermath.types.ompt.in_memory.am_ompt_thread,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_parallel = EventFrame(
@@ -54,6 +59,11 @@ am_dsk_ompt_parallel = EventFrame(
               name = "flags",
               field_type = aftermath.types.builtin.uint16_t,
               comment = "Type of the parallel region")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_parallel,
+    aftermath.types.ompt.in_memory.am_ompt_parallel,
+    "collection_id")
 
 ################################################################################
 
@@ -75,6 +85,11 @@ am_dsk_ompt_task_create = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "True if the task has dependences")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_task_create,
+    aftermath.types.ompt.in_memory.am_ompt_task_create,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_task_schedule = EventFrame(
@@ -90,6 +105,11 @@ am_dsk_ompt_task_schedule = EventFrame(
             name = "prior_task_status",
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Status of the task at the scheduling point")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_task_schedule,
+    aftermath.types.ompt.in_memory.am_ompt_task_schedule,
+    "collection_id")
 
 ################################################################################
 
@@ -115,6 +135,11 @@ am_dsk_ompt_implicit_task = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Indication if the task is initial or implicit")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_implicit_task,
+    aftermath.types.ompt.in_memory.am_ompt_implicit_task,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_sync_region_wait = EventFrame(
@@ -131,6 +156,11 @@ am_dsk_ompt_sync_region_wait = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Argument indicates a type of the synchronization "
                       + "construct")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_sync_region_wait,
+    aftermath.types.ompt.in_memory.am_ompt_sync_region_wait,
+    "collection_id")
 
 ################################################################################
 
@@ -152,6 +182,11 @@ am_dsk_ompt_mutex_released = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Type of the mutual exclusion event")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_mutex_released,
+    aftermath.types.ompt.in_memory.am_ompt_mutex_released,
+    "collection_id")
+
 ###############################################################################
 
 am_dsk_ompt_dependences = EventFrame(
@@ -169,6 +204,11 @@ am_dsk_ompt_dependences = EventFrame(
             field_type = aftermath.types.builtin.uint32_t,
             comment = "Number of dependences")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_dependences,
+    aftermath.types.ompt.in_memory.am_ompt_dependences,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_task_dependence = EventFrame(
@@ -181,6 +221,11 @@ am_dsk_ompt_task_dependence = EventFrame(
             name = "timestamp",
             field_type = aftermath.types.builtin.uint64_t,
             comment = "Time of the event")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_task_dependence,
+    aftermath.types.ompt.in_memory.am_ompt_task_dependence,
+    "collection_id")
 
 ################################################################################
 
@@ -202,6 +247,11 @@ am_dsk_ompt_work = EventFrame(
             field_type = aftermath.types.builtin.uint64_t,
             comment = "Measure of quantity involved in work")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_work,
+    aftermath.types.ompt.in_memory.am_ompt_work,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_master = EventFrame(
@@ -213,6 +263,11 @@ am_dsk_ompt_master = EventFrame(
             name = "interval",
             field_type = aftermath.types.on_disk.am_dsk_interval,
             comment = "Start and end of the execution interval")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_master,
+    aftermath.types.ompt.in_memory.am_ompt_master,
+    "collection_id")
 
 ################################################################################
 
@@ -229,6 +284,11 @@ am_dsk_ompt_sync_region = EventFrame(
             name = "kind",
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Type of the synchronization construct")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_sync_region,
+    aftermath.types.ompt.in_memory.am_ompt_sync_region,
+    "collection_id")
 
 ################################################################################
 
@@ -250,6 +310,11 @@ am_dsk_ompt_lock_init = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Type of the lock")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_lock_init,
+    aftermath.types.ompt.in_memory.am_ompt_lock_init,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_lock_destroy = EventFrame(
@@ -269,6 +334,11 @@ am_dsk_ompt_lock_destroy = EventFrame(
             name = "kind",
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Type of the lock")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_lock_destroy,
+    aftermath.types.ompt.in_memory.am_ompt_lock_destroy,
+    "collection_id")
 
 ################################################################################
 
@@ -298,6 +368,11 @@ am_dsk_ompt_mutex_acquire = EventFrame(
             field_type = aftermath.types.builtin.uint32_t,
             comment = "Mechanism chosen by runtime to implement the mutex")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_mutex_acquire,
+    aftermath.types.ompt.in_memory.am_ompt_mutex_acquire,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_mutex_acquired = EventFrame(
@@ -318,6 +393,11 @@ am_dsk_ompt_mutex_acquired = EventFrame(
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Type of the mutual exclusion")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_mutex_acquired,
+    aftermath.types.ompt.in_memory.am_ompt_mutex_acquired,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_nest_lock = EventFrame(
@@ -334,6 +414,11 @@ am_dsk_ompt_nest_lock = EventFrame(
             field_type = aftermath.types.builtin.uint64_t,
             comment = "ID of the object that is locked")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_nest_lock,
+    aftermath.types.ompt.in_memory.am_ompt_nest_lock,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_flush = EventFrame(
@@ -345,6 +430,11 @@ am_dsk_ompt_flush = EventFrame(
             name = "timestamp",
             field_type = aftermath.types.builtin.uint64_t,
             comment = "Time of the event")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_flush,
+    aftermath.types.ompt.in_memory.am_ompt_flush,
+    "collection_id")
 
 ################################################################################
 
@@ -361,6 +451,11 @@ am_dsk_ompt_cancel = EventFrame(
             name = "flags",
             field_type = aftermath.types.builtin.uint8_t,
             comment = "Cancellation source and cancelled construct information")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_cancel,
+    aftermath.types.ompt.in_memory.am_ompt_cancel,
+    "collection_id")
 
 ################################################################################
 
