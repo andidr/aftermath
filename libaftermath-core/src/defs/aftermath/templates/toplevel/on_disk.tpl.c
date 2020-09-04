@@ -45,6 +45,8 @@
 #include <aftermath/core/ompt_nest_lock_array.h>
 #include <aftermath/core/ompt_flush_array.h>
 #include <aftermath/core/ompt_cancel_array.h>
+#include <aftermath/core/ompt_loop_array.h>
+#include <aftermath/core/ompt_loop_chunk_array.h>
 #include <aftermath/core/openstream_task_instance_array.h>
 #include <aftermath/core/openstream_task_period_array.h>
 #include <aftermath/core/openstream_task_type_array.h>

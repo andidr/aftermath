@@ -525,6 +525,11 @@ am_dsk_ompt_loop = EventFrame(
             field_type = aftermath.types.builtin.uint64_t,
             comment = "Loop body address")]))
 
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_loop,
+    aftermath.types.ompt.in_memory.am_ompt_loop,
+    "collection_id")
+
 ################################################################################
 
 am_dsk_ompt_loop_chunk = EventFrame(
@@ -552,6 +557,11 @@ am_dsk_ompt_loop_chunk = EventFrame(
             name = "is_last",
             field_type = aftermath.types.builtin.int32_t,
             comment = "Is it end of the last period")]))
+
+tags.dsk.tomem.add_per_event_collection_tags(
+    am_dsk_ompt_loop_chunk,
+    aftermath.types.ompt.in_memory.am_ompt_loop_chunk,
+    "collection_id")
 
 ################################################################################
 

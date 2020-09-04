@@ -58,6 +58,8 @@
 #include <aftermath/core/ompt_nest_lock_array.h>
 #include <aftermath/core/ompt_flush_array.h>
 #include <aftermath/core/ompt_cancel_array.h>
+#include <aftermath/core/ompt_loop_array.h>
+#include <aftermath/core/ompt_loop_chunk_array.h>
 
 #include <aftermath/core/tensorflow_node_array.h>
 #include <aftermath/core/tensorflow_node_execution_array.h>
@@ -113,6 +115,8 @@ AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_mutex_acquired_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_nest_lock_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_flush_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_cancel_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_loop_array)
+AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_ompt_loop_chunk_array)
 
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_array)
 AM_DECL_DEFAULT_ARRAY_REGISTRY_FUNCTIONS(am_tensorflow_node_execution_array)
@@ -197,6 +201,10 @@ int am_build_default_trace_array_registry(struct am_array_registry* r)
 					      "am::ompt::flush") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_cancel_array,
 					      "am::ompt::cancel") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_loop_array,
+					      "am::ompt::loop") ||
+	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_ompt_loop_chunk_array,
+					      "am::ompt::loop_chunk") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_array,
 					      "am::tensorflow::node") ||
 	   AM_DEFAULT_ARRAY_REGISTRY_REGISTER(r, am_tensorflow_node_execution_array,

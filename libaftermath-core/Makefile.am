@@ -230,6 +230,8 @@ libaftermath_core_la_SOURCES = src/ansi_extras.c \
 				src/ompt_nest_lock_array.h \
 				src/ompt_flush_array.h \
 				src/ompt_cancel_array.h \
+				src/ompt_loop_array.h \
+				src/ompt_loop_chunk_array.h \
 				src/openstream_task_instance_array.h \
 				src/openstream_task_period_array.h \
 				src/openstream_task_type_array.h \
